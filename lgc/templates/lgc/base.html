@@ -1,41 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title>LGC</title>
-
-    <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-
-    <!-- MetisMenu CSS -->
-    <link href="{% static 'lgc/metisMenu.min.css' %}" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link href="{% static 'lgc/sb-admin-2.css' %}" rel="stylesheet">
-
-    <!-- Morris Charts CSS -->
-    <link href="{% static 'lgc/morris.css' %}" rel="stylesheet">
-
-    <!-- Custom Fonts -->
-    <link href="{% static 'lgc/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
-
-    <link href="{% static 'lgc/lgc.css' %}" rel="stylesheet">
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-	<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-	<![endif]-->
-
-  </head>
-
+  {% include "lgc/header.html" %}
   <body>
     <div id="wrapper">
       <!-- Navigation -->
@@ -225,7 +191,7 @@
               <a class="dropdown-item" href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
               <a class="dropdown-item" href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+              <a class="dropdown-item" href="{% url 'lgc-login' %}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
             </div>
           </li>
         </ul>
@@ -352,26 +318,7 @@
     </div>
     <!-- /#wrapper -->
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-
-    <!-- script src="{% static 'lgc/jquery.min.js' %}"></script-->
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
-
-
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="{% static 'lgc/metisMenu.min.js' %}"></script>
-
-    <!-- DataTables JavaScript -->
-    <script src="{% static 'lgc/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'lgc/dataTables.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'lgc/dataTables.responsive.js' %}"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script src="{% static 'lgc/sb-admin-2.js' %}"></script>
+    {% include "lgc/footer.html" %}
 
     <!-- Page-Level Demo Scripts - Tables - Use for reference -->
     <script>
