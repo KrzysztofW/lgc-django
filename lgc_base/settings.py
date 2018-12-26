@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'users.apps.UsersConfig',
     'lgc.apps.LgcConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -83,7 +84,6 @@ DATABASES = {
         'HOST':'/var/run/mysqld/mysqld.sock',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
