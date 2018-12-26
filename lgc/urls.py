@@ -2,6 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # name is referenced in template .html files
-    path('', views.home, name='home'),
+    path('', views.home, name='lgc-home'),
+    path('tables/', views.tables, name='lgc-tables'),
 ]

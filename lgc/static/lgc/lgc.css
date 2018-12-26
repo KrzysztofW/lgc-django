@@ -5,8 +5,3 @@
 .lgc-grad {
     background-image: linear-gradient(to right, #3355a8, #f8f9fa, #f8f9fa);
 }
-
-.lgc-logo {
-    max-width:50 height: auto;
-}
-/* 	  <img src="{% static 'lgc/logo.png' %}" class="rounded float-left lgc-logo" alt="..."> */
