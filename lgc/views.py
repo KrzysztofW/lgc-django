@@ -8,4 +8,3 @@ def home(request):
 @login_required
 def tables(request):
     return render(request, 'lgc/tables.html', {'title':'Tables'})
-
