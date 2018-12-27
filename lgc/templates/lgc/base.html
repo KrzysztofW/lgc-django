@@ -5,9 +5,9 @@
   <body>
     <div id="wrapper">
       <!-- Navigation -->
-      <header class="align-items-start app-header flex-column flex-md-row navbar navbar-expand-md navbar-light lgc-blue lgc-grad">
+      <header class="align-items-start app-header flex-column flex-md-row navbar navbar-expand-md navbar-light">
 	<div class="align-items-baseline d-flex flex-row navbar-brand p-lg-3 pl-3 pr-3 pt-3">
-          <a class="text-white" href="#">LGC v5.0</a>
+          <a href="#">LGC v5.0</a>
           <button class="collapsed ml-auto navbar-toggler" type="button" data-toggle="collapse"
                   data-target="#side-menu-wrapper" aria-controls="side-menu" aria-expanded="false"
                   aria-label="Toggle navigation" style="
@@ -196,6 +196,10 @@
           </li>
         </ul>
       </header>
+      <div class="lgc-logo-bg">
+	<img id="kw-logo" src="{% static 'lgc/images/kw-logo-left.png' %}">
+      	<img id="kw-logo" align="right" src="{% static 'lgc/images/kw-logo-right.png' %}">
+      </div>
       <div class="d-md-flex">
         <div class="sidebar" role="navigation">
           <div class="sidebar-nav collapse navbar-collapse show" id="side-menu-wrapper">

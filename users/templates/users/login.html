@@ -4,6 +4,13 @@
 <html lang="en">
   {% include "lgc/header.html" %}
   <body>
+    <div class="top-right-corner">
+      <img src="{% static 'lgc/images/top-corner.png' %}"/>
+    </div>
+    <div class="bottom-right-corner">
+      <img src="{% static 'lgc/images/bottom-corner.png' %}"/>
+    </div>
+
     <div class="container">
       <div class="row">
         <div class="col-lg-4 mx-md-auto">
@@ -27,8 +34,8 @@
                       <input class="form-check-input" type="checkbox" name="remember" value="Remember Me">
                       Remember Me</label>
                   </div>
-                  <!-- Change this to a button or input when using this as a form --> <a href="index.html"
-                                                                                         class="btn btn-lg btn-success btn-block">Login</a>
+                  <!-- Change this to a button or input when using this as a form -->
+		  <a href="index.html" class="btn btn-lg btn-lgc btn-block">Login</a>
                 </fieldset>
               </form>
             </div>

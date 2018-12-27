@@ -1,7 +1,33 @@
-.lgc-blue {
-    background-color: #3355a8;
+.top-right-corner {
+    position: absolute;
+    top: 0px;
+    right: 0px;
 }
 
-.lgc-grad {
-    background-image: linear-gradient(to right, #3355a8, #f8f9fa, #f8f9fa);
+.bottom-right-corner {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}
+
+.lgc-logo-bg {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e7e7e7;
+}
+
+@media (max-width: 770px) {
+  img#kw-logo {
+    display: none;
+  }
+}
+.btn-lgc {
+    background-color: #3355a8;
+    color:#FFF;
+    border-color: #2F3E48;
+}
+
+.btn-lgc:hover, .btn-lgc:focus, .btn-lgc:active, .btn-lgc.active, .open .dropdown-toggle.btn-lgc {
+    background-color: #4e6dbc;
+    color:#FFF;
+    border-color: #31347B;
 }
