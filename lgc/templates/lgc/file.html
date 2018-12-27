@@ -1,0 +1,27 @@
+{% extends "lgc/base.html" %}
+{% load i18n %}
+{% block content %}
+
+<nav>
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <a class="nav-item nav-link active" id="nav-information-tab" data-toggle="tab" href="#nav-information" role="tab" aria-controls="nav-information" aria-selected="true">{% trans "Information" %}</a>
+    <a class="nav-item nav-link" id="nav-process-tab" data-toggle="tab" href="#nav-process" role="tab" aria-controls="nav-process" aria-selected="false">{% trans "Process" %}</a>
+    <a class="nav-item nav-link" id="nav-invoice-tab" data-toggle="tab" href="#nav-invoice" role="tab" aria-controls="nav-invoice" aria-selected="false">{% trans "Invoice" %}</a>
+    <a class="nav-item nav-link" id="nav-docs-tab" data-toggle="tab" href="#nav-docs" role="tab" aria-controls="nav-docs" aria-selected="false">{% trans "Documents" %}</a>
+  </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-information" role="tabpanel" aria-labelledby="nav-info-tab">
+    Information
+  </div>
+  <div class="tab-pane fade" id="nav-process" role="tabpanel" aria-labelledby="nav-process-tab">
+    Process
+  </div>
+  <div class="tab-pane fade" id="nav-invoice" role="tabpanel" aria-labelledby="nav-invoice-tab">
+    Invoice
+  </div>
+  <div class="tab-pane fade" id="nav-docs" role="tabpanel" aria-labelledby="nav-docs-tab">
+    Documents
+  </div>
+</div>
+{% endblock content %}

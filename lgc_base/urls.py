@@ -27,4 +27,5 @@ urlpatterns += i18n_patterns(
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='lgc-login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='lgc-logout'),
     path('', include('lgc.urls')),
+    path('file/', lgc_views.file, name='lgc-file'),
 )
