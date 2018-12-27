@@ -1,0 +1,43 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-12-27 16:59+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: users/templates/users/login.html:22
+msgid "Please Sign In"
+msgstr "Connectez-vous"
+
+#: users/templates/users/login.html:33
+msgid "Password"
+msgstr "Mot de passe"
+
+#: users/templates/users/login.html:39
+msgid "Remember Me"
+msgstr "Se rappeler de moi"
+
+#: users/templates/users/login.html:43
+msgid "Login"
+msgstr "Se connecter"
+
+#: users/templates/users/logout.html:9
+msgid "You have been logged out."
+msgstr "Vous avez été déconnecté."
+
+#: users/templates/users/logout.html:10
+msgid "Log In Again."
+msgstr "Se reconnecter."

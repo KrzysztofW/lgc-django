@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load static %}
 
 <!DOCTYPE html>
@@ -13,37 +14,39 @@
 
     <div class="container">
       <div class="row">
-        <div class="col-lg-4 mx-md-auto">
-          <div class="login-panel card">
+	<div class="col-lg-4 mx-md-auto">
+	  <div class="login-panel card">
             <div class="card-header">
-              <h3 class="card-title">Please Sign In</h3>
+              <h3 class="card-title">
+		{% trans "Please Sign In" %}
+	      </h3>
             </div>
             <div class="card-body">
-              <form role="form">
-                <fieldset>
-                  <div class="form-group">
-                    <input class="form-control" placeholder="E-mail" name="email" type="email"
-                           autofocus>
-                  </div>
-                  <div class="form-group">
-                    <input class="form-control" placeholder="Password" name="password" type="password"
-                           value="">
-                  </div>
-                  <div class="form-check">
+              <form role="form" method="POST">
+		{% csrf_token %}
+		<fieldset>
+		  <div class="form-group">
+                    <input class="form-control" placeholder="{% trans "Username" %}" name="username" type="text" autofocus>
+		  </div>
+		  <div class="form-group">
+                    <input class="form-control" placeholder="{% trans "Password" %}" name="password" type="password">
+		  </div>
+		  <div class="form-check">
                     <label class="form-check-label">
                       <input class="form-check-input" type="checkbox" name="remember" value="Remember Me">
-                      Remember Me</label>
-                  </div>
-                  <!-- Change this to a button or input when using this as a form -->
-		  <a href="index.html" class="btn btn-lg btn-lgc btn-block">Login</a>
-                </fieldset>
+                      {% trans "Remember Me" %}</label>
+		  </div>
+		  <!-- Change this to a button or input when using this as a form -->
+		  <button class="btn btn-lg btn-lgc btn-block" type="submit">
+		    {% trans "Login" %}
+		  </button>
+		</fieldset>
               </form>
             </div>
-          </div>
-        </div>
+	  </div>
+	</div>
       </div>
     </div>
     {% include "lgc/footer.html" %}
   </body>
-
 </html>

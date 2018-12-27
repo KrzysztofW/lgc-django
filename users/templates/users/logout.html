@@ -1,0 +1,22 @@
+{% load i18n %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  {% include "lgc/header.html" %}
+  <body>
+    <div class="alert alert-success" role="alert">
+      {% trans "You have been logged out." %}
+      <a href="{% url 'lgc-login' %}">{% trans "Log In Again." %}</a>
+    </div>
+
+    <div class="top-right-corner">
+      <img src="{% static 'lgc/images/top-corner.png' %}"/>
+    </div>
+    <div class="bottom-right-corner">
+      <img src="{% static 'lgc/images/bottom-corner.png' %}"/>
+    </div>
+
+    {% include "lgc/footer.html" %}
+  </body>
+</html>
