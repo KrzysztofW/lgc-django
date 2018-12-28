@@ -18,14 +18,20 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 from lgc import views as lgc_views
+from users import views as users_views
+from users.views import (UserListView, UserDetailView, UserUpdateView,
+                         UserDeleteView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
 urlpatterns += i18n_patterns(
-    path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='lgc-login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='lgc-logout'),
+    path('login/', auth_views.LoginView.as_view(template_name='users/login.html'),
+         name='lgc-login'),
+    path('logout/', users_views.logout_then_login_with_msg, name='lgc-logout'),
     path('', include('lgc.urls')),
     path('file/', lgc_views.file, name='lgc-file'),
+    path('user-create/', users_views.create, name='lgc-user-create'),
+    path('users/', UserListView.as_view(), name='lgc-users'),
 )

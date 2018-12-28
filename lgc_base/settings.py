@@ -25,13 +25,14 @@ SECRET_KEY = '7g&a3%b538z5&#-4ud7q@eqnz!+lufnbgq1adk!ei#@0=o4a2j'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["2.2.2.2"]
 
 # Application definition
 
 INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'lgc.apps.LgcConfig',
+    'crispy_forms',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -118,3 +119,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = 'lgc-home'
 LOGIN_URL = 'lgc-login'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

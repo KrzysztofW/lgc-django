@@ -1,0 +1,143 @@
+{% extends "lgc/base.html" %}
+{% load i18n %}
+{% block content %}
+
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card">
+      <div class="card-header">
+	<div class="float-left">
+	  {% blocktrans with number=page_obj.paginator.count %}Found {{ number }} user(s){% endblocktrans %}
+	</div>
+	<div class="float-right">
+	  <a class="btn btn-outline-info btn-lgc" href="{% url 'lgc-user-create' %}">
+	    {% trans "Add user" %}</a>
+	</div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+	<div class="row"><div class="col-sm-12 col-md-6">
+	    <div class="dataTables_length">
+	      {% if page_obj.paginator.count > 10 %}
+	      <label>Show
+		<select name="paginate" class="form-control form-control-sm" onchange="window.location='{% url 'lgc-users' %}?{{ paginate_params }}&paginate='+this.value">
+
+		  <option value="10" {{ 10_selected }}>10</option>
+		  <option value="25" {{ 25_selected }}>25</option>
+		  {% if page_obj.paginator.count > 25 %}
+		  <option value="50" {{ 50_selected }}>50</option>
+		  {% if page_obj.paginator.count > 50 %}
+		  <option value="100" {{ 100_selected }}>100</option>
+		  {% endif %}
+		  {% endif %}
+		</select>
+		entries
+	      </label>
+	      {% endif %}
+	    </div>
+	  </div>
+	  <div class="col-sm-12 col-md-6">
+	    <div id="dataTables-example_filter" class="dataTables_filter">
+	      <label>Search:
+		<input type="search" class="form-control form-control-sm" placeholder="" aria-controls="dataTables-example">
+	      </label>
+	    </div>
+	  </div>
+	</div>
+	<table class="table table-striped table-bordered table-hover">
+	  <thead>
+	    <tr>
+	      <th scope="col">{% trans "Username" %}
+		{% if order_by == "username" %}
+		<a href="?{{ order_params }}&order_by=-username"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-username" %}
+		<a href="?{{ order_params }}&order_by=username"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=username"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	      <th scope="col">{% trans "E-mail" %}
+		{% if order_by == "email" %}
+		<a href="?{{ order_params }}&order_by=-email"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-email" %}
+		<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	      <th scope="col">{% trans "First name" %}
+		{% if order_by == "first_name" %}
+		<a href="?{{ order_params }}&order_by=-first_name"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-first_name" %}
+		<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	      <th scope="col">{% trans "Last name" %}
+		{% if order_by == "last_name" %}
+		<a href="?{{ order_params }}&order_by=-last_name"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-last_name" %}
+		<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	      <th scope="col">{% trans "Role" %}
+		{% if order_by == "profile" %}
+		<a href="?{{ order_params }}&order_by=-profile"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-profile" %}
+		<a href="?{{ order_params }}&order_by=profile"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=profile"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for user in users %}
+	    <tr>
+	      <td>{{ user.username }}</td>
+	      <td>{{ user.email }}</td>
+	      <td>{{ user.first_name }}</td>
+	      <td>{{ user.last_name }}</td>
+	      <td>{{ user.profile.get_role_display }}</td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+	<div class="row mb-1 align-items-baseline">
+	  <div class="col-sm-12 col-md-5">
+	    <div class="dataTables_info" id="dataTables-example_info" role="status" aria-live="polite">
+	      Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+	    </div>
+	  </div>
+	  <div class="col-sm-12 col-md-7">
+	    <div class="dataTables_paginate paging_simple_numbers">
+	      {% if is_paginated %}
+	      {% if page_obj.has_previous %}
+              <a class="btn btn-outline-info mb-4" href="?page=1&{{ page_params }}">First</a>
+              <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}&{{ page_params }}">Previous</a>
+	      {% endif %}
+
+	      {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+              <a class="btn btn-info btn-lgc mb-4" href="?page={{ num }}&{{ page_params }}">{{ num }}</a>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <a class="btn btn-outline-info mb-4" href="?page={{ num }}&{{ page_params }}">{{ num }}</a>
+	      {% endif %}
+	      {% endfor %}
+
+	      {% if page_obj.has_next %}
+	      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}&{{ page_params }}">Next</a>
+	      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}&{{ page_params }}">Last</a>
+	      {% endif %}
+	      {% endif %}
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

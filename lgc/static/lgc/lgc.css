@@ -31,3 +31,7 @@
     color:#FFF;
     border-color: #31347B;
 }
+
+.lgc-sorting-muted {
+    color: rgba(50, 50, 50, 0.5); }
+}

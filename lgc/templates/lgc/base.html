@@ -4,6 +4,14 @@
 <html lang="en">
   {% include "lgc/header.html" %}
   <body>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
     <div id="wrapper">
       <!-- Navigation -->
       <header class="align-items-start app-header flex-column flex-md-row navbar navbar-expand-md navbar-light">
@@ -220,7 +228,7 @@
                 <a href="{% url 'lgc-home' %}"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
               </li>
 	      <li class="list-group-item">
-                <a href="{% url 'lgc-file' %}"><i class="fa fa-edit fa-fw"></i> {% trans "New file" %}</a>
+		<a href="#"><i class="fa fa-files-o fa-fw"></i> Files</a>
               </li>
               <li class="list-group-item">
                 <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
@@ -296,10 +304,10 @@
                 <!-- /.nav-second-level -->
               </li>
               <li class="list-group-item">
-                <a href="#"><i class="fa fa-files-o fa-fw"></i> Sample Pages<span class="fa arrow"></span></a>
+		<a href="#"><i class="fa fa-wrench fa-fw"></i> Admin<span class="fa arrow"></span></a>
                 <ul class="nav-second-level list-group nested">
                   <li class="list-group-item">
-                    <a href="blank.html">Blank Page</a>
+                    <a href="{% url "lgc-users" %} ">{% trans "Users" %}</a>
                   </li>
                   <li class="list-group-item">
                     <a href="login.html">Login Page</a>
