@@ -19,8 +19,7 @@ from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 from lgc import views as lgc_views
 from users import views as users_views
-from users.views import (UserListView, UserDetailView, UserUpdateView,
-                         UserDeleteView)
+from users.views import (UserListView, UserDeleteView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,4 +34,5 @@ urlpatterns += i18n_patterns(
     path('user-create/', users_views.create, name='lgc-user-create'),
     path('users/', UserListView.as_view(), name='lgc-users'),
     path('users/search/ajax/', users_views.ajax_view, name='lgc-user-search-ajax'),
+    path('user/<int:user_id>/', users_views.update, name='lgc-user'),
 )

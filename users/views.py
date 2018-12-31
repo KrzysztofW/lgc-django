@@ -1,4 +1,5 @@
 from urllib.parse import urlencode
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
@@ -7,7 +8,7 @@ from django.contrib.auth.views import logout_then_login
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
 from .models import Profile
-from .forms import UserCreateForm, ProfileUpdateForm
+from .forms import UserCreateForm, UserUpdateForm, ProfileCreateForm
 from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 
@@ -61,9 +62,15 @@ class UserListView(LoginRequiredMixin, ListView):
 
 class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
+    template_name = "users/user.html"
+    context_object_name = 'context'
 
-class UserUpdateView(LoginRequiredMixin, UpdateView):
-    model = User
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['u_form'] = UserCreateForm()
+        context['p_form'] = ProfileCreateForm()
+
+        return context
 
 class UserDeleteView(LoginRequiredMixin, DeleteView):
     model = User
@@ -72,7 +79,7 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
 def create(request):
     if request.method == 'POST':
         u_form = UserCreateForm(request.POST)
-        p_form = ProfileUpdateForm(request.POST)
+        p_form = ProfileCreateForm(request.POST)
 
         if u_form.is_valid() and p_form.is_valid():
             user = u_form.save()
@@ -90,11 +97,42 @@ def create(request):
         }
         return render(request, 'users/create.html', context)
 
-    u_form = UserCreateForm()
-    p_form = ProfileUpdateForm()
     context = {
-        'u_form': u_form,
-        'p_form': p_form
+        'u_form': UserCreateForm(),
+        'p_form': ProfileCreateForm()
+    }
+    return render(request, 'users/create.html', context)
+
+@login_required
+def update(request, user_id):
+    user = User.objects.filter(id=user_id)
+
+    if user.count() != 1:
+        raise Http404
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=user[0])
+        p_form = ProfileCreateForm(request.POST, instance=user[0].profile)
+
+        if u_form.is_valid() and p_form.is_valid():
+            user = u_form.save()
+            profile = p_form.save(commit=False)
+            profile.user = user
+            profile.save()
+            username = u_form.cleaned_data.get('username')
+            messages.success(request,
+                             _('The account for %(username)s has been updated') %
+                             { 'username': username})
+            return redirect('lgc-users')
+        context = {
+            'u_form': u_form,
+            'p_form': p_form,
+            'update': 1,
+        }
+        return render(request, 'users/create.html', context)
+    context = {
+        'u_form': UserUpdateForm(instance=user[0]),
+        'p_form': ProfileCreateForm(instance=user[0].profile),
+        'update': 1,
     }
     return render(request, 'users/create.html', context)
 
