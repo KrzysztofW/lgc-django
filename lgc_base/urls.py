@@ -34,4 +34,5 @@ urlpatterns += i18n_patterns(
     path('file/', lgc_views.file, name='lgc-file'),
     path('user-create/', users_views.create, name='lgc-user-create'),
     path('users/', UserListView.as_view(), name='lgc-users'),
+    path('users/search/ajax/', users_views.ajax_view, name='lgc-user-search-ajax'),
 )

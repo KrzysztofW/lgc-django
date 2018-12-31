@@ -22,6 +22,11 @@ class UserListView(LoginRequiredMixin, ListView):
     def get_paginate_by(self, queryset):
         return self.request.GET.get('paginate', '10')
 
+    def get_queryset(self):
+        term = self.request.GET.get('term', '')
+        order_by = self.request.GET.get('order_by', '-date_joined')
+        return User.objects.filter(username__icontains=term).order_by(order_by)|User.objects.filter(email__icontains=term)|User.objects.filter(first_name__icontains=term)|User.objects.filter(last_name__icontains=term)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         order_by = self.request.GET.get('order_by', '-date_joined')
@@ -101,3 +106,24 @@ def profile(request):
 def logout_then_login_with_msg(request):
     messages.success(request, _('You were successfully logged-out.'))
     return logout_then_login(request)
+
+@login_required
+def ajax_view(request):
+    term = request.GET.get('term', '')
+    users = User.objects.filter(username__icontains=term)
+    users = User.objects.filter(username__icontains=term)|User.objects.filter(email__icontains=term)|User.objects.filter(first_name__icontains=term)|User.objects.filter(last_name__icontains=term)
+    users = users[:10]
+
+    for u in users:
+        if term in u.username.lower():
+            u.b_username = u.username.lower()
+        elif term in u.email.lower():
+            u.b_email = u.email.lower()
+        elif term in u.first_name.lower():
+            u.b_first_name = u.first_name.lower()
+        elif term in u.last_name.lower():
+            u.b_last_name = u.last_name.lower()
+    context = {
+        'users': users
+    }
+    return render(request, 'users/search.html', context)

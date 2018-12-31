@@ -337,16 +337,7 @@
     {% include "lgc/footer.html" %}
 
     <!-- Page-Level Demo Scripts - Tables - Use for reference -->
-    <script>
-      $(document).ready(function () {
-      $('#dataTables-example').DataTable({
-      responsive: true,
-      drawCallback: function () {
-      $('#dataTables-example_wrapper .row:last-child').addClass('mb-1 align-items-baseline');
-      }
-      });
-      });
-    </script>
+    {% block javascript %}{% endblock %}
   </body>
 
 </html>
