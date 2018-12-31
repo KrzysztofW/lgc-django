@@ -108,8 +108,8 @@
 	  </thead>
 	  <tbody>
 	    {% for user in users %}
-	    <tr>
-	      <td><a href = "{% url 'lgc-user' user.id %}">{{ user.username }}</a></td>
+	    <tr class="clickable-row" data-href="{% url 'lgc-user' user.id %}">
+	      <td>{{ user.username }}</td>
 	      <td>{{ user.email }}</td>
 	      <td>{{ user.first_name }}</td>
 	      <td>{{ user.last_name }}</td>
@@ -160,6 +160,9 @@ var url;
 
 $(document).ready(function(){
     url = $("#search").attr("ajax-search");
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
 });
 
 $("#user_search").keyup(function (event) {
