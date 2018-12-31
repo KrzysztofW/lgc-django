@@ -19,6 +19,9 @@
     </fieldset>
     <div class="form-group">
       <button class="btn btn-outline-info" type="submit">{% trans "Submit" %}</button>
+      {% if update %}
+      <a href="{% url 'lgc-user-delete' user_id %}" class="btn btn-outline-danger">{% trans "Delete" %}</a>
+      {% endif %}
     </div>
   </form>
 </div>

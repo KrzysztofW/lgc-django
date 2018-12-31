@@ -1,5 +1,6 @@
 from urllib.parse import urlencode
 from django.http import Http404
+from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
@@ -74,6 +75,13 @@ class UserDetailView(LoginRequiredMixin, DetailView):
 
 class UserDeleteView(LoginRequiredMixin, DeleteView):
     model = User
+    template_name = 'users/confirm_delete.html'
+    success_url = reverse_lazy('lgc-users')
+    success_message = _("User deleted successfully.")
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
 @login_required
 def create(request):
@@ -127,12 +135,14 @@ def update(request, user_id):
             'u_form': u_form,
             'p_form': p_form,
             'update': 1,
+            'user_id': user_id,
         }
         return render(request, 'users/create.html', context)
     context = {
         'u_form': UserUpdateForm(instance=user[0]),
         'p_form': ProfileCreateForm(instance=user[0].profile),
         'update': 1,
+        'user_id': user_id,
     }
     return render(request, 'users/create.html', context)
 
