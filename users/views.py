@@ -61,18 +61,6 @@ class UserListView(LoginRequiredMixin, ListView):
             context['10_selected'] = "selected"
         return context
 
-class UserDetailView(LoginRequiredMixin, DetailView):
-    model = User
-    template_name = "users/user.html"
-    context_object_name = 'context'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['u_form'] = UserCreateForm()
-        context['p_form'] = ProfileCreateForm()
-
-        return context
-
 class UserDeleteView(LoginRequiredMixin, DeleteView):
     model = User
     template_name = 'users/confirm_delete.html'
