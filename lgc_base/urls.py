@@ -14,26 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 from lgc import views as lgc_views
-from users import views as users_views
-from users.views import (UserListView, UserDeleteView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
 urlpatterns += i18n_patterns(
-    path('login/', auth_views.LoginView.as_view(template_name='users/login.html'),
-         name='lgc-login'),
-    path('logout/', users_views.logout_then_login_with_msg, name='lgc-logout'),
     path('', include('lgc.urls')),
+    path('user/', include('users.urls')),
     path('file/', lgc_views.file, name='lgc-file'),
-    path('user-create/', users_views.create, name='lgc-user-create'),
-    path('users/', UserListView.as_view(), name='lgc-users'),
-    path('user-delete/<int:pk>/', UserDeleteView.as_view(), name='lgc-user-delete'),
-    path('users/search/ajax/', users_views.ajax_view, name='lgc-user-search-ajax'),
-    path('user/<int:user_id>/', users_views.update, name='lgc-user'),
 )
