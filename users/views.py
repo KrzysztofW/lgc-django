@@ -8,15 +8,28 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout_then_login
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
+from functools import wraps
 from .models import Profile
 from .forms import UserCreateForm, UserUpdateForm, ProfileCreateForm, UserPasswordUpdateForm
 from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 
-class UserListView(LoginRequiredMixin, ListView):
+def must_be_staff(view_func):
+    @wraps(view_func)
+    def func_wrapper(request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+    return func_wrapper
+
+class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = User
     template_name = 'users/list.html'
     context_object_name = 'users'
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def get_ordering(self):
         return self.request.GET.get('order_by', '-date_joined')
@@ -61,17 +74,24 @@ class UserListView(LoginRequiredMixin, ListView):
             context['10_selected'] = "selected"
         return context
 
-class UserDeleteView(LoginRequiredMixin, DeleteView):
+        def test_func(self):
+            return self.request.user.is_staff
+
+class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
     template_name = 'users/confirm_delete.html'
     success_url = reverse_lazy('lgc-users')
     success_message = _("User deleted successfully.")
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
 @login_required
+@must_be_staff
 def create(request):
     if request.method == 'POST':
         u_form = UserCreateForm(request.POST)
@@ -100,6 +120,7 @@ def create(request):
     return render(request, 'users/create.html', context)
 
 @login_required
+@must_be_staff
 def password_reset(request, user_id):
     user = User.objects.filter(id=user_id)
 
@@ -126,6 +147,7 @@ def password_reset(request, user_id):
     return render(request, 'users/password_reset.html', context)
 
 @login_required
+@must_be_staff
 def update(request, user_id):
     user = User.objects.filter(id=user_id)
 
@@ -176,6 +198,7 @@ def update(request, user_id):
     return render(request, 'users/create.html', context)
 
 @login_required
+@must_be_staff
 def profile(request):
     return render(request, 'users/profile.html')
 
@@ -185,6 +208,7 @@ def logout_then_login_with_msg(request):
     return logout_then_login(request)
 
 @login_required
+@must_be_staff
 def ajax_view(request):
     term = request.GET.get('term', '')
     users = User.objects.filter(username__icontains=term)
