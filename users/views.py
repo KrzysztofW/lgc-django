@@ -117,9 +117,19 @@ def update(request, user_id):
 
     if user.count() != 1:
         raise Http404
+    try:
+        user[0].profile
+    except:
+        profile_exists = False
+    else:
+        profile_exists = True
+
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=user[0])
-        p_form = ProfileCreateForm(request.POST, instance=user[0].profile)
+        if profile_exists:
+            p_form = ProfileCreateForm(request.POST, instance=user[0].profile)
+        else:
+            p_form = ProfileCreateForm(request.POST)
 
         if u_form.is_valid() and p_form.is_valid():
             user = u_form.save()
@@ -138,9 +148,14 @@ def update(request, user_id):
             'user_id': user_id,
         }
         return render(request, 'users/create.html', context)
+
+    if profile_exists:
+        p_form = ProfileCreateForm(instance=user[0].profile)
+    else:
+        p_form = ProfileCreateForm
     context = {
         'u_form': UserUpdateForm(instance=user[0]),
-        'p_form': ProfileCreateForm(instance=user[0].profile),
+        'p_form': p_form,
         'update': 1,
         'user_id': user_id,
     }
