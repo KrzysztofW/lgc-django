@@ -12,4 +12,5 @@ urlpatterns = [
     path('delete/<int:pk>/', UserDeleteView.as_view(), name='lgc-user-delete'),
     path('search/ajax/', views.ajax_view, name='lgc-user-search-ajax'),
     path('<int:user_id>/', views.update, name='lgc-user'),
+    path('pw-reset/<int:user_id>/', views.password_reset, name='lgc-pw-reset'),
 ]

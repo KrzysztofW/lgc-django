@@ -9,7 +9,7 @@ from django.contrib.auth.views import logout_then_login
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User
 from .models import Profile
-from .forms import UserCreateForm, UserUpdateForm, ProfileCreateForm
+from .forms import UserCreateForm, UserUpdateForm, ProfileCreateForm, UserPasswordUpdateForm
 from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 
@@ -98,6 +98,32 @@ def create(request):
         'p_form': ProfileCreateForm()
     }
     return render(request, 'users/create.html', context)
+
+@login_required
+def password_reset(request, user_id):
+    user = User.objects.filter(id=user_id)
+
+    if user.count() != 1:
+        raise Http404
+    if request.method == 'POST':
+        form = UserPasswordUpdateForm(request.POST, instance=user[0])
+        if form.is_valid():
+            form.save()
+            messages.success(request,
+                             _('The password for %(username)s has been successfully updated') %
+                             { 'username': user[0].username})
+            return redirect('lgc-user', user[0].id)
+        context = {
+            'form': form,
+            'user': user[0]
+        }
+        return render(request, 'users/password_reset.html', context)
+
+    context = {
+        'form': UserPasswordUpdateForm(),
+        'user': user[0]
+    }
+    return render(request, 'users/password_reset.html', context)
 
 @login_required
 def update(request, user_id):
