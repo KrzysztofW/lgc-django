@@ -12,11 +12,10 @@ class Profile(models.Model):
     )
     role = models.CharField(max_length=2, choices=ROLE_CHOICES,
                             default=JURISTE)
-    class Meta:
-        ordering = ['role']
+    billing = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{self.user.username} Profile"
+        return self.user.username, "role:", self.role, "billing:", str(self.billing)
 
     def save(self, force_insert=False, *args, **kwargs):
         super().save()

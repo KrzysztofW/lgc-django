@@ -96,14 +96,24 @@
 		{% endif %}
 	      </th>
 	      <th scope="col">{% trans "Role" %}
-		{% if order_by == "profile" %}
-		<a href="?{{ order_params }}&order_by=-profile"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% if order_by == "profile__role" %}
+		<a href="?{{ order_params }}&order_by=-profile__role"><i class="fa fa-fw fa-sort-asc"></i></a>
 		{% elif order_by == "-profile" %}
-		<a href="?{{ order_params }}&order_by=profile"><i class="fa fa-fw fa-sort-desc"></i></a>
+		<a href="?{{ order_params }}&order_by=profile__role"><i class="fa fa-fw fa-sort-desc"></i></a>
 		{% else %}
-		<a href="?{{ order_params }}&order_by=profile"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		<a href="?{{ order_params }}&order_by=profile__role"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
+	      <th scope="col">{% trans "Biling" %}
+		{% if order_by == "profile__billing" %}
+		<a href="?{{ order_params }}&order_by=-profile__billing"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-profile__billing" %}
+		<a href="?{{ order_params }}&order_by=profile__billing"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=profile__billing"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+
 	    </tr>
 	  </thead>
 	  <tbody>
@@ -114,6 +124,11 @@
 	      <td>{{ user.first_name }}</td>
 	      <td>{{ user.last_name }}</td>
 	      <td>{{ user.profile.get_role_display }}</td>
+	      <td>
+		{% if user.profile.billing %}
+		<i class="fa fa-fw fa-check lgc-sorting-muted"></i>
+		{% endif %}
+	      </td>
 	    </tr>
 	    {% endfor %}
 	  </tbody>
