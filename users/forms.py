@@ -21,4 +21,4 @@ class UserPasswordUpdateForm(UserCreationForm):
 class ProfileCreateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['role', 'billing']
+        exclude = ['user']
