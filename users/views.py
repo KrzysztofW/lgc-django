@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout_then_login
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from functools import wraps
