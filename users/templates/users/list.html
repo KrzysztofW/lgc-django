@@ -95,7 +95,7 @@
 		<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
-	      <th scope="col">{% trans "Role" %}
+	      <th scope="col" style="width: 100px">{% trans "Role" %}
 		{% if order_by == "profile__role" %}
 		<a href="?{{ order_params }}&order_by=-profile__role"><i class="fa fa-fw fa-sort-asc"></i></a>
 		{% elif order_by == "-profile" %}
@@ -104,7 +104,7 @@
 		<a href="?{{ order_params }}&order_by=profile__role"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
-	      <th scope="col">{% trans "Biling" %}
+	      <th scope="col" style="width: 100px">{% trans "Billing" %}
 		{% if order_by == "profile__billing" %}
 		<a href="?{{ order_params }}&order_by=-profile__billing"><i class="fa fa-fw fa-sort-asc"></i></a>
 		{% elif order_by == "-profile__billing" %}
