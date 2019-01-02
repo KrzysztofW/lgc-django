@@ -1,3 +1,8 @@
+mysql
+=====
+
+grant select,insert,update,delete,drop,create,alter,references,index on lgc_v5.* to 'lgc'@'localhost';
+
 UTF-8 default charset
 ---------------------
 

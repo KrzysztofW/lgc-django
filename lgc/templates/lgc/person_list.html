@@ -1,0 +1,292 @@
+{% extends "lgc/base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card">
+      <div class="card-header">
+	<div class="float-left">
+	  {% blocktrans with number=page_obj.paginator.count %}Found {{ number }} file(s){% endblocktrans %}
+	</div>
+	<div class="float-right">
+	  <a class="btn btn-outline-info btn-lgc" href="{% url 'lgc-file-create' %}">
+	    {% trans "Add file" %}</a>
+	</div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+	<div class="row"><div class="col-sm-12 col-md-6">
+	    <div class="dataTables_length">
+	      {% if page_obj.paginator.count > 10 %}
+	      <label>Show
+		<select name="paginate" class="form-control form-control-sm" onchange="window.location='{% url 'lgc-files' %}?{{ paginate_params }}&paginate='+this.value">
+
+		  <option value="10" {{ 10_selected }}>10</option>
+		  <option value="25" {{ 25_selected }}>25</option>
+		  {% if page_obj.paginator.count > 25 %}
+		  <option value="50" {{ 50_selected }}>50</option>
+		  {% if page_obj.paginator.count > 50 %}
+		  <option value="100" {{ 100_selected }}>100</option>
+		  {% endif %}
+		  {% endif %}
+		</select>
+		entries
+	      </label>
+	      {% endif %}
+	    </div>
+	  </div>
+	  <div class="col-sm-12 col-md-6">
+	    <div class="dataTables_filter">
+	      <form id="search" ajax-search="{% url 'lgc-user-search-ajax' %}" method="get" action="{% url 'lgc-files' %}">
+		<div class="input-group custom-search-form">
+                  <input type="text" class="form-control" name="term" value="{{ request.GET.term }}" id="person_search" placeholder="{% trans 'Search...' %}" autocomplete="off" onfocus="this.selectionStart = this.selectionEnd = this.value.length;
+" autofocus>
+                  <span class="input-group-btn">
+                    <button class="btn btn-white" type="submit">
+                      <i class="fa fa-search"></i>
+                    </button>
+                  </span>
+		</div>
+	      </form>
+	    </div>
+	    <label>
+		<span id="search-result-container"></span>
+	      </label>
+
+	  </div>
+	</div>
+	<table class="table table-striped table-bordered table-hover">
+	  <thead>
+	    <tr>
+	      <th scope="col">{% trans "E-mail" %}
+		{% if order_by == "email" %}
+		<a href="?{{ order_params }}&order_by=-email"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-email" %}
+		<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	      <th scope="col">{% trans "First name" %}
+		{% if order_by == "first_name" %}
+		<a href="?{{ order_params }}&order_by=-first_name"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-first_name" %}
+		<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	      <th scope="col">{% trans "Last name" %}
+		{% if order_by == "last_name" %}
+		<a href="?{{ order_params }}&order_by=-last_name"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-last_name" %}
+		<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	      <th scope="col">{% trans "Birth Date" %}
+		{% if order_by == "birth_date" %}
+		<a href="?{{ order_params }}&order_by=-birth_date"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-birth_date" %}
+		<a href="?{{ order_params }}&order_by=birth_date"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=birth_date"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+	      <th scope="col">{% trans "Created" %}
+		{% if order_by == "creation_date" %}
+		<a href="?{{ order_params }}&order_by=-creation_date"><i class="fa fa-fw fa-sort-asc"></i></a>
+		{% elif order_by == "-creation_date" %}
+		<a href="?{{ order_params }}&order_by=creation_date"><i class="fa fa-fw fa-sort-desc"></i></a>
+		{% else %}
+		<a href="?{{ order_params }}&order_by=creation_date"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+		{% endif %}
+	      </th>
+
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for person in persons %}
+	    <tr class="clickable-row" data-href="{% url 'lgc-file' person.id %}">
+	      <td>{{ person.email }}</td>
+	      <td>{{ person.first_name }}</td>
+	      <td>{{ person.last_name }}</td>
+	      <td>{{ person.birth_date }}</td>
+	      <td>
+		{{ person.creation_date|date }}
+		{{ person.creation_date|time:'H:i:s' }}
+	      </td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+	<div class="row mb-1 align-items-baseline">
+	  <div class="col-sm-12 col-md-5">
+	    <div class="dataTables_info" id="dataTables-example_info" role="status" aria-live="polite">
+	      Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} entries
+	    </div>
+	  </div>
+	  <div class="col-sm-12 col-md-7">
+	    <div class="dataTables_paginate paging_simple_numbers">
+	      {% if is_paginated %}
+	      {% if page_obj.has_previous %}
+              <a class="btn btn-outline-info mb-4" href="?page=1&{{ page_params }}">First</a>
+              <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}&{{ page_params }}">Previous</a>
+	      {% endif %}
+
+	      {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+              <a class="btn btn-info btn-lgc mb-4" href="?page={{ num }}&{{ page_params }}">{{ num }}</a>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+              <a class="btn btn-outline-info mb-4" href="?page={{ num }}&{{ page_params }}">{{ num }}</a>
+	      {% endif %}
+	      {% endfor %}
+
+	      {% if page_obj.has_next %}
+	      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}&{{ page_params }}">Next</a>
+	      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}&{{ page_params }}">Last</a>
+	      {% endif %}
+	      {% endif %}
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<script>
+var url;
+
+$(document).ready(function(){
+    url = $("#search").attr("ajax-search");
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+
+$("#person_search").keyup(function (event) {
+    var term = $("#person_search").val();
+    if (term.length < 2)
+	return;
+    if (event.keyCode === 13) {
+	$("#search").submit();
+	return;
+    }
+    if (event.keyCode == 40 || event.keyCode == 38)
+	return;
+    $.ajax({
+        url: url,
+        data: {
+            'term': term
+        },
+        success: function (data) {
+	    var array;
+
+	    data = data.replace(/,\n/gm, "");
+	    data = data.replace(/\n/gm, "");
+	    if (data != "")
+		array = data.split(/,/);
+	    autocomplete(document.getElementById("person_search"), array);
+        }
+    });
+});
+
+function autocomplete(inp, arr) {
+    var currentFocus = -1;
+
+    inp.addEventListener("input", function(e) {
+	var a, b, i, val = this.value;
+	/* close any already open lists of autocompleted values */
+	closeAllLists();
+	if (!val || typeof arr == 'undefined')
+	    return false;
+
+	currentFocus = -1;
+	/* create a DIV element that will contain the items (values): */
+	a = document.createElement("DIV");
+	a.setAttribute("id", this.id + "autocomplete-list");
+	a.setAttribute("class", "autocomplete-items");
+	/* append the DIV element as a child of the autocomplete container: */
+	this.parentNode.appendChild(a);
+	/* for each item in the array... */
+	for (i = 0; i < arr.length; i++) {
+	    val = val.toLowerCase();
+
+	    /* create a DIV element for each matching element: */
+	    b = document.createElement("DIV");
+	    console.log("v:"+val+" arr:"+arr[i]);
+	    b.innerHTML = arr[i].replace(val, "<strong>" + val + "</strong>");
+	    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+	    b.addEventListener("click", function(e) {
+		inp.value = this.getElementsByTagName("input")[0].value;
+		closeAllLists();
+	    });
+	    a.appendChild(b);
+        }
+    });
+
+    inp.addEventListener("keydown", function(e) {
+	var x = document.getElementById(this.id + "autocomplete-list");
+	if (x) x = x.getElementsByTagName("div");
+	if (e.keyCode == 40) {
+	    /* If the arrow DOWN key is pressed,
+	     * increase the currentFocus variable: */
+	    currentFocus++;
+	    /* and and make the current item more visible: */
+	    addActive(x);
+	} else if (e.keyCode == 38) { //up
+	    /* If the arrow UP key is pressed,
+	     * decrease the currentFocus variable: */
+	    currentFocus--;
+	    /* and and make the current item more visible: */
+	    addActive(x);
+	} else if (e.keyCode == 13) {
+	    /* If the ENTER key is pressed, prevent the form from being submitted */
+	    e.preventDefault();
+	    if (currentFocus > -1) {
+		/* and simulate a click on the "active" item: */
+		if (x) x[currentFocus].click();
+	    }
+	}
+    });
+    function addActive(x) {
+	/* a function to classify an item as "active": */
+	if (!x) return false;
+	/* start by removing the "active" class on all items: */
+	removeActive(x);
+	if (currentFocus >= x.length) currentFocus = 0;
+	if (currentFocus < 0) currentFocus = (x.length - 1);
+	/* add class "autocomplete-active": */
+	x[currentFocus].classList.add("autocomplete-active");
+    }
+    function removeActive(x) {
+	/* a function to remove the "active" class from all autocomplete items: */
+	for (var i = 0; i < x.length; i++) {
+	    x[i].classList.remove("autocomplete-active");
+	}
+    }
+    function closeAllLists(elmnt) {
+	/* close all autocomplete lists in the document,
+	 * except the one passed as an argument: */
+	var x = document.getElementsByClassName("autocomplete-items");
+	for (var i = 0; i < x.length; i++) {
+	    if (elmnt != x[i] && elmnt != inp) {
+		x[i].parentNode.removeChild(x[i]);
+	    }
+	}
+    }
+    /* execute a function when someone clicks in the document: */
+    document.addEventListener("click", function (e) {
+	closeAllLists(e.target);
+	$("#search").submit();
+    });
+}
+</script>
+
+{% endblock %}

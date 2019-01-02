@@ -45,8 +45,8 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         order_by = self.request.GET.get('order_by', '-date_joined')
-
         context['params'] = urlencode(self.request.GET)
+        context['title'] = _("Users")
         get_order = self.request.GET.copy()
         if 'order_by' in get_order:
             get_order.pop('order_by')
@@ -83,6 +83,11 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy('lgc-users')
     success_message = _("User deleted successfully.")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _("Delete User")
+        return context
+
     def test_func(self):
         return self.request.user.is_staff
 
@@ -93,6 +98,8 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 @login_required
 @must_be_staff
 def create(request):
+    title = _("New User")
+
     if request.method == 'POST':
         u_form = UserCreateForm(request.POST)
         p_form = ProfileCreateForm(request.POST)
@@ -109,13 +116,15 @@ def create(request):
             return redirect('lgc-user-create')
         context = {
             'u_form': u_form,
-            'p_form': p_form
+            'p_form': p_form,
+            'title': title,
         }
         return render(request, 'users/create.html', context)
 
     context = {
         'u_form': UserCreateForm(),
-        'p_form': ProfileCreateForm()
+        'p_form': ProfileCreateForm(),
+        'title': title,
     }
     return render(request, 'users/create.html', context)
 
@@ -123,6 +132,7 @@ def create(request):
 @must_be_staff
 def password_reset(request, user_id):
     user = User.objects.filter(id=user_id)
+    title = _("Password Reset")
 
     if user.count() != 1:
         raise Http404
@@ -136,13 +146,15 @@ def password_reset(request, user_id):
             return redirect('lgc-user', user[0].id)
         context = {
             'form': form,
-            'user': user[0]
+            'user': user[0],
+            'title': title,
         }
         return render(request, 'users/password_reset.html', context)
 
     context = {
         'form': UserPasswordUpdateForm(),
-        'user': user[0]
+        'user': user[0],
+        'title': title,
     }
     return render(request, 'users/password_reset.html', context)
 
@@ -150,6 +162,7 @@ def password_reset(request, user_id):
 @must_be_staff
 def update(request, user_id):
     user = User.objects.filter(id=user_id)
+    title = _("Update User")
 
     if user.count() != 1:
         raise Http404
@@ -182,6 +195,7 @@ def update(request, user_id):
             'p_form': p_form,
             'update': 1,
             'user_id': user_id,
+            'title': title,
         }
         return render(request, 'users/create.html', context)
 
@@ -194,6 +208,7 @@ def update(request, user_id):
         'p_form': p_form,
         'update': 1,
         'user_id': user_id,
+        'title': title,
     }
     return render(request, 'users/create.html', context)
 

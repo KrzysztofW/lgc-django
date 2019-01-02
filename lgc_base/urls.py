@@ -25,5 +25,4 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     path('', include('lgc.urls')),
     path('user/', include('users.urls')),
-    path('file/', lgc_views.file, name='lgc-file'),
 )
