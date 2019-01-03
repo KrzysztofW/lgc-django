@@ -40,7 +40,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_queryset(self):
         term = self.request.GET.get('term', '')
         order_by = self.request.GET.get('order_by', '-date_joined')
-        return User.objects.filter(username__icontains=term).order_by(order_by)|User.objects.filter(email__icontains=term)|User.objects.filter(first_name__icontains=term)|User.objects.filter(last_name__icontains=term)
+        return User.objects.filter(username__istartswith=term).order_by(order_by)|User.objects.filter(email__istartswith=term)|User.objects.filter(first_name__istartswith=term)|User.objects.filter(last_name__istartswith=term)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -211,8 +211,8 @@ def logout_then_login_with_msg(request):
 @must_be_staff
 def ajax_view(request):
     term = request.GET.get('term', '')
-    users = User.objects.filter(username__icontains=term)
-    users = User.objects.filter(username__icontains=term)|User.objects.filter(email__icontains=term)|User.objects.filter(first_name__icontains=term)|User.objects.filter(last_name__icontains=term)
+    users = User.objects.filter(username__istartswith=term)
+    users = User.objects.filter(username__istartswith=term)|User.objects.filter(email__istartswith=term)|User.objects.filter(first_name__istartswith=term)|User.objects.filter(last_name__istartswith=term)
     users = users[:10]
 
     for u in users:
