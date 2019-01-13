@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 from .models import Person
 from .forms import PersonCreateForm
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button
+from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML
 from crispy_forms.bootstrap import (
     Accordion, AccordionGroup, Alert, AppendedText, FieldWithButtons,
     InlineCheckboxes, InlineRadios, PrependedAppendedText, PrependedText,
@@ -38,6 +38,47 @@ class PersonListView(LoginRequiredMixin, ListView):
         context['title'] = _("Files")
         return context
 
+def get_file_form_layout(action):
+    return Layout(
+        TabHolder(
+            Tab('Information',
+                Div(Div('first_name', css_class="form-group col-md-4"),
+                    Div('last_name', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                Div(Div('email', css_class="form-group col-md-4"),
+                    Div('citizenship', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                Div(Div('foreigner_id', css_class="form-group col-md-4"),
+                    Div('birth_date', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                Div(Div('passeport_expiry', css_class="form-group col-md-4"),
+                    Div('passeport_nationality', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                Div(Div('home_entity', css_class="form-group col-md-4"),
+                    Div('host_entity', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                Div(Div('home_entity_address', css_class="form-group col-md-4"),
+                    Div('host_entity_address', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                Div(Div('home_entity_country', css_class="form-group col-md-4"),
+                    Div('host_entity_country', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                Div(Div('work_authorization')),
+                Div(Div('work_authorization_start', css_class="form-group col-md-4"),
+                    Div('work_authorization_end', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                Div(Div('residence_permit_start', css_class="form-group col-md-4"),
+                    Div('residence_permit_end', css_class="form-group col-md-4"),
+                    css_class="form-row"),
+                ),
+            Tab(_('Process'),
+            ),
+            Tab(_('Billing'),
+            ),
+        ),
+        HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'),
+    )
+
 class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Person
     fields = '__all__'
@@ -48,61 +89,36 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['update'] = False
         context['title'] = _("New File")
         return context
 
     def get_form(self, form_class=None):
         form = super().get_form(PersonCreateForm)
         form.helper = FormHelper()
-        form.helper.add_input(Submit('submit', 'Create',
-                                     css_class='btn-primary'))
-        form.helper.layout = Layout(
-            TabHolder(
-                Tab(
-                    'Information',
-                    Div(
-                        'first_name', 'last_name', 'email'),
-                    Div('foreigner_id', 'birth_date', 'citizenship', 'passeport_expiry', 'passeport_nationality', 'home_entity', 'home_entity_addr', 'host_entity', 'host_entity_addr')
-                ),
-                Tab(
-                    'tempo',
-                    'work_authorization', 'work_authorization_start', 'work_authorization_end', 'residence_permit_start', 'residence_permit_end'
-                )
-            ),
-        )
+        form.helper.layout = get_file_form_layout(_("Create"))
         return form
 
 class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Person
     fields = '__all__'
-    success_url = reverse_lazy('lgc-files')
     success_message = _("File successfully updated")
+
+    def get_success_url(self):
+        object = self.get_object()
+        return reverse_lazy('lgc-file', kwargs={'pk':object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['update'] = True
         context['title'] = _("File")
         return context
 
-    #def get_form(self, form_class=None):
-    #    form = super().get_form(PersonCreateForm)
-    #    form.helper = FormHelper()
-    #    form.helper.layout = Layout(
-    #        TabHolder(
-    #            Tab(
-    #                'Information',
-    #                Div(css_class="fluid",
-    #                Div('first_name', 'last_name', 'email', css_class="form-row"),
-    #                Div('foreigner_id', 'birth_date', 'citizenship', 'passeport_expiry', 'passeport_nationality', 'home_entity', 'home_entity_addr', 'host_entity', 'host_entity_addr'))
-    #            ),
-    #            Tab(
-    #                'tempo',
-    #                'work_authorization', 'work_authorization_start', 'work_authorization_end', 'residence_permit_start', 'residence_permit_end'
-    #            )
-    #        ),
-    #    )
-    #    return form
+    def get_form(self, form_class=None):
+        form = super().get_form(PersonCreateForm)
+        form.helper = FormHelper()
+        form.helper.layout = get_file_form_layout(_("Update"))
+        # form.helper.layout  add delete button HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'),
+
+        return form
 
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Person
