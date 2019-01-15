@@ -1,7 +1,8 @@
 from urllib.parse import urlencode
 
-def pagination(django_object, context):
+def pagination(django_object, context, url):
     context['params'] = urlencode(django_object.request.GET)
+    context['url'] = url
     order_by = django_object.request.GET.get('order_by', 'id')
     get_order = django_object.request.GET.copy()
 

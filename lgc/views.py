@@ -46,7 +46,7 @@ class PersonListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("Files")
-        return pagination(self, context)
+        return pagination(self, context, reverse_lazy('lgc-files'))
 
 def get_file_form_layout(action):
     return Layout(
@@ -190,7 +190,7 @@ class ProcessListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("Processes")
-        return pagination(self, context)
+        return pagination(self, context, reverse_lazy('lgc-processes'))
 
 class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Process

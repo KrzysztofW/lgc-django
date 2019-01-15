@@ -1,0 +1,19 @@
+{% load i18n %}
+
+<div class="dataTables_length">
+  {% if page_obj.paginator.count > 10 %}
+  <label>{% trans 'Show' %}
+    <select name="paginate" class="form-control form-control-sm" onchange="window.location='{{ url }}?{{ paginate_params }}&paginate='+this.value">
+      <option value="10" {{ 10_selected }}>10</option>
+      <option value="25" {{ 25_selected }}>25</option>
+      {% if page_obj.paginator.count > 25 %}
+      <option value="50" {{ 50_selected }}>50</option>
+      {% if page_obj.paginator.count > 50 %}
+      <option value="100" {{ 100_selected }}>100</option>
+      {% endif %}
+      {% endif %}
+    </select>
+    {% trans 'entries' %}
+  </label>
+  {% endif %}
+</div>

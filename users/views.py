@@ -46,7 +46,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         order_by = self.request.GET.get('order_by', '-date_joined')
         context['title'] = _("Users")
-        return pagination(self, context)
+        return pagination(self, context, reverse_lazy('lgc-users'))
 
         def test_func(self):
             return self.request.user.is_staff

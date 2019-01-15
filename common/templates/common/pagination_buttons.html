@@ -1,0 +1,31 @@
+{% load i18n %}
+<div class="row mb-1 align-items-baseline">
+  <div class="col-sm-12 col-md-5">
+    <div class="dataTables_info" id="dataTables-example_info" role="status" aria-live="polite">
+      {% trans 'Showing' %} {{ page_obj.start_index }} {% trans 'to' %} {{ page_obj.end_index }} {% trans 'of' %} {{ page_obj.paginator.count }} {% trans 'entrie(s)' %}
+    </div>
+  </div>
+  <div class="col-sm-12 col-md-7">
+    <div class="dataTables_paginate paging_simple_numbers">
+      {% if is_paginated %}
+      {% if page_obj.has_previous %}
+      <a class="btn btn-outline-info mb-4" href="?page=1&{{ page_params }}">First</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}&{{ page_params }}">Previous</a>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <a class="btn btn-info btn-lgc mb-4" href="?page={{ num }}&{{ page_params }}">{{ num }}</a>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <a class="btn btn-outline-info mb-4" href="?page={{ num }}&{{ page_params }}">{{ num }}</a>
+      {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}&{{ page_params }}">Next</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}&{{ page_params }}">Last</a>
+      {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
