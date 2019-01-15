@@ -1,0 +1,21 @@
+{% extends "lgc/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block content %}
+
+<div class="content-section">
+  <form method="POST">
+    {% csrf_token %}
+    <fieldset class="form-group">
+      {{ form|crispy }}
+    </fieldset>
+    <div class="form-group">
+      <button class="btn btn-outline-info" type="submit">{% trans "Submit" %}</button>
+      {% if update %}
+      <a href="{% url 'lgc-process-delete' object.id %}" class="btn btn-outline-danger">{% trans "Delete" %}</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+{% endblock content %}

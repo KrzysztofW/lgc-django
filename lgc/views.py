@@ -10,7 +10,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 from django.urls import reverse_lazy
-from .models import Person
+from .models import Person, Process
 from .forms import PersonCreateForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML
@@ -174,3 +174,70 @@ def file_create(request):
     context['p_form'] = ProfileCreateForm()
 
     return render(request, 'lgc/file.html', context)
+
+class ProcessListView(LoginRequiredMixin, ListView):
+    template_name = 'lgc/process_list.html'
+    model = Process
+    fields = '__all__'
+    context_object_name = 'processes'
+
+    def get_ordering(self):
+        return self.request.GET.get('order_by', 'id')
+
+    def get_paginate_by(self, queryset):
+        return self.request.GET.get('paginate', '10')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _("Processes")
+        return pagination(self, context)
+
+class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Process
+    fields = ['id', 'name']
+    success_message = _("Process successfully created")
+    template_name = 'lgc/process_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('lgc-process', kwargs={'pk': self.object.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['update'] = False
+        context['title'] = _("New Process")
+        return context
+
+class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Process
+    fields = ['name']
+    success_message = _("File successfully updated")
+    template_name = 'lgc/process_form.html'
+
+    def get_success_url(self):
+        self.object = self.get_object()
+        return reverse_lazy('lgc-process', kwargs={'pk':self.object.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['update'] = True
+        context['title'] = _("Process")
+        return context
+
+class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Process
+    template_name = 'lgc/process_confirm_delete.html'
+    success_url = reverse_lazy('lgc-processes')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _("Delete Process")
+        return context
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_message = _("Process %s deleted successfully.")%(self.object.id)
+        messages.success(self.request, success_message)
+        return super().delete(request, *args, **kwargs)
