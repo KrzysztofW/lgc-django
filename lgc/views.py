@@ -10,7 +10,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 from django.urls import reverse_lazy
-from .models import Person, Process
+from .models import Person, ProcessType
 from .forms import PersonCreateForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML
@@ -48,7 +48,14 @@ class PersonListView(LoginRequiredMixin, ListView):
         context['title'] = _("Files")
         return pagination(self, context, reverse_lazy('lgc-files'))
 
-def get_file_form_layout(action):
+def get_file_form_layout(action, processes):
+    html = '<label for="process" class="col-form-label requiredField">'
+    html += _('Process') + '<span class="asteriskField">*</span> </label>'
+    html += '<select class="form-control form-control-sm">'
+    for p in processes:
+        html += "<option>" + p.name + "</option>\n"
+    html += "</select>"
+
     return Layout(
         TabHolder(
             Tab('Information',
@@ -82,6 +89,8 @@ def get_file_form_layout(action):
                     css_class="form-row"),
                 ),
             Tab(_('Process'),
+                Div(Div(HTML(html), css_class="form-group col-md-4"),
+                    css_class="form-row"),
             ),
             Tab(_('Billing'),
             ),
@@ -100,12 +109,14 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("New File")
+        context['process'] = ProcessType.objects.all()
         return context
 
     def get_form(self, form_class=None):
         form = super().get_form(PersonCreateForm)
         form.helper = FormHelper()
-        form.helper.layout = get_file_form_layout(_("Create"))
+        form.helper.layout = get_file_form_layout(_("Create"),
+                                                  ProcessType.objects.all())
         return form
 
 class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -120,12 +131,14 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("File")
+        context['process'] = ProcessType.objects.all()
         return context
 
     def get_form(self, form_class=None):
         form = super().get_form(PersonCreateForm)
         form.helper = FormHelper()
-        form.helper.layout = get_file_form_layout(_("Update"))
+        form.helper.layout = get_file_form_layout(_("Update"),
+                                                  ProcessType.objects.all())
         form.helper.layout.append(HTML(' <a href="{% url "lgc-file-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
 
         return form
@@ -177,7 +190,7 @@ def file_create(request):
 
 class ProcessListView(LoginRequiredMixin, ListView):
     template_name = 'lgc/process_list.html'
-    model = Process
+    model = ProcessType
     fields = '__all__'
     context_object_name = 'processes'
 
@@ -193,7 +206,7 @@ class ProcessListView(LoginRequiredMixin, ListView):
         return pagination(self, context, reverse_lazy('lgc-processes'))
 
 class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    model = Process
+    model = ProcessType
     fields = ['id', 'name']
     success_message = _("Process successfully created")
     template_name = 'lgc/process_form.html'
@@ -208,7 +221,7 @@ class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return context
 
 class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    model = Process
+    model = ProcessType
     fields = ['name']
     success_message = _("File successfully updated")
     template_name = 'lgc/process_form.html'
@@ -224,7 +237,7 @@ class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return context
 
 class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Process
+    model = ProcessType
     template_name = 'lgc/process_confirm_delete.html'
     success_url = reverse_lazy('lgc-processes')
 
