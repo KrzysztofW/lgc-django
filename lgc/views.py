@@ -1,3 +1,4 @@
+from common.utils import pagination
 from django import http
 from django.contrib import messages
 from django.shortcuts import render
@@ -33,10 +34,19 @@ class PersonListView(LoginRequiredMixin, ListView):
     fields = '__all__'
     context_object_name = 'persons'
 
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_ordering(self):
+        return self.request.GET.get('order_by', 'id')
+
+    def get_paginate_by(self, queryset):
+        return self.request.GET.get('paginate', '10')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("Files")
-        return context
+        return pagination(self, context)
 
 def get_file_form_layout(action):
     return Layout(

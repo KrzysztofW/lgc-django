@@ -30,6 +30,7 @@ ALLOWED_HOSTS = ["2.2.2.2"]
 # Application definition
 
 INSTALLED_APPS = [
+    'common.apps.CommonConfig',
     'users.apps.UsersConfig',
     'lgc.apps.LgcConfig',
     'crispy_forms',

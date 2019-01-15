@@ -1,4 +1,4 @@
-from urllib.parse import urlencode
+from common.utils import pagination
 from django.http import Http404
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
@@ -45,34 +45,8 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         order_by = self.request.GET.get('order_by', '-date_joined')
-        context['params'] = urlencode(self.request.GET)
         context['title'] = _("Users")
-        get_order = self.request.GET.copy()
-        if 'order_by' in get_order:
-            get_order.pop('order_by')
-        context['order_params'] = urlencode(get_order)
-
-        get_page = self.request.GET.copy()
-        if 'page' in get_page:
-            del get_page['page']
-        context['page_params'] = urlencode(get_page)
-
-        get_paginate = get_page.copy()
-        if 'paginate' in get_paginate:
-            del get_paginate['paginate']
-        context['paginate_params'] = urlencode(get_paginate)
-
-        context['order_by'] = order_by
-        paginate = self.request.GET.get('paginate')
-        if paginate == "25":
-            context['25_selected'] = "selected"
-        elif paginate == "50":
-            context['50_selected'] = "selected"
-        elif paginate == "100":
-            context['100_selected'] = "selected"
-        else:
-            context['10_selected'] = "selected"
-        return context
+        return pagination(self, context)
 
         def test_func(self):
             return self.request.user.is_staff
