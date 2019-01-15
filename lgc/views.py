@@ -126,7 +126,7 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         form = super().get_form(PersonCreateForm)
         form.helper = FormHelper()
         form.helper.layout = get_file_form_layout(_("Update"))
-        # form.helper.layout  add delete button HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'),
+        form.helper.layout.append(HTML(' <a href="{% url "lgc-file-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
 
         return form
 
@@ -137,7 +137,7 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _("Delete User")
+        context['title'] = _("Delete File")
         return context
 
     def test_func(self):
@@ -145,7 +145,7 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = _("File %s deleted successfully.")%(self.object.id)
+        success_message = _("File of %s %s (ID %s) deleted successfully.")%(self.object.first_name, self.object.last_name, self.object.id)
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
