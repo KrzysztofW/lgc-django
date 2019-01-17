@@ -147,7 +147,7 @@ class Person(models.Model):
     # direccte_competente
     # sous-prefecture
     # juridiction specifique
-    responsible = models.ManyToManyField(User, null=True, blank=True)
+    responsible = models.ManyToManyField(User, blank=True)
     start_date = models.DateField(blank=True, null=True)
 
     # state
@@ -202,7 +202,7 @@ class AT(models.Model):
         return super(AT, self).clean()
 
 class Child(models.Model):
-    parent = models.ForeignKey(Person, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50, default="", blank=True)
     last_name = models.CharField(max_length=50, default="", blank=True)
     birth_date = models.DateField(blank=True, null=True)

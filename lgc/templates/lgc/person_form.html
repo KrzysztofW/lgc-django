@@ -1,8 +1,19 @@
 {% extends "lgc/base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
+{% load formset_tags %}
 {% load i18n %}
 {% block content %}
 {% crispy form %}
+
 {% endblock content %}
 {% block javascript %}
+<script src="{% static 'lgc/jquery.formset.min.js' %}"></script>
+    <script>jQuery(function($) {
+        $("#formset").formset({
+      animateForms: true,
+      reorderMode: 'dom',
+        });
+    });</script>
+
 {% endblock javascript %}
