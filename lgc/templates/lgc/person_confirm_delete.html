@@ -5,7 +5,7 @@
 <form action="" method="post">{% csrf_token %}
   <p>{% trans "Are you sure you want to delete" %} "{{ object.first_name }} {{ object.last_name }}"?</p>
   <button class="btn btn-outline-danger" type="submit">{% trans "Confirm" %}</button>
-  <a href="{% url 'lgc-file' object.id %}" class="btn btn-outline-info">{% trans "Cancel" %}</a>
+  <a href="{{ cancel_url }}" class="btn btn-outline-info">{% trans "Cancel" %}</a>
 </form>
 
 {% endblock content %}

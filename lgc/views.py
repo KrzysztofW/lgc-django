@@ -52,6 +52,8 @@ class PersonListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("Files")
+        context['create_url'] = reverse_lazy('lgc-file-create')
+        context['update_url'] = '/file/'
         return pagination(self, context, reverse_lazy('lgc-files'))
 
 def get_children_formset_template(children):
@@ -128,7 +130,7 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = _("New File")
         context['process'] = ProcessType.objects.all()
-        # We cannot use modelformset_factory with Child as it would
+        # We cannot use modelformset_factory with Child class as it would
         # get ALL the children from the DB in an empty creation form!
         ChildrenFormSet = formset_factory(form=ChildCreateForm, extra=1)
 
@@ -213,10 +215,12 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Person
     template_name = 'lgc/person_confirm_delete.html'
     success_url = reverse_lazy('lgc-files')
+    obj_name = _("File")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("Delete File")
+        context['cancel_url'] = reverse_lazy('lgc-file', kwargs={'pk':self.object.id})
         return context
 
     def test_func(self):
@@ -224,7 +228,8 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = _("File of %s %s (ID %s) deleted successfully.")%(self.object.first_name, self.object.last_name, self.object.id)
+        obj_name = kwargs.get('obj_name', _('File'))
+        success_message = _("%s of %s %s (ID %s) deleted successfully.")%(self.obj_name, self.object.first_name, self.object.last_name, self.object.id)
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 

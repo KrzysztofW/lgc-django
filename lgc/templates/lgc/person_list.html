@@ -7,12 +7,16 @@
   <div class="col-xl-12">
     <div class="card">
       <div class="card-header">
-	<div class="float-left">
-	  {% blocktrans with number=page_obj.paginator.count %}Found {{ number }} file(s){% endblocktrans %}
+	<div class="float-left">Found
+	  {% blocktrans count entries=page_obj.paginator.count %}
+	  {{ entries }} entry
+	  {% plural %}
+	  {{ entries }} entries
+	  {% endblocktrans %}
 	</div>
 	<div class="float-right">
-	  <a class="btn btn-outline-info btn-lgc" href="{% url 'lgc-file-create' %}">
-	    {% trans "Add file" %}</a>
+	  <a class="btn btn-outline-info btn-lgc" href="{{ create_url }}">
+	    {% trans "Add" %}</a>
 	</div>
       </div>
       <!-- /.card-header -->
@@ -92,7 +96,7 @@
 	  </thead>
 	  <tbody>
 	    {% for person in persons %}
-	    <tr class="clickable-row" data-href="{% url 'lgc-file' person.id %}">
+	    <tr class="clickable-row" data-href="{{ update_url }}{{person.id}}">
 	      <td>{{ person.email }}</td>
 	      <td>{{ person.first_name }}</td>
 	      <td>{{ person.last_name }}</td>
