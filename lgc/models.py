@@ -21,13 +21,13 @@ PROCESS_CHOICES = (
     ('DAT', 'Dispense AT – 3 mois'),
     ('NAT', 'Nationalité'),
     ('SAL', 'Salarié'),
-    ('PT1', 'Passeport talent 1°'),
-    ('PT2', 'Passeport talent 2°'),
-    ('PT3', 'Passeport talent 3°'),
-    ('PT4', 'Passeport talent 4°'),
-    ('PT5', 'Passeport talent 8°'),
-    ('PT6', 'Passeport talent 9°'),
-    ('PTA', 'Passeport talent – Autre'),
+    ('PT1', 'Passport talent 1°'),
+    ('PT2', 'Passport talent 2°'),
+    ('PT3', 'Passport talent 3°'),
+    ('PT4', 'Passport talent 4°'),
+    ('PT5', 'Passport talent 8°'),
+    ('PT6', 'Passport talent 9°'),
+    ('PTA', 'Passport talent – Autre'),
     ('PSI', 'PSI'),
     ('STA', 'Stagiaire'),
     ('SI', 'Stagiaire ICT'),
@@ -123,8 +123,8 @@ class CommonPersonInfo(models.Model):
     foreigner_id = models.PositiveIntegerField(blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
     citizenship = CountryField(blank=True, null=True)
-    passeport_expiry = models.DateField(blank=True, null=True, default=None)
-    passeport_nationality = CountryField(blank=True, null=True)
+    passport_expiry = models.DateField(blank=True, null=True, default=None)
+    passport_nationality = CountryField(blank=True, null=True)
     home_entity = models.CharField(max_length=50, default="", blank=True)
     home_entity_address = models.TextField(max_length=100, default="", blank=True)
     home_entity_country = CountryField(blank=True, null=True)
@@ -140,8 +140,8 @@ class CommonPersonInfo(models.Model):
     spouse_last_name = models.CharField(max_length=50, default="", blank=True)
     spouse_birth_date = models.DateField(blank=True, null=True)
     spouse_citizenship = CountryField(blank=True, null=True)
-    spouse_passeport_expiry = models.DateField(blank=True, null=True, default=None)
-    spouse_passeport_nationality = CountryField(blank=True, null=True)
+    spouse_passport_expiry = models.DateField(blank=True, null=True, default=None)
+    spouse_passport_nationality = CountryField(blank=True, null=True)
 
     local_address = models.TextField(max_length=100, default="", blank=True)
     foreign_address = models.TextField(max_length=100, default="", blank=True)
@@ -246,8 +246,8 @@ class ChildCommon(models.Model):
     first_name = models.CharField(max_length=50, default="", blank=True)
     last_name = models.CharField(max_length=50, default="", blank=True)
     birth_date = models.DateField(blank=True, null=True)
-    passeport_expiry = models.DateField(blank=True, null=True)
-    passeport_nationality = CountryField(blank=True, null=True)
+    passport_expiry = models.DateField(blank=True, null=True)
+    passport_nationality = CountryField(blank=True, null=True)
 
     class Meta:
         abstract = True
