@@ -21,3 +21,9 @@ SET global general_log = 1;
 -------
 ./manage.py makemessages -l fr
 ./manage.py compilemessages
+
+pip issues
+==========
+
+pip-install => locale-error-unsupported-locale-setting
+export LC_ALL=C
