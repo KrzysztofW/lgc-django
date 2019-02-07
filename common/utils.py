@@ -1,3 +1,8 @@
+import time
+import os
+import json
+from django.conf import settings
+from django.core.serializers import serialize
 from urllib.parse import urlencode
 
 def pagination(django_object, context, url):
@@ -32,3 +37,32 @@ def pagination(django_object, context, url):
         context['10_selected'] = "selected"
 
     return context
+
+def queue_object_request(obj):
+    if obj == None:
+        return
+    s = serialize('json', [obj])
+    filename = os.path.join(settings.LGC_QUEUE_PATH, str(obj.id))
+    with open(filename, "w") as f:
+        f.write(s)
+
+def queue_request(req_type, action, id, form):
+    resp = []
+    if form == None:
+        return
+
+    for u in form['responsible']:
+        resp.append(u.email)
+
+    s = json.dumps([req_type, action, {
+        'first_name':form['first_name'],
+        'last_name':form['last_name'],
+        'email':form['email'],
+        'company':form['company'],
+        'lang':form['language'],
+        'new_token': form['new_token'],
+        "responsible":resp,
+    }])
+    filename = os.path.join(settings.LGC_QUEUE_PATH, str(id))
+    with open(filename, "w") as f:
+        f.write(s + "\n")

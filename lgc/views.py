@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
-from common.utils import pagination
+from common.utils import pagination, queue_request
+from common.lgc_types import ReqType, ReqAction
 from django import http
 from django.contrib import messages
 from django.shortcuts import render
@@ -257,6 +258,17 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                     i.save()
         return super(PersonUpdateView, self).form_valid(form)
 
+def gen_form_from_obj(obj, token=False):
+    form = {}
+    form['first_name'] = obj.first_name
+    form['last_name'] = obj.last_name
+    form['email'] = obj.email
+    form['company'] = obj.company
+    form['language'] = 'EN'
+    form['new_token'] = token
+    form['responsible'] = []
+    return form
+
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Person
     template_name = 'lgc/person_confirm_delete.html'
@@ -277,6 +289,14 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         obj_name = kwargs.get('obj_name', _('File'))
         success_message = _("%s of %s %s (ID %s) deleted successfully.")%(self.obj_name, self.object.first_name, self.object.last_name, self.object.id)
         messages.success(self.request, success_message)
+        if self.request.method == 'POST' and \
+           self.request.POST.get('inform_person') and \
+           self.request.POST['inform_person'] == "on":
+            token = True
+        else:
+            token = False
+        queue_request(ReqType.CASE, ReqAction.DELETE, self.object.id,
+                      gen_form_from_obj(self.object, token=token))
         return super().delete(request, *args, **kwargs)
 
 class ProcessListView(LoginRequiredMixin, ListView):

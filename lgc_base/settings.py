@@ -124,3 +124,5 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = 'lgc-home'
 LOGIN_URL = 'lgc-login'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+LGC_QUEUE_PATH= "/tmp/1"

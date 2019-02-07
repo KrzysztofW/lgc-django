@@ -1,0 +1,7 @@
+Cher(e) ${PERSON_NAME}, 
+
+Bienvenu au office Office avocats. Merci de copier & coller le lien suivant pour activer votre compte:
+${URL}
+
+Cordialement
+Office
