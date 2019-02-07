@@ -444,7 +444,7 @@ class UpdatePendingCase(CaseView, SuccessMessageMixin, UpdateView):
 
         if self.request.method == 'POST' and self.request.POST.get('language'):
             self.request.session['case_lang'] = self.request.POST['language']
-        if self.request.session['case_lang'] == None:
+        elif 'case_lang' not in self.request.session:
             self.request.session['case_lang'] = ""
 
         form.initial['language'] = self.request.session['case_lang']
