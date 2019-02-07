@@ -3,7 +3,7 @@ from django.forms import modelformset_factory
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
-from .models import Person, Child, ModerationChild
+from .models import Person, Child, ModerationChild, HR
 from django.contrib.auth.models import User
 
 class PersonCreateForm(forms.ModelForm):
@@ -37,6 +37,11 @@ class InitiateCaseForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'email', 'language', 'company',
                   'responsible', 'new_token']
 
+class InitiateHRForm(InitiateCaseForm):
+    class Meta:
+        model = HR
+        fields = ['first_name', 'last_name', 'email', 'language', 'company',
+                  'responsible', 'new_token', 'is_admin']
 
 class ChildCreateForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))

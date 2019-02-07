@@ -96,7 +96,7 @@
 	  </thead>
 	  <tbody>
 	    {% for person in persons %}
-	    <tr class="clickable-row" data-href="{{ update_url }}{{person.id}}">
+	    <tr class="clickable-row" data-href="{% url update_url person.id %}">
 	      <td>{{ person.email }}</td>
 	      <td>{{ person.first_name }}</td>
 	      <td>{{ person.last_name }}</td>

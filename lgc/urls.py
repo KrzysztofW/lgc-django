@@ -4,16 +4,16 @@ from .views import (
     PersonCreateView, PersonListView, PersonDeleteView, PersonUpdateView,
     ProcessCreateView, ProcessListView, ProcessDeleteView, ProcessUpdateView,
     InitiateCase, PendingCases, UpdatePendingCase, DeletePendingCase,
+    HRCreateView, HRUpdateView, HRListView, HRDeleteView,
 )
 
 urlpatterns = [
     path('', views.home, name='lgc-home'),
 
-    #path('hr-create/', HRCreateView.as_view(), name='lgc-hr-create'),
-    #path('hr/<int:pk>/', HRUpdateView.as_view(), name='lgc-hr-update'),
-    #path('hr-list/', HRListView.as_view(), name='lgc-hr-list'),
-    #path('hr-delete/<int:pk>', HRDeleteView.as_view(), name='lgc-hr-delete'),
-
+    path('hr-create/', HRCreateView.as_view(), name='lgc-hr-create'),
+    path('hr/<int:pk>/', HRUpdateView.as_view(), name='lgc-hr'),
+    path('hr-list/', HRListView.as_view(), name='lgc-hrs'),
+    path('hr-delete/<int:pk>', HRDeleteView.as_view(), name='lgc-hr-delete'),
 
     path('file-create/', PersonCreateView.as_view(), name='lgc-file-create'),
     path('file-list/', PersonListView.as_view(), name='lgc-files'),

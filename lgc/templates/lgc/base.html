@@ -244,10 +244,13 @@
 		<a href="#"><i class="fa fa-wrench fa-fw"></i> Admin<span class="fa arrow"></span></a>
                 <ul class="nav-second-level list-group nested">
                   <li class="list-group-item">
-		    <a href="{# url "lgc-hr" #} ">{% trans "HR" %}</a>
+		    <a href="{% url "lgc-hr-create" %} ">{% trans "Initiate HR" %}</a>
                   </li>
 		  <li class="list-group-item">
-                    <a href="{% url "lgc-users" %} ">{% trans "Local Users" %}</a>
+		    <a href="{% url "lgc-hrs" %} ">{% trans "Pending HRs" %}</a>
+                  </li-->
+		  <li class="list-group-item">
+                    <a href="{% url "lgc-users" %} ">{% trans "Local users" %}</a>
                   </li>
 		  <li class="list-group-item">
 		    <a href="{% url "lgc-case-create" %} ">{% trans "Initiate a case" %}</a>

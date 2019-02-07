@@ -122,7 +122,7 @@ class AccountCommon(models.Model):
     # update the public interface
     to_be_updated = models.BooleanField(default=False)
 
-    GDPR_accepted = models.BooleanField(default=False)
+    GDPR_accepted = models.BooleanField(default=None, null=True)
 
     class Meta:
         abstract = True

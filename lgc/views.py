@@ -16,7 +16,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from .models import Person, ProcessType, Child, ModerationChild, HR
 from .forms import (PersonCreateForm, ChildCreateForm, ModerationChildCreateForm,
-                    InitiateCaseForm)
+                    InitiateCaseForm, InitiateHRForm)
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML, MultiField
 from crispy_forms.bootstrap import (
@@ -60,7 +60,8 @@ class PersonListView(PersonCommonListView):
         context = super().get_context_data(**kwargs)
         context['title'] = _("Files")
         context['create_url'] = reverse_lazy('lgc-file-create')
-        context['update_url'] = '/file/'
+        context['update_url'] = 'lgc-file'
+
         return pagination(self, context, reverse_lazy('lgc-files'))
 
 def get_children_formset_template(children):
@@ -158,7 +159,7 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                 for i in instances:
                     i.parent_id = self.object.id
                     i.save()
-        return super(PersonCreateView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_form(self, form_class=PersonCreateForm):
         form = super().get_form(form_class=form_class)
@@ -170,6 +171,7 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                                                     children)
         return form
 
+# XXX allow to insert to pending cases
 class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Person
     child_form = ChildCreateForm
@@ -242,6 +244,8 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     template_name = 'lgc/person_confirm_delete.html'
     success_url = reverse_lazy('lgc-files')
     cancel_url = 'lgc-file'
+    file_prefix = 'case_'
+    req_type = ReqType.CASE
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -255,9 +259,8 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = _("%s of %s %s (ID %s) deleted successfully.")%(
-            self.obj_name, self.object.first_name, self.object.last_name,
-            self.object.id
+        success_message = _("%s of %s %s deleted successfully.")%(
+            self.obj_name, self.object.first_name, self.object.last_name
         )
         messages.success(self.request, success_message)
         if self.request.method == 'POST' and \
@@ -266,7 +269,8 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             token = True
         else:
             token = False
-        queue_request(ReqType.CASE, ReqAction.DELETE, self.object.id,
+        queue_request(self.req_type, ReqAction.DELETE,
+                      self.file_prefix + str(self.object.id),
                       gen_form_from_obj(self.object, token=token))
         return super().delete(request, *args, **kwargs)
 
@@ -359,82 +363,143 @@ def get_case_form(form, action, new_token=False):
     form.helper.layout.append(HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'))
     return form
 
-class InitiateCase(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    success_message = _("New case successfully initiated")
+class CaseView(LoginRequiredMixin):
+    fields = '__all__'
+    req_type = ReqType.CASE
+    template_name = 'lgc/person_form.html'
     model = Person
+    success_url = 'lgc-case'
+    delete_url = "lgc-case-delete"
+    create_url = reverse_lazy('lgc-case-create')
+    update_url = 'lgc-case'
+    cancel_url = 'lgc-case'
+    list_url = reverse_lazy('lgc-cases')
+    form_class = InitiateCaseForm
+    file_prefix = 'case_'
+
+    class Meta:
+        abstract = True
+
+class InitiateCase(CaseView, SuccessMessageMixin, CreateView):
+    success_message = _("New case successfully initiated")
+    title = _("New Case")
+    form_name = _("Initiate case")
     fields = ['first_name', 'last_name', 'email'];
 
     def get_success_url(self):
-        return reverse_lazy('lgc-case', kwargs={'pk': self.object.id})
+        return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _("New Case")
+        context['title'] = self.title
         return context
 
     def get_form(self, form_class=InitiateCaseForm):
         if self.request.method == 'POST':
             self.request.session['case_lang'] = self.request.POST['language']
-        form = super().get_form(form_class=form_class)
-        return get_case_form(form, _("Initiate case"))
+        form = super().get_form(form_class=self.form_class)
+        return get_case_form(form, self.form_name)
 
     def form_valid(self, form):
         self.object = form.save()
         form.cleaned_data['new_token'] = True
-        queue_request(ReqType.CASE, ReqAction.ADD, self.object.id,
+        queue_request(self.req_type, ReqAction.ADD,
+                      self.file_prefix + str(self.object.id),
                       form.cleaned_data)
         return super().form_valid(form)
 
-class PendingCases(PersonCommonListView, UserPassesTestMixin):
-    fields = ['first_name', 'last_name', 'email'];
+class PendingCases(CaseView, PersonCommonListView, UserPassesTestMixin):
+    title = _("Pending Cases")
+    template_name = 'lgc/person_list.html'
 
     def test_func(self):
         return True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _("Pending Cases")
-        context['create_url'] = reverse_lazy('lgc-case-create')
-        context['update_url'] = '/case/'
-        return pagination(self, context, reverse_lazy('lgc-cases'))
+        context['title'] = self.title
+        context['create_url'] = self.create_url
+        context['update_url'] = self.update_url
+        return pagination(self, context, self.list_url)
 
     def get_queryset(self):
-        return Person.objects.filter(GDPR_accepted=False).order_by('-id')
+        return Person.objects.filter(GDPR_accepted=None).order_by('-id')
 
-class UpdatePendingCase(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class UpdatePendingCase(CaseView, SuccessMessageMixin, UpdateView):
     success_message = _("Case successfully updated")
-    model = Person
     fields = ['first_name', 'last_name', 'email'];
+    title = _("Update Case")
+    form_name = _("Update")
 
     def get_success_url(self):
-        return reverse_lazy('lgc-case', kwargs={'pk': self.object.id})
+        return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _("Update Case")
+        context['title'] = self.title
         return context
 
     def get_form(self, form_class=InitiateCaseForm):
-        form = super().get_form(form_class=form_class)
+        form = super().get_form(form_class=self.form_class)
+
         if self.request.method == 'POST' and self.request.POST.get('language'):
             self.request.session['case_lang'] = self.request.POST['language']
         if self.request.session['case_lang'] == None:
             self.request.session['case_lang'] = ""
 
         form.initial['language'] = self.request.session['case_lang']
-        form = get_case_form(form, _("Update"), True)
+        form = get_case_form(form, self.form_name, True)
         if self.request.user.is_staff:
-            form.helper.layout.append(HTML(' <a href="{% url "lgc-case-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
+            form.helper.layout.append(HTML(' <a href="{% url "' +self.delete_url+'" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
         return form
 
     def form_valid(self, form):
-        queue_request(ReqType.CASE, ReqAction.UPDATE, self.object.id,
+        queue_request(self.req_type, ReqAction.UPDATE,
+                      self.file_prefix + str(self.object.id),
                       form.cleaned_data)
         return super().form_valid(form)
 
-class DeletePendingCase(PersonDeleteView):
-    success_url = reverse_lazy('lgc-cases')
+class DeletePendingCase(CaseView, PersonDeleteView):
     obj_name = _("Pending case")
     title = _("Delete Pending Case")
-    cancel_url = 'lgc-case'
+    success_url = reverse_lazy('lgc-cases')
+    template_name = 'lgc/person_confirm_delete.html'
+
+class HRView(LoginRequiredMixin):
+    req_type = ReqType.HR
+    template_name = 'lgc/person_form.html'
+    model = HR
+    success_url = 'lgc-hr'
+    delete_url = "lgc-hr-delete"
+    create_url = reverse_lazy('lgc-hr-create')
+    update_url = 'lgc-hr'
+    cancel_url = 'lgc-hr'
+    list_url = reverse_lazy('lgc-hrs')
+    form_class = InitiateHRForm
+    file_prefix = 'hr_'
+
+    class Meta:
+        abstract = True
+
+class HRCreateView(HRView, InitiateCase):
+    success_message = _("New HR user successfully initiated")
+    title = _("New HR")
+    form_name = _("Initiate HR")
+
+class HRUpdateView(HRView, UpdatePendingCase):
+    success_message = _("HR successfully updated")
+    title = _("Update HR")
+
+class HRListView(HRView, PendingCases):
+    title = _("Pending HR users")
+    template_name = 'lgc/person_list.html'
+
+    def get_queryset(self):
+        return HR.objects.filter(GDPR_accepted=None).order_by('-id')|HR.objects.filter(GDPR_accepted=False)
+
+class HRDeleteView(HRView, DeletePendingCase):
+    success_url = reverse_lazy('lgc-hrs')
+    obj_name = _("Pending HR case")
+    title = _("Delete Pending HR case")
+    template_name = 'lgc/person_confirm_delete.html'
 
