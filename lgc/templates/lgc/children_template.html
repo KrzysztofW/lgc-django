@@ -4,45 +4,53 @@
 
 <label><b>{% trans 'Children' %}</b></label>
 <div id="formset" data-formset-prefix="{{ children.prefix }}">
-{{ children.management_form }}
+  {{ children.management_form }}
 
-<div data-formset-body>
+  <div data-formset-body>
     <!-- New forms will be inserted in here -->
     {% for form in children %}
 
-      {% if forloop.first %}
-        <div class="form-row">
-            {% for f in form.visible_fields %}
-                <div class="form-group col-md-2">
-                  {{ f.label|capfirst }}
-                </div>
-            {% endfor %}
-        </div>
-      {% endif %}
+    {% if forloop.first %}
+    <div class="form-row">
+      {% for f in form.visible_fields %}
+      <div class="form-group col-md-2">
+	{{ f.label|capfirst }}
+	{% if f.field.required %}<span class="asteriskField">*</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
-       <div data-formset-form class="form-row">
-           {% for f in form.hidden_fields %}
-              {{ f }}
-           {% endfor %}
-           {% for f in form.visible_fields %}
-               <div class="form-group col-md-2">{{ f }}</div>
-           {% endfor %}
-       </div>
+    <div data-formset-form class="form-row">
+      {% for f in form.hidden_fields %}
+      {{ f }}
+      {% endfor %}
+      {% for f in form.visible_fields %}
+      <div class="form-group col-md-2">
+	{{ f }}
+	{% if f.errors %}
+	<span class="invalid-feedback" style="display:inline;">
+	  <strong>{{ f.errors.0 }}</strong>
+	</span>
+	{% endif %}
+      </div>
+      {% endfor %}
+    </div>
     {% endfor %}
-</div>
+  </div>
 
-<script type="form-template" data-formset-empty-form>
+  <script type="form-template" data-formset-empty-form>
     {% escapescript %}
-        <div data-formset-form class="form-row">
-            {% for f in children.empty_form.hidden_fields %}
-                {{ f }}
-            {% endfor %}
-            {% for f in children.empty_form.visible_fields %}
-                <div class="form-group col-md-2">{{ f }}</div>
-            {% endfor %}
-        </div>
+    <div data-formset-form class="form-row">
+      {% for f in children.empty_form.hidden_fields %}
+      {{ f }}
+      {% endfor %}
+      {% for f in children.empty_form.visible_fields %}
+      <div class="form-group col-md-2">{{ f }}</div>
+      {% endfor %}
+    </div>
     {% endescapescript %}
-</script>
+  </script>
 
-<input type="button" value="{% trans 'Add a child' %}" data-formset-add>
+  <input type="button" value="{% trans 'Add a child' %}" data-formset-add>
 </div>

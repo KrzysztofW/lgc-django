@@ -13,9 +13,10 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 from django.urls import reverse_lazy
-from .models import Person, ProcessType, Child, Employee, EmployeeChild, HR
-from .forms import (PersonCreateForm, ChildCreateForm, EmployeeCreateForm,
-                    EmployeeChildCreateForm)
+from django.shortcuts import render, redirect
+from .models import Person, ProcessType, Child, ModerationChild, HR
+from .forms import (PersonCreateForm, ChildCreateForm, ModerationChildCreateForm,
+                    InitiateCaseForm)
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML, MultiField
 from crispy_forms.bootstrap import (
@@ -36,20 +37,24 @@ def home(request):
 def tables(request):
     return render(request, 'lgc/tables.html', {'title':'Tables'})
 
-class PersonListView(LoginRequiredMixin, ListView):
+class PersonCommonListView(LoginRequiredMixin, ListView):
     template_name = 'lgc/person_list.html'
     model = Person
     fields = '__all__'
     context_object_name = 'persons'
 
-    def test_func(self):
-        return self.request.user.is_staff
+    class Meta:
+        abstract = True
 
     def get_ordering(self):
-        return self.request.GET.get('order_by', 'id')
+        return self.request.GET.get('order_by', '-id')
 
     def get_paginate_by(self, queryset):
         return self.request.GET.get('paginate', '10')
+
+class PersonListView(PersonCommonListView):
+    def get_queryset(self):
+        return Person.objects.filter(GDPR_accepted=True).order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -120,45 +125,8 @@ def get_person_form_layout(action, processes, children):
         HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'),
     )
 
-def get_employee_form_layout(action, children):
-    return Layout(
-        Div(Div('first_name', css_class="form-group col-md-4"),
-            Div('last_name', css_class="form-group col-md-4"),
-            css_class="form-row"),
-        Div(Div('email', css_class="form-group col-md-4"),
-            css_class="form-row"),
-        Div(HTML('<label><b>' + _('Public interface information') + '</b></label>'), css_class="form-row"),
-        TabHolder(
-            Tab('Information',
-                Div(Div('foreigner_id', css_class="form-group col-md-4"),
-                    Div('birth_date', css_class="form-group col-md-4"),
-                    css_class="form-row"),
-                Div(Div('citizenship', css_class="form-group col-md-4"),
-                    css_class="form-row"),
-                Div(Div('passeport_expiry', css_class="form-group col-md-4"),
-                    Div('passeport_nationality', css_class="form-group col-md-4"),
-                    css_class="form-row"),
-                Div(Div('home_entity', css_class="form-group col-md-4"),
-                    Div('host_entity', css_class="form-group col-md-4"),
-                    css_class="form-row"),
-                Div(Div('home_entity_address', css_class="form-group col-md-4"),
-                    Div('host_entity_address', css_class="form-group col-md-4"),
-                    css_class="form-row"),
-                Div(Div('home_entity_country', css_class="form-group col-md-4"),
-                    Div('host_entity_country', css_class="form-group col-md-4"),
-                    css_class="form-row"),
-                Div(Div('work_authorization')),
-                Div(Div('work_authorization_start', css_class="form-group col-md-4"),
-                    Div('work_authorization_end', css_class="form-group col-md-4"),
-                    css_class="form-row"),
-                Div(Div(HTML(get_children_formset_template(children)),
-                        css_class="form-group col-md-10"), css_class="form-row")),
-            Tab(_('Process'), get_process_layout())),
-        HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'))
-
 class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Person
-    child_model = Child
     fields = '__all__'
     success_message = _("File successfully created")
 
@@ -180,8 +148,7 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        ChildrenFormSet = modelformset_factory(self.child_model,
-                                               form=ChildCreateForm)
+        ChildrenFormSet = modelformset_factory(Child, form=ChildCreateForm)
 
         self.object = form.save()
         children = ChildrenFormSet(self.request.POST)
@@ -193,10 +160,8 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                     i.save()
         return super(PersonCreateView, self).form_valid(form)
 
-    def get_form(self, form_class=PersonCreateForm, form_only=False):
+    def get_form(self, form_class=PersonCreateForm):
         form = super().get_form(form_class=form_class)
-        if form_only:
-           return form
         ChildrenFormSet = formset_factory(form=ChildCreateForm)
         children = ChildrenFormSet()
         form.helper = FormHelper()
@@ -207,32 +172,27 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
 class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Person
-    child_model = Child
     child_form = ChildCreateForm
     fields = '__all__'
     success_message = _("File successfully updated")
 
     def get_success_url(self):
-        #object = self.get_object()
         return reverse_lazy('lgc-file', kwargs={'pk':self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("File")
         context['process'] = ProcessType.objects.all()
-        ChildrenFormSet = modelformset_factory(self.child_model,
-                                               self.child_form,
+        ChildrenFormSet = modelformset_factory(Child, self.child_form,
                                                extra=1, can_delete=True)
         if self.request.POST:
             context['children'] = ChildrenFormSet(self.request.POST)
         else:
-            context['children'] = ChildrenFormSet(queryset=self.child_model.objects.filter(parent=self.object.id))
+            context['children'] = ChildrenFormSet(queryset=Child.objects.filter(parent=self.object.id))
         return context
 
-    def get_form(self, form_class=PersonCreateForm, form_only=False):
+    def get_form(self, form_class=PersonCreateForm):
         form = super().get_form(form_class)
-        if form_only:
-            return form
         ChildrenFormSet = formset_factory(form=ChildCreateForm)
         if self.request.POST:
             children = ChildrenFormSet(self.request.POST)
@@ -240,13 +200,16 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             children = ChildrenFormSet()
         form.helper = FormHelper()
         form.helper.layout = get_person_form_layout(_("Update"),
-                                                    ProcessType.objects.all(), children)
-        form.helper.layout.append(HTML(' <a href="{% url "lgc-file-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
+                                                    ProcessType.objects.all(),
+                                                    children)
+        if self.request.user.is_staff:
+            form.helper.layout.append(HTML(' <a href="{% url "lgc-file-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
         return form
 
     def form_valid(self, form):
         context = self.get_context_data()
         children = context['children']
+
         with transaction.atomic():
             if children.is_valid():
                 for obj in children.deleted_forms:
@@ -256,7 +219,10 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                 for i in instances:
                     i.parent_id = self.object.id
                     i.save()
-        return super(PersonUpdateView, self).form_valid(form)
+            else:
+                return super().form_invalid(form)
+
+        return super().form_valid(form)
 
 def gen_form_from_obj(obj, token=False):
     form = {}
@@ -271,14 +237,17 @@ def gen_form_from_obj(obj, token=False):
 
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Person
+    obj_name = _("File")
+    title = _("Delete File")
     template_name = 'lgc/person_confirm_delete.html'
     success_url = reverse_lazy('lgc-files')
-    obj_name = _("File")
+    cancel_url = 'lgc-file'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _("Delete File")
-        context['cancel_url'] = reverse_lazy('lgc-file', kwargs={'pk':self.object.id})
+        context['title'] = self.title
+        context['cancel_url'] = reverse_lazy(self.cancel_url,
+                                             kwargs={'pk':self.object.id})
         return context
 
     def test_func(self):
@@ -286,8 +255,10 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        obj_name = kwargs.get('obj_name', _('File'))
-        success_message = _("%s of %s %s (ID %s) deleted successfully.")%(self.obj_name, self.object.first_name, self.object.last_name, self.object.id)
+        success_message = _("%s of %s %s (ID %s) deleted successfully.")%(
+            self.obj_name, self.object.first_name, self.object.last_name,
+            self.object.id
+        )
         messages.success(self.request, success_message)
         if self.request.method == 'POST' and \
            self.request.POST.get('inform_person') and \
@@ -366,79 +337,104 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
-class EmployeeListView(PersonListView):
-    model = Employee
+def get_case_form(form, action, new_token=False):
+    form.helper = FormHelper()
+    form.helper.layout = Layout(
+        Div(
+            Div('first_name', css_class="form-group col-md-4"),
+            Div('last_name', css_class="form-group col-md-4"),
+            css_class="form-row"),
+        Div(
+            Div('email', css_class="form-group col-md-4"),
+            Div('language', css_class="form-group col-md-4"),
+            css_class="form-row"),
+        Div(
+            Div('company', css_class="form-group col-md-4"),
+            Div('responsible', css_class="form-group col-md-4"),
+            css_class="form-row"))
+    if new_token:
+        form.helper.layout.append(Div(
+            Div('new_token', css_class="form-group col-md-4"),
+            css_class="form-row"))
+    form.helper.layout.append(HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'))
+    return form
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = _("Employees")
-        context['create_url'] = reverse_lazy('lgc-employee-create')
-        context['update_url'] = '/employee/'
-        return context
-
-class EmployeeCreateView(PersonCreateView):
-    model = Employee
-    child_model = EmployeeChild
-    success_message = _("Employee successfully created")
-    template_name = 'lgc/person_form.html'
-
-    def get_success_url(self):
-        return reverse_lazy('lgc-employee', kwargs={'pk': self.object.id})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = _("New Employee")
-        return context
-
-    def get_form(self, form_class=EmployeeCreateForm):
-        form = super().get_form(form_class=form_class, form_only=True)
-        ChildrenFormSet = formset_factory(form=EmployeeChildCreateForm)
-        children = ChildrenFormSet()
-        form.helper = FormHelper()
-        form.helper.layout = get_employee_form_layout(_("Create"), children)
-        return form
-
-class EmployeeUpdateView(PersonUpdateView):
-    model = Employee
-    child_model = EmployeeChild
-    child_form = EmployeeChildCreateForm
-    success_message = _("Employee successfully updated")
-    template_name = 'lgc/person_form.html'
+class InitiateCase(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    success_message = _("New case successfully initiated")
+    model = Person
+    fields = ['first_name', 'last_name', 'email'];
 
     def get_success_url(self):
-        return reverse_lazy('lgc-employee', kwargs={'pk':self.object.id})
+        return reverse_lazy('lgc-case', kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _("Employee")
+        context['title'] = _("New Case")
         return context
 
-    def get_form(self, form_class=None):
-        form = super().get_form(EmployeeCreateForm, True)
-        ChildrenFormSet = formset_factory(form=EmployeeChildCreateForm)
-        if self.request.POST:
-            children = ChildrenFormSet(self.request.POST)
-        else:
-            children = ChildrenFormSet()
-        form.helper = FormHelper()
-        form.helper.layout = get_employee_form_layout(_("Update"), children)
-        form.helper.layout.append(HTML(' <a href="{% url "lgc-employee-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
+    def get_form(self, form_class=InitiateCaseForm):
+        if self.request.method == 'POST':
+            self.request.session['case_lang'] = self.request.POST['language']
+        form = super().get_form(form_class=form_class)
+        return get_case_form(form, _("Initiate case"))
 
-        return form
+    def form_valid(self, form):
+        self.object = form.save()
+        form.cleaned_data['new_token'] = True
+        queue_request(ReqType.CASE, ReqAction.ADD, self.object.id,
+                      form.cleaned_data)
+        return super().form_valid(form)
 
-        form = super().get_form(EmployeeCreateForm)
-        form.helper.layout.pop(-1)
-        form.helper.layout.append(HTML(' <a href="{% url "lgc-employee-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
+class PendingCases(PersonCommonListView, UserPassesTestMixin):
+    fields = ['first_name', 'last_name', 'email'];
 
-        return form
-
-class EmployeeDeleteView(PersonDeleteView):
-    model = Employee
-    success_url = reverse_lazy('lgc-employees')
-    obj_name = _("Employee")
+    def test_func(self):
+        return True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _("Delete Employee")
-        context['cancel_url'] = reverse_lazy('lgc-employee', kwargs={'pk':self.object.id})
+        context['title'] = _("Pending Cases")
+        context['create_url'] = reverse_lazy('lgc-case-create')
+        context['update_url'] = '/case/'
+        return pagination(self, context, reverse_lazy('lgc-cases'))
+
+    def get_queryset(self):
+        return Person.objects.filter(GDPR_accepted=False).order_by('-id')
+
+class UpdatePendingCase(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    success_message = _("Case successfully updated")
+    model = Person
+    fields = ['first_name', 'last_name', 'email'];
+
+    def get_success_url(self):
+        return reverse_lazy('lgc-case', kwargs={'pk': self.object.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _("Update Case")
         return context
+
+    def get_form(self, form_class=InitiateCaseForm):
+        form = super().get_form(form_class=form_class)
+        if self.request.method == 'POST' and self.request.POST.get('language'):
+            self.request.session['case_lang'] = self.request.POST['language']
+        if self.request.session['case_lang'] == None:
+            self.request.session['case_lang'] = ""
+
+        form.initial['language'] = self.request.session['case_lang']
+        form = get_case_form(form, _("Update"), True)
+        if self.request.user.is_staff:
+            form.helper.layout.append(HTML(' <a href="{% url "lgc-case-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
+        return form
+
+    def form_valid(self, form):
+        queue_request(ReqType.CASE, ReqAction.UPDATE, self.object.id,
+                      form.cleaned_data)
+        return super().form_valid(form)
+
+class DeletePendingCase(PersonDeleteView):
+    success_url = reverse_lazy('lgc-cases')
+    obj_name = _("Pending case")
+    title = _("Delete Pending Case")
+    cancel_url = 'lgc-case'
+

@@ -3,7 +3,7 @@ from . import views
 from .views import (
     PersonCreateView, PersonListView, PersonDeleteView, PersonUpdateView,
     ProcessCreateView, ProcessListView, ProcessDeleteView, ProcessUpdateView,
-    EmployeeListView, EmployeeCreateView, EmployeeUpdateView, EmployeeDeleteView
+    InitiateCase, PendingCases, UpdatePendingCase, DeletePendingCase,
 )
 
 urlpatterns = [
@@ -14,15 +14,16 @@ urlpatterns = [
     #path('hr-list/', HRListView.as_view(), name='lgc-hr-list'),
     #path('hr-delete/<int:pk>', HRDeleteView.as_view(), name='lgc-hr-delete'),
 
-    path('employee-create/', EmployeeCreateView.as_view(), name='lgc-employee-create'),
-    path('employee/<int:pk>/', EmployeeUpdateView.as_view(), name='lgc-employee'),
-    path('employee-list/', EmployeeListView.as_view(), name='lgc-employees'),
-    path('employee-delete/<int:pk>', EmployeeDeleteView.as_view(), name='lgc-employee-delete'),
 
     path('file-create/', PersonCreateView.as_view(), name='lgc-file-create'),
     path('file-list/', PersonListView.as_view(), name='lgc-files'),
     path('file-delete/<int:pk>', PersonDeleteView.as_view(), name='lgc-file-delete'),
     path('file/<int:pk>/', PersonUpdateView.as_view(), name='lgc-file'),
+
+    path('case-create/', InitiateCase.as_view(), name='lgc-case-create'),
+    path('case-list/', PendingCases.as_view(), name='lgc-cases'),
+    path('case/<int:pk>/', UpdatePendingCase.as_view(), name='lgc-case'),
+    path('case-delete/<int:pk>', DeletePendingCase.as_view(), name='lgc-case-delete'),
 
     path('process-create/', ProcessCreateView.as_view(), name='lgc-process-create'),
     path('process-list/', ProcessListView.as_view(), name='lgc-processes'),

@@ -25,7 +25,7 @@ SECRET_KEY = '7g&a3%b538z5&#-4ud7q@eqnz!+lufnbgq1adk!ei#@0=o4a2j'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["2.2.2.2"]
+ALLOWED_HOSTS = ["2.2.2.2", "localhost"]
 
 # Application definition
 
@@ -84,7 +84,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'lgc_v5',
         'USER': 'lgc',
-        'PASSWORD':'ppop$ppop$',
+        'PASSWORD':'blah',
         'HOST':'/var/run/mysqld/mysqld.sock',
     }
 }

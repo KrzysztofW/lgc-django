@@ -3,7 +3,8 @@ from django.forms import modelformset_factory
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
-from .models import Person, Child, Employee, EmployeeChild
+from .models import Person, Child, ModerationChild
+from django.contrib.auth.models import User
 
 class PersonCreateForm(forms.ModelForm):
     passport_expiry = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date'}), label=_('Passport Expiry'))
@@ -17,8 +18,28 @@ class PersonCreateForm(forms.ModelForm):
         model = Person
         exclude = ['creation_date']
 
+class InitiateCaseForm(forms.ModelForm):
+    LANG_CHOICES = (
+        ('FR', _("French")),
+        ('EN', _("English")),
+    )
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label=_('First name'))
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label=_('Last name'))
+    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))
+    language = forms.ChoiceField(widget=forms.Select(attrs={'class':'form-control'}),
+                                 choices=LANG_CHOICES, label=_('Language'))
+    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=User.objects.all())
+    new_token = forms.BooleanField(required=False, initial=True,
+                                   label=_('Send new token'))
+
+    class Meta:
+        model = Person
+        fields = ['first_name', 'last_name', 'email', 'language', 'company',
+                  'responsible', 'new_token']
+
+
 class ChildCreateForm(forms.ModelForm):
-    first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control'}))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))
     last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control'}))
     birth_date = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Birth Date'))
     passport_expiry = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Passport Expiry'))
@@ -28,12 +49,7 @@ class ChildCreateForm(forms.ModelForm):
         model = Child
         exclude = ['parent']
 
-class EmployeeCreateForm(PersonCreateForm):
+class ModerationChildCreateForm(ChildCreateForm):
     class Meta:
-        model = Employee
-        exclude = ['creation_date']
-
-class EmployeeChildCreateForm(ChildCreateForm):
-    class Meta:
-        model = EmployeeChild
+        model = ModerationChild
         exclude = ['parent']

@@ -247,10 +247,13 @@
 		    <a href="{# url "lgc-hr" #} ">{% trans "HR" %}</a>
                   </li>
 		  <li class="list-group-item">
-		    <a href="{% url "lgc-employees" %} ">{% trans "Employees" %}</a>
+                    <a href="{% url "lgc-users" %} ">{% trans "Local Users" %}</a>
                   </li>
 		  <li class="list-group-item">
-                    <a href="{% url "lgc-users" %} ">{% trans "Local Users" %}</a>
+		    <a href="{% url "lgc-case-create" %} ">{% trans "Initiate a case" %}</a>
+                  </li>
+		  <li class="list-group-item">
+		    <a href="{% url "lgc-cases" %} ">{% trans "Pending cases" %}</a>
                   </li>
                 </ul>
                 <!-- /.nav-second-level -->
