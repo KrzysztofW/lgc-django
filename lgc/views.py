@@ -151,6 +151,9 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         ChildrenFormSet = modelformset_factory(Child, form=ChildCreateForm)
 
+        # force GDPR_accepted = True for manually created files
+        form.instance.GDPR_accepted = True
+
         self.object = form.save()
         children = ChildrenFormSet(self.request.POST)
         with transaction.atomic():
