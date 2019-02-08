@@ -485,20 +485,28 @@ class HRView(LoginRequiredMixin):
         abstract = True
 
 class HRCreateView(HRView, InitiateCase):
-    success_message = _("New HR user successfully initiated")
-    title = _("New HR")
-    form_name = _("Initiate HR")
+    success_message = _("New HR case successfully initiated")
+    title = _("New HR case")
+    form_name = _("Initiate case")
 
 class HRUpdateView(HRView, UpdatePendingCase):
-    success_message = _("HR successfully updated")
+    success_message = _("HR case successfully updated")
     title = _("Update HR")
 
-class HRListView(HRView, PendingCases):
-    title = _("Pending HR users")
+class HRCaseListView(HRView, PendingCases):
+    title = _("Pending HR cases")
     template_name = 'lgc/person_list.html'
 
     def get_queryset(self):
-        return HR.objects.filter(GDPR_accepted=None).order_by('-id')|HR.objects.filter(GDPR_accepted=False)
+        objs = HR.objects.filter(GDPR_accepted=None)|HR.objects.filter(GDPR_accepted=False)
+        return objs.order_by('-id')
+
+class HRListView(HRView, PendingCases):
+    title = _("Human resources")
+    template_name = 'lgc/person_list.html'
+
+    def get_queryset(self):
+        return HR.objects.filter(GDPR_accepted=True).order_by('-id')
 
 class HRDeleteView(HRView, DeletePendingCase):
     success_url = reverse_lazy('lgc-hrs')

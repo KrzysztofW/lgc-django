@@ -4,7 +4,7 @@ from .views import (
     PersonCreateView, PersonListView, PersonDeleteView, PersonUpdateView,
     ProcessCreateView, ProcessListView, ProcessDeleteView, ProcessUpdateView,
     InitiateCase, PendingCases, UpdatePendingCase, DeletePendingCase,
-    HRCreateView, HRUpdateView, HRListView, HRDeleteView,
+    HRCreateView, HRUpdateView, HRListView, HRDeleteView, HRCaseListView,
 )
 
 urlpatterns = [
@@ -13,6 +13,7 @@ urlpatterns = [
     path('hr-create/', HRCreateView.as_view(), name='lgc-hr-create'),
     path('hr/<int:pk>/', HRUpdateView.as_view(), name='lgc-hr'),
     path('hr-list/', HRListView.as_view(), name='lgc-hrs'),
+    path('hr-case-list/', HRCaseListView.as_view(), name='lgc-hr-cases'),
     path('hr-delete/<int:pk>', HRDeleteView.as_view(), name='lgc-hr-delete'),
 
     path('file-create/', PersonCreateView.as_view(), name='lgc-file-create'),

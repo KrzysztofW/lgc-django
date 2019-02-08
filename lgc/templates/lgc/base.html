@@ -165,7 +165,10 @@
                 <a href="{% url 'lgc-home' %}"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
               </li>
 	      <li class="list-group-item">
-		<a href="{% url 'lgc-files' %}"><i class="fa fa-files-o fa-fw"></i> Files</a>
+		<a href="{% url 'lgc-files' %}"><i class="fa fa-files-o fa-fw"></i> {% trans "Files" %}</a>
+              </li>
+	      <li class="list-group-item">
+		<a href="{% url 'lgc-hrs' %}"><i class="fa fa-files-o fa-fw"></i> {% trans "Human resoures" %}</a>
               </li>
               <li class="list-group-item">
                 <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
@@ -209,54 +212,44 @@
                 </ul>
                 <!-- /.nav-second-level -->
               </li>
+
               <li class="list-group-item">
-                <a href="#"><i class="fa fa-sitemap fa-fw"></i> Multi-Level Dropdown<span
-										       class="fa arrow"></span></a>
+                <a href="#"><i class="fa fa-sitemap fa-fw"></i>
+		  {% trans "Cases" %}
+		  <span class="fa arrow"></span>
+		</a>
+
                 <ul class="nav-second-level list-group nested">
-                  <li class="list-group-item">
-                    <a href="#">Second Level Item</a>
-                  </li>
-                  <li class="list-group-item">
-                    <a href="#">Second Level Item</a>
-                  </li>
-                  <li class="list-group-item">
-                    <a href="#">Third Level <span class="fa arrow"></span></a>
+		  <li class="list-group-item">
+                    <a href="#">{% trans "Employees" %} <span class="fa arrow"></span></a>
                     <ul class="nav-third-level list-group nested">
-                      <li class="list-group-item">
-                        <a href="#">Third Level Item</a>
+		      <li class="list-group-item">
+			<a href="{% url "lgc-case-create" %} ">{% trans "Initiate a case" %}</a>
                       </li>
-                      <li class="list-group-item">
-                        <a href="#">Third Level Item</a>
+		      <li class="list-group-item">
+			<a href="{% url "lgc-cases" %} ">{% trans "Pending cases" %}</a>
                       </li>
-                      <li class="list-group-item">
-                        <a href="#">Third Level Item</a>
+		    </ul>
+		  </li>
+
+		  <li class="list-group-item">
+                    <a href="#">{% trans "Human resources" %} <span class="fa arrow"></span></a>
+		    <ul class="nav-third-level list-group nested">
+		      <li class="list-group-item">
+			<a href="{% url "lgc-hr-create" %} ">{% trans "Initiate a HR case" %}</a>
                       </li>
-                      <li class="list-group-item">
-                        <a href="#">Third Level Item</a>
+		      <li class="list-group-item">
+			<a href="{% url "lgc-hr-cases" %} ">{% trans "Pending HR cases" %}</a>
                       </li>
                     </ul>
-                    <!-- /.nav-third-level -->
-                  </li>
-                </ul>
-                <!-- /.nav-second-level -->
+		  </li>
+		</ul>
               </li>
               <li class="list-group-item">
 		<a href="#"><i class="fa fa-wrench fa-fw"></i> Admin<span class="fa arrow"></span></a>
                 <ul class="nav-second-level list-group nested">
-                  <li class="list-group-item">
-		    <a href="{% url "lgc-hr-create" %} ">{% trans "Initiate HR" %}</a>
-                  </li>
-		  <li class="list-group-item">
-		    <a href="{% url "lgc-hrs" %} ">{% trans "Pending HRs" %}</a>
-                  </li-->
 		  <li class="list-group-item">
                     <a href="{% url "lgc-users" %} ">{% trans "Local users" %}</a>
-                  </li>
-		  <li class="list-group-item">
-		    <a href="{% url "lgc-case-create" %} ">{% trans "Initiate a case" %}</a>
-                  </li>
-		  <li class="list-group-item">
-		    <a href="{% url "lgc-cases" %} ">{% trans "Pending cases" %}</a>
                   </li>
                 </ul>
                 <!-- /.nav-second-level -->
