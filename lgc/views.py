@@ -266,9 +266,9 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             self.obj_name, self.object.first_name, self.object.last_name
         )
         messages.success(self.request, success_message)
-        if self.request.method == 'POST' and \
-           self.request.POST.get('inform_person') and \
-           self.request.POST['inform_person'] == "on":
+        if (self.request.method == 'POST' and
+            self.request.POST.get('inform_person') and
+            self.request.POST['inform_person'] == "on"):
             token = True
         else:
             token = False
