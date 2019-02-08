@@ -344,7 +344,7 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
-def get_case_form(form, action, new_token=False):
+def get_case_form(form, action, new_token=False, show_is_admin=False):
     form.helper = FormHelper()
     form.helper.layout = Layout(
         Div(
@@ -359,11 +359,18 @@ def get_case_form(form, action, new_token=False):
             Div('company', css_class="form-group col-md-4"),
             Div('responsible', css_class="form-group col-md-4"),
             css_class="form-row"))
-    if new_token:
-        form.helper.layout.append(Div(
-            Div('new_token', css_class="form-group col-md-4"),
-            css_class="form-row"))
-    form.helper.layout.append(HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'))
+
+    if new_token or show_is_admin:
+        row_div = Div(css_class="form-row")
+        if new_token:
+            row_div.append(Div('new_token', css_class="form-group col-md-4"))
+        if show_is_admin:
+            row_div.append(Div('is_admin', css_class="form-group col-md-4"))
+        form.helper.layout.append(row_div)
+
+    form.helper.layout.append(
+        HTML('<button class="btn btn-outline-info" type="submit">' +
+             action + '</button>'))
     return form
 
 class CaseView(LoginRequiredMixin):
@@ -388,6 +395,7 @@ class InitiateCase(CaseView, SuccessMessageMixin, CreateView):
     title = _("New Case")
     form_name = _("Initiate case")
     fields = ['first_name', 'last_name', 'email'];
+    show_is_admin = False
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
@@ -401,7 +409,8 @@ class InitiateCase(CaseView, SuccessMessageMixin, CreateView):
         if self.request.method == 'POST':
             self.request.session['case_lang'] = self.request.POST['language']
         form = super().get_form(form_class=self.form_class)
-        return get_case_form(form, self.form_name)
+        return get_case_form(form, self.form_name,
+                             show_is_admin=self.show_is_admin)
 
     def form_valid(self, form):
         self.object = form.save()
@@ -433,6 +442,7 @@ class UpdatePendingCase(CaseView, SuccessMessageMixin, UpdateView):
     fields = ['first_name', 'last_name', 'email'];
     title = _("Update Case")
     form_name = _("Update")
+    show_is_admin = False
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
@@ -451,9 +461,13 @@ class UpdatePendingCase(CaseView, SuccessMessageMixin, UpdateView):
             self.request.session['case_lang'] = ""
 
         form.initial['language'] = self.request.session['case_lang']
-        form = get_case_form(form, self.form_name, True)
+        form = get_case_form(form, self.form_name, True,
+                             show_is_admin=self.show_is_admin)
         if self.request.user.is_staff:
-            form.helper.layout.append(HTML(' <a href="{% url "' +self.delete_url+'" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
+            form.helper.layout.append(
+                HTML(' <a href="{% url "' + self.delete_url +
+                     '" object.id %}" class="btn btn-outline-danger">' +
+                     _("Delete") + '</a>'))
         return form
 
     def form_valid(self, form):
@@ -480,6 +494,7 @@ class HRView(LoginRequiredMixin):
     list_url = reverse_lazy('lgc-hrs')
     form_class = InitiateHRForm
     file_prefix = 'hr_'
+    show_is_admin = True
 
     class Meta:
         abstract = True
