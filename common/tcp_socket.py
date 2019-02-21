@@ -8,9 +8,16 @@ MAX_FILE_SIZE=8192
 DEF_PORT=14376
 
 class TcpClient:
-    def sock_connect(self, host, port=DEF_PORT):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((host, port))
+    def sock_connect(self, hosts, port=DEF_PORT):
+        for host in hosts:
+            try:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.sock.settimeout(5)
+                self.sock.connect((host, port))
+                return
+            except:
+                print("connection to", host, "has failed")
+                self.sock.close()
 
     def sock_send(self, msg):
         totalsent = 0
@@ -33,7 +40,7 @@ class TcpClient:
 
 class TcpServer:
     workers = []
-    hosts = []
+    allowed_hosts = []
 
     def __init__(self, cb, host, port=DEF_PORT):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,7 +51,7 @@ class TcpServer:
         self.cb = cb
 
     def allow_from(self, hosts):
-        self.hosts = hosts
+        self.allowed_hosts = hosts
 
     def sock_receive(self, conn):
         return conn.recv(MAX_FILE_SIZE)
@@ -74,7 +81,7 @@ class TcpServer:
         #print('waiting for a connection')
         conn, client_addr = self.sock.accept()
         #print('connection from', client_addr)
-        if client_addr[0] not in self.hosts:
+        if client_addr[0] not in self.allowed_hosts:
             print('%s not allowed'%client_addr[0])
             conn.close()
             return
