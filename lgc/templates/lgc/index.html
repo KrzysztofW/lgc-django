@@ -1,3 +1,118 @@
 {% extends "lgc/base.html" %}
+{% load i18n %}
 {% block content %}
+<div class="row">
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+	<div class="row">
+	  <div class="col-xs-3">
+	    <i class="fa fa-comments fa-5x"></i>
+	  </div>
+	  <div class="col-xs-9 text-right">
+	    <div class="huge"></div>
+	    <div>{% trans "New case" %}</div>
+	  </div>
+	</div>
+      </div>
+      <a href="{% url 'lgc-case-create' %}">
+	<div class="panel-footer">
+	  <span class="pull-left">{% trans "Initiate a case" %}</span>
+	  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+	  <div class="clearfix"></div>
+	</div>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-green">
+      <div class="panel-heading">
+	<div class="row">
+	  <div class="col-xs-3">
+	    <i class="fa fa-tasks fa-5x"></i>
+	  </div>
+	  <div class="col-xs-9 text-right">
+	    <div class="huge">12</div>
+	    <div>{% trans "Pending cases" %}</div>
+	  </div>
+	</div>
+      </div>
+      <a href="{% url 'lgc-cases' %}">
+	<div class="panel-footer">
+	  <span class="pull-left">{% trans "Show" %}</span>
+	  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+	  <div class="clearfix"></div>
+	</div>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-yellow">
+      <div class="panel-heading">
+	<div class="row">
+	  <div class="col-xs-3">
+	    <i class="fa fa-files-o fa-5x"></i>
+	  </div>
+	  <div class="col-xs-9 text-right">
+	    <div class="huge">1233</div>
+	    <div>{% trans "Files" %}</div>
+	  </div>
+	</div>
+      </div>
+      <a href="{% url 'lgc-files' %}">
+	<div class="panel-footer">
+	  <span class="pull-left">{% trans "Show" %}</span>
+	  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+	  <div class="clearfix"></div>
+	</div>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-red">
+      <div class="panel-heading">
+	<div class="row">
+	  <div class="col-xs-3">
+	    <i class="fa fa-bell-slash fa-5x"></i>
+	  </div>
+	  <div class="col-xs-9 text-right">
+	    <div class="huge">18</div>
+	    <div>{% trans "Expirations" %}</div>
+	  </div>
+	</div>
+      </div>
+      <a href="#">
+	<div class="panel-footer">
+	  <span class="pull-left">{% trans "View Details" %}</span>
+	  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+	  <div class="clearfix"></div>
+	</div>
+      </a>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-3 col-md-6">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+	<div class="row">
+	  <div class="col-xs-3">
+	    <i class="fa fa-money fa-5x"></i>
+	  </div>
+	  <div class="col-xs-9 text-right">
+	    <div class="huge"></div>
+	    <div>{% trans "Billing" %}</div>
+	  </div>
+	</div>
+      </div>
+      <a href="#">
+	<div class="panel-footer">
+	  <span class="pull-left">{% trans "Show" %}</span>
+	  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+	  <div class="clearfix"></div>
+	</div>
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock %}
