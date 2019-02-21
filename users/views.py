@@ -1,4 +1,4 @@
-from common.utils import pagination
+from common.utils import pagination, must_be_staff
 from django.http import Http404
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
@@ -9,19 +9,10 @@ from django.contrib.auth.views import logout_then_login
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from functools import wraps
 from .models import Profile
 from .forms import UserCreateForm, UserUpdateForm, ProfileCreateForm, UserPasswordUpdateForm
 from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
-
-def must_be_staff(view_func):
-    @wraps(view_func)
-    def func_wrapper(request, *args, **kwargs):
-        if not request.user.is_staff:
-            raise PermissionDenied
-        return view_func(request, *args, **kwargs)
-    return func_wrapper
 
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = User
@@ -200,7 +191,6 @@ def logout_then_login_with_msg(request):
 @must_be_staff
 def ajax_view(request):
     term = request.GET.get('term', '')
-    users = User.objects.filter(username__istartswith=term)
     users = User.objects.filter(username__istartswith=term)|User.objects.filter(email__istartswith=term)|User.objects.filter(first_name__istartswith=term)|User.objects.filter(last_name__istartswith=term)
     users = users[:10]
 

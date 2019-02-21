@@ -4,6 +4,15 @@ import json
 from django.conf import settings
 from django.core.serializers import serialize
 from urllib.parse import urlencode
+from functools import wraps
+
+def must_be_staff(view_func):
+    @wraps(view_func)
+    def func_wrapper(request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise PermissionDenied
+        return view_func(request, *args, **kwargs)
+    return func_wrapper
 
 def pagination(django_object, context, url):
     context['params'] = urlencode(django_object.request.GET)

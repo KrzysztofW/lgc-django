@@ -24,6 +24,7 @@ urlpatterns = [
     path('case-delete/<int:pk>', views.DeletePendingCase.as_view(),
          name='lgc-case-delete'),
 
+    path('insert-file/', views.ajax_insert_file_view, name='lgc-insert-file'),
     path('process-create/', views.ProcessCreateView.as_view(),
          name='lgc-process-create'),
     path('process-list/', views.ProcessListView.as_view(), name='lgc-processes'),

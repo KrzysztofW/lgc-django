@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
-from common.utils import pagination, queue_request
+from common.utils import pagination, queue_request, must_be_staff
 from common.lgc_types import ReqType, ReqAction
 from django import http
 from django.contrib import messages
@@ -16,7 +16,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from .models import Person, ProcessType, Child, ModerationChild, HR
 from .forms import (PersonCreateForm, ChildCreateForm, ModerationChildCreateForm,
-                    InitiateCaseForm, InitiateHRForm)
+                    InitiateCaseForm, InitiateHRForm, HREmployeeForm)
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML, MultiField
 from crispy_forms.bootstrap import (
@@ -84,7 +84,7 @@ def get_person_form_layout(action, processes):
 
     return Layout(
         TabHolder(
-            Tab('Information',
+            Tab(_('Information'),
                 Div(Div('first_name', css_class="form-group col-md-4"),
                     Div('last_name', css_class="form-group col-md-4"),
                     css_class="form-row"),
@@ -344,17 +344,18 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
-def get_case_form(form, action, new_token=False, show_is_admin=False):
-    form.helper = FormHelper()
-    form.helper.layout = Layout(
+def get_case_layout(layout, new_token, show_is_admin):
+    layout.append(
         Div(
             Div('first_name', css_class="form-group col-md-4"),
             Div('last_name', css_class="form-group col-md-4"),
-            css_class="form-row"),
+            css_class="form-row"))
+    layout.append(
         Div(
             Div('email', css_class="form-group col-md-4"),
             Div('language', css_class="form-group col-md-4"),
-            css_class="form-row"),
+            css_class="form-row"))
+    layout.append(
         Div(
             Div('company', css_class="form-group col-md-4"),
             Div('responsible', css_class="form-group col-md-4"),
@@ -366,11 +367,30 @@ def get_case_form(form, action, new_token=False, show_is_admin=False):
             row_div.append(Div('new_token', css_class="form-group col-md-4"))
         if show_is_admin:
             row_div.append(Div('is_admin', css_class="form-group col-md-4"))
-        form.helper.layout.append(row_div)
+        layout.append(row_div)
+    return layout
+
+def get_case_form(form, action, new_token=False):
+    form.helper.layout = get_case_layout(Layout(), new_token, False)
 
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
              action + '</button>'))
+    return form
+
+def get_hr_case_form(form, action, new_token=False):
+    layout = Layout(TabHolder(
+        Tab(_('Information'), get_case_layout(Layout(), new_token, True)),
+        Tab(_('Employees'),
+            Div(Div(HTML(get_template('employee_list.html')),
+                    css_class="form-group col-md-10"), css_class="form-row"),),
+    ))
+
+    form.helper.layout = layout
+    form.helper.layout.append(
+        HTML('<button class="btn btn-outline-info" type="submit">' +
+             action + '</button>'))
+    form.name = "first_form"
     return form
 
 class CaseView(LoginRequiredMixin):
@@ -395,7 +415,6 @@ class InitiateCase(CaseView, SuccessMessageMixin, CreateView):
     title = _("New Case")
     form_name = _("Initiate case")
     fields = ['first_name', 'last_name', 'email'];
-    show_is_admin = False
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
@@ -409,8 +428,8 @@ class InitiateCase(CaseView, SuccessMessageMixin, CreateView):
         if self.request.method == 'POST':
             self.request.session['case_lang'] = self.request.POST['language']
         form = super().get_form(form_class=self.form_class)
-        return get_case_form(form, self.form_name,
-                             show_is_admin=self.show_is_admin)
+        form.helper = FormHelper()
+        return get_case_form(form, self.form_name)
 
     def form_valid(self, form):
         self.object = form.save()
@@ -450,6 +469,9 @@ class UpdatePendingCase(CaseView, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
+        context['formset_title'] = _('Employees')
+        context['formset_add_text'] = _('Add an employee')
+
         return context
 
     def get_form(self, form_class=InitiateCaseForm):
@@ -461,14 +483,10 @@ class UpdatePendingCase(CaseView, SuccessMessageMixin, UpdateView):
             self.request.session['case_lang'] = ""
 
         form.initial['language'] = self.request.session['case_lang']
-        form = get_case_form(form, self.form_name, True,
-                             show_is_admin=self.show_is_admin)
-        if self.request.user.is_staff:
-            form.helper.layout.append(
-                HTML(' <a href="{% url "' + self.delete_url +
-                     '" object.id %}" class="btn btn-outline-danger">' +
-                     _("Delete") + '</a>'))
-        return form
+        form.helper = FormHelper()
+        if self.show_is_admin:
+            return get_hr_case_form(form, self.form_name, True)
+        return get_case_form(form, self.form_name, True)
 
     def form_valid(self, form):
         queue_request(self.req_type, ReqAction.UPDATE,
@@ -508,6 +526,57 @@ class HRUpdateView(HRView, UpdatePendingCase):
     success_message = _("HR case successfully updated")
     title = _("Update HR")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['formset_title'] = ''
+        context['formset_add_text'] = _('Add an employee')
+        EmployeeFormSet = formset_factory(HREmployeeForm,
+                                          extra=0, can_delete=True)
+
+        if self.request.POST:
+            context['formset'] = EmployeeFormSet(self.request.POST)
+        else:
+            init = []
+            for p in self.object.person.all():
+                init.append({'id':p.id, 'first_name':p.first_name, 'last_name':p.last_name,
+                             'company':p.company })
+            context['formset'] = EmployeeFormSet(initial=init)
+
+        return context
+
+    def is_deleted(self, employees, id):
+        for e in employees.deleted_forms:
+            if e.cleaned_data['id'] == id:
+                return True
+        return False
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        employees = context['formset']
+
+        if not self.request.POST:
+            return super().form_valid(form)
+
+        if not form.is_valid() or not employees.is_valid():
+            return super().form_invalid(form)
+
+        self.object = form.save()
+        self.object.person.clear()
+        for f in employees.cleaned_data:
+            if not 'id' in f:
+                continue
+            if self.is_deleted(employees, f['id']):
+                continue
+            p = Person.objects.filter(id=f['id'])
+            if p and p.get():
+                self.object.person.add(p.get())
+        self.object.save()
+
+        queue_request(self.req_type, ReqAction.UPDATE,
+                      self.file_prefix + str(self.object.id),
+                      form.cleaned_data)
+        return super().form_valid(form)
+
 class HRCaseListView(HRView, PendingCases):
     title = _("Pending HR cases")
     template_name = 'lgc/person_list.html'
@@ -529,3 +598,22 @@ class HRDeleteView(HRView, DeletePendingCase):
     title = _("Delete Pending HR case")
     template_name = 'lgc/person_confirm_delete.html'
 
+@login_required
+@must_be_staff
+def ajax_insert_file_view(request):
+    term = request.GET.get('term', '')
+    files = Person.objects.filter(first_name__istartswith=term)|Person.objects.filter(last_name__istartswith=term)|Person.objects.filter(home_entity__istartswith=term)
+    files = files[:10]
+
+    for f in files:
+        if term in f.first_name.lower():
+            f.b_first_name = f.first_name.lower()
+        elif term in f.last_name.lower():
+            f.b_last_name = f.last_name.lower()
+        elif term in f.home_entity.lower():
+            f.b_company = f.home_entity.lower()
+        f.company = f.home_entity
+    context = {
+        'files': files
+    }
+    return render(request, 'lgc/insert_file.html', context)

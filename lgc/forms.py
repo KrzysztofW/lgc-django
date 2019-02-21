@@ -1,5 +1,3 @@
-from django.forms import inlineformset_factory
-from django.forms import modelformset_factory
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
@@ -58,3 +56,10 @@ class ModerationChildCreateForm(ChildCreateForm):
     class Meta:
         model = ModerationChild
         exclude = ['parent']
+
+class HREmployeeForm(forms.Form):
+    id = forms.CharField(required=True, widget=forms.HiddenInput())
+    first_name = forms.CharField(required=True, widget=forms.HiddenInput())
+    last_name = forms.CharField(required=True, widget=forms.HiddenInput())
+    company = forms.CharField(required=False, widget=forms.HiddenInput())
+
