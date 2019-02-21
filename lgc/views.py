@@ -64,9 +64,9 @@ class PersonListView(PersonCommonListView):
 
         return pagination(self, context, reverse_lazy('lgc-files'))
 
-def get_children_formset_template(children):
+def get_template(name):
     try:
-        with Path(CURRENT_DIR, 'templates', 'lgc', 'children_template.html').open() as fh:
+        with Path(CURRENT_DIR, 'templates', 'lgc', name).open() as fh:
             return fh.read()
     except FileNotFoundError:
         raise Http404
@@ -74,7 +74,7 @@ def get_children_formset_template(children):
 def get_process_layout():
     pass
 
-def get_person_form_layout(action, processes, children):
+def get_person_form_layout(action, processes):
     html = '<label for="process" class="col-form-label requiredField">'
     html += _('Process') + '<span class="asteriskField">*</span> </label>'
     html += '<select class="form-control form-control-sm">'
@@ -113,7 +113,7 @@ def get_person_form_layout(action, processes, children):
                 Div(Div('work_authorization_start', css_class="form-group col-md-4"),
                     Div('work_authorization_end', css_class="form-group col-md-4"),
                     css_class="form-row"),
-                Div(Div(HTML(get_children_formset_template(children)),
+                Div(Div(HTML(get_template('formset_template.html')),
                         css_class="form-group col-md-10"), css_class="form-row"),
             ),
             Tab(_('Process'),
@@ -137,15 +137,17 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("New File")
+        context['formset_title'] = _('Children')
+        context['formset_add_text'] = _('Add a child')
         context['process'] = ProcessType.objects.all()
         # We cannot use modelformset_factory with Child class as it would
         # get ALL the children from the DB in an empty creation form!
         ChildrenFormSet = formset_factory(form=ChildCreateForm, extra=1)
 
         if self.request.POST:
-            context['children'] = ChildrenFormSet(self.request.POST)
+            context['formset'] = ChildrenFormSet(self.request.POST)
         else:
-            context['children'] = ChildrenFormSet()
+            context['formset'] = ChildrenFormSet()
         return context
 
     def form_valid(self, form):
@@ -166,12 +168,9 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def get_form(self, form_class=PersonCreateForm):
         form = super().get_form(form_class=form_class)
-        ChildrenFormSet = formset_factory(form=ChildCreateForm)
-        children = ChildrenFormSet()
         form.helper = FormHelper()
         form.helper.layout = get_person_form_layout(_("Create"),
-                                                    ProcessType.objects.all(),
-                                                    children)
+                                                    ProcessType.objects.all())
         return form
 
 # XXX allow to insert to pending cases
@@ -187,33 +186,34 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _("File")
+        context['formset_title'] = _('Children')
+        context['formset_add_text'] = _('Add a child')
         context['process'] = ProcessType.objects.all()
         ChildrenFormSet = modelformset_factory(Child, self.child_form,
                                                extra=1, can_delete=True)
         if self.request.POST:
-            context['children'] = ChildrenFormSet(self.request.POST)
+            context['formset'] = ChildrenFormSet(self.request.POST)
         else:
-            context['children'] = ChildrenFormSet(queryset=Child.objects.filter(parent=self.object.id))
+            context['formset'] = ChildrenFormSet(queryset=Child.objects.filter(parent=self.object.id))
         return context
 
     def get_form(self, form_class=PersonCreateForm):
         form = super().get_form(form_class)
-        ChildrenFormSet = formset_factory(form=ChildCreateForm)
-        if self.request.POST:
-            children = ChildrenFormSet(self.request.POST)
-        else:
-            children = ChildrenFormSet()
         form.helper = FormHelper()
         form.helper.layout = get_person_form_layout(_("Update"),
-                                                    ProcessType.objects.all(),
-                                                    children)
+                                                    ProcessType.objects.all())
         if self.request.user.is_staff:
             form.helper.layout.append(HTML(' <a href="{% url "lgc-file-delete" object.id %}" class="btn btn-outline-danger">' + _("Delete") + '</a>'))
         return form
 
     def form_valid(self, form):
+        # need to call get_context_data() in order to fill
+        # the context['formset'] with POST response
         context = self.get_context_data()
-        children = context['children']
+        children = context['formset']
+
+        if not self.request.POST:
+            return super().form_valid(form)
 
         with transaction.atomic():
             if children.is_valid():

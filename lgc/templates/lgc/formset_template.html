@@ -2,13 +2,13 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 
-<label><b>{% trans 'Children' %}</b></label>
-<div id="formset" data-formset-prefix="{{ children.prefix }}">
-  {{ children.management_form }}
+<label><b>{{ formset_title }}</b></label>
+<div id="formset" data-formset-prefix="{{ formset.prefix }}">
+  {{ formset.management_form }}
 
   <div data-formset-body>
     <!-- New forms will be inserted in here -->
-    {% for form in children %}
+    {% for form in formset %}
 
     {% if forloop.first %}
     <div class="form-row">
@@ -42,15 +42,14 @@
   <script type="form-template" data-formset-empty-form>
     {% escapescript %}
     <div data-formset-form class="form-row">
-      {% for f in children.empty_form.hidden_fields %}
+      {% for f in formset.empty_form.hidden_fields %}
       {{ f }}
       {% endfor %}
-      {% for f in children.empty_form.visible_fields %}
+      {% for f in formset.empty_form.visible_fields %}
       <div class="form-group col-md-2">{{ f }}</div>
       {% endfor %}
     </div>
     {% endescapescript %}
   </script>
 
-  <input type="button" value="{% trans 'Add a child' %}" data-formset-add>
-</div>
+  <input type="button" value="{{ formset_add_text }}" data-formset-add>
