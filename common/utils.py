@@ -55,13 +55,20 @@ def queue_object_request(obj):
     with open(filename, "w") as f:
         f.write(s)
 
-def queue_request(req_type, action, id, form):
+def queue_request(req_type, action, id, form, relations = None):
     resp = []
+    rel = []
+
     if form == None:
         return
 
     for u in form['responsible']:
         resp.append(u.email)
+
+    if relations != None:
+        for r in relations:
+            if r.email:
+                rel.append(r.email)
 
     s = json.dumps([req_type, action, {
         'first_name':form['first_name'],
@@ -71,6 +78,7 @@ def queue_request(req_type, action, id, form):
         'lang':form['language'],
         'new_token': form['new_token'],
         "responsible":resp,
+        "relations":rel
     }])
     filename = os.path.join(settings.LGC_QUEUE_PATH, str(id))
     with open(filename, "w") as f:

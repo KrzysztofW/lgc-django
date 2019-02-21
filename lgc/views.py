@@ -488,10 +488,10 @@ class UpdatePendingCase(CaseView, SuccessMessageMixin, UpdateView):
             return get_hr_case_form(form, self.form_name, True)
         return get_case_form(form, self.form_name, True)
 
-    def form_valid(self, form):
+    def form_valid(self, form, relations = None):
         queue_request(self.req_type, ReqAction.UPDATE,
                       self.file_prefix + str(self.object.id),
-                      form.cleaned_data)
+                      form.cleaned_data, relations)
         return super().form_valid(form)
 
 class DeletePendingCase(CaseView, PersonDeleteView):
@@ -568,14 +568,19 @@ class HRUpdateView(HRView, UpdatePendingCase):
             if self.is_deleted(employees, f['id']):
                 continue
             p = Person.objects.filter(id=f['id'])
-            if p and p.get():
-                self.object.person.add(p.get())
+            if p == None:
+                messages.error(self.request, _("Unknown file ID `%s'"%(f['id'])))
+                return super().form_invalid(form)
+            p = p.get()
+            if p == None:
+                messages.error(self.request, _("Unknown file ID `%s'"%(f['id'])))
+                return super().form_invalid(form)
+            if p.email == None:
+                messages.error(self.request, _("Employee's e-mail cannot be empty in file `%s'"%(f['id'])))
+                return super().form_invalid(form)
+            self.object.person.add(p)
         self.object.save()
-
-        queue_request(self.req_type, ReqAction.UPDATE,
-                      self.file_prefix + str(self.object.id),
-                      form.cleaned_data)
-        return super().form_valid(form)
+        return super().form_valid(form, self.object.person.all())
 
 class HRCaseListView(HRView, PendingCases):
     title = _("Pending HR cases")
