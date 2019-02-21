@@ -54,7 +54,8 @@ class PersonCommonListView(LoginRequiredMixin, ListView):
 
 class PersonListView(PersonCommonListView):
     def get_queryset(self):
-        return Person.objects.filter(GDPR_accepted=True).order_by('-id')
+        order_by = self.get_ordering()
+        return Person.objects.filter(GDPR_accepted=True).order_by(order_by)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
