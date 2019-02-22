@@ -9,11 +9,14 @@
 {% endblock content %}
 {% block javascript %}
 <script src="{% static 'lgc/jquery.formset.min.js' %}"></script>
-    <script>jQuery(function($) {
-        $("#formset").formset({
-      animateForms: true,
-      reorderMode: 'dom',
-        });
-    });</script>
+<script src="{% static 'lgc/lgc.js' %}"></script>
+<script>
+  jQuery(function($) {
+    $("#formset").formset({
+        animateForms: true,
+        reorderMode: 'dom',
+    });
+  });
+</script>
 
 {% endblock javascript %}

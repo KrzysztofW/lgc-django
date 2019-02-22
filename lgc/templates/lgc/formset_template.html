@@ -13,7 +13,11 @@
     {% if forloop.first %}
     <div class="form-row">
       {% for f in form.visible_fields %}
+      {% if f.name == "DELETE" %}
+      <div class="form-group col-md-1 justify-content-center d-flex">
+      {% else %}
       <div class="form-group col-md-2">
+      {% endif %}
 	{{ f.label|capfirst }}
 	{% if f.field.required %}<span class="asteriskField">*</span>{% endif %}
       </div>
@@ -26,6 +30,7 @@
       {{ f }}
       {% endfor %}
       {% for f in form.visible_fields %}
+      {% if f.name != "DELETE" %}
       <div class="form-group col-md-2">
 	{{ f }}
 	{% if f.errors %}
@@ -34,7 +39,12 @@
 	</span>
 	{% endif %}
       </div>
+      {% endif %}
       {% endfor %}
+      <div class="form-group col-md-1 justify-content-center d-flex">
+	<div class="d-none">{{ form.DELETE }}</div>
+	<i class="fa fa-trash fa-fw" data-formset-delete-button></i>
+      </div>
     </div>
     {% endfor %}
   </div>
