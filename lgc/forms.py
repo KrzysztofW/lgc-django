@@ -64,4 +64,4 @@ class HREmployeeForm(forms.Form):
     first_name = forms.CharField(required=True, widget=forms.HiddenInput())
     last_name = forms.CharField(required=True, widget=forms.HiddenInput())
     company = forms.CharField(required=False, widget=forms.HiddenInput())
-
+    email = forms.EmailField(required=True, widget=forms.HiddenInput())

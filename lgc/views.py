@@ -560,8 +560,12 @@ class HRUpdateView(HRView, UpdatePendingCase):
         else:
             init = []
             for p in self.object.person.all():
-                init.append({'id':p.id, 'first_name':p.first_name, 'last_name':p.last_name,
-                             'company':p.company })
+                init.append({'id':p.id,
+                             'first_name':p.first_name,
+                             'last_name':p.last_name,
+                             'company':p.company,
+                             'email':p.email,
+                })
             context['formset'] = EmployeeFormSet(initial=init)
 
         return context
@@ -629,7 +633,7 @@ class HRDeleteView(HRView, DeletePendingCase):
 @must_be_staff
 def ajax_insert_file_view(request):
     term = request.GET.get('term', '')
-    files = Person.objects.filter(first_name__istartswith=term)|Person.objects.filter(last_name__istartswith=term)|Person.objects.filter(home_entity__istartswith=term)
+    files = Person.objects.filter(first_name__istartswith=term)|Person.objects.filter(last_name__istartswith=term)|Person.objects.filter(home_entity__istartswith=term)|Person.objects.filter(email__istartswith=term)
     files = files[:10]
 
     for f in files:
@@ -637,9 +641,11 @@ def ajax_insert_file_view(request):
             f.b_first_name = f.first_name.lower()
         elif term in f.last_name.lower():
             f.b_last_name = f.last_name.lower()
-        elif term in f.home_entity.lower():
-            f.b_company = f.home_entity.lower()
-        f.company = f.home_entity
+        elif term in f.company.lower():
+            f.b_company = f.company.lower()
+        elif term in f.email.lower():
+            f.b_email = f.email.lower()
+
     context = {
         'files': files
     }

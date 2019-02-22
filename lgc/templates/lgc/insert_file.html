@@ -1,2 +1,2 @@
-{% for f in files %}{% autoescape off %}{{ f.id }}, {% if f.b_first_name %}{{ f.b_first_name }}{% else %}{{ f.first_name }}{% endif %}, {% if f.b_last_name %}{{ f.b_last_name }}{% else %}{{ f.last_name }}{% endif %}, {% if f.b_company %}{{ f.b_company }}{% else %}{{ f.company }}{% endif %}{% endautoescape %}
+{% for f in files %}{% autoescape off %}{{ f.id }}, {% if f.b_first_name %}{{ f.b_first_name }}{% else %}{{ f.first_name }}{% endif %}, {% if f.b_last_name %}{{ f.b_last_name }}{% else %}{{ f.last_name }}{% endif %}, {% if f.b_company %}{{ f.b_company }}{% else %}{{ f.company }}{% endif %}, {% if f.b_email %}{{ f.b_email }}{% else %}{{ f.email }}{% endif %}{% endautoescape %}
 {% endfor %}
