@@ -184,7 +184,14 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                     i.parent_id = self.object.id
                     i.save()
                 person_add_hr(form.cleaned_data, self.object)
+            else:
+                messages.error(self.request, _("Invalid Children table"))
+                return super().form_invalid(form)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("There are errors on the page"))
+        return super().form_invalid(form)
 
     def get_form(self, form_class=PersonCreateForm):
         form = super().get_form(form_class=form_class)
@@ -245,11 +252,15 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                 for i in instances:
                     i.parent_id = self.object.id
                     i.save()
-
                 person_add_hr(form.cleaned_data, self.object)
             else:
+                messages.error(self.request, _("Invalid Children table"))
                 return super().form_invalid(form)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("There are errors on the page"))
+        return super().form_invalid(form)
 
 def gen_form_from_obj(obj, token=False):
     form = {}
@@ -461,6 +472,10 @@ class InitiateCase(CaseView, SuccessMessageMixin, CreateView):
                       form.cleaned_data)
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, _("There are errors on the page"))
+        return super().form_invalid(form)
+
 class PendingCases(CaseView, PersonCommonListView, UserPassesTestMixin):
     title = _("Pending Cases")
     template_name = 'lgc/person_list.html'
@@ -515,6 +530,10 @@ class UpdatePendingCase(CaseView, SuccessMessageMixin, UpdateView):
                       self.file_prefix + str(self.object.id),
                       form.cleaned_data, relations)
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("There are errors on the page"))
+        return super().form_invalid(form)
 
 class DeletePendingCase(CaseView, PersonDeleteView):
     obj_name = _("Pending case")
@@ -583,7 +602,11 @@ class HRUpdateView(HRView, UpdatePendingCase):
         if not self.request.POST:
             return super().form_valid(form)
 
-        if not form.is_valid() or not employees.is_valid():
+        if not form.is_valid():
+            return super().form_invalid(form)
+
+        if not employees.is_valid():
+            messages.error(self.request, _("Invalid Employee table"))
             return super().form_invalid(form)
 
         self.object = form.save()
