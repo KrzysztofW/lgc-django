@@ -127,6 +127,12 @@ class AccountCommon(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        str = self.first_name + " " + self.last_name
+        if self.company:
+            return  str + " (" + self.company + ")"
+        return str
+
 def check_dates(start, end, what):
     if start and end and end <= start:
         raise ValidationError(_("End date of %s cannot be earlier than start date"%(what)))
