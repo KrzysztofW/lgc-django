@@ -110,6 +110,9 @@ def get_person_form_layout(action, processes):
                 Div(Div('home_entity_country', css_class="form-group col-md-4"),
                     Div('host_entity_country', css_class="form-group col-md-4"),
                     css_class="form-row"),
+                Div(Div('HR', css_class="form-group col-md-4"),
+                    Div('company', css_class="form-group col-md-4"),
+                    css_class="form-row"),
                 Div(Div('work_authorization')),
                 Div(Div('work_authorization_start', css_class="form-group col-md-4"),
                     Div('work_authorization_end', css_class="form-group col-md-4"),
@@ -126,6 +129,21 @@ def get_person_form_layout(action, processes):
         ),
         HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'),
     )
+
+def person_add_hr(form_data, person_object):
+    person_object.hr_set.clear()
+
+    if 'HR' not in form_data:
+        return
+    for i in form_data['HR']:
+        h = HR.objects.filter(id=i.id)
+        if not h:
+            return
+        h = h.get()
+        if not h:
+            return
+        h.person.add(person_object.id)
+        h.save()
 
 class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Person
@@ -157,14 +175,15 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         # force GDPR_accepted = True for manually created files
         form.instance.GDPR_accepted = True
 
-        self.object = form.save()
         children = ChildrenFormSet(self.request.POST)
         with transaction.atomic():
+            self.object = form.save()
             if children.is_valid():
                 instances = children.save(commit=False)
                 for i in instances:
                     i.parent_id = self.object.id
                     i.save()
+                person_add_hr(form.cleaned_data, self.object)
         return super().form_valid(form)
 
     def get_form(self, form_class=PersonCreateForm):
@@ -196,6 +215,7 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             context['formset'] = ChildrenFormSet(self.request.POST)
         else:
             context['formset'] = ChildrenFormSet(queryset=Child.objects.filter(parent=self.object.id))
+        context['form'].fields['HR'].initial = self.object.hr_set.all().order_by('company')
         return context
 
     def get_form(self, form_class=PersonCreateForm):
@@ -225,9 +245,10 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                 for i in instances:
                     i.parent_id = self.object.id
                     i.save()
+
+                person_add_hr(form.cleaned_data, self.object)
             else:
                 return super().form_invalid(form)
-
         return super().form_valid(form)
 
 def gen_form_from_obj(obj, token=False):
