@@ -332,9 +332,7 @@ class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     fields = ['id', 'name']
     success_message = _("Process successfully created")
     template_name = 'lgc/process_form.html'
-
-    def get_success_url(self):
-        return reverse_lazy('lgc-process', kwargs={'pk': self.object.id})
+    success_url = reverse_lazy('lgc-process-create')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -345,7 +343,7 @@ class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = ProcessType
     fields = ['name']
-    success_message = _("File successfully updated")
+    success_message = _("Process successfully updated")
     template_name = 'lgc/process_form.html'
 
     def get_success_url(self):
