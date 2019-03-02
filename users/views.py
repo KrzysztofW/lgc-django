@@ -7,12 +7,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout_then_login
 from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
-from .models import Profile
-from .forms import UserCreateForm, UserUpdateForm, ProfileCreateForm, UserPasswordUpdateForm
-from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
-                                  DeleteView)
+from .forms import UserCreateForm, UserUpdateForm, UserPasswordUpdateForm
+from django.views.generic import (ListView, DetailView, CreateView,
+                                  UpdateView, DeleteView)
+
+User = get_user_model()
 
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = User
@@ -30,17 +31,19 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         term = self.request.GET.get('term', '')
-        order_by = self.request.GET.get('order_by', '-date_joined')
-        return User.objects.filter(username__istartswith=term).order_by(order_by)|User.objects.filter(email__istartswith=term)|User.objects.filter(first_name__istartswith=term)|User.objects.filter(last_name__istartswith=term)
+        order_by = self.get_ordering()
+        if term == '':
+            return User.objects.all().order_by(order_by)
+        objs = (User.objects.filter(email__istartswith=term)|
+                User.objects.filter(first_name__istartswith=term)|
+                User.objects.filter(last_name__istartswith=term))
+        return objs.order_by(order_by)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        order_by = self.request.GET.get('order_by', '-date_joined')
+        order_by = self.get_ordering()
         context['title'] = _("Users")
         return pagination(self, context, reverse_lazy('lgc-users'))
-
-        def test_func(self):
-            return self.request.user.is_staff
 
 class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
@@ -66,29 +69,23 @@ def create(request):
     title = _("New User")
 
     if request.method == 'POST':
-        u_form = UserCreateForm(request.POST)
-        p_form = ProfileCreateForm(request.POST)
+        form = UserCreateForm(request.POST)
 
-        if u_form.is_valid() and p_form.is_valid():
-            user = u_form.save()
-            profile = p_form.save(commit=False)
-            profile.user = user
-            profile.save()
-            username = u_form.cleaned_data.get('username')
+        if form.is_valid():
+            user = form.save()
+            email = form.cleaned_data.get('email')
             messages.success(request,
-                             _('The account for %(username)s has been created') %
-                             { 'username': username})
+                             _('The account for %(email)s has been created') %
+                             { 'email': email})
             return redirect('lgc-user-create')
         context = {
-            'u_form': u_form,
-            'p_form': p_form,
+            'form': form,
             'title': title,
         }
         return render(request, 'users/create.html', context)
 
     context = {
-        'u_form': UserCreateForm(),
-        'p_form': ProfileCreateForm(),
+        'form': UserCreateForm(),
         'title': title,
     }
     return render(request, 'users/create.html', context)
@@ -106,8 +103,8 @@ def password_reset(request, user_id):
         if form.is_valid():
             form.save()
             messages.success(request,
-                             _('The password for %(username)s has been successfully updated') %
-                             { 'username': user[0].username})
+                             _('The password for %s %s has been successfully updated') %
+                             (user[0].first_name, user[0].last_name))
             return redirect('lgc-user', user[0].id)
         context = {
             'form': form,
@@ -131,56 +128,32 @@ def update(request, user_id):
 
     if user.count() != 1:
         raise Http404
-    try:
-        user[0].profile
-    except:
-        profile_exists = False
-    else:
-        profile_exists = True
 
     if request.method == 'POST':
-        u_form = UserUpdateForm(request.POST, instance=user[0])
-        if profile_exists:
-            p_form = ProfileCreateForm(request.POST, instance=user[0].profile)
-        else:
-            p_form = ProfileCreateForm(request.POST)
+        form = UserUpdateForm(request.POST, instance=user[0])
 
-        if u_form.is_valid() and p_form.is_valid():
-            user = u_form.save()
-            profile = p_form.save(commit=False)
-            profile.user = user
-            profile.save()
-            username = u_form.cleaned_data.get('username')
+        if form.is_valid():
+            user = form.save()
+            email = form.cleaned_data.get('email')
             messages.success(request,
-                             _('The account for %(username)s has been updated') %
-                             { 'username': username})
+                             _('The account of %(email)s has been updated') %
+                             { 'email': email})
             return redirect('lgc-users')
         context = {
-            'u_form': u_form,
-            'p_form': p_form,
+            'form': form,
             'update': 1,
             'user_id': user_id,
             'title': title,
         }
         return render(request, 'users/create.html', context)
 
-    if profile_exists:
-        p_form = ProfileCreateForm(instance=user[0].profile)
-    else:
-        p_form = ProfileCreateForm
     context = {
-        'u_form': UserUpdateForm(instance=user[0]),
-        'p_form': p_form,
+        'form': UserUpdateForm(instance=user[0]),
         'update': 1,
         'user_id': user_id,
         'title': title,
     }
     return render(request, 'users/create.html', context)
-
-@login_required
-@must_be_staff
-def profile(request):
-    return render(request, 'users/profile.html')
 
 @login_required
 def logout_then_login_with_msg(request):
@@ -191,17 +164,16 @@ def logout_then_login_with_msg(request):
 @must_be_staff
 def ajax_view(request):
     term = request.GET.get('term', '')
-    users = User.objects.filter(username__istartswith=term)|User.objects.filter(email__istartswith=term)|User.objects.filter(first_name__istartswith=term)|User.objects.filter(last_name__istartswith=term)
+    term = term.lower()
+    users = User.objects.filter(email__istartswith=term)|User.objects.filter(first_name__istartswith=term)|User.objects.filter(last_name__istartswith=term)
     users = users[:10]
 
     for u in users:
-        if term in u.username.lower():
-            u.b_username = u.username.lower()
-        elif term in u.email.lower():
+        if u.email.lower().startswith(term):
             u.b_email = u.email.lower()
-        elif term in u.first_name.lower():
+        elif u.first_name.lower().startswith(term):
             u.b_first_name = u.first_name.lower()
-        elif term in u.last_name.lower():
+        elif u.last_name.lower().startswith(term):
             u.b_last_name = u.last_name.lower()
     context = {
         'users': users

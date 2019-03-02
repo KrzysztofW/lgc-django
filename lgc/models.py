@@ -1,10 +1,11 @@
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 from datetime import date
 from django_countries.fields import CountryField
+User = get_user_model()
 
 alpha = RegexValidator(r'^[^0-9`;:_{}()$^~"\%&*#!?.,\\<>|@/]*$',
                        _('Numbers and special characters are not allowed.'))

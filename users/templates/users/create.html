@@ -7,8 +7,7 @@
   <form method="POST">
     {% csrf_token %}
     <fieldset class="form-group">
-      {{ u_form|crispy }}
-      {{ p_form|crispy }}
+      {{ form|crispy }}
     </fieldset>
     <div class="form-group">
       <button class="btn btn-outline-info" type="submit">{% trans "Submit" %}</button>
