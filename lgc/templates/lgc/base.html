@@ -344,7 +344,7 @@
                 </ul>
                 <!-- /.nav-second-level -->
               </li>
-
+	      {% if request.user.is_staff %}
               <li class="list-group-item">
 		<a href="#"><i class="fa fa-wrench fa-fw"></i> Admin<span class="fa arrow"></span></a>
                 <ul class="nav-second-level list-group nested">
@@ -354,6 +354,7 @@
                 </ul>
                 <!-- /.nav-second-level -->
               </li>
+	      {% endif %}
             </ul>
           </div>
           <!-- /.sidebar-collapse -->
