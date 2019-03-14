@@ -45,6 +45,8 @@ class PersonCommonListView(LoginRequiredMixin, ListView):
     model = Person
     fields = '__all__'
     context_object_name = 'persons'
+    ajax_search_url = reverse_lazy('lgc-file-search-ajax')
+    search_url = reverse_lazy('lgc-files')
 
     class Meta:
         abstract = True
@@ -55,20 +57,32 @@ class PersonCommonListView(LoginRequiredMixin, ListView):
     def get_paginate_by(self, queryset):
         return self.request.GET.get('paginate', '10')
 
-class PersonListView(PersonCommonListView):
-    def get_queryset(self):
-        order_by = self.get_ordering()
-        return Person.objects.order_by(order_by)
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Files')
         context['create_url'] = reverse_lazy('lgc-file-create')
         context['update_url'] = 'lgc-file'
-        context['show_id'] = True
-        context['show_birth_date'] = True
+        context['ajax_search_url'] = self.ajax_search_url
+        context['search_url'] = self.search_url
 
         return pagination(self, context, reverse_lazy('lgc-files'))
+
+class PersonListView(PersonCommonListView):
+    def get_queryset(self):
+        term = self.request.GET.get('term', '')
+        order_by = self.get_ordering()
+        if term == '':
+            return Person.objects.order_by(order_by)
+        objs = (Person.objects.filter(email__istartswith=term)|
+                Person.objects.filter(first_name__istartswith=term)|
+                Person.objects.filter(last_name__istartswith=term))
+        return objs.order_by(order_by)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['show_id'] = True
+        context['show_birth_date'] = True
+        return context
 
 def get_template(name):
     try:
@@ -78,6 +92,7 @@ def get_template(name):
         raise Http404
 
 def get_person_form_layout(form, action, obj):
+    external_profile = None
     form.helper = FormHelper()
     info_tab = Tab(
         _('Information'),
@@ -103,7 +118,7 @@ def get_person_form_layout(form, action, obj):
             Div('host_entity_address', css_class='form-group col-md-4'),
             css_class='form-row'),
     )
-    if obj.user:
+    if obj and obj.user:
         info_tab.append(Div(Div('HR', css_class='form-group col-md-4'),
             css_class='form-row'))
     info_tab.append(Div(Div(HTML(get_template('formset_template.html')),
@@ -140,8 +155,12 @@ def get_person_form_layout(form, action, obj):
 
     billing_tab = Tab(_('Billing'),
     )
-    layout = Layout(TabHolder(info_tab, external_profile, process_tab,
-                              billing_tab))
+    tab_holder = TabHolder(info_tab)
+    if external_profile:
+        tab_holder.append(external_profile)
+    tab_holder.append(process_tab)
+    tab_holder.append(billing_tab)
+    layout = Layout(tab_holder)
     layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
                        action + '</button>'))
     form.helper.layout = layout
@@ -216,7 +235,6 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form = super().get_form(form_class=form_class)
         return get_person_form_layout(form, _('Create'), None)
 
-# XXX allow to insert to pending accounts
 class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Person
     child_form = ChildCreateForm
@@ -464,10 +482,20 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
+        if not self.is_hr:
+            try:
+                p = self.get_person()
+                context['form'].fields['first_name'].initial = p.first_name
+                context['form'].fields['last_name'].initial = p.last_name
+                context['form'].fields['email'].initial = p.email
+            except:
+                pass
+
         return context
 
     def get_form(self, form_class=InitiateAccountForm):
         form = super().get_form(form_class=self.form_class)
+
         if self.is_hr:
             return get_hr_account_form(form, self.form_name, True, False)
         return get_account_form(form, self.form_name, True)
@@ -477,16 +505,20 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
                        _("Cannot link with a non-existent file `%s'"%pk))
         return super().form_invalid(form)
 
-    def form_valid(self, form):
+    def get_person(self):
         pk = self.kwargs['pk']
-        p = None
         if pk:
             p = Person.objects.filter(id=pk)
             if p == None or len(p) == 0:
-                return self.return_non_existant(form, pk)
-            p = p.get()
-            if p == None:
-                return self.return_non_existant(form, pk)
+                raise ValueError('invalid person ID')
+            return p.get()
+        return None
+
+    def form_valid(self, form):
+        try:
+            p = self.get_person()
+        except:
+            return self.return_non_existant(form, pk)
 
         self.object = form.save(commit=False)
         form.cleaned_data['new_token'] = True
@@ -504,8 +536,8 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             messages.error(self.request, _('Cannot send email to') + '`'
                            + self.object.email + '`: ' + str(e))
             return super().form_invalid(form)
-        self.object = form.save()
         ret = super().form_valid(form)
+        self.object = form.save()
         if p:
             p.user = self.object
             p.save()
@@ -518,6 +550,9 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
 class PendingAccounts(AccountView, PersonCommonListView, UserPassesTestMixin):
     title = _('Pending Accounts')
     template_name = 'lgc/person_list.html'
+    ajax_search_url = reverse_lazy('lgc-employee-user-search-ajax')
+    search_url = reverse_lazy('lgc-accounts')
+    users = user_models.get_employee_user_queryset()
 
     def test_func(self):
         return True
@@ -531,8 +566,15 @@ class PendingAccounts(AccountView, PersonCommonListView, UserPassesTestMixin):
         return pagination(self, context, self.list_url)
 
     def get_queryset(self):
-        users = user_models.get_employee_user_queryset()
-        return users.filter(GDPR_accepted=None).order_by('-id')
+        users = self.users.filter(GDPR_accepted=None)
+        term = self.request.GET.get('term', '')
+        order_by = self.get_ordering()
+        if term == '':
+            return users.order_by(order_by)
+        objs = (users.filter(email__istartswith=term)|
+                users.filter(first_name__istartswith=term)|
+                users.filter(last_name__istartswith=term))
+        return objs.order_by(order_by)
 
 class UpdatePendingAccount(AccountView, SuccessMessageMixin, UpdateView):
     success_message = _('Account successfully updated')
@@ -693,11 +735,9 @@ class HRUpdateView(HRView, UpdatePendingAccount, UserPassesTestMixin):
 class HRAccountListView(HRView, PendingAccounts):
     title = _('Pending HR accounts')
     template_name = 'lgc/person_list.html'
-
-    def get_queryset(self):
-        users = user_models.get_hr_user_queryset()
-        objs = users.filter(GDPR_accepted=None)|users.filter(GDPR_accepted=False)
-        return objs.order_by('-id')
+    ajax_search_url = reverse_lazy('lgc-hr-user-search-ajax')
+    search_url = reverse_lazy('lgc-hr-accounts')
+    users = user_models.get_hr_user_queryset()
 
 class HRListView(HRView, PendingAccounts):
     title = _('Human resources')
@@ -733,3 +773,25 @@ def ajax_insert_employee_view(request):
         'employees': employees
     }
     return render(request, 'lgc/insert_employee.html', context)
+
+@login_required
+def ajax_file_search_view(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    term = request.GET.get('term', '')
+    files = Person.objects.filter(first_name__istartswith=term)|Person.objects.filter(last_name__istartswith=term)|Person.objects.filter(email__istartswith=term)
+    files = files[:10]
+
+    for f in files:
+        if term in f.first_name.lower():
+            f.b_first_name = f.first_name.lower()
+        elif term in f.last_name.lower():
+            f.b_last_name = f.last_name.lower()
+        elif term in f.email.lower():
+            f.b_email = f.email.lower()
+
+    context = {
+        'users': files
+    }
+    return render(request, 'users/search.html', context)

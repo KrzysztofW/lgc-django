@@ -1,5 +1,6 @@
 from common.utils import pagination, must_be_staff
 from django.http import Http404
+from django.http import HttpResponseForbidden
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -44,6 +45,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context = super().get_context_data(**kwargs)
         order_by = self.get_ordering()
         context['title'] = _("Users")
+
         return pagination(self, context, reverse_lazy('lgc-users'))
 
 class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -161,12 +163,9 @@ def logout_then_login_with_msg(request):
     messages.success(request, _('You were successfully logged-out.'))
     return logout_then_login(request)
 
-@login_required
-@must_be_staff
-def ajax_view(request):
+def __ajax_view(request, users):
     term = request.GET.get('term', '')
     term = term.lower()
-    users = user_models.get_local_user_queryset()
     users = users.filter(email__istartswith=term)|users.filter(first_name__istartswith=term)|users.filter(last_name__istartswith=term)
     users = users[:10]
 
@@ -181,3 +180,24 @@ def ajax_view(request):
         'users': users
     }
     return render(request, 'users/search.html', context)
+
+@login_required
+@must_be_staff
+def ajax_local_user_seach_view(request):
+    users = user_models.get_local_user_queryset()
+    return __ajax_view(request, users)
+
+@login_required
+def ajax_hr_user_seach_view(request):
+    if (request.user.role not in user_models.get_hr_roles() +
+        user_models.get_internal_roles()):
+        return HttpResponseForbidden()
+    users = user_models.get_hr_user_queryset()
+    return __ajax_view(request, users)
+
+@login_required
+def ajax_employee_user_seach_view(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return HttpResponseForbidden()
+    users = user_models.get_employee_user_queryset()
+    return __ajax_view(request, users)

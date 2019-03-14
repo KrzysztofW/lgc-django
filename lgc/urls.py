@@ -17,6 +17,8 @@ urlpatterns = [
     path('file-delete/<int:pk>', views.PersonDeleteView.as_view(),
          name='lgc-file-delete'),
     path('file/<int:pk>/', views.PersonUpdateView.as_view(), name='lgc-file'),
+    path('file-search/ajax/', views.ajax_file_search_view,
+         name='lgc-file-search-ajax'),
 
     path('account-create/', views.InitiateAccount.as_view(), name='lgc-account-create'),
     path('account-list/', views.PendingAccounts.as_view(), name='lgc-accounts'),

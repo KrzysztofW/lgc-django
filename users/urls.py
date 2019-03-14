@@ -10,7 +10,14 @@ urlpatterns = [
     path('create/', views.create, name='lgc-user-create'),
     path('list/', UserListView.as_view(), name='lgc-users'),
     path('delete/<int:pk>/', UserDeleteView.as_view(), name='lgc-user-delete'),
-    path('search/ajax/', views.ajax_view, name='lgc-user-search-ajax'),
+
+    path('local-search/ajax/', views.ajax_local_user_seach_view,
+         name='lgc-local-user-search-ajax'),
+    path('hr-search/ajax/', views.ajax_hr_user_seach_view,
+         name='lgc-hr-user-search-ajax'),
+    path('employee-search/ajax/', views.ajax_employee_user_seach_view,
+         name='lgc-employee-user-search-ajax'),
+
     path('<int:user_id>/', views.update, name='lgc-user'),
     path('pw-reset/<int:user_id>/', views.password_reset, name='lgc-pw-reset'),
 ]
