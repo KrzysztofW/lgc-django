@@ -1,17 +1,49 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-
-JURISTE =    'JU'
-CONSULTANT = 'CO'
-ROLE_CHOICES = (
-    (JURISTE,    'Juriste'),
-    (CONSULTANT, 'Consultant'),
-)
-
-from django.contrib.auth.models import AbstractUser, BaseUserManager ## A new class is imported. ##
-from django.db import models
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 
+ENGLISH = 'EN'
+FRENCH = 'FR'
+LANGUAGE_CHOICES = (
+    (ENGLISH, _('English')),
+    (FRENCH, _('French')),
+)
+
+
+JURISTE    = 'JU'
+CONSULTANT = 'CO'
+HR_ADMIN   = 'HA'
+HR         = 'HR'
+EMPLOYEE   = 'EM'
+
+EXTERNAL_ROLE_CHOICES = (
+    (HR_ADMIN,   _('HR Admin')),
+    (HR,         _('HR')),
+    (EMPLOYEE,   _('Employee')),
+)
+
+INTERNAL_ROLE_CHOICES = (
+    (JURISTE,    _('Juriste')),
+    (CONSULTANT, _('Consultant')),
+)
+
+ALL_ROLE_CHOICES = (
+    (JURISTE,    _('Juriste')),
+    (CONSULTANT, _('Consultant')),
+    (HR_ADMIN,   _('HR Admin')),
+    (HR,         _('HR')),
+    (EMPLOYEE,   _('Employee')),
+)
+
+
+def get_local_user_queryset():
+    return User.objects.filter(role__exact=JURISTE)|User.objects.filter(role__exact=CONSULTANT)
+
+def get_employee_user_queryset():
+    return User.objects.filter(role__exact=EMPLOYEE)
+
+def get_hr_user_queryset():
+    return User.objects.filter(role__exact=HR)|User.objects.filter(role__exact=HR_ADMIN)
 
 class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
@@ -56,10 +88,25 @@ class User(AbstractUser):
     username = models.CharField(max_length=1, blank=True, null=True,
                                 default=None)
 
-    role = models.CharField(max_length=2, choices=ROLE_CHOICES,
+    role = models.CharField(max_length=2, choices=ALL_ROLE_CHOICES,
                             default=JURISTE)
     billing = models.BooleanField(default=False)
     objects = UserManager()
+    token = models.CharField(max_length=64, default="", blank=True)
+    password_last_update = models.DateField(blank=True, null=True)
+    GDPR_accepted = models.BooleanField(default=None, null=True)
+    responsible = models.ManyToManyField("self", blank=True)
+    hr_employees = models.ManyToManyField("self", blank=True,
+                                          related_name='hr_employee_set')
+    language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES,
+                                default=ENGLISH)
+    company = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
-        return self.email, "role:", self.role, "billing:", str(self.billing)
+        if self.first_name != '' or self.last_name != '':
+            return self.first_name + ' ' + self.last_name
+        return ''
+
+class UserOldPasswords(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    password = models.CharField(max_length=50)

@@ -110,7 +110,7 @@ def db_commit_and_close(cursor, mydb):
     mydb.close()
 
 def lgc_insert_to_db(req_type, action, lang, email, first_name, last_name,
-                     company, resps):
+                     company, resps, relations = None):
     req_id = -1
 
     if len(resps) == 0:
@@ -176,10 +176,15 @@ def worker(data):
         last_name = j[2]['last_name']
         company = j[2]['company']
         responsible = []
+        relation = []
+
         for r in j[2]['responsible']:
             responsible.append(r)
+        for r in j[2]['relations']:
+            relation.append(r)
+
         return lgc_insert_to_db(req_type, action, lang, email, first_name,
-                                last_name, company, responsible)
+                                last_name, company, responsible, relations)
     except:
         print("parsing error")
         return LGCError.INVALID_DATA

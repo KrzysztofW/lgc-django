@@ -127,4 +127,9 @@ LOGIN_REDIRECT_URL = 'lgc-home'
 LOGIN_URL = 'lgc-login'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-LGC_QUEUE_PATH= "/tmp/1"
+EMAIL_HOST = 'kw-net2.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'autotestkw@example.com'
+EMAIL_HOST_PASSWORD = 'udis82udD'
+EMAIL_USE_TLS = True
+

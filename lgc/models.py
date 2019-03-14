@@ -1,6 +1,6 @@
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import get_user_model
 from django.db import models
 from datetime import date
@@ -110,76 +110,75 @@ PREFECTURE_CHOICES = (
 )
 
 class AccountCommon(models.Model):
-    creation_date = models.DateTimeField(auto_now_add = True)
+    creation_date = models.DateTimeField(auto_now_add=True)
     first_name = models.CharField(max_length=50, default="", validators=[alpha])
     last_name = models.CharField(max_length=50, default="", validators=[alpha])
     email = models.EmailField(max_length=50, null=True, blank=True, unique=True)
-    #password = models.CharField(max_length=50, default="", blank=True)
-    #password_last_update = models.DateField(blank=True, null=True)
-    #disabled = models.BooleanField(default=False)
-    # form: password = forms.CharField(widget=forms.PasswordInput)
-    company = models.CharField(max_length=50, default="", blank=True)
-
-    # update the public interface
-    to_be_updated = models.BooleanField(default=False)
-
-    GDPR_accepted = models.BooleanField(default=None, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        str = self.first_name + " " + self.last_name
-        if self.company:
-            return  str + " (" + self.company + ")"
-        return str
+        if self.first_name != '' or self.last_name != '':
+            return self.first_name + ' ' + self.last_name
+        return ''
 
 def check_dates(start, end, what):
     if start and end and end <= start:
         raise ValidationError(_("End date of %s cannot be earlier than start date"%(what)))
 
-class Person(AccountCommon):
+class PersonInfo(models.Model):
     foreigner_id = models.PositiveIntegerField(blank=True, null=True)
     birth_date = models.DateField(null=True)
     citizenship = CountryField(blank=True, null=True)
     passport_expiry = models.DateField(blank=True, null=True, default=None)
     passport_nationality = CountryField(blank=True, null=True)
-    home_entity = models.CharField(max_length=50, default="", blank=True)
-    home_entity_address = models.TextField(max_length=100, default="", blank=True)
-    home_entity_country = CountryField(blank=True, null=True)
-    host_entity = models.CharField(max_length=50, default="", blank=True)
-    host_entity_address = models.TextField(max_length=100, default="", blank=True)
-    host_entity_country = CountryField(blank=True, null=True)
+    home_entity = models.CharField(max_length=50, default='', blank=True)
+    home_entity_address = models.TextField(max_length=100, default='', blank=True)
+    host_entity = models.CharField(max_length=50, default='', blank=True)
+    host_entity_address = models.TextField(max_length=100, default='', blank=True)
 
-    work_authorization = models.BooleanField(default=False)
-    work_authorization_start = models.DateField(blank=True, null=True)
-    work_authorization_end = models.DateField(blank=True, null=True)
-
-    spouse_first_name = models.CharField(max_length=50, default="",
+    spouse_first_name = models.CharField(max_length=50, default='',
                                          blank=True, validators=[alpha])
-    spouse_last_name = models.CharField(max_length=50, default="",
+    spouse_last_name = models.CharField(max_length=50, default='',
                                         blank=True, validators=[alpha])
     spouse_birth_date = models.DateField(blank=True, null=True)
     spouse_citizenship = CountryField(blank=True, null=True)
     spouse_passport_expiry = models.DateField(blank=True, null=True, default=None)
     spouse_passport_nationality = CountryField(blank=True, null=True)
 
-    local_address = models.TextField(max_length=100, default="", blank=True)
-    foreign_address = models.TextField(max_length=100, default="", blank=True)
-    local_phone_number = models.TextField(max_length=100, default="", blank=True)
-    foreign_phone_number = models.TextField(max_length=100, default="", blank=True)
+    local_address = models.TextField(max_length=100, default='', blank=True)
+    local_phone_number = models.TextField(max_length=100, default='', blank=True)
 
+    foreign_address = models.TextField(max_length=100, default='', blank=True)
+    foreign_country = CountryField(blank=True, null=True)
+    foreign_phone_number = models.TextField(max_length=100, default='', blank=True)
+
+    class Meta:
+        abstract = True
+
+    def validate_unique(self, exclude=None):
+        super().validate_unique()
+        if self.birth_date == None and Person.objects.exclude(id=self.id).filter(first_name=self.first_name, last_name=self.last_name, birth_date__isnull=True).exists():
+            raise ValidationError(_("A person with this First Name, Last Name and Birth Date already exists."))
+
+class Person(PersonInfo, AccountCommon):
+    id = models.AutoField(primary_key=True)
     # prefecture OFII competent
     # consulat_competant
     # direccte_competente
     # sous-prefecture
     # juridiction specifique
-    process = models.CharField(max_length=3, default="", choices=PROCESS_CHOICES)
-    responsible = models.ManyToManyField(User, blank=True)
+    process = models.CharField(max_length=3, default='', choices=PROCESS_CHOICES)
+    responsible = models.ManyToManyField(User, blank=True,
+                                         related_name='person_resp_set')
+    modified_by = models.ForeignKey(User, on_delete=models.CASCADE,
+                                    related_name='person_user_set')
     start_date = models.DateField(blank=True, null=True)
 
     # state
-    comments = models.TextField(max_length=100, default="", blank=True)
+    comments = models.TextField(max_length=100, default='', blank=True)
     # transform empty to None (not sure to need that)
     #def clean_bar(self):
     #    return self.cleaned_data['birth_date'] or None
@@ -187,58 +186,11 @@ class Person(AccountCommon):
     class Meta:
         unique_together = ('first_name', 'last_name', 'birth_date')
 
-    def clean(self):
-        wa_start = self.work_authorization_start
-        wa_end = self.work_authorization_end
-
-        check_dates(wa_start, wa_end, _("work authorization"))
-        return super().clean()
 
     def validate_unique(self, exclude=None):
         super().validate_unique()
         if self.birth_date == None and Person.objects.exclude(id=self.id).filter(first_name=self.first_name, last_name=self.last_name, birth_date__isnull=True).exists():
-            raise ValidationError(_("A person with this First Name, Last Name and Birth Date already exists."))
-
-class ModeratePerson(models.Model):
-    moderate_first_name = models.CharField(max_length=50, default="",
-                                           blank=True, validators=[alpha])
-    moderate_last_name = models.CharField(max_length=50, default="",
-                                          blank=True, validators=[alpha])
-    moderate_email = models.EmailField(max_length=50, unique=True)
-    moderate_foreigner_id = models.PositiveIntegerField(blank=True, null=True)
-    moderate_birth_date = models.DateField(null=True, blank=True)
-    moderate_citizenship = CountryField(blank=True, null=True)
-    moderate_passport_expiry = models.DateField(blank=True, null=True, default=None)
-    moderate_passport_nationality = CountryField(blank=True, null=True)
-    moderate_home_entity = models.CharField(max_length=50, default="", blank=True)
-    moderate_home_entity_address = models.TextField(max_length=100, default="", blank=True)
-    moderate_home_entity_country = CountryField(blank=True, null=True)
-    moderate_host_entity = models.CharField(max_length=50, default="", blank=True)
-    moderate_host_entity_address = models.TextField(max_length=100, default="", blank=True)
-    moderate_host_entity_country = CountryField(blank=True, null=True)
-
-    moderate_work_authorization = models.BooleanField(default=False)
-    moderate_work_authorization_start = models.DateField(blank=True, null=True)
-    moderate_work_authorization_end = models.DateField(blank=True, null=True)
-
-    moderate_spouse_first_name = models.CharField(max_length=50, default="",
-                                                  blank=True, validators=[alpha])
-    moderate_spouse_last_name = models.CharField(max_length=50, default="",
-                                                 blank=True, validators=[alpha])
-    moderate_spouse_birth_date = models.DateField(blank=True, null=True)
-    moderate_spouse_citizenship = CountryField(blank=True, null=True)
-    moderate_spouse_passport_expiry = models.DateField(blank=True, null=True, default=None)
-    moderate_spouse_passport_nationality = CountryField(blank=True, null=True)
-
-    moderate_local_address = models.TextField(max_length=100, default="", blank=True)
-    moderate_foreign_address = models.TextField(max_length=100, default="", blank=True)
-    moderate_local_phone_number = models.TextField(max_length=100, default="", blank=True)
-    moderate_foreign_phone_number = models.TextField(max_length=100, default="", blank=True)
-
-class HR(AccountCommon):
-    is_admin = models.BooleanField(default=False)
-    responsible = models.ManyToManyField(User, blank=True)
-    person = models.ManyToManyField(Person, blank=True)
+            raise ValidationError(_('A person with this First Name, Last Name and Birth Date already exists.'))
 
 class VisaResidencePermitCommon(models.Model):
     start = models.DateField(blank=True, null=True)
@@ -250,7 +202,7 @@ class VisaResidencePermitCommon(models.Model):
         abstract = True
 
     def clean(self, model_class=None):
-        check_dates(self.start, self.end, _("residence permit"))
+        check_dates(self.start, self.end, _('residence permit'))
         return super(model_class, self).clean()
 
 class VisaResidencePermit(VisaResidencePermitCommon):
@@ -276,12 +228,12 @@ class WorkPermit(models.Model):
     active = models.BooleanField(default=True)
 
     def clean(self):
-        check_dates(self.start, self.end, _("WP"))
+        check_dates(self.start, self.end, _('WP'))
         return super(WorkPermit, self).clean()
 
 class ChildCommon(models.Model):
     first_name = models.CharField(max_length=50, null=False, validators=[alpha])
-    last_name = models.CharField(max_length=50, default="", blank=True, validators=[alpha])
+    last_name = models.CharField(max_length=50, default='', blank=True, validators=[alpha])
     birth_date = models.DateField(blank=True, null=True)
     passport_expiry = models.DateField(blank=True, null=True)
     passport_nationality = CountryField(blank=True, null=True)
@@ -297,21 +249,13 @@ class ModerationChild(ChildCommon):
 
 #class Process(models.Model):
 #    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-#    name = models.CharField(max_length=3, default="", choices=PROCESS_CHOICES)
+#    name = models.CharField(max_length=3, default='', choices=PROCESS_CHOICES)
 
 #class ProcessStage(models.Model):
-#    name = models.CharField(max_length=50, default="", unique=True)
+#    name = models.CharField(max_length=50, default='', unique=True)
 #
 class ProcessType(models.Model):
     persons = models.ManyToManyField(Person)
     #stages = models.ManyToManyField(Stage)
     # ondelete => not allowed if used
-    name = models.CharField(max_length=50, default="", unique=True)
-
-class HROldPasswords(models.Model):
-    hr = models.ForeignKey(HR, on_delete=models.CASCADE)
-    password = models.CharField(max_length=50)
-
-class PersonOldPasswords(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    password = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, default='', unique=True)

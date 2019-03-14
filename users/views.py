@@ -12,7 +12,7 @@ from django.core.exceptions import PermissionDenied
 from .forms import UserCreateForm, UserUpdateForm, UserPasswordUpdateForm
 from django.views.generic import (ListView, DetailView, CreateView,
                                   UpdateView, DeleteView)
-
+from . import models as user_models
 User = get_user_model()
 
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
@@ -30,13 +30,14 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.GET.get('paginate', '10')
 
     def get_queryset(self):
+        users = user_models.get_local_user_queryset()
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
         if term == '':
-            return User.objects.all().order_by(order_by)
-        objs = (User.objects.filter(email__istartswith=term)|
-                User.objects.filter(first_name__istartswith=term)|
-                User.objects.filter(last_name__istartswith=term))
+            return users.order_by(order_by)
+        objs = (users.filter(email__istartswith=term)|
+                users.filter(first_name__istartswith=term)|
+                users.filter(last_name__istartswith=term))
         return objs.order_by(order_by)
 
     def get_context_data(self, **kwargs):
@@ -165,7 +166,8 @@ def logout_then_login_with_msg(request):
 def ajax_view(request):
     term = request.GET.get('term', '')
     term = term.lower()
-    users = User.objects.filter(email__istartswith=term)|User.objects.filter(first_name__istartswith=term)|User.objects.filter(last_name__istartswith=term)
+    users = user_models.get_local_user_queryset()
+    users = users.filter(email__istartswith=term)|users.filter(first_name__istartswith=term)|users.filter(last_name__istartswith=term)
     users = users[:10]
 
     for u in users:

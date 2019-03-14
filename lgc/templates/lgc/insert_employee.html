@@ -1,0 +1,2 @@
+{% for e in employees %}{% autoescape off %}{{ e.id }}, {% if e.b_first_name %}{{ e.b_first_name }}{% else %}{{ e.first_name }}{% endif %}, {% if e.b_last_name %}{{ e.b_last_name }}{% else %}{{ e.last_name }}{% endif %}, {% if e.b_email %}{{ e.b_email }}{% else %}{{ e.email }}{% endif %}{% endautoescape %}
+{% endfor %}

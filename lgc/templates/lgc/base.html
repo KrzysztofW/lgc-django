@@ -280,7 +280,7 @@
 
               <li class="list-group-item">
                 <a href="#"><i class="fa fa-sitemap fa-fw"></i>
-		  {% trans "Cases" %}
+		  {% trans "External accounts" %}
 		  <span class="fa arrow"></span>
 		</a>
 
@@ -289,10 +289,10 @@
                     <a href="#">{% trans "Employees" %} <span class="fa arrow"></span></a>
                     <ul class="nav-third-level list-group nested">
 		      <li class="list-group-item">
-			<a href="{% url "lgc-case-create" %} ">{% trans "Initiate a case" %}</a>
+			<a href="{% url "lgc-account-create" %} ">{% trans "Initiate an account" %}</a>
                       </li>
 		      <li class="list-group-item">
-			<a href="{% url "lgc-cases" %} ">{% trans "Pending cases" %}</a>
+			<a href="{% url "lgc-accounts" %} ">{% trans "Pending accounts" %}</a>
                       </li>
 		    </ul>
 		  </li>
@@ -301,10 +301,10 @@
                     <a href="#">{% trans "Human resources" %} <span class="fa arrow"></span></a>
 		    <ul class="nav-third-level list-group nested">
 		      <li class="list-group-item">
-			<a href="{% url "lgc-hr-create" %} ">{% trans "Initiate a HR case" %}</a>
+			<a href="{% url "lgc-hr-create" %} ">{% trans "Initiate an HR account" %}</a>
                       </li>
 		      <li class="list-group-item">
-			<a href="{% url "lgc-hr-cases" %} ">{% trans "Pending HR cases" %}</a>
+			<a href="{% url "lgc-hr-accounts" %} ">{% trans "Pending HR accounts" %}</a>
                       </li>
                     </ul>
 		  </li>

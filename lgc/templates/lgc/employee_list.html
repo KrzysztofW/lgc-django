@@ -49,7 +49,6 @@ function addEmployee() {
   var cell3 = row.insertCell(-1);
   var cell4 = row.insertCell(-1);
   var cell5 = row.insertCell(-1);
-  var cell6 = row.insertCell(-1);
 
   cell1.innerHTML = res[0];
   cell1.innerHTML += '<input name="form-'+last_elem+'-id" type="hidden" value="' + res[0] + '">';
@@ -63,17 +62,14 @@ function addEmployee() {
   }
   if (typeof res[3] !== 'undefined') {
     cell4.innerHTML = res[3];
-    cell4.innerHTML += '<input name="form-'+last_elem+'-company" type="hidden" value="' + res[3] + '">';
-  }
-  if (typeof res[4] !== 'undefined') {
-    cell5.innerHTML = res[4];
-    cell5.innerHTML += '<input name="form-'+last_elem+'-email" type="hidden" value="' + res[4] + '">';
+    cell4.innerHTML += '<input name="form-'+last_elem+'-email" type="hidden" value="' + res[3] + '">';
   }
 
-  cell6.innerHTML = '<input id="array_del" class="btn btn-white" value="X" onclick="removeEmployee(this, '+last_elem+')" type="button" name=""><input name="employee_id_'+last_elem+'" type="hidden" value="' + res[0] + '">';
+  cell5.innerHTML = '<input id="array_del" class="btn btn-white" value="X" onclick="removeEmployee(this, '+last_elem+')" type="button" name=""><input name="employee_id_'+last_elem+'" type="hidden" value="' + res[0] + '">';
   search_box.value = "";
   last_elem++;
   total_forms.value = last_elem;
+  search_box.value = '';
 
   return false;
 }
@@ -95,7 +91,6 @@ function addEmployee() {
 	    <th>ID</th>
 	    <th>{% trans 'First name' %}</th>
 	    <th>{% trans 'Last name' %}</th>
-	    <th>{% trans 'Company' %}</th>
 	    <th>{% trans 'E-mail' %}</th>
 	  </tr>
 	</thead>
@@ -134,7 +129,7 @@ function addEmployee() {
     <div class="row">
     <div class="col-sm-12 col-md-6">
       <div class="dataTables_filter">
-	<input type="hidden" id="search" ajax-search="{% url 'lgc-insert-file' %}" delim="break" value="">
+	<input type="hidden" id="search" ajax-search="{% url 'lgc-insert-employee' %}" delim="break" value="">
 	<div class="input-group custom-search-form">
           <input type="text" class="form-control" name="term" value="" id="search_box" placeholder="Search..." autocomplete="off" onfocus="this.selectionStart = this.selectionEnd = this.value.length;" autofocus="">
           <span class="input-group-btn">

@@ -23,25 +23,24 @@ $("#search_box").keyup(function (event) {
     if (event.keyCode == 40 || event.keyCode == 38)
 	return;
     $.ajax({
-        url: url,
-        data: {
-            'term': term
-        },
-        success: function (data) {
+	url: url,
+	data: {
+	    'term': term
+	},
+	success: function (data) {
 	    var array;
 	    var array2 = [];
 
 	    data = data.replace(/,\n/gm, "");
 	    if (data != "")
-	      array = data.split(delim);
+		array = data.split(delim);
 	    for (var item in array) {
-	      if (array[item] == "" || array[item] == '\n')
-	        continue;
-	      array2.push(array[item]);
+		if (array[item] == "" || array[item] == '\n')
+		    continue;
+		array2.push(array[item]);
 	    }
-	    if (array2.length > 0)
-	      autocomplete(document.getElementById("search_box"), array2);
-        }
+	    autocomplete(document.getElementById("search_box"), array2);
+	}
     });
 });
 
@@ -75,7 +74,7 @@ function autocomplete(inp, arr) {
 		closeAllLists();
 	    });
 	    a.appendChild(b);
-        }
+	}
     });
 
     inp.addEventListener("keydown", function(e) {
