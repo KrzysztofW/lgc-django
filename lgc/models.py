@@ -114,7 +114,9 @@ class AccountCommon(models.Model):
     first_name = models.CharField(max_length=50, default="", validators=[alpha])
     last_name = models.CharField(max_length=50, default="", validators=[alpha])
     email = models.EmailField(max_length=50, null=True, blank=True, unique=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                null=True, blank=True,
+                                related_name='person_user_set')
 
     class Meta:
         abstract = True
@@ -174,7 +176,7 @@ class Person(PersonInfo, AccountCommon):
     responsible = models.ManyToManyField(User, blank=True,
                                          related_name='person_resp_set')
     modified_by = models.ForeignKey(User, on_delete=models.CASCADE,
-                                    related_name='person_user_set')
+                                    related_name='person_modified_by_set')
     start_date = models.DateField(blank=True, null=True)
 
     # state

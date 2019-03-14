@@ -77,65 +77,92 @@ def get_template(name):
     except FileNotFoundError:
         raise Http404
 
-def get_person_form_layout(form, action):
+def get_person_form_layout(form, action, obj):
     form.helper = FormHelper()
-    layout = Layout(
-        TabHolder(
-            Tab(_('Information'),
-                Div(Div('first_name', css_class='form-group col-md-4'),
-                    Div('last_name', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-                Div(Div('email', css_class='form-group col-md-4'),
-                    Div('citizenship', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-                Div(Div('foreigner_id', css_class='form-group col-md-4'),
-                    Div('birth_date', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-                Div(Div('process', css_class='form-group col-md-4'),
-                    Div('responsible', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-                Div(Div('passport_expiry', css_class='form-group col-md-4'),
-                    Div('passport_nationality', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-                Div(Div('home_entity', css_class='form-group col-md-4'),
-                    Div('host_entity', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-                Div(Div('home_entity_address', css_class='form-group col-md-4'),
-                    Div('host_entity_address', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-                Div(Div('HR', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-                Div(Div(HTML(get_template('formset_template.html')),
-                        css_class='form-group col-md-10'), css_class='form-row'),
-            ),
-            Tab(_('Process'),
-                #Div(Div(HTML('{% load crispy_forms_tags %}{{ process|crispy }}')),
-                #        css_class='form-group col-md-4'),
-                #    css_class='form-row'),
-                Div(Div('process_name', css_class='form-group col-md-4'),
-                    css_class='form-row'),
-            ),
-            Tab(_('Billing'),
-            ),
-        )
+    info_tab = Tab(
+        _('Information'),
+        Div(Div('first_name', css_class='form-group col-md-4'),
+            Div('last_name', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('email', css_class='form-group col-md-4'),
+            Div('citizenship', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('foreigner_id', css_class='form-group col-md-4'),
+            Div('birth_date', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('process', css_class='form-group col-md-4'),
+            Div('responsible', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('passport_expiry', css_class='form-group col-md-4'),
+            Div('passport_nationality', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('home_entity', css_class='form-group col-md-4'),
+            Div('host_entity', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('home_entity_address', css_class='form-group col-md-4'),
+            Div('host_entity_address', css_class='form-group col-md-4'),
+            css_class='form-row'),
     )
-    layout.append(HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'))
+    if obj.user:
+        info_tab.append(Div(Div('HR', css_class='form-group col-md-4'),
+            css_class='form-row'))
+    info_tab.append(Div(Div(HTML(get_template('formset_template.html')),
+                            css_class='form-group col-md-10'),
+                        css_class='form-row'))
+
+    process_tab = Tab(_('Process'),
+        #Div(Div(HTML('{% load crispy_forms_tags %}{{ process|crispy }}')),
+        #        css_class='form-group col-md-4'),
+        #    css_class='form-row'),
+        Div(Div('process_name', css_class='form-group col-md-4'),
+            css_class='form-row'),
+    )
+
+    if obj:
+        external_profile = Tab(_('Account Profile'))
+        if obj.user:
+            pdiv = Div(
+                HTML(_("Click here to manage this person's account profile: ") +
+                     '&nbsp;<a href="' +
+                     str(reverse_lazy('lgc-account',
+                                      kwargs={'pk': obj.user.id})) +
+                     '">' + _('update profile') + '</a>'),
+                css_class='form-row')
+        else:
+            pdiv = Div(
+                HTML(_('The profile for this person does not exist. Follow this link to create it: ') +
+                     '&nbsp;<a href="' +
+                     str(reverse_lazy('lgc-account-link',
+                                      kwargs={'pk': obj.id})) +
+                     '">' + _('create profile') + '</a>'),
+                css_class='form-row')
+        external_profile.append(pdiv)
+
+    billing_tab = Tab(_('Billing'),
+    )
+    layout = Layout(TabHolder(info_tab, external_profile, process_tab,
+                              billing_tab))
+    layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
+                       action + '</button>'))
     form.helper.layout = layout
     return form
 
-def hr_add_employee(form_data, person_object):
-    person_object.hr_set.clear()
+def hr_add_employee(form_data, user_object):
+    if user_object == None:
+        return
+
+    user_object.hr_employees.clear()
 
     if 'HR' not in form_data:
         return
     for i in form_data['HR']:
-        h = HR.objects.filter(id=i.id)
+        h = user_model.get_hr_user_queryset().filter(id=i.id)
         if not h:
             return
         h = h.get()
         if not h:
             return
-        h.hr_employees.add(person_object.id)
+        h.hr_employees.add(user_object.id)
         h.save()
 
 class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -176,7 +203,6 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                 for i in instances:
                     i.parent_id = self.object.id
                     i.save()
-                hr_add_employee(form.cleaned_data, self.object)
             else:
                 messages.error(self.request, _('Invalid Children table'))
                 return super().form_invalid(form)
@@ -188,7 +214,7 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def get_form(self, form_class=PersonCreateForm):
         form = super().get_form(form_class=form_class)
-        return get_person_form_layout(form, _('Create'))
+        return get_person_form_layout(form, _('Create'), None)
 
 # XXX allow to insert to pending accounts
 class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -212,13 +238,14 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
             context['formset'] = ChildrenFormSet(self.request.POST)
         else:
             context['formset'] = ChildrenFormSet(queryset=Child.objects.filter(parent=self.object.id))
-        context['form'].fields['HR'].initial = self.object.hr_set.all()
+        if self.object.user:
+            context['form'].fields['HR'].initial = self.object.user.hr_employees.all()
         context['form'].fields['process_name'].initial = self.object.processtype_set.all()
         return context
 
     def get_form(self, form_class=PersonCreateForm):
         form = super().get_form(form_class)
-        form = get_person_form_layout(form, _('Update'))
+        form = get_person_form_layout(form, _('Update'), self.object)
 
         if self.request.user.is_staff:
             form.helper.layout.append(HTML(' <a href="{% url "lgc-file-delete" object.id %}" class="btn btn-outline-danger">' + _('Delete') + '</a>'))
@@ -243,7 +270,7 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
                 for i in instances:
                     i.parent_id = self.object.id
                     i.save()
-                hr_add_employee(form.cleaned_data, self.object)
+                hr_add_employee(form.cleaned_data, self.object.user)
             else:
                 messages.error(self.request, _('Invalid Children table'))
                 return super().form_invalid(form)
@@ -445,7 +472,22 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             return get_hr_account_form(form, self.form_name, True, False)
         return get_account_form(form, self.form_name, True)
 
+    def return_non_existant(self, form, pk):
+        messages.error(self.request,
+                       _("Cannot link with a non-existent file `%s'"%pk))
+        return super().form_invalid(form)
+
     def form_valid(self, form):
+        pk = self.kwargs['pk']
+        p = None
+        if pk:
+            p = Person.objects.filter(id=pk)
+            if p == None or len(p) == 0:
+                return self.return_non_existant(form, pk)
+            p = p.get()
+            if p == None:
+                return self.return_non_existant(form, pk)
+
         self.object = form.save(commit=False)
         form.cleaned_data['new_token'] = True
 
@@ -462,7 +504,12 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             messages.error(self.request, _('Cannot send email to') + '`'
                            + self.object.email + '`: ' + str(e))
             return super().form_invalid(form)
-        return super().form_valid(form)
+        self.object = form.save()
+        ret = super().form_valid(form)
+        if p:
+            p.user = self.object
+            p.save()
+        return ret
 
     def form_invalid(self, form):
         messages.error(self.request, _('There are errors on the page'))
@@ -564,7 +611,7 @@ class HRCreateView(HRView, InitiateAccount):
     title = _('New HR account')
     form_name = _('Initiate account')
 
-class HRUpdateView(HRView, UpdatePendingAccount):
+class HRUpdateView(HRView, UpdatePendingAccount, UserPassesTestMixin):
     success_message = _('HR account successfully updated')
     title = _('Update HR')
 
@@ -580,6 +627,9 @@ class HRUpdateView(HRView, UpdatePendingAccount):
         else:
             init = []
             for p in self.object.hr_employees.all():
+                if p.role != user_models.EMPLOYEE:
+                    print("employee cannot have an HR role")
+                    continue;
                 init.append({'id':p.id,
                              'first_name':p.first_name,
                              'last_name':p.last_name,
@@ -613,26 +663,32 @@ class HRUpdateView(HRView, UpdatePendingAccount):
         self.object.hr_employees.clear()
 
         users = user_models.get_employee_user_queryset()
-        for f in employees.cleaned_data:
-            if not 'id' in f:
+        for e in employees.cleaned_data:
+            if not 'id' in e:
                 continue
-            if self.is_deleted(employees, f['id']):
+            if self.is_deleted(employees, e['id']):
                 continue
-            e = users.filter(id=f['id'])
-            if e == None:
-                messages.error(self.request, _("Unknown file ID `%s'"%(f['id'])))
+            u = users.filter(id=e['id'])
+            if u == None or len(u) == 0:
+                messages.error(self.request, _("Unknown employee ID `%s'"%(e['id'])))
                 return super().form_invalid(form)
-            e = e.get()
-            if e == None:
-                messages.error(self.request, _("Unknown file ID `%s'"%(f['id'])))
+            u = u.get()
+            if u == None:
+                messages.error(self.request, _("Unknown employee ID `%s'"%(e['id'])))
                 return super().form_invalid(form)
-            if e.email == None:
-                messages.error(self.request, _("Employee's e-mail cannot be empty in file `%s'"%(f['id'])))
+            if u.email == None:
+                messages.error(self.request, _("Employee's e-mail cannot be empty"))
                 return super().form_invalid(form)
-            self.object.hr_employees.add(e)
+            self.object.hr_employees.add(u)
         self.object.save()
         #return self.render_to_response(self.get_context_data(form=form))
         return super().form_valid(form, self.object.hr_employees.all())
+
+    def test_func(self):
+        obj = self.get_object()
+        if obj.role not in user_models.get_hr_roles():
+            return False
+        return True
 
 class HRAccountListView(HRView, PendingAccounts):
     title = _('Pending HR accounts')

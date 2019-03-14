@@ -21,6 +21,8 @@ urlpatterns = [
     path('account-create/', views.InitiateAccount.as_view(), name='lgc-account-create'),
     path('account-list/', views.PendingAccounts.as_view(), name='lgc-accounts'),
     path('account/<int:pk>/', views.UpdatePendingAccount.as_view(), name='lgc-account'),
+    path('account-link/<int:pk>/', views.InitiateAccount.as_view(),
+         name='lgc-account-link'),
     path('account-delete/<int:pk>', views.DeletePendingAccount.as_view(),
          name='lgc-account-delete'),
 

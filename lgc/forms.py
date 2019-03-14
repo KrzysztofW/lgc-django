@@ -18,7 +18,7 @@ class PersonCreateForm(forms.ModelForm):
     HR = forms.ModelMultipleChoiceField(required=False, widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=User.objects.filter(role__exact=user_models.HR)|User.objects.filter(role__exact=user_models.HR_ADMIN), label=_('Human Resources'))
     process_name = forms.ModelChoiceField(required=False, queryset=ProcessType.objects.all())
     modified_by = forms.IntegerField(required=False, widget=forms.HiddenInput())
-
+    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
     class Meta:
         model = Person
         exclude = ['creation_date'] # XXX

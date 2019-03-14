@@ -9,7 +9,6 @@ LANGUAGE_CHOICES = (
     (FRENCH, _('French')),
 )
 
-
 JURISTE    = 'JU'
 CONSULTANT = 'CO'
 HR_ADMIN   = 'HA'
@@ -35,6 +34,20 @@ ALL_ROLE_CHOICES = (
     (EMPLOYEE,   _('Employee')),
 )
 
+def get_internal_roles():
+    roles = []
+    for r in INTERNAL_ROLE_CHOICES:
+        roles.append(r[0])
+    return roles
+
+def get_external_roles():
+    roles = []
+    for r in EXTERNAL_ROLE_CHOICES:
+        roles.append(r[0])
+    return roles
+
+def get_hr_roles():
+    return [HR, HR_ADMIN]
 
 def get_local_user_queryset():
     return User.objects.filter(role__exact=JURISTE)|User.objects.filter(role__exact=CONSULTANT)
