@@ -399,7 +399,7 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
-def get_account_layout(layout, new_token, is_hr=False):
+def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');
 
     layout.append(
@@ -417,6 +417,11 @@ def get_account_layout(layout, new_token, is_hr=False):
     div.append(Div('responsible', css_class='form-group col-md-4'));
     layout.append(div)
 
+    if is_active:
+        row_div = Div(css_class='form-row')
+        row_div.append(Div('is_active', css_class='form-group col-md-4'))
+        layout.append(row_div)
+
     if new_token or is_hr:
         row_div = Div(css_class='form-row')
         if new_token:
@@ -424,11 +429,12 @@ def get_account_layout(layout, new_token, is_hr=False):
         if is_hr:
             row_div.append(Div('is_admin', css_class='form-group col-md-4'))
         layout.append(row_div)
+
     return layout
 
 def get_account_form(form, action, uid, new_token=False):
     form.helper = FormHelper()
-    form.helper.layout = get_account_layout(Layout(), new_token, False)
+    form.helper.layout = get_account_layout(Layout(), new_token, False, uid)
 
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
@@ -445,7 +451,7 @@ def get_hr_account_form(form, action, uid, new_token=False, show_tabs=True):
     if show_tabs:
         form.helper.layout = Layout(TabHolder(
             Tab(_('Information'), get_account_layout(Layout(), new_token,
-                                                     is_hr=True)),
+                                                     True, uid)),
             Tab(_('Employees'),
                 Div(Div(HTML(get_template('employee_list.html')),
                         css_class="form-group col-md-10"),
@@ -511,7 +517,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         if self.is_hr:
             return get_hr_account_form(form, self.form_name, None, True,
                                        False)
-        return get_account_form(form, self.form_name, None, True, None)
+        return get_account_form(form, self.form_name, None, True)
 
     def return_non_existant(self, form, pk):
         messages.error(self.request,
@@ -534,7 +540,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             return self.return_non_existant(form, self.kwargs.get('pk', ''))
 
         self.object = form.save(commit=False)
-        form.cleaned_data['new_token'] = True
+        form.instance.is_active = True
 
         if self.is_hr:
             if form.cleaned_data['is_admin']:
@@ -543,12 +549,13 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
                 form.instance.role = user_models.HR
         else:
             form.instance.role = user_models.EMPLOYEE
-        try:
-            lgc_send_email(self.object, 'update')
-        except Exception as e:
-            messages.error(self.request, _('Cannot send email to') + '`'
-                           + self.object.email + '`: ' + str(e))
-            return super().form_invalid(form)
+        if form.cleaned_data['new_token']:
+            try:
+                lgc_send_email(self.object, 'update')
+            except Exception as e:
+                messages.error(self.request, _('Cannot send email to') + '`'
+                               + self.object.email + '`: ' + str(e))
+                return super().form_invalid(form)
         ret = super().form_valid(form)
         self.object = form.save()
         if p:
@@ -634,12 +641,13 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         else:
             form.instance.role = user_models.EMPLOYEE
 
-        try:
-            lgc_send_email(self.object, 'update')
-        except Exception as e:
-            messages.error(self.request, _('Cannot send email to') + '`'
-                           + self.object.email + '`: ' + str(e))
-            return super().form_invalid(form)
+        if form.cleaned_data['new_token']:
+            try:
+                lgc_send_email(self.object, 'update')
+            except Exception as e:
+                messages.error(self.request, _('Cannot send email to') + '`'
+                               + self.object.email + '`: ' + str(e))
+                return super().form_invalid(form)
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -743,7 +751,6 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
                 return super().form_invalid(form)
             self.object.hr_employees.add(u)
         self.object.save()
-        #return self.render_to_response(self.get_context_data(form=form))
         return super().form_valid(form, self.object.hr_employees.all())
 
     def test_func(self):

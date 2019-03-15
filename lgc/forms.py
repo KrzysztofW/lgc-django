@@ -29,20 +29,23 @@ class InitiateAccountForm(forms.ModelForm):
     email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
     new_token = forms.BooleanField(required=False, initial=True,
-                                   label=_('Send new token'))
+                                   label=_('Send new token'),
+                                   help_text=_('Send new authentication token allowing to choose a new password.'))
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'language',
-                  'responsible', 'new_token']
+                  'responsible', 'new_token', 'is_active']
+
 
 class InitiateHRForm(InitiateAccountForm):
-    is_admin = forms.BooleanField(required=False, label=_('Is admin'))
+    is_admin = forms.BooleanField(required=False, label=_('Is admin'),
+                                  help_text=_('This HR user can initiate new cases'))
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'language', 'company',
-                  'responsible', 'new_token', 'is_admin']
+                  'responsible', 'new_token', 'is_admin', 'is_active']
 
 class ChildCreateForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))

@@ -127,7 +127,7 @@ LOGIN_REDIRECT_URL = 'lgc-home'
 LOGIN_URL = 'lgc-login'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-EMAIL_HOST = 'kw-net2.com'
+EMAIL_HOST = 'kw-net.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'autotestkw@example.com'
 EMAIL_HOST_PASSWORD = 'udis82udD'
