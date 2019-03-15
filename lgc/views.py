@@ -31,6 +31,7 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
+delete_str = _('Delete')
 
 @login_required
 def home(request):
@@ -425,16 +426,21 @@ def get_account_layout(layout, new_token, is_hr=False):
         layout.append(row_div)
     return layout
 
-def get_account_form(form, action, new_token=False):
+def get_account_form(form, action, uid, new_token=False):
     form.helper = FormHelper()
     form.helper.layout = get_account_layout(Layout(), new_token, False)
 
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
              action + '</button>'))
+    if uid:
+        form.helper.layout.append(
+            HTML(' <a href="{% url "lgc-user-delete" ' + str(uid) +
+                 '%}" class="btn btn-outline-danger">' + delete_str + '</a>')
+        )
     return form
 
-def get_hr_account_form(form, action, new_token=False, show_tabs=True):
+def get_hr_account_form(form, action, uid, new_token=False, show_tabs=True):
     form.helper = FormHelper()
     if show_tabs:
         form.helper.layout = Layout(TabHolder(
@@ -452,6 +458,12 @@ def get_hr_account_form(form, action, new_token=False, show_tabs=True):
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
              action + '</button>'))
+    if uid:
+        form.helper.layout.append(
+            HTML(' <a href="{% url "lgc-user-delete" ' + str(uid) +
+                 '%}" class="btn btn-outline-danger">' + delete_str + '</a>')
+        )
+
     return form
 
 class AccountView(LoginRequiredMixin):
@@ -497,8 +509,9 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         form = super().get_form(form_class=self.form_class)
 
         if self.is_hr:
-            return get_hr_account_form(form, self.form_name, True, False)
-        return get_account_form(form, self.form_name, True)
+            return get_hr_account_form(form, self.form_name, None, True,
+                                       False)
+        return get_account_form(form, self.form_name, None, True, None)
 
     def return_non_existant(self, form, pk):
         messages.error(self.request,
@@ -606,8 +619,9 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         form = super().get_form(form_class=self.form_class)
 
         if self.is_hr:
-            return get_hr_account_form(form, self.form_name, True, True)
-        return get_account_form(form, self.form_name, True)
+            return get_hr_account_form(form, self.form_name, self.object.id,
+                                       True, True)
+        return get_account_form(form, self.form_name, self.object.id, True)
 
     def form_valid(self, form, relations = None):
         self.object = form.save(commit=False)

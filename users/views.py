@@ -52,11 +52,21 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
     template_name = 'users/confirm_delete.html'
     success_url = reverse_lazy('lgc-users')
-    success_message = _("User deleted successfully.")
+    success_message = _('User deleted successfully.')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _("Delete User")
+        context['title'] = _('Delete User')
+        context['object'] = self.object
+        if self.object.role in user_models.get_hr_roles():
+            context['cancel_url'] = reverse_lazy('lgc-hr',
+                                             kwargs={'pk': self.object.id})
+        elif self.object.role == user_models.EMPLOYEE:
+            context['cancel_url'] = reverse_lazy('lgc-account',
+                                             kwargs={'pk': self.object.id})
+        else:
+            context['cancel_url'] = reverse_lazy('lgc-user',
+                                             kwargs={'user_id': self.object.id})
         return context
 
     def test_func(self):
