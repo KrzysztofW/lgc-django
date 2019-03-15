@@ -20,6 +20,12 @@ class UserUpdateForm(UserChangeForm):
         fields = ['email', 'first_name', 'last_name', 'is_active', 'is_staff',
                   'role', 'billing', 'language']
 
+class UserUpdateProfileForm(UserChangeForm):
+    password = None
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'language']
+
 class UserPasswordUpdateForm(UserCreationForm):
     class Meta:
         model = User

@@ -8,9 +8,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout_then_login
 from django.utils.translation import ugettext as _
+from django.utils import translation
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
-from .forms import UserCreateForm, UserUpdateForm, UserPasswordUpdateForm
+from . import forms as user_forms
 from django.views.generic import (ListView, DetailView, CreateView,
                                   UpdateView, DeleteView)
 from django.utils import timezone
@@ -85,7 +86,7 @@ def create(request):
     title = _("New User")
 
     if request.method == 'POST':
-        form = UserCreateForm(request.POST)
+        form = user_forms.UserCreateForm(request.POST)
 
         if form.is_valid():
             user = form.save()
@@ -101,7 +102,7 @@ def create(request):
         return render(request, 'users/create.html', context)
 
     context = {
-        'form': UserCreateForm(),
+        'form': user_forms.UserCreateForm(),
         'title': title,
     }
     return render(request, 'users/create.html', context)
@@ -111,28 +112,45 @@ def create(request):
 def password_reset(request, user_id):
     user = User.objects.filter(id=user_id)
     title = _("Password Reset")
+    form = user_forms.UserPasswordUpdateForm()
 
     if user.count() != 1:
         raise Http404
     if request.method == 'POST':
-        form = UserPasswordUpdateForm(request.POST, instance=user[0])
+        form = user_forms.UserPasswordUpdateForm(request.POST,
+                                                 instance=user[0])
         if form.is_valid():
             form.save()
             messages.success(request,
                              _('The password for %s %s has been successfully updated') %
                              (user[0].first_name, user[0].last_name))
             return redirect('lgc-user', user[0].id)
-        context = {
-            'form': form,
-            'user': user[0],
-            'title': title,
-        }
-        return render(request, 'users/password_reset.html', context)
 
     context = {
-        'form': UserPasswordUpdateForm(),
+        'form': form,
         'user': user[0],
         'title': title,
+    }
+    return render(request, 'users/password_reset.html', context)
+
+@login_required
+def profile_password_reset(request):
+    title = _("Password Reset")
+    form = user_forms.UserPasswordUpdateForm()
+
+    if request.method == 'POST':
+        form = user_forms.UserPasswordUpdateForm(request.POST,
+                                                 instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request,
+                             _('Your password has been successfully updated'))
+            return redirect('lgc-profile')
+
+    context = {
+        'form': form,
+        'title': title,
+        'profile': 1,
     }
     return render(request, 'users/password_reset.html', context)
 
@@ -146,14 +164,14 @@ def update(request, user_id):
         raise Http404
 
     if request.method == 'POST':
-        form = UserUpdateForm(request.POST, instance=user[0])
+        form = user_forms.UserUpdateForm(request.POST, instance=user[0])
 
         if form.is_valid():
             user = form.save()
-            email = form.cleaned_data.get('email')
             messages.success(request,
-                             _('The account of %(email)s has been updated') %
-                             { 'email': email})
+                             _('The account of %(first_name)s %(last_name)s has been updated') %
+                             { 'first_name': user.first_name,
+                               'last_name' : user.last_name })
             return redirect('lgc-users')
         context = {
             'form': form,
@@ -164,9 +182,45 @@ def update(request, user_id):
         return render(request, 'users/create.html', context)
 
     context = {
-        'form': UserUpdateForm(instance=user[0]),
+        'form': user_forms.UserUpdateForm(instance=user[0]),
         'update': 1,
         'user_id': user_id,
+        'title': title,
+    }
+    return render(request, 'users/create.html', context)
+
+@login_required
+def update_profile(request):
+    title = _("My Account Profile")
+
+    if request.method == 'POST':
+        form = user_forms.UserUpdateProfileForm(request.POST,
+                                                instance=request.user)
+
+        if form.is_valid():
+            user = form.save()
+            if user.language != 'EN' and user.language != 'FR':
+                raise Http404
+
+            translation.activate(user.language)
+            request.session[translation.LANGUAGE_SESSION_KEY] = user.language
+            messages.success(request,
+                             _('Your account profile has been updated'))
+            return redirect('lgc-profile')
+
+        context = {
+            'form': form,
+            'update': 1,
+            'user_id': request.user.id,
+            'title': title,
+        }
+        return render(request, 'users/create.html', context)
+
+    context = {
+        'form': user_forms.UserUpdateProfileForm(instance=request.user),
+        'update': 1,
+        'profile' : 1,
+        'user_id': request.user.id,
         'title': title,
     }
     return render(request, 'users/create.html', context)
@@ -218,7 +272,7 @@ def handle_auth_token(request):
 
     context['user'] = user
     if request.method == 'POST':
-        form = UserPasswordUpdateForm(request.POST, instance=user)
+        form = user_forms.UserPasswordUpdateForm(request.POST, instance=user)
         terms = request.POST.get('terms', '')
         if form.is_valid() and terms == '1':
             form.instance.token = ''
@@ -229,7 +283,7 @@ def handle_auth_token(request):
                              (user.first_name, user.last_name))
             return redirect('lgc-login')
     else:
-        form = UserPasswordUpdateForm()
+        form = user_forms.UserPasswordUpdateForm()
     context['form'] = form
     return render(request, 'users/token.html', context)
 

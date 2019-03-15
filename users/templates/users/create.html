@@ -13,7 +13,7 @@
       <button class="btn btn-outline-info" type="submit">{% trans "Submit" %}</button>
       {% if update %}
       <a href="{% url 'lgc-user-delete' user_id %}" class="btn btn-outline-danger">{% trans "Delete" %}</a>
-      <a href="{% url 'lgc-pw-reset' user_id %}" class="btn btn-outline-info">{% trans "Change password" %}</a>
+      <a href="{% if profile %}{% url 'lgc-profile-pw-reset' %}{% else %}{% url 'lgc-pw-reset' user_id %}{% endif %}" class="btn btn-outline-info">{% trans "Change password" %}</a>
       {% endif %}
     </div>
   </form>

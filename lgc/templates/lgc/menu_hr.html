@@ -1,0 +1,101 @@
+{% load i18n %}
+
+<div class="sidebar" role="navigation">
+  <div class="sidebar-nav collapse navbar-collapse show" id="side-menu-wrapper">
+    <ul class="nav navbar-nav navbar-collapse flex-column side-nav list-group" id="side-menu">
+      <li class="sidebar-search">
+        <div class="input-group custom-search-form">
+          <input type="text" class="form-control" placeholder="Search...">
+          <span class="input-group-btn">
+            <button class="btn btn-white" type="button">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+        <!-- /input-group -->
+      </li>
+      <li class="list-group-item">
+        <a href="{% url 'lgc-home' %}"><i class="fa fa-dashboard fa-fw"></i> {% trans 'Dashboard' %}</a>
+      </li>
+      <li class="list-group-item">
+	<a href="{% url 'lgc-files' %}"><i class="fa fa-files-o fa-fw"></i> {% trans "Files" %}</a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="#"><i class="fa fa-sitemap fa-fw"></i>
+	  {% trans "External accounts" %}
+	  <span class="fa arrow"></span>
+	</a>
+
+        <ul class="nav-second-level list-group nested">
+	  <li class="list-group-item">
+            <a href="#">{% trans "Employees" %} <span class="fa arrow"></span></a>
+            <ul class="nav-third-level list-group nested">
+	      <li class="list-group-item">
+		<a href="{% url "lgc-account-create" %} ">{% trans "Initiate an account" %}</a>
+              </li>
+	      <li class="list-group-item">
+		<a href="{% url "lgc-accounts" %} ">{% trans "Account list" %}</a>
+              </li>
+	    </ul>
+	  </li>
+
+	  <li class="list-group-item">
+            <a href="#">{% trans "Human resources" %} <span class="fa arrow"></span></a>
+	    <ul class="nav-third-level list-group nested">
+	      <li class="list-group-item">
+		<a href="{% url "lgc-hr-create" %} ">{% trans "Initiate an HR account" %}</a>
+              </li>
+	      <li class="list-group-item">
+		<a href="{% url "lgc-hr-accounts" %} ">{% trans "HR account list" %}</a>
+              </li>
+            </ul>
+	  </li>
+	</ul>
+      </li>
+
+      <li class="list-group-item">
+	<a href="#"><i class="fa fa-calculator fa-fw"></i> {% trans 'Billing' %}<span class="fa arrow"></span></a>
+        <ul class="nav-second-level list-group nested">
+	  <li class="list-group-item">
+            <a href="#{# url "lgc-bills" #}">{% trans "Bills" %}</a>
+          </li>
+	  <li class="list-group-item">
+            <a href="#{# url "lgc-clients" #} ">{% trans "Clients" %}</a>
+          </li>
+        </ul>
+        <!-- /.nav-second-level -->
+      </li>
+
+      <li class="list-group-item">
+	<a href="#{# url 'lgc-expirations' #}"><i class="fa fa-bell fa-fw"></i> {% trans "Expirations" %}</a>
+      </li>
+
+      <li class="list-group-item">
+	<a href="{% url 'lgc-processes' %}"><i class="fa fa-edit fa-fw"></i> {% trans "Processes" %}</a>
+      </li>
+
+      <li class="list-group-item">
+        <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
+        <ul class="nav-second-level list-group nested">
+          <li class="list-group-item">
+            <a href="#">Flot Charts</a>
+          </li>
+        </ul>
+        <!-- /.nav-second-level -->
+      </li>
+      {% if request.user.is_staff %}
+      <li class="list-group-item">
+	<a href="#"><i class="fa fa-wrench fa-fw"></i> Admin<span class="fa arrow"></span></a>
+        <ul class="nav-second-level list-group nested">
+	  <li class="list-group-item">
+            <a href="{% url "lgc-users" %} ">{% trans "Local users" %}</a>
+          </li>
+        </ul>
+        <!-- /.nav-second-level -->
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+  <!-- /.sidebar-collapse -->
+</div>

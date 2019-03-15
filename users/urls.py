@@ -20,6 +20,9 @@ urlpatterns = [
 
     path('<int:user_id>/', views.update, name='lgc-user'),
     path('pw-reset/<int:user_id>/', views.password_reset, name='lgc-pw-reset'),
+    path('profile/', views.update_profile, name='lgc-profile'),
+    path('profile-pw-reset/', views.profile_password_reset,
+         name='lgc-profile-pw-reset'),
 
     path('auth/', views.handle_auth_token, name='lgc-token'),
 ]

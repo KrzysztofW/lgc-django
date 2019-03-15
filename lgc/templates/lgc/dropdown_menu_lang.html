@@ -1,0 +1,14 @@
+{% load i18n %}
+
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
+     aria-haspopup="true" aria-expanded="false">
+    <span class="flag-icon flag-icon-{{ LANGUAGE_CODE }}" style="font-size:14px;"></span>
+  </a>
+  <div class="dropdown-menu dropdown-menu-right dropdown-users">
+    <div>
+      <a href="/en{{ request.get_full_path|slice:'3:' }}" class="dropdown-item"><span class="flag-icon flag-icon-en"></span> English</a>
+      <a href="/fr{{ request.get_full_path|slice:'3:' }}" class="dropdown-item"><span class="flag-icon flag-icon-fr"></span> français</a>
+    </div>
+  </div>
+</li>
