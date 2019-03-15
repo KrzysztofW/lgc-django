@@ -506,8 +506,8 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         return super().form_invalid(form)
 
     def get_person(self):
-        pk = self.kwargs['pk']
-        if pk:
+        pk = self.kwargs.get('pk', '')
+        if pk != '':
             p = Person.objects.filter(id=pk)
             if p == None or len(p) == 0:
                 raise ValueError('invalid person ID')
@@ -518,7 +518,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         try:
             p = self.get_person()
         except:
-            return self.return_non_existant(form, pk)
+            return self.return_non_existant(form, self.kwargs.get('pk', ''))
 
         self.object = form.save(commit=False)
         form.cleaned_data['new_token'] = True
