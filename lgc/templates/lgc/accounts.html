@@ -1,0 +1,25 @@
+{% extends "lgc/person_list.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block search_bar %}
+{% if page_obj.paginator.count > 10 %}
+<div class="col-sm-1">
+  {% include "common/pagination_header.html" %}
+</div>
+{% endif %}
+<div class='col-sm-{% if page_obj.paginator.count > 10 %}5{% else %}6{% endif %}'>
+  <input onclick="this.form.submit();" type="radio" name="options" value="all"
+	 {% if request.GET.options == None or request.GET.options == "all" %}
+	 checked
+	 {% endif %}> {% trans 'All' %}
+  <input onclick="this.form.submit();" type="radio" name="options" value="pending"
+	 {% if request.GET.options == "pending" %}
+	 checked
+	 {% endif %}> {% trans 'Pending' %}
+  <input onclick="this.form.submit();" type="radio" name="options" value="refused"
+	 {% if request.GET.options == "refused" %}
+	 checked
+	 {% endif %}> {% trans 'Refused' %}
+</div>
+{% endblock %}

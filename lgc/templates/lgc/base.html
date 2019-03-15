@@ -244,9 +244,6 @@
 	      <li class="list-group-item">
 		<a href="{% url 'lgc-files' %}"><i class="fa fa-files-o fa-fw"></i> {% trans "Files" %}</a>
               </li>
-	      <li class="list-group-item">
-		<a href="{% url 'lgc-hrs' %}"><i class="fa fa-male fa-fw"></i> {% trans "Human resoures" %}</a>
-              </li>
               <!--li class="list-group-item">
                 <a href="#"><i class="fa fa-table fa-fw"></i> Tables</a>
               </li-->
@@ -292,7 +289,7 @@
 			<a href="{% url "lgc-account-create" %} ">{% trans "Initiate an account" %}</a>
                       </li>
 		      <li class="list-group-item">
-			<a href="{% url "lgc-accounts" %} ">{% trans "Pending accounts" %}</a>
+			<a href="{% url "lgc-accounts" %} ">{% trans "Account list" %}</a>
                       </li>
 		    </ul>
 		  </li>
@@ -304,7 +301,7 @@
 			<a href="{% url "lgc-hr-create" %} ">{% trans "Initiate an HR account" %}</a>
                       </li>
 		      <li class="list-group-item">
-			<a href="{% url "lgc-hr-accounts" %} ">{% trans "Pending HR accounts" %}</a>
+			<a href="{% url "lgc-hr-accounts" %} ">{% trans "HR account list" %}</a>
                       </li>
                     </ul>
 		  </li>

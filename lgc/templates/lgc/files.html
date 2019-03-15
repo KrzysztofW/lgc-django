@@ -1,0 +1,9 @@
+{% extends "lgc/person_list.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block search_bar %}
+<div class="col-sm-6">
+  {% include "common/pagination_header.html" %}
+</div>
+{% endblock %}

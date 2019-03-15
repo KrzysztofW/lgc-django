@@ -6,7 +6,6 @@ urlpatterns = [
 
     path('hr-create/', views.HRCreateView.as_view(), name='lgc-hr-create'),
     path('hr/<int:pk>/', views.HRUpdateView.as_view(), name='lgc-hr'),
-    path('hr-list/', views.HRListView.as_view(), name='lgc-hrs'),
     path('hr-account-list/', views.HRAccountListView.as_view(), name='lgc-hr-accounts'),
     path('hr-delete/<int:pk>', views.HRDeleteView.as_view(),
          name='lgc-hr-delete'),
@@ -21,11 +20,11 @@ urlpatterns = [
          name='lgc-file-search-ajax'),
 
     path('account-create/', views.InitiateAccount.as_view(), name='lgc-account-create'),
-    path('account-list/', views.PendingAccounts.as_view(), name='lgc-accounts'),
-    path('account/<int:pk>/', views.UpdatePendingAccount.as_view(), name='lgc-account'),
+    path('account-list/', views.Accounts.as_view(), name='lgc-accounts'),
+    path('account/<int:pk>/', views.UpdateAccount.as_view(), name='lgc-account'),
     path('account-link/<int:pk>/', views.InitiateAccount.as_view(),
          name='lgc-account-link'),
-    path('account-delete/<int:pk>', views.DeletePendingAccount.as_view(),
+    path('account-delete/<int:pk>', views.DeleteAccount.as_view(),
          name='lgc-account-delete'),
 
     path('insert-employee/', views.ajax_insert_employee_view,

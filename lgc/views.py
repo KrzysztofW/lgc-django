@@ -41,7 +41,7 @@ def tables(request):
     return render(request, 'lgc/tables.html', {'title':'Tables'})
 
 class PersonCommonListView(LoginRequiredMixin, ListView):
-    template_name = 'lgc/person_list.html'
+    template_name = 'lgc/files.html'
     model = Person
     fields = '__all__'
     context_object_name = 'persons'
@@ -544,12 +544,12 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         return ret
 
     def form_invalid(self, form):
-        messages.error(self.request, _('There are errors on the page'))
+        #messages.error(self.request, _('There are errors on the page'))
         return super().form_invalid(form)
 
-class PendingAccounts(AccountView, PersonCommonListView, UserPassesTestMixin):
-    title = _('Pending Accounts')
-    template_name = 'lgc/person_list.html'
+class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
+    title = _('Employee Accounts')
+    template_name = 'lgc/accounts.html'
     ajax_search_url = reverse_lazy('lgc-employee-user-search-ajax')
     search_url = reverse_lazy('lgc-accounts')
     users = user_models.get_employee_user_queryset()
@@ -566,8 +566,14 @@ class PendingAccounts(AccountView, PersonCommonListView, UserPassesTestMixin):
         return pagination(self, context, self.list_url)
 
     def get_queryset(self):
-        users = self.users.filter(GDPR_accepted=None)
         term = self.request.GET.get('term', '')
+        options = self.request.GET.get('options', '')
+        if options == 'pending':
+            users = self.users.filter(GDPR_accepted=None)
+        elif options == 'refused':
+            users = self.users.filter(GDPR_accepted=False)
+        else:
+            users = self.users
         order_by = self.get_ordering()
         if term == '':
             return users.order_by(order_by)
@@ -576,7 +582,7 @@ class PendingAccounts(AccountView, PersonCommonListView, UserPassesTestMixin):
                 users.filter(last_name__istartswith=term))
         return objs.order_by(order_by)
 
-class UpdatePendingAccount(AccountView, SuccessMessageMixin, UpdateView):
+class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
     success_message = _('Account successfully updated')
     fields = ['first_name', 'last_name', 'email'];
     title = _('Update Account')
@@ -623,12 +629,12 @@ class UpdatePendingAccount(AccountView, SuccessMessageMixin, UpdateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _('There are errors on the page'))
+        #messages.error(self.request, _('There are errors on the page'))
         return super().form_invalid(form)
 
-class DeletePendingAccount(AccountView, PersonDeleteView):
-    obj_name = _('Pending account')
-    title = _('Delete Pending Account')
+class DeleteAccount(AccountView, PersonDeleteView):
+    obj_name = _('Account')
+    title = _('Delete Account')
     success_url = reverse_lazy('lgc-accounts')
     template_name = 'lgc/person_confirm_delete.html'
 
@@ -641,7 +647,7 @@ class HRView(LoginRequiredMixin):
     create_url = reverse_lazy('lgc-hr-create')
     update_url = 'lgc-hr'
     cancel_url = 'lgc-hr'
-    list_url = reverse_lazy('lgc-hrs')
+    list_url = reverse_lazy('lgc-hr-accounts')
     form_class = InitiateHRForm
     is_hr = True
 
@@ -653,7 +659,7 @@ class HRCreateView(HRView, InitiateAccount):
     title = _('New HR account')
     form_name = _('Initiate account')
 
-class HRUpdateView(HRView, UpdatePendingAccount, UserPassesTestMixin):
+class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
     success_message = _('HR account successfully updated')
     title = _('Update HR')
 
@@ -732,25 +738,17 @@ class HRUpdateView(HRView, UpdatePendingAccount, UserPassesTestMixin):
             return False
         return True
 
-class HRAccountListView(HRView, PendingAccounts):
-    title = _('Pending HR accounts')
-    template_name = 'lgc/person_list.html'
+class HRAccountListView(HRView, Accounts):
+    title = _('HR accounts')
+    template_name = 'lgc/accounts.html'
     ajax_search_url = reverse_lazy('lgc-hr-user-search-ajax')
     search_url = reverse_lazy('lgc-hr-accounts')
     users = user_models.get_hr_user_queryset()
 
-class HRListView(HRView, PendingAccounts):
-    title = _('Human resources')
-    template_name = 'lgc/person_list.html'
-
-    def get_queryset(self):
-        users = user_models.get_hr_user_queryset()
-        return users.filter(GDPR_accepted=True).order_by('-id')
-
-class HRDeleteView(HRView, DeletePendingAccount):
+class HRDeleteView(HRView, DeleteAccount):
     success_url = reverse_lazy('lgc-hrs')
-    obj_name = _('Pending HR account')
-    title = _('Delete Pending HR account')
+    obj_name = _('HR account')
+    title = _('Delete HR account')
     template_name = 'lgc/person_confirm_delete.html'
 
 @login_required

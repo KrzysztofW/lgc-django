@@ -1,7 +1,7 @@
 {% load i18n %}
 
+{% if page_obj.paginator.count > 10 %}
 <div class="dataTables_length">
-  {% if page_obj.paginator.count > 10 %}
   <label>{% trans 'Show' %}
     <select name="paginate" class="form-control form-control-sm" onchange="window.location='{{ url }}?{{ paginate_params }}&paginate='+this.value">
       <option value="10" {{ 10_selected }}>10</option>
@@ -15,5 +15,5 @@
     </select>
     {% trans 'entries' %}
   </label>
-  {% endif %}
 </div>
+{% endif %}
