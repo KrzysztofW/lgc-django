@@ -13,6 +13,9 @@ from django.core.exceptions import PermissionDenied
 from .forms import UserCreateForm, UserUpdateForm, UserPasswordUpdateForm
 from django.views.generic import (ListView, DetailView, CreateView,
                                   UpdateView, DeleteView)
+from django.utils import timezone
+from django.conf import settings
+from datetime import datetime,timedelta
 from . import models as user_models
 User = get_user_model()
 
@@ -190,6 +193,45 @@ def __ajax_view(request, users):
         'users': users
     }
     return render(request, 'users/search.html', context)
+
+def handle_auth_token(request):
+    title = _("Welcome to LGC")
+    token = request.GET.get('token', '')
+    context = {
+        'title': title,
+    }
+
+    if token == '':
+        return render(request, 'users/token_bad.html', context)
+
+    user = user_models.get_hr_user_queryset().filter(token=token)
+    if len(user) == 0:
+        user = user_models.get_employee_user_queryset().filter(token=token)
+        if len(user) == 0:
+            return render(request, 'users/token_bad.html', context)
+
+    user = user.get()
+    if user == None:
+        return render(request, 'users/token_bad.html', context)
+    if user.token_date + timedelta(hours=settings.AUTH_TOKEN_EXPIRY) < timezone.now():
+        return render(request, 'users/token_bad.html', context)
+
+    context['user'] = user
+    if request.method == 'POST':
+        form = UserPasswordUpdateForm(request.POST, instance=user)
+        terms = request.POST.get('terms', '')
+        if form.is_valid() and terms == '1':
+            form.instance.token = ''
+            form.instance.token_date = None
+            form.save()
+            messages.success(request,
+                             _('The password for %s %s has been successfully set') %
+                             (user.first_name, user.last_name))
+            return redirect('lgc-login')
+    else:
+        form = UserPasswordUpdateForm()
+    context['form'] = form
+    return render(request, 'users/token.html', context)
 
 @login_required
 @must_be_staff

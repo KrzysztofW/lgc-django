@@ -28,10 +28,24 @@ from pathlib import Path
 from django.http import Http404
 from users import models as user_models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from common import lgc_types
+import string
+import random
+import datetime
 
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
 delete_str = _('Delete')
+
+def token_generator():
+    size = 64
+    chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
+
+    while True:
+        r = ''.join(random.choice(chars) for _ in range(size))
+        if len(User.objects.filter(token=r)) == 0:
+            return r
 
 @login_required
 def home(request):
@@ -327,7 +341,7 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             self.request.POST.get('inform_person') and
             self.request.POST['inform_person'] == 'on'):
             try:
-                lgc_send_email(self.object, 'update')
+                lgc_send_email(self.object, lgc_types.MsgType.DEL)
             except Exception as e:
                 messages.error(self.request, _('Cannot send email to') + '`'
                                + self.object.email + '`: ' + str(e))
@@ -550,8 +564,14 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         else:
             form.instance.role = user_models.EMPLOYEE
         if form.cleaned_data['new_token']:
+            form.instance.token = token_generator()
+            form.instance.token_date = timezone.now()
+            if self.is_hr:
+                type = lgc_types.MsgType.NEW_HR
+            else:
+                type = lgc_types.MsgType.NEW_EM
             try:
-                lgc_send_email(self.object, 'update')
+                lgc_send_email(self.object, type)
             except Exception as e:
                 messages.error(self.request, _('Cannot send email to') + '`'
                                + self.object.email + '`: ' + str(e))
@@ -642,8 +662,14 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             form.instance.role = user_models.EMPLOYEE
 
         if form.cleaned_data['new_token']:
+            form.instance.token = token_generator()
+            form.instance.token_date = timezone.now()
+            if self.is_hr:
+                type = lgc_types.MsgType.NEW_HR
+            else:
+                type = lgc_types.MsgType.NEW_EM
             try:
-                lgc_send_email(self.object, 'update')
+                lgc_send_email(self.object, type)
             except Exception as e:
                 messages.error(self.request, _('Cannot send email to') + '`'
                                + self.object.email + '`: ' + str(e))

@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext as _
+from django.urls import reverse_lazy
 import time
 import os
 import json
@@ -8,6 +10,7 @@ from urllib.parse import urlencode
 from functools import wraps
 from users.models import INTERNAL_ROLE_CHOICES
 from string import Template
+from common import lgc_types
 
 MSG_TPL_DIR = 'msg_tpls'
 
@@ -98,15 +101,31 @@ def read_template(filename):
     return Template(template_file_content)
 
 def lgc_send_email(obj, action):
-    msg_tpl = read_template('message_employee_en.txt')
-    msg_tpl_html = read_template('message_employee_en.html')
-    msg = msg_tpl.substitute(PERSON_NAME=obj.first_name + ' ' + obj.last_name,
-                             URL='')
-    msg_html = msg_tpl_html.substitute(PERSON_NAME=obj.first_name + ' ' +
-                                       obj.last_name, URL='')
+    if action == lgc_types.MsgType.NEW_EM:
+        subject = _('new employee subject')
+        tpl = 'message_employee'
+    elif action == lgc_types.MsgType.NEW_HR:
+        subject = _('new HR subject')
+        tpl = 'message_employee'
+    elif action == lgc_types.MsgType.DEL:
+        subject = _('new account delete subject')
+        tpl = 'message_employee'
+    else:
+        return
 
-    subject = 'test subject'
-    to = obj.first_name + ' ' + obj.last_name + '<' + obj.email + '>'
+    lang = obj.language.lower()
+    tpl_txt = tpl + '_' + lang + '.txt'
+    tpl_html = tpl + '_' + lang + '.html'
+    msg_tpl = read_template(tpl_txt)
+    msg_tpl_html = read_template(tpl_html)
+
+    name = obj.first_name + ' ' + obj.last_name
+    url = reverse_lazy('lgc-token')[3:]
+    url = settings.SITE_URL + '/' + lang + url + '?token=' + obj.token
+
+    msg = msg_tpl.substitute(PERSON_NAME=name, URL=url)
+    msg_html = msg_tpl_html.substitute(PERSON_NAME=name, URL=url)
+    to = name + '<' + obj.email + '>'
 
     # XXX don't send emails for now
     return

@@ -106,6 +106,7 @@ class User(AbstractUser):
     billing = models.BooleanField(default=False)
     objects = UserManager()
     token = models.CharField(max_length=64, default="", blank=True)
+    token_date = models.DateTimeField(null=True)
     password_last_update = models.DateField(blank=True, null=True)
     GDPR_accepted = models.BooleanField(default=None, null=True)
     responsible = models.ManyToManyField("self", blank=True)

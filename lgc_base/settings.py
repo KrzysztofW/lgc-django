@@ -133,3 +133,5 @@ EMAIL_HOST_USER = 'autotestkw@example.com'
 EMAIL_HOST_PASSWORD = 'udis82udD'
 EMAIL_USE_TLS = True
 
+SITE_URL = 'http://localhost:8000'
+AUTH_TOKEN_EXPIRY=48
