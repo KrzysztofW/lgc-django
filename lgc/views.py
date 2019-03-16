@@ -134,7 +134,7 @@ def get_person_form_layout(form, action, obj):
     )
     if obj and obj.user:
         info_tab.append(Div(Div('HR', css_class='form-group col-md-4'),
-            css_class='form-row'))
+                            css_class='form-row'))
     info_tab.append(Div(Div(HTML(get_template('formset_template.html')),
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
@@ -250,17 +250,11 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
 
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        messages.error(self.request, _('There are errors on the page'))
-        return super().form_invalid(form)
-
     def get_form(self, form_class=lgc_forms.PersonCreateForm):
         form = super().get_form(form_class=form_class)
         if not self.is_update:
-            action = _('Create')
-        else:
-            action = _('Update')
-        return get_person_form_layout(form, action, None)
+            return get_person_form_layout(form, _('Create'), None)
+        return get_person_form_layout(form, _('Update'), self.object)
 
     class Meta:
         abstract = True
