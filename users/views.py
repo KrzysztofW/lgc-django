@@ -12,6 +12,7 @@ from django.utils import translation
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from . import forms as user_forms
+from lgc import models as lgc_models
 from django.views.generic import (ListView, DetailView, CreateView,
                                   UpdateView, DeleteView)
 from django.utils import timezone
@@ -278,6 +279,14 @@ def handle_auth_token(request):
             form.instance.token = ''
             form.instance.token_date = None
             form.save()
+            if not hasattr(form.instance, 'person_user_set'):
+                p = lgc_models.Person()
+                p.first_name = form.instance.first_name
+                p.last_name = form.instance.last_name
+                p.email = form.instance.email
+                p.modified_by = form.instance
+                p.user = form.instance
+                p.save()
             messages.success(request,
                              _('The password for %s %s has been successfully set') %
                              (user.first_name, user.last_name))
