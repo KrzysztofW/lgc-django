@@ -198,48 +198,56 @@ def hr_add_employee(form_data, user_object):
         h.hr_employees.add(user_object.id)
         h.save()
 
-class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
     model = lgc_models.Person
     fields = '__all__'
-    success_message = _('File successfully created')
+    is_update = False
 
     def get_success_url(self):
         return reverse_lazy('lgc-file', kwargs={'pk': self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _('New File')
+        if not self.is_update:
+            context['title'] = _('New File')
+        else:
+            context['title'] = _('File')
         context['formset_title'] = _('Children')
         context['formset_add_text'] = _('Add a child')
-        context['process'] = lgc_forms.ProcessForm()
-        # We cannot use modelformset_factory with Child class as it would
-        # get ALL the children from the DB in an empty creation form!
-        ChildrenFormSet = formset_factory(form=lgc_forms.ChildCreateForm,
-                                          extra=1, can_delete=True)
+        ChildrenFormSet = modelformset_factory(lgc_models.Child,
+                                               form=lgc_forms.ChildCreateForm,
+                                               can_delete=True)
 
         if self.request.POST:
             context['formset'] = ChildrenFormSet(self.request.POST)
         else:
-            context['formset'] = ChildrenFormSet()
+            if not self.is_update:
+                context['formset'] = ChildrenFormSet(queryset=lgc_models.Child.objects.none())
+            else:
+                context['formset'] = ChildrenFormSet(queryset=lgc_models.Child.objects.filter(person=self.object.id))
         return context
 
+    def save_formset_instances(self, instances):
+        for i in instances:
+            i.person_id = self.object.id
+            i.save()
+
     def form_valid(self, form):
-        ChildrenFormSet = modelformset_factory(lgc_models.Child,
-                                               form=lgc_forms.ChildCreateForm,
-                                               can_delete=True)
         form.instance.modified_by = self.request.user
-        children = ChildrenFormSet(self.request.POST)
+        context = self.get_context_data()
+
+        children = context['formset']
 
         with transaction.atomic():
-            self.object = form.save()
-            if children.is_valid():
-                instances = children.save(commit=False)
-                for i in instances:
-                    i.parent_id = self.object.id
-                    i.save()
-            else:
+            if not children.is_valid():
                 messages.error(self.request, _('Invalid Children table'))
                 return super().form_invalid(form)
+
+
+            self.object = form.save()
+            instances = children.save(commit=False)
+            self.save_formset_instances(instances)
+
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -248,71 +256,22 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def get_form(self, form_class=lgc_forms.PersonCreateForm):
         form = super().get_form(form_class=form_class)
-        return get_person_form_layout(form, _('Create'), None)
-
-class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    model = lgc_models.Person
-    child_form = lgc_forms.ChildCreateForm
-    fields = '__all__'
-    success_message = _('File successfully updated')
-
-    def get_success_url(self):
-        return reverse_lazy('lgc-file', kwargs={'pk':self.object.id})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = _('File')
-        context['formset_title'] = _('Children')
-        context['formset_add_text'] = _('Add a child')
-        ChildrenFormSet = modelformset_factory(lgc_models.Child,
-                                               self.child_form, extra=1,
-                                               can_delete=True)
-
-        if self.request.POST:
-            context['formset'] = ChildrenFormSet(self.request.POST)
+        if not self.is_update:
+            action = _('Create')
         else:
-            context['formset'] = ChildrenFormSet(queryset=lgc_models.Child.objects.filter(parent=self.object.id))
-        if self.object.user:
-            context['form'].fields['HR'].initial = self.object.user.hr_employees.all()
-        context['form'].fields['process_name'].initial = self.object.processtype_set.all()
-        return context
+            action = _('Update')
+        return get_person_form_layout(form, action, None)
 
-    def get_form(self, form_class=lgc_forms.PersonCreateForm):
-        form = super().get_form(form_class)
-        form = get_person_form_layout(form, _('Update'), self.object)
+    class Meta:
+        abstract = True
 
-        if self.request.user.is_staff:
-            form.helper.layout.append(HTML(' <a href="{% url "lgc-file-delete" object.id %}" class="btn btn-outline-danger">' + _('Delete') + '</a>'))
-        return form
+class PersonCreateView(PersonCommonView, CreateView):
+    is_update = False
+    success_message = _('File successfully created')
 
-    def form_valid(self, form):
-        # need to call get_context_data() in order to fill
-        # the context['formset'] with POST response
-        context = self.get_context_data()
-        children = context['formset']
-        form.instance.modified_by = self.request.user
-
-        if not self.request.POST:
-            return super().form_valid(form)
-
-        with transaction.atomic():
-            if children.is_valid():
-                for obj in children.deleted_forms:
-                    if (obj.instance.id != None):
-                        obj.instance.delete()
-                instances = children.save(commit=False)
-                for i in instances:
-                    i.parent_id = self.object.id
-                    i.save()
-                hr_add_employee(form.cleaned_data, self.object.user)
-            else:
-                messages.error(self.request, _('Invalid Children table'))
-                return super().form_invalid(form)
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        messages.error(self.request, _('There are errors on the page'))
-        return super().form_invalid(form)
+class PersonUpdateView(PersonCommonView, UpdateView):
+    is_update = True
+    success_message = _('File successfully updated')
 
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = lgc_models.Person
