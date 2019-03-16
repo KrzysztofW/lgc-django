@@ -16,6 +16,7 @@ urlpatterns = [
     path('file-delete/<int:pk>', views.PersonDeleteView.as_view(),
          name='lgc-file-delete'),
     path('file/<int:pk>/', views.PersonUpdateView.as_view(), name='lgc-file'),
+    path('myfile/', views.myfile, name='lgc-myfile'),
     path('file-search/ajax/', views.ajax_file_search_view,
          name='lgc-file-search-ajax'),
 

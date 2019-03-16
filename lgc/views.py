@@ -105,7 +105,7 @@ def get_template(name):
     except FileNotFoundError:
         raise Http404
 
-def get_person_form_layout(form, action, obj):
+def local_user_get_person_form_layout(form, action, obj):
     external_profile = None
     form.helper = FormHelper()
     info_tab = Tab(
@@ -140,14 +140,6 @@ def get_person_form_layout(form, action, obj):
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
 
-    process_tab = Tab(_('Process'),
-        #Div(Div(HTML('{% load crispy_forms_tags %}{{ process|crispy }}')),
-        #        css_class='form-group col-md-4'),
-        #    css_class='form-row'),
-        Div(Div('process_name', css_class='form-group col-md-4'),
-            css_class='form-row'),
-    )
-
     if obj:
         external_profile = Tab(_('Account Profile'))
         if obj.user:
@@ -168,11 +160,21 @@ def get_person_form_layout(form, action, obj):
                 css_class='form-row')
         external_profile.append(pdiv)
 
+    process_tab = Tab(_('Process'),
+        #Div(Div(HTML('{% load crispy_forms_tags %}{{ process|crispy }}')),
+        #        css_class='form-group col-md-4'),
+        #    css_class='form-row'),
+        Div(Div('process_name', css_class='form-group col-md-4'),
+            css_class='form-row'),
+    )
+
     billing_tab = Tab(_('Billing'),
     )
     tab_holder = TabHolder(info_tab)
+
     if external_profile:
         tab_holder.append(external_profile)
+
     tab_holder.append(process_tab)
     tab_holder.append(billing_tab)
     layout = Layout(tab_holder)
@@ -180,6 +182,66 @@ def get_person_form_layout(form, action, obj):
                        action + '</button>'))
     form.helper.layout = layout
     return form
+
+def employee_user_get_person_form_layout(form, action, obj):
+    external_profile = None
+    form.helper = FormHelper()
+    if obj == None or obj.user == None:
+        print("Error")
+        return
+
+    info_tab = Tab(
+        _('Information'),
+        Div(Div('first_name', css_class='form-group col-md-4'),
+            Div('last_name', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('email', css_class='form-group col-md-4'),
+            Div('citizenship', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('foreigner_id', css_class='form-group col-md-4'),
+            Div('birth_date', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('passport_expiry', css_class='form-group col-md-4'),
+            Div('passport_nationality', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('home_entity', css_class='form-group col-md-4'),
+            Div('host_entity', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('home_entity_address', css_class='form-group col-md-4'),
+            Div('host_entity_address', css_class='form-group col-md-4'),
+            css_class='form-row'),
+    )
+
+    info_tab.append(Div(Div(HTML(get_template('formsets_template.html')),
+                            css_class='form-group col-md-10'),
+                        css_class='form-row'))
+
+    process_tab = Tab(_('Process'),
+        #Div(Div(HTML('{% load crispy_forms_tags %}{{ process|crispy }}')),
+        #        css_class='form-group col-md-4'),
+        #    css_class='form-row'),
+        Div(Div('process_name', css_class='form-group col-md-4'),
+            css_class='form-row'),
+    )
+
+    tab_holder = TabHolder(info_tab)
+    tab_holder.append(process_tab)
+
+    layout = Layout(tab_holder)
+    layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
+                       action + '</button>'))
+    form.helper.layout = layout
+    return form
+
+def get_person_form_layout(cur_user, form, action, obj):
+    if cur_user.role in user_models.get_internal_roles():
+        return local_user_get_person_form_layout(form, action, obj)
+    if cur_user.role == user_models.EMPLOYEE:
+        return employee_user_get_person_form_layout(form, action,
+                                                    obj)
+    if cur_user.role in user_model.get_hr_roles():
+        #return hr_user_get_person_form_layout(form, action, obj)
+        return
 
 def hr_add_employee(form_data, user_object):
     if user_object == None:
@@ -321,8 +383,10 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
     def get_form(self, form_class=lgc_forms.PersonCreateForm):
         form = super().get_form(form_class=form_class)
         if not self.is_update:
-            return get_person_form_layout(form, _('Create'), None)
-        return get_person_form_layout(form, _('Update'), self.object)
+            return get_person_form_layout(self.request.user, form,
+                                          _('Create'), None)
+        return get_person_form_layout(self.request.user, form, _('Update'),
+                                      self.object)
 
     class Meta:
         abstract = True
@@ -334,6 +398,10 @@ class PersonCreateView(PersonCommonView, CreateView):
 class PersonUpdateView(PersonCommonView, UpdateView):
     is_update = True
     success_message = _('File successfully updated')
+
+def myfile(request):
+    view = PersonUpdateView.as_view()
+    return view(request, pk=request.user.person_user_set.id)
 
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = lgc_models.Person
