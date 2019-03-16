@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
-from .models import Person, Child, ModerationChild, ProcessType
+from . import models as lgc_models
 from users import models as user_models
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -16,12 +16,12 @@ class PersonCreateForm(forms.ModelForm):
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
     HR = forms.ModelMultipleChoiceField(required=False, widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=User.objects.filter(role__exact=user_models.HR)|User.objects.filter(role__exact=user_models.HR_ADMIN), label=_('Human Resources'))
-    process_name = forms.ModelChoiceField(required=False, queryset=ProcessType.objects.all())
+    process_name = forms.ModelChoiceField(required=False, queryset=lgc_models.ProcessType.objects.all())
     modified_by = forms.IntegerField(required=False, widget=forms.HiddenInput())
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
     class Meta:
-        model = Person
-        exclude = ['creation_date'] # XXX
+        model = lgc_models.Person
+        exclude = ['creation_date']
 
 class InitiateAccountForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label=_('First name'))
@@ -55,12 +55,12 @@ class ChildCreateForm(forms.ModelForm):
     passport_nationality = CountryField().formfield(required=False, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:100px'}))
 
     class Meta:
-        model = Child
+        model = lgc_models.Child
         exclude = ['parent']
 
 class ModerationChildCreateForm(ChildCreateForm):
     class Meta:
-        model = ModerationChild
+        model = lgc_models.ModerationChild
         exclude = ['parent']
 
 class HREmployeeForm(forms.Form):
@@ -70,4 +70,4 @@ class HREmployeeForm(forms.Form):
     email = forms.EmailField(required=True, widget=forms.HiddenInput())
 
 class ProcessForm(forms.Form):
-    name = forms.ModelChoiceField(queryset=ProcessType.objects.all())
+    name = forms.ModelChoiceField(queryset=lgc_models.ProcessType.objects.all())

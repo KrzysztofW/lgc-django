@@ -14,9 +14,8 @@ from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
-from .models import Person, ProcessType, Child, ModerationChild
-from .forms import (PersonCreateForm, ChildCreateForm, ModerationChildCreateForm,
-                    InitiateAccountForm, InitiateHRForm, HREmployeeForm, ProcessForm)
+from . import models as lgc_models
+from . import forms as lgc_forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML, MultiField
 from crispy_forms.bootstrap import (
@@ -57,7 +56,7 @@ def tables(request):
 
 class PersonCommonListView(LoginRequiredMixin, ListView):
     template_name = 'lgc/files.html'
-    model = Person
+    model = lgc_models.Person
     fields = '__all__'
     context_object_name = 'persons'
     ajax_search_url = reverse_lazy('lgc-file-search-ajax')
@@ -87,10 +86,10 @@ class PersonListView(PersonCommonListView):
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
         if term == '':
-            return Person.objects.order_by(order_by)
-        objs = (Person.objects.filter(email__istartswith=term)|
-                Person.objects.filter(first_name__istartswith=term)|
-                Person.objects.filter(last_name__istartswith=term))
+            return lgc_models.Person.objects.order_by(order_by)
+        objs = (lgc_models.Person.objects.filter(email__istartswith=term)|
+                lgc_models.Person.objects.filter(first_name__istartswith=term)|
+                lgc_models.Person.objects.filter(last_name__istartswith=term))
         return objs.order_by(order_by)
 
     def get_context_data(self, **kwargs):
@@ -200,7 +199,7 @@ def hr_add_employee(form_data, user_object):
         h.save()
 
 class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    model = Person
+    model = lgc_models.Person
     fields = '__all__'
     success_message = _('File successfully created')
 
@@ -212,11 +211,11 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         context['title'] = _('New File')
         context['formset_title'] = _('Children')
         context['formset_add_text'] = _('Add a child')
-        context['process'] = ProcessForm()
+        context['process'] = lgc_forms.ProcessForm()
         # We cannot use modelformset_factory with Child class as it would
         # get ALL the children from the DB in an empty creation form!
-        ChildrenFormSet = formset_factory(form=ChildCreateForm, extra=1,
-                                          can_delete=True)
+        ChildrenFormSet = formset_factory(form=lgc_forms.ChildCreateForm,
+                                          extra=1, can_delete=True)
 
         if self.request.POST:
             context['formset'] = ChildrenFormSet(self.request.POST)
@@ -225,7 +224,8 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        ChildrenFormSet = modelformset_factory(Child, form=ChildCreateForm,
+        ChildrenFormSet = modelformset_factory(lgc_models.Child,
+                                               form=lgc_forms.ChildCreateForm,
                                                can_delete=True)
         form.instance.modified_by = self.request.user
         children = ChildrenFormSet(self.request.POST)
@@ -246,13 +246,13 @@ class PersonCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         messages.error(self.request, _('There are errors on the page'))
         return super().form_invalid(form)
 
-    def get_form(self, form_class=PersonCreateForm):
+    def get_form(self, form_class=lgc_forms.PersonCreateForm):
         form = super().get_form(form_class=form_class)
         return get_person_form_layout(form, _('Create'), None)
 
 class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    model = Person
-    child_form = ChildCreateForm
+    model = lgc_models.Person
+    child_form = lgc_forms.ChildCreateForm
     fields = '__all__'
     success_message = _('File successfully updated')
 
@@ -264,19 +264,20 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         context['title'] = _('File')
         context['formset_title'] = _('Children')
         context['formset_add_text'] = _('Add a child')
-        ChildrenFormSet = modelformset_factory(Child, self.child_form,
-                                               extra=1, can_delete=True)
+        ChildrenFormSet = modelformset_factory(lgc_models.Child,
+                                               self.child_form, extra=1,
+                                               can_delete=True)
 
         if self.request.POST:
             context['formset'] = ChildrenFormSet(self.request.POST)
         else:
-            context['formset'] = ChildrenFormSet(queryset=Child.objects.filter(parent=self.object.id))
+            context['formset'] = ChildrenFormSet(queryset=lgc_models.Child.objects.filter(parent=self.object.id))
         if self.object.user:
             context['form'].fields['HR'].initial = self.object.user.hr_employees.all()
         context['form'].fields['process_name'].initial = self.object.processtype_set.all()
         return context
 
-    def get_form(self, form_class=PersonCreateForm):
+    def get_form(self, form_class=lgc_forms.PersonCreateForm):
         form = super().get_form(form_class)
         form = get_person_form_layout(form, _('Update'), self.object)
 
@@ -314,7 +315,7 @@ class PersonUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return super().form_invalid(form)
 
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = Person
+    model = lgc_models.Person
     obj_name = _('File')
     title = _('Delete File')
     template_name = 'lgc/person_confirm_delete.html'
@@ -350,7 +351,7 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class ProcessListView(LoginRequiredMixin, ListView):
     template_name = 'lgc/process_list.html'
-    model = ProcessType
+    model = lgc_models.ProcessType
     fields = '__all__'
     context_object_name = 'processes'
 
@@ -366,7 +367,7 @@ class ProcessListView(LoginRequiredMixin, ListView):
         return pagination(self, context, reverse_lazy('lgc-processes'))
 
 class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    model = ProcessType
+    model = lgc_models.ProcessType
     fields = ['id', 'name']
     success_message = _('Process successfully created')
     template_name = 'lgc/process_form.html'
@@ -379,7 +380,7 @@ class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return context
 
 class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    model = ProcessType
+    model = lgc_models.ProcessType
     fields = ['name']
     success_message = _('Process successfully updated')
     template_name = 'lgc/process_form.html'
@@ -395,7 +396,7 @@ class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return context
 
 class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = ProcessType
+    model = lgc_models.ProcessType
     template_name = 'lgc/process_confirm_delete.html'
     success_url = reverse_lazy('lgc-processes')
 
@@ -496,7 +497,7 @@ class AccountView(LoginRequiredMixin):
     update_url = 'lgc-account'
     cancel_url = 'lgc-account'
     list_url = reverse_lazy('lgc-accounts')
-    form_class = InitiateAccountForm
+    form_class = lgc_forms.InitiateAccountForm
     is_hr = False
 
     class Meta:
@@ -525,7 +526,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
 
         return context
 
-    def get_form(self, form_class=InitiateAccountForm):
+    def get_form(self, form_class=lgc_forms.InitiateAccountForm):
         form = super().get_form(form_class=self.form_class)
 
         if self.is_hr:
@@ -541,7 +542,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
     def get_person(self):
         pk = self.kwargs.get('pk', '')
         if pk != '':
-            p = Person.objects.filter(id=pk)
+            p = lgc_models.Person.objects.filter(id=pk)
             if p == None or len(p) == 0:
                 raise ValueError('invalid person ID')
             return p.get()
@@ -642,7 +643,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         context['form'].fields['new_token'].initial = False
         return context
 
-    def get_form(self, form_class=InitiateAccountForm):
+    def get_form(self, form_class=lgc_forms.InitiateAccountForm):
         form = super().get_form(form_class=self.form_class)
 
         if self.is_hr:
@@ -696,7 +697,7 @@ class HRView(LoginRequiredMixin):
     update_url = 'lgc-hr'
     cancel_url = 'lgc-hr'
     list_url = reverse_lazy('lgc-hr-accounts')
-    form_class = InitiateHRForm
+    form_class = lgc_forms.InitiateHRForm
     is_hr = True
 
     class Meta:
@@ -715,7 +716,7 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
         context = super().get_context_data(**kwargs)
         context['formset_title'] = ''
         context['formset_add_text'] = _('Add an employee')
-        EmployeeFormSet = formset_factory(HREmployeeForm,
+        EmployeeFormSet = formset_factory(lgc_forms.HREmployeeForm,
                                           extra=0, can_delete=True)
 
         if self.request.POST:
@@ -825,7 +826,7 @@ def ajax_file_search_view(request):
         return http.HttpResponseForbidden()
 
     term = request.GET.get('term', '')
-    files = Person.objects.filter(first_name__istartswith=term)|Person.objects.filter(last_name__istartswith=term)|Person.objects.filter(email__istartswith=term)
+    files = lgc_models.Person.objects.filter(first_name__istartswith=term)|lgc_models.Person.objects.filter(last_name__istartswith=term)|lgc_models.Person.objects.filter(email__istartswith=term)
     files = files[:10]
 
     for f in files:
