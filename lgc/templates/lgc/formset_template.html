@@ -2,8 +2,8 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 
-<label><b>{{ formset_title }}</b></label>
-<div id="formset" data-formset-prefix="{{ formset.prefix }}">
+<label><b>{{ formset.title }}</b></label>
+<div id="{{ formset.id }}" data-formset-prefix="{{ formset.prefix }}">
   {{ formset.management_form }}
 
   <div data-formset-body>
@@ -69,5 +69,5 @@
     {% endescapescript %}
   </script>
 
-  <input type="button" value="{{ formset_add_text }}" data-formset-add>
+  <input type="button" value="{% trans 'Add' %}" data-formset-add>
 </div>

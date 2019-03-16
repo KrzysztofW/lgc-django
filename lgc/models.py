@@ -194,60 +194,65 @@ class Person(PersonInfo, AccountCommon):
         if self.birth_date == None and Person.objects.exclude(id=self.id).filter(first_name=self.first_name, last_name=self.last_name, birth_date__isnull=True).exists():
             raise ValidationError(_('A person with this First Name, Last Name and Birth Date already exists.'))
 
-class VisaResidencePermitCommon(models.Model):
-    start = models.DateField(blank=True, null=True)
-    end = models.DateField(blank=True, null=True)
-    active = models.BooleanField(default=True)
-    isSpouse = models.BooleanField(default=False)
+class AuthorizationsCommon(models.Model):
+    start_date = models.DateField()
+    end_date = models.DateField()
+    enabled = models.BooleanField(default=True)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
     def clean(self, model_class=None):
-        check_dates(self.start, self.end, _('residence permit'))
-        return super(model_class, self).clean()
+        check_dates(self.start_date, self.end_date, self.label)
+        return super().clean()
 
-class VisaResidencePermit(VisaResidencePermitCommon):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+class VisaResidencePermit(AuthorizationsCommon):
+    label = _('residence permit')
 
-    def clean(self):
-        return super(self, model_class=VisaResidencePermit).clean()
+class ModerationVisaResidencePermit(VisaResidencePermit):
+    pass
 
-class ModerationVisaResidencePermit(VisaResidencePermitCommon):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+class SpouseVisaResidencePermit(AuthorizationsCommon):
+    label = _("spouse's residence permit")
 
-    def clean(self):
-        return super(self, model_class=ModerationVisaResidencePermit).clean()
+class ModerationSpouseVisaResidencePermit(SpouseVisaResidencePermit):
+    pass
+
+class WorkPermit(AuthorizationsCommon):
+    label = _('work permit')
+
+class ModerationWorkPermit(WorkPermit):
+    pass
+
+class SpouseWorkPermit(AuthorizationsCommon):
+    label = _("spouse's work permit")
+
+class ModerationSpouseWorkPermit(SpouseWorkPermit):
+    pass
 
 class ArchiveBox(models.Model):
-    person = models.ManyToManyField(Person)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
     number = models.PositiveIntegerField()
 
-class WorkPermit(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    start = models.DateField(blank=True, null=True)
-    end = models.DateField(blank=True, null=True)
-    active = models.BooleanField(default=True)
-
-    def clean(self):
-        check_dates(self.start, self.end, _('WP'))
-        return super(WorkPermit, self).clean()
-
 class ChildCommon(models.Model):
-    first_name = models.CharField(max_length=50, null=False, validators=[alpha])
-    last_name = models.CharField(max_length=50, default='', blank=True, validators=[alpha])
+    first_name = models.CharField(max_length=50, null=False,
+                                  validators=[alpha])
+    last_name = models.CharField(max_length=50, default='', blank=True,
+                                 validators=[alpha])
     birth_date = models.DateField(blank=True, null=True)
     passport_expiry = models.DateField(blank=True, null=True)
     passport_nationality = CountryField(blank=True, null=True)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
 class Child(ChildCommon):
-    parent = models.ForeignKey(Person, on_delete=models.CASCADE)
+    pass
 
 class ModerationChild(ChildCommon):
-    parent = models.ForeignKey(Person, on_delete=models.CASCADE)
+    pass
 
 #class Process(models.Model):
 #    person = models.ForeignKey(Person, on_delete=models.CASCADE)

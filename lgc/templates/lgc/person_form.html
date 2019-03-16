@@ -11,12 +11,14 @@
 <script src="{% static 'lgc/jquery.formset.min.js' %}"></script>
 <script src="{% static 'lgc/lgc.js' %}"></script>
 <script>
+  {% for formset in formsets %}
   jQuery(function($) {
-    $("#formset").formset({
+    $("#{{ formset.id }}").formset({
         animateForms: true,
         reorderMode: 'dom',
     });
   });
+  {% endfor %}
 </script>
 
 {% endblock javascript %}

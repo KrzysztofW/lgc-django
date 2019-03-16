@@ -15,7 +15,7 @@ class PersonCreateForm(forms.ModelForm):
     birth_date = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date'}), label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
-    HR = forms.ModelMultipleChoiceField(required=False, widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=User.objects.filter(role__exact=user_models.HR)|User.objects.filter(role__exact=user_models.HR_ADMIN), label=_('Human Resources'))
+    #HR = forms.ModelMultipleChoiceField(required=False, widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_hr_user_queryset(), label=_('Human Resources'), initial=)
     process_name = forms.ModelChoiceField(required=False, queryset=lgc_models.ProcessType.objects.all())
     modified_by = forms.IntegerField(required=False, widget=forms.HiddenInput())
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
@@ -47,6 +47,16 @@ class InitiateHRForm(InitiateAccountForm):
         fields = ['first_name', 'last_name', 'email', 'language', 'company',
                   'responsible', 'new_token', 'is_admin', 'is_active']
 
+class HREmployeeForm(forms.Form):
+    id = forms.CharField(required=True, widget=forms.HiddenInput())
+    first_name = forms.CharField(required=True, widget=forms.HiddenInput())
+    last_name = forms.CharField(required=True, widget=forms.HiddenInput())
+    email = forms.EmailField(required=True, widget=forms.HiddenInput())
+
+class ProcessForm(forms.Form):
+    name = forms.ModelChoiceField(queryset=lgc_models.ProcessType.objects.all())
+
+# children:
 class ChildCreateForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))
     last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control'}))
@@ -56,18 +66,63 @@ class ChildCreateForm(forms.ModelForm):
 
     class Meta:
         model = lgc_models.Child
-        exclude = ['parent']
+        exclude = ['person']
 
 class ModerationChildCreateForm(ChildCreateForm):
     class Meta:
         model = lgc_models.ModerationChild
-        exclude = ['parent']
+        exclude = ['person']
 
-class HREmployeeForm(forms.Form):
-    id = forms.CharField(required=True, widget=forms.HiddenInput())
-    first_name = forms.CharField(required=True, widget=forms.HiddenInput())
-    last_name = forms.CharField(required=True, widget=forms.HiddenInput())
-    email = forms.EmailField(required=True, widget=forms.HiddenInput())
+class AuthorizationsCommonForm(forms.ModelForm):
+    start_date = forms.DateField(required=True, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Start Date'))
+    end_date = forms.DateField(required=True, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('End Date'))
 
-class ProcessForm(forms.Form):
-    name = forms.ModelChoiceField(queryset=lgc_models.ProcessType.objects.all())
+    class Meta:
+        abstract = True
+
+# Visa:
+class VisaResidencePermitForm(AuthorizationsCommonForm):
+    class Meta:
+        model = lgc_models.VisaResidencePermit
+        fields = ['start_date', 'end_date', 'enabled']
+
+class ModerationVisaResidencePermitForm(AuthorizationsCommonForm):
+    class Meta:
+        model = lgc_models.ModerationVisaResidencePermit
+        fields = ['start_date', 'end_date', 'enabled']
+
+class SpouseVisaResidencePermitForm(AuthorizationsCommonForm):
+    class Meta:
+        model = lgc_models.SpouseVisaResidencePermit
+        fields = ['start_date', 'end_date', 'enabled']
+
+class ModerationSpouseVisaResidencePermitForm(AuthorizationsCommonForm):
+    class Meta:
+        model = lgc_models.ModerationSpouseVisaResidencePermit
+        fields = ['start_date', 'end_date', 'enabled']
+
+# Work Permit:
+class WorkPermitForm(AuthorizationsCommonForm):
+    class Meta:
+        model = lgc_models.WorkPermit
+        fields = ['start_date', 'end_date', 'enabled']
+
+class ModerationWorkPermitForm(AuthorizationsCommonForm):
+    class Meta:
+        model = lgc_models.ModerationWorkPermit
+        fields = ['start_date', 'end_date', 'enabled']
+
+class SpouseWorkPermitForm(AuthorizationsCommonForm):
+    class Meta:
+        model = lgc_models.SpouseWorkPermit
+        fields = ['start_date', 'end_date', 'enabled']
+
+class ModerationSpouseWorkPermitForm(AuthorizationsCommonForm):
+    class Meta:
+        model = lgc_models.ModerationSpouseWorkPermit
+        fields = ['start_date', 'end_date', 'enabled']
+
+class ArchiveBoxForm(forms.Form):
+    class Meta:
+        model = lgc_models.ArchiveBox
+        fields = ['number']

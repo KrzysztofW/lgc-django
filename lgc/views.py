@@ -132,10 +132,11 @@ def get_person_form_layout(form, action, obj):
             Div('host_entity_address', css_class='form-group col-md-4'),
             css_class='form-row'),
     )
-    if obj and obj.user:
-        info_tab.append(Div(Div('HR', css_class='form-group col-md-4'),
-                            css_class='form-row'))
-    info_tab.append(Div(Div(HTML(get_template('formset_template.html')),
+
+    #if obj and obj.user:
+    #    info_tab.append(Div(Div('HR', css_class='form-group col-md-4'),
+    #                        css_class='form-row'))
+    info_tab.append(Div(Div(HTML(get_template('formsets_template.html')),
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
 
@@ -189,7 +190,7 @@ def hr_add_employee(form_data, user_object):
     if 'HR' not in form_data:
         return
     for i in form_data['HR']:
-        h = user_model.get_hr_user_queryset().filter(id=i.id)
+        h = user_models.get_hr_user_queryset().filter(id=i.id)
         if not h:
             return
         h = h.get()
@@ -212,19 +213,79 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             context['title'] = _('New File')
         else:
             context['title'] = _('File')
-        context['formset_title'] = _('Children')
-        context['formset_add_text'] = _('Add a child')
         ChildrenFormSet = modelformset_factory(lgc_models.Child,
                                                form=lgc_forms.ChildCreateForm,
                                                can_delete=True)
 
+        VisaFormSet = modelformset_factory(lgc_models.VisaResidencePermit,
+                                           form=lgc_forms.VisaResidencePermitForm,
+                                           can_delete=True)
+        SpouseVisaFormSet = modelformset_factory(lgc_models.SpouseVisaResidencePermit,
+                                                 form=lgc_forms.SpouseVisaResidencePermitForm,
+                                                 can_delete=True)
+        WorkPermitFormSet = modelformset_factory(lgc_models.WorkPermit,
+                                                 form=lgc_forms.WorkPermitForm,
+                                                 can_delete=True)
+        SpouseWorkPermitFormSet = modelformset_factory(lgc_models.SpouseWorkPermit,
+                                                       form=lgc_forms.SpouseWorkPermitForm,
+                                                       can_delete=True)
+        formsets = []
         if self.request.POST:
-            context['formset'] = ChildrenFormSet(self.request.POST)
+            formsets.append(ChildrenFormSet(self.request.POST,
+                                            prefix='children'))
+            formsets.append(VisaFormSet(self.request.POST,
+                                        prefix='visa'))
+            formsets.append(SpouseVisaFormSet(self.request.POST,
+                                              prefix='spouse_visa'))
+            formsets.append(WorkPermitFormSet(self.request.POST,
+                                              prefix='wp'))
+            formsets.append(SpouseWorkPermitFormSet(self.request.POST, prefix='spouse_wp'))
         else:
             if not self.is_update:
-                context['formset'] = ChildrenFormSet(queryset=lgc_models.Child.objects.none())
+                children_queryset = lgc_models.Child.objects.none()
+                visas_queryset = lgc_models.VisaResidencePermit.objects.none()
+                spouse_visas_queryset = lgc_models.VisaResidencePermit.objects.none()
+                wp_queryset = lgc_models.WorkPermit.objects.none()
+                wp_spouse_queryset = lgc_models.WorkPermit.objects.none()
             else:
-                context['formset'] = ChildrenFormSet(queryset=lgc_models.Child.objects.filter(person=self.object.id))
+                children_queryset = lgc_models.Child.objects.filter(person=self.object.id)
+                visas_queryset = lgc_models.VisaResidencePermit.objects.filter(person=self.object.id)
+                spouse_visas_queryset = lgc_models.SpouseVisaResidencePermit.objects.filter(person=self.object.id)
+                wp_queryset = lgc_models.WorkPermit.objects.filter(person=self.object.id)
+                wp_spouse_queryset = lgc_models.SpouseWorkPermit.objects.filter(person=self.object.id)
+
+            formsets.append(ChildrenFormSet(queryset=children_queryset,
+                                            prefix='children'))
+            formsets.append(VisaFormSet(queryset=visas_queryset,
+                                        prefix='visa'))
+            formsets.append(SpouseVisaFormSet(queryset=spouse_visas_queryset,
+                                              prefix='spouse_visa'))
+            formsets.append(WorkPermitFormSet(queryset=wp_queryset,
+                                              prefix='wp'))
+            formsets.append(SpouseWorkPermitFormSet(queryset=wp_spouse_queryset,
+                                                    prefix='spouse_wp'))
+
+        formsets[0].title = _('Children')
+        formsets[0].id = 'children_id'
+        formsets[0].err_msg = _('Invalid Children table')
+
+        formsets[1].title = _('Visas or Residence Permits')
+        formsets[1].id = 'visas_id'
+        formsets[1].err_msg = _('Invalid Visas table')
+
+        formsets[2].title = _("Spouse's Visas or Residence Permits")
+        formsets[2].id = 'spouse_visas_id'
+        formsets[2].err_msg = _("Invalid Spouse's Visas table")
+
+        formsets[3].title = _('Work Permits')
+        formsets[3].id = 'wp_id'
+        formsets[3].err_msg = _('Invalid Work Permits table')
+
+        formsets[4].title = _("Spouse's Work Permits")
+        formsets[4].id = 'spouse_wp_id'
+        formsets[4].err_msg = _("Invalid Spouse's Work Permits table")
+
+        context['formsets'] = formsets
         return context
 
     def save_formset_instances(self, instances):
@@ -236,17 +297,24 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         form.instance.modified_by = self.request.user
         context = self.get_context_data()
 
-        children = context['formset']
-
         with transaction.atomic():
-            if not children.is_valid():
-                messages.error(self.request, _('Invalid Children table'))
-                return super().form_invalid(form)
+            for formset in context['formsets']:
+                if not formset.is_valid():
+                    messages.error(self.request, formset.err_msg)
+                    return super().form_invalid(form)
 
+                for obj in formset.deleted_forms:
+                    if (obj.instance.id != None):
+                        obj.instance.delete()
+
+            if self.is_update and self.object.user != None:
+                #hr_add_employee(form.cleaned_data, self.object.user)
+                form.instance.user = self.object.user
 
             self.object = form.save()
-            instances = children.save(commit=False)
-            self.save_formset_instances(instances)
+            for formset in context['formsets']:
+                instances = formset.save(commit=False)
+                self.save_formset_instances(instances)
 
         return super().form_valid(form)
 
