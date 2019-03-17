@@ -7,26 +7,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class PersonCreateForm(forms.ModelForm):
-    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label=_('First name'))
-    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label=_('Last name'))
-    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))
-
-    passport_expiry = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date'}), label=_('Passport Expiry'))
-    birth_date = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date'}), label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
-    #HR = forms.ModelMultipleChoiceField(required=False, widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_hr_user_queryset(), label=_('Human Resources'), initial=)
+
     process_name = forms.ModelChoiceField(required=False, queryset=lgc_models.ProcessType.objects.all())
-    modified_by = forms.IntegerField(required=False, widget=forms.HiddenInput())
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
     class Meta:
         model = lgc_models.Person
-        exclude = ['creation_date']
+        exclude = ['creation_date', 'modified_by']
 
 class InitiateAccountForm(forms.ModelForm):
-    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label=_('First name'))
-    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}), label=_('Last name'))
-    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
     new_token = forms.BooleanField(required=False, initial=True,
                                    label=_('Send new token'),
@@ -36,7 +26,6 @@ class InitiateAccountForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'language',
                   'responsible', 'new_token', 'is_active']
-
 
 class InitiateHRForm(InitiateAccountForm):
     is_admin = forms.BooleanField(required=False, label=_('Is admin'),

@@ -110,10 +110,10 @@ PREFECTURE_CHOICES = (
 )
 
 class AccountCommon(models.Model):
-    creation_date = models.DateTimeField(auto_now_add=True)
-    first_name = models.CharField(max_length=50, default="", validators=[alpha])
-    last_name = models.CharField(max_length=50, default="", validators=[alpha])
-    email = models.EmailField(max_length=50, null=True, blank=True, unique=True)
+    creation_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
+    first_name = models.CharField(_('First name'), max_length=50, default="", validators=[alpha])
+    last_name = models.CharField(_('Last name'), max_length=50, default="", validators=[alpha])
+    email = models.EmailField(_('Email'), max_length=50, null=True, blank=True, unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 null=True, blank=True,
                                 related_name='person_user_set')
@@ -131,31 +131,54 @@ def check_dates(start, end, what):
         raise ValidationError(_("End date of %s cannot be earlier than start date"%(what)))
 
 class PersonInfo(models.Model):
-    foreigner_id = models.PositiveIntegerField(blank=True, null=True)
-    birth_date = models.DateField(null=True)
-    citizenship = CountryField(blank=True, null=True)
-    passport_expiry = models.DateField(blank=True, null=True, default=None)
-    passport_nationality = CountryField(blank=True, null=True)
-    home_entity = models.CharField(max_length=50, default='', blank=True)
-    home_entity_address = models.TextField(max_length=100, default='', blank=True)
-    host_entity = models.CharField(max_length=50, default='', blank=True)
-    host_entity_address = models.TextField(max_length=100, default='', blank=True)
+    foreigner_id = models.PositiveIntegerField(_('Foreigner ID'), blank=True,
+                                               null=True)
+    birth_date = models.DateField(_('Birth Date'), null=True)
+    citizenship = CountryField(_('Citizenship'), blank=True, null=True)
+    passport_expiry = models.DateField(_('Passport Expiry'), blank=True,
+                                       null=True, default=None)
+    passport_nationality = CountryField(_('Passport Nationality'), blank=True,
+                                        null=True)
+    home_entity = models.CharField(_('Home entity'), max_length=50,
+                                   default='', blank=True)
+    home_entity_address = models.TextField(_('Home entity address'),
+                                           max_length=100, default='',
+                                           blank=True)
+    host_entity = models.CharField(_('Host entity'), max_length=50,
+                                   default='', blank=True)
+    host_entity_address = models.TextField(_('Host entity address'),
+                                           max_length=100, default='',
+                                           blank=True)
 
-    spouse_first_name = models.CharField(max_length=50, default='',
+    spouse_first_name = models.CharField(_('Spouse First Name'),
+                                         max_length=50, default='',
                                          blank=True, validators=[alpha])
-    spouse_last_name = models.CharField(max_length=50, default='',
+    spouse_last_name = models.CharField(_('Spouse First Name'),
+                                        max_length=50, default='',
                                         blank=True, validators=[alpha])
-    spouse_birth_date = models.DateField(blank=True, null=True)
-    spouse_citizenship = CountryField(blank=True, null=True)
-    spouse_passport_expiry = models.DateField(blank=True, null=True, default=None)
-    spouse_passport_nationality = CountryField(blank=True, null=True)
+    spouse_birth_date = models.DateField(_('Spouse Birth Date'), blank=True,
+                                         null=True)
+    spouse_citizenship = CountryField(_('Spouse Citizenship'), blank=True,
+                                      null=True)
+    spouse_passport_expiry = models.DateField(_('Spouse Passport Expiry'),
+                                              blank=True, null=True,
+                                              default=None)
+    spouse_passport_nationality = CountryField(_('Spouse Passport Nationality'),
+                                               blank=True, null=True)
 
-    local_address = models.TextField(max_length=100, default='', blank=True)
-    local_phone_number = models.TextField(max_length=100, default='', blank=True)
+    local_address = models.TextField(_('Local address'), max_length=100,
+                                     default='', blank=True)
+    local_phone_number = models.TextField(_('Local Phone Number'),
+                                          max_length=100, default='',
+                                          blank=True)
 
-    foreign_address = models.TextField(max_length=100, default='', blank=True)
-    foreign_country = CountryField(blank=True, null=True)
-    foreign_phone_number = models.TextField(max_length=100, default='', blank=True)
+    foreign_address = models.TextField(_('Foreign Address'), max_length=100,
+                                       default='', blank=True)
+    foreign_country = CountryField(_('Foreign Country'), blank=True,
+                                   null=True)
+    foreign_phone_number = models.TextField(_('Foreign Phone Number'),
+                                            max_length=100, default='',
+                                            blank=True)
 
     class Meta:
         abstract = True
@@ -172,22 +195,27 @@ class Person(PersonInfo, AccountCommon):
     # direccte_competente
     # sous-prefecture
     # juridiction specifique
-    process = models.CharField(max_length=3, default='', choices=PROCESS_CHOICES)
-    responsible = models.ManyToManyField(User, blank=True,
+    process = models.CharField(_('Process'), max_length=3, default='',
+                               choices=PROCESS_CHOICES)
+    responsible = models.ManyToManyField(User, verbose_name=_('Responsible'),
+                                         blank=True,
                                          related_name='person_resp_set')
-    modified_by = models.ForeignKey(User, on_delete=models.CASCADE,
+    modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
+                                    on_delete=models.CASCADE,
                                     related_name='person_modified_by_set')
-    start_date = models.DateField(blank=True, null=True)
+    start_date = models.DateField(_('Start Date'), blank=True, null=True)
 
-    # state
-    comments = models.TextField(max_length=100, default='', blank=True)
+    state = models.CharField(_('State'), max_length=3,
+                             default=FILE_STATE_ACTIVE,
+                             choices=FILE_STATE_CHOICES)
+    comments = models.TextField(_('Comments'), max_length=100, default='',
+                                blank=True)
     # transform empty to None (not sure to need that)
     #def clean_bar(self):
     #    return self.cleaned_data['birth_date'] or None
 
     class Meta:
         unique_together = ('first_name', 'last_name', 'birth_date')
-
 
     def validate_unique(self, exclude=None):
         super().validate_unique()
@@ -233,7 +261,7 @@ class ModerationSpouseWorkPermit(SpouseWorkPermit):
 
 class ArchiveBox(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    number = models.PositiveIntegerField()
+    number = models.PositiveIntegerField(_('Number'))
 
 class ChildCommon(models.Model):
     first_name = models.CharField(max_length=50, null=False,
@@ -265,4 +293,4 @@ class ProcessType(models.Model):
     persons = models.ManyToManyField(Person)
     #stages = models.ManyToManyField(Stage)
     # ondelete => not allowed if used
-    name = models.CharField(max_length=50, default='', unique=True)
+    name = models.CharField(_('Name'), max_length=50, default='', unique=True)
