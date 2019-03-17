@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
+from django.utils import translation
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 
@@ -472,10 +473,13 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 class ProcessListView(LoginRequiredMixin, ListView):
-    template_name = 'lgc/process_list.html'
-    model = lgc_models.ProcessType
+    template_name = 'lgc/processes.html'
+    model = lgc_models.Process
     fields = '__all__'
-    context_object_name = 'processes'
+    title = _('Processes')
+    create_url = reverse_lazy('lgc-process-create')
+    item_url = 'lgc-process'
+    this_url = reverse_lazy('lgc-processes')
 
     def get_ordering(self):
         return self.request.GET.get('order_by', 'id')
@@ -485,46 +489,71 @@ class ProcessListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _('Processes')
-        return pagination(self, context, reverse_lazy('lgc-processes'))
+        context['title'] = self.title
+        context['create_url'] = self.create_url
+        context['item_url'] = self.item_url
+
+        return pagination(self, context, self.this_url)
 
 class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    model = lgc_models.ProcessType
-    fields = ['id', 'name']
+    model = lgc_models.Process
+    fields = '__all__'
     success_message = _('Process successfully created')
-    template_name = 'lgc/process_form.html'
+    template_name = 'lgc/generic_form.html'
     success_url = reverse_lazy('lgc-process-create')
+    title = _('New Process')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['update'] = False
-        context['title'] = _('New Process')
+        context['title'] = self.title
+
         return context
 
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_form(self, form_class=lgc_forms.ProcessForm):
+        return super().get_form(form_class=form_class)
+
 class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    model = lgc_models.ProcessType
+    model = lgc_models.Process
     fields = ['name']
     success_message = _('Process successfully updated')
-    template_name = 'lgc/process_form.html'
+    success_url = 'lgc-process'
+    template_name = 'lgc/generic_form.html'
+    title = _('Process')
+    delete_url = 'lgc-process-delete'
 
     def get_success_url(self):
         self.object = self.get_object()
-        return reverse_lazy('lgc-process', kwargs={'pk':self.object.id})
+        return reverse_lazy(self.success_url, kwargs={'pk':self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['update'] = True
-        context['title'] = _('Process')
+        context['title'] = self.title
+        context['delete_url'] = reverse_lazy(self.delete_url,
+                                             kwargs={'pk':self.object.id})
         return context
 
+    def get_form(self, form_class=lgc_forms.ProcessForm):
+        return super().get_form(form_class=form_class)
+
+    def test_func(self):
+        return self.request.user.is_staff
+
 class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = lgc_models.ProcessType
+    model = lgc_models.Process
     template_name = 'lgc/process_confirm_delete.html'
     success_url = reverse_lazy('lgc-processes')
+    title = _('Delete Process')
+    cancel_url = 'lgc-process'
+    obj_name = _('Process')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _('Delete Process')
+        context['title'] = self.title
+        context['cancel_url'] = reverse_lazy(self.cancel_url,
+                                             kwargs={'pk':self.object.id})
         return context
 
     def test_func(self):
@@ -532,9 +561,53 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = _("Process %s deleted successfully.")%(self.object.id)
+        success_message = _("%s %s deleted successfully.")%(self.obj_name,
+                                                            self.object.id)
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
+
+class ProcessStageListView(ProcessListView):
+    model = lgc_models.ProcessStage
+    title = _('Process Stages')
+    create_url = reverse_lazy('lgc-process-stage-create')
+    item_url = 'lgc-process-stage'
+    this_url = reverse_lazy('lgc-process-stages')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['lang'] = translation.get_language()
+        return context
+
+class ProcessStageCreateView(ProcessCreateView):
+    model = lgc_models.ProcessStage
+    success_message = _('Process stage successfully created')
+    success_url = reverse_lazy('lgc-process-stage-create')
+    title = _('New Process Stage')
+
+    def get_form(self, form_class=lgc_forms.ProcessStageForm):
+        return super().get_form(form_class=form_class)
+
+class ProcessStageUpdateView(ProcessUpdateView):
+    model = lgc_models.ProcessStage
+    success_message = _('Process stage successfully updated')
+    success_url = 'lgc-process-stage'
+    title = _('Process Stage')
+    delete_url = 'lgc-process-stage-delete'
+
+    def get_form(self, form_class=lgc_forms.ProcessStageForm):
+        return super().get_form(form_class=form_class)
+
+class ProcessStageDeleteView(ProcessDeleteView):
+    model = lgc_models.ProcessStage
+    success_url = reverse_lazy('lgc-process-stages')
+    title = _('Delete Process Stage')
+    cancel_url = 'lgc-process-stage'
+    obj_name = _('Process stage')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['lang'] = translation.get_language()
+        return context
 
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');

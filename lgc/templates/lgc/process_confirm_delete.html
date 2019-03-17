@@ -3,9 +3,24 @@
 {% block content %}
 
 <form action="" method="post">{% csrf_token %}
-  <p>{% trans "Are you sure you want to delete" %} "{{ object.name }}"?</p>
-  <button class="btn btn-outline-danger" type="submit">{% trans "Confirm" %}</button>
-  <a href="{% url 'lgc-processes' %}" class="btn btn-outline-info">{% trans "Cancel" %}</a>
+  <p>{% trans "Are you sure you want to delete" %}
+    {% if lang %}
+    {% if lang == 'en' %}
+    "{{ object.name_fr }}"
+    {% else %}
+    "{{ object.name_en }}"
+    {% endif %}
+    {% else %}
+    "{{ object.name }}"
+    {% endif %}
+
+    ?</p>
+  <button class="btn btn-outline-danger" type="submit">
+    {% trans "Confirm" %}
+  </button>
+  <a href="{{ cancel_url }}" class="btn btn-outline-info">
+    {% trans "Cancel" %}
+  </a>
 </form>
 
 {% endblock content %}

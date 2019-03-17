@@ -1,6 +1,7 @@
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.utils import translation
 from django.contrib.auth import get_user_model
 from django.db import models
 from datetime import date
@@ -582,15 +583,21 @@ class Child(ChildCommon):
 class ModerationChild(ChildCommon):
     pass
 
-#class Process(models.Model):
-#    person = models.ForeignKey(Person, on_delete=models.CASCADE)
-#    name = models.CharField(max_length=3, default='', choices=PROCESS_CHOICES)
+class ProcessStage(models.Model):
+    name_fr = models.CharField(_('French Name'), max_length=50, unique=True)
+    name_en = models.CharField(_('English Name'), max_length=50, unique=True)
 
-#class ProcessStage(models.Model):
-#    name = models.CharField(max_length=50, default='', unique=True)
-#
-class ProcessType(models.Model):
-    persons = models.ManyToManyField(Person)
-    #stages = models.ManyToManyField(Stage)
-    # ondelete => not allowed if used
-    name = models.CharField(_('Name'), max_length=50, default='', unique=True)
+    def __str__(self):
+        if translation.get_language() == 'fr':
+            return self.name_fr
+        else:
+            return self.name_en
+
+class Process(models.Model):
+    name = models.CharField(max_length=50, validators=[alpha], unique=True)
+    stages = models.ManyToManyField(ProcessStage, verbose_name=_('Stages'))
+
+class PersonProcess(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    process = models.ForeignKey(Process, on_delete=models.CASCADE)
+    current_stage = models.ForeignKey(ProcessStage, on_delete=models.CASCADE)

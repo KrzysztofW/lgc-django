@@ -10,7 +10,7 @@ class PersonCreateForm(forms.ModelForm):
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
 
-    process_name = forms.ModelChoiceField(required=False, queryset=lgc_models.ProcessType.objects.all())
+    process_name = forms.ModelChoiceField(required=False, queryset=lgc_models.PersonProcess.objects.all())
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
     start_date = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}))
     local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Local Address'))
@@ -48,7 +48,7 @@ class HREmployeeForm(forms.Form):
     email = forms.EmailField(required=True, widget=forms.HiddenInput())
 
 class ProcessForm(forms.Form):
-    name = forms.ModelChoiceField(queryset=lgc_models.ProcessType.objects.all())
+    name = forms.ModelChoiceField(queryset=lgc_models.PersonProcess.objects.all())
 
 # children:
 class ChildCreateForm(forms.ModelForm):
@@ -116,7 +116,18 @@ class ModerationSpouseWorkPermitForm(AuthorizationsCommonForm):
         model = lgc_models.ModerationSpouseWorkPermit
         fields = ['start_date', 'end_date', 'enabled']
 
-class ArchiveBoxForm(forms.Form):
+class ArchiveBoxForm(forms.ModelForm):
     class Meta:
         model = lgc_models.ArchiveBox
         fields = ['number']
+
+class ProcessForm(forms.ModelForm):
+    stages = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control', 'size': 15}), queryset = lgc_models.ProcessStage.objects.all())
+    class Meta:
+        model = lgc_models.Process
+        fields = '__all__'
+
+class ProcessStageForm(forms.ModelForm):
+    class Meta:
+        model = lgc_models.ProcessStage
+        fields = '__all__'
