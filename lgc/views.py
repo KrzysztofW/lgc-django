@@ -58,7 +58,6 @@ class PersonCommonListView(LoginRequiredMixin, ListView):
     template_name = 'lgc/files.html'
     model = lgc_models.Person
     fields = '__all__'
-    context_object_name = 'persons'
     ajax_search_url = reverse_lazy('lgc-file-search-ajax')
     search_url = reverse_lazy('lgc-files')
 
@@ -286,6 +285,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
     model = lgc_models.Person
     fields = '__all__'
     is_update = False
+    template_name = 'lgc/generic_form_with_formsets.html'
 
     def get_success_url(self):
         return reverse_lazy('lgc-file', kwargs={'pk': self.object.id})
@@ -611,7 +611,7 @@ def get_hr_account_form(form, action, uid, new_token=False, show_tabs=True):
 
 class AccountView(LoginRequiredMixin):
     fields = '__all__'
-    template_name = 'lgc/person_form.html'
+    template_name = 'lgc/generic_form_with_formsets.html'
     model = User
     success_url = 'lgc-account'
     delete_url = 'lgc-account-delete'
@@ -811,7 +811,7 @@ class DeleteAccount(AccountView, PersonDeleteView):
 
 class HRView(LoginRequiredMixin):
     req_type = ReqType.HR
-    template_name = 'lgc/person_form.html'
+    template_name = 'lgc/generic_form_with_formsets.html'
     model = User
     success_url = 'lgc-hr'
     delete_url = 'lgc-hr-delete'

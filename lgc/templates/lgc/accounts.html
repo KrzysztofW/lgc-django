@@ -1,4 +1,4 @@
-{% extends "lgc/person_list.html" %}
+{% extends "lgc/generic_list.html" %}
 {% load i18n %}
 {% load crispy_forms_tags %}
 
@@ -22,4 +22,8 @@
 	 checked
 	 {% endif %}> {% trans 'Refused' %}
 </div>
+{% endblock %}
+
+{% block body %}
+{% include 'lgc/person_table.html' %}
 {% endblock %}
