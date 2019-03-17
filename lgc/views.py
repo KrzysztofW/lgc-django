@@ -139,6 +139,11 @@ def local_user_get_person_form_layout(form, action, obj):
     info_tab.append(Div(Div(HTML(get_template('formsets_template.html')),
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
+    info_tab.append(Div(Div('state', css_class='form-group col-md-4'),
+                        Div('start_date', css_class='form-group col-md-4'),
+                        css_class='form-row'))
+    info_tab.append(Div(Div('comments', css_class='form-group col-md-8'),
+            css_class='form-row'))
 
     if obj:
         external_profile = Tab(_('Account Profile'))
@@ -304,6 +309,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             formsets.append(SpouseWorkPermitFormSet(self.request.POST, prefix='spouse_wp'))
         else:
             if not self.is_update:
+                context['form'].fields['start_date'].initial = str(datetime.date.today())
                 children_queryset = lgc_models.Child.objects.none()
                 visas_queryset = lgc_models.VisaResidencePermit.objects.none()
                 spouse_visas_queryset = lgc_models.VisaResidencePermit.objects.none()
@@ -357,6 +363,9 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
 
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
+        if form.instance.start_date == None:
+            form.instance.start_date = str(datetime.date.today())
+
         context = self.get_context_data()
 
         with transaction.atomic():

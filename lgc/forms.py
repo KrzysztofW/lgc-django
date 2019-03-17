@@ -12,6 +12,7 @@ class PersonCreateForm(forms.ModelForm):
 
     process_name = forms.ModelChoiceField(required=False, queryset=lgc_models.ProcessType.objects.all())
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
+    start_date = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}))
     class Meta:
         model = lgc_models.Person
         exclude = ['creation_date', 'modified_by']
