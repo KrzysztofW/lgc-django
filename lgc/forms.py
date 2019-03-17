@@ -73,22 +73,22 @@ class AuthorizationsCommonForm(forms.ModelForm):
 class VisaResidencePermitForm(AuthorizationsCommonForm):
     class Meta:
         model = lgc_models.VisaResidencePermit
-        fields = ['start_date', 'end_date', 'enabled']
+        fields = ['type', 'start_date', 'end_date', 'enabled']
 
 class ModerationVisaResidencePermitForm(AuthorizationsCommonForm):
     class Meta:
         model = lgc_models.ModerationVisaResidencePermit
-        fields = ['start_date', 'end_date', 'enabled']
+        fields = ['type', 'start_date', 'end_date', 'enabled']
 
 class SpouseVisaResidencePermitForm(AuthorizationsCommonForm):
     class Meta:
         model = lgc_models.SpouseVisaResidencePermit
-        fields = ['start_date', 'end_date', 'enabled']
+        fields = ['type', 'start_date', 'end_date', 'enabled']
 
 class ModerationSpouseVisaResidencePermitForm(AuthorizationsCommonForm):
     class Meta:
         model = lgc_models.ModerationSpouseVisaResidencePermit
-        fields = ['start_date', 'end_date', 'enabled']
+        fields = ['type', 'start_date', 'end_date', 'enabled']
 
 # Work Permit:
 class WorkPermitForm(AuthorizationsCommonForm):

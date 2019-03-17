@@ -109,6 +109,23 @@ PREFECTURE_CHOICES = (
     ('LA ', "La réunion (974)"),
 )
 
+VISA_RP_CHOICES = (
+    ('VLS', 'VLS-TS'),
+    ('CST', 'CST'),
+    ('CSP', 'CSP'),
+    ('APS', 'APS'),
+)
+
+FILE_STATE_ACTIVE  = 'A'
+FILE_STATE_PENDING = 'P'
+FILE_STATE_CLOSED  = 'C'
+
+FILE_STATE_CHOICES = (
+    (FILE_STATE_ACTIVE, _('Active')),
+    (FILE_STATE_PENDING, _('Pending')),
+    (FILE_STATE_CLOSED, _('Closed')),
+)
+
 class AccountCommon(models.Model):
     creation_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
     first_name = models.CharField(_('First name'), max_length=50, default="", validators=[alpha])
@@ -235,16 +252,25 @@ class AuthorizationsCommon(models.Model):
         check_dates(self.start_date, self.end_date, self.label)
         return super().clean()
 
-class VisaResidencePermit(AuthorizationsCommon):
+class VisaResidencePermitCommon(models.Model):
+    type = models.CharField(max_length=3, default='VLS',
+                            choices=VISA_RP_CHOICES)
+    class Meta:
+        abstract = True
+
+class VisaResidencePermit(AuthorizationsCommon, VisaResidencePermitCommon):
     label = _('residence permit')
 
-class ModerationVisaResidencePermit(VisaResidencePermit):
+class ModerationVisaResidencePermit(AuthorizationsCommon,
+                                    VisaResidencePermitCommon):
     pass
 
-class SpouseVisaResidencePermit(AuthorizationsCommon):
+class SpouseVisaResidencePermit(AuthorizationsCommon,
+                                VisaResidencePermitCommon):
     label = _("spouse's residence permit")
 
-class ModerationSpouseVisaResidencePermit(SpouseVisaResidencePermit):
+class ModerationSpouseVisaResidencePermit(AuthorizationsCommon,
+                                          VisaResidencePermitCommon):
     pass
 
 class WorkPermit(AuthorizationsCommon):
