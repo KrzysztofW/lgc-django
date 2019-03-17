@@ -110,6 +110,7 @@ PREFECTURE_CHOICES = (
 )
 
 VISA_RP_CHOICES = (
+    ('', '----'),
     ('VLS', 'VLS-TS'),
     ('CST', 'CST'),
     ('CSP', 'CSP'),
@@ -253,8 +254,7 @@ class AuthorizationsCommon(models.Model):
         return super().clean()
 
 class VisaResidencePermitCommon(models.Model):
-    type = models.CharField(max_length=3, default='VLS',
-                            choices=VISA_RP_CHOICES)
+    type = models.CharField(max_length=3, default='', choices=VISA_RP_CHOICES)
     class Meta:
         abstract = True
 
