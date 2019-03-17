@@ -131,6 +131,22 @@ def local_user_get_person_form_layout(form, action, obj):
         Div(Div('home_entity_address', css_class='form-group col-md-4'),
             Div('host_entity_address', css_class='form-group col-md-4'),
             css_class='form-row'),
+        Div(Div('local_address', css_class='form-group col-md-4'),
+            Div('local_phone_number', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('foreign_address', css_class='form-group col-md-4'),
+            Div('foreign_phone_number', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('foreign_country', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('prefecture', css_class='form-group col-md-4'),
+            Div('sous_prefecture', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('consulat', css_class='form-group col-md-4'),
+            Div('direccte', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('juridiction', css_class='form-group col-md-4'),
+            css_class='form-row'),
     )
 
     #if obj and obj.user:
