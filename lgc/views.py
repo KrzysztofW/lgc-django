@@ -388,6 +388,14 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         return get_person_form_layout(self.request.user, form, _('Update'),
                                       self.object)
 
+    def form_invalid(self, form):
+        context = self.get_context_data()
+
+        for formset in context['formsets']:
+            if not formset.is_valid():
+                messages.error(self.request, formset.err_msg)
+        return super().form_invalid(form)
+
     class Meta:
         abstract = True
 
@@ -674,7 +682,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         return ret
 
     def form_invalid(self, form):
-        #messages.error(self.request, _('There are errors on the page'))
+        messages.error(self.request, _('There are errors on the page'))
         return super().form_invalid(form)
 
 class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
@@ -767,7 +775,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        #messages.error(self.request, _('There are errors on the page'))
+        messages.error(self.request, _('There are errors on the page'))
         return super().form_invalid(form)
 
 class DeleteAccount(AccountView, PersonDeleteView):
