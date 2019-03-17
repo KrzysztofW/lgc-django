@@ -1,0 +1,61 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-03-17 15:07+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: common/templates/common/pagination_buttons.html:5
+msgid "Showing"
+msgstr ""
+
+#: common/templates/common/pagination_buttons.html:5
+msgid "to"
+msgstr ""
+
+#: common/templates/common/pagination_buttons.html:5
+msgid "of"
+msgstr ""
+
+#: common/templates/common/pagination_buttons.html:6
+msgid ""
+"\n"
+"      entry"
+msgid_plural ""
+"entries\n"
+"      "
+msgstr[0] ""
+msgstr[1] ""
+
+#: common/templates/common/pagination_header.html:5
+msgid "Show"
+msgstr ""
+
+#: common/templates/common/pagination_header.html:16
+msgid "entries"
+msgstr ""
+
+#: common/utils.py:105
+msgid "new employee subject"
+msgstr ""
+
+#: common/utils.py:108
+msgid "new HR subject"
+msgstr ""
+
+#: common/utils.py:111
+msgid "new account delete subject"
+msgstr ""
