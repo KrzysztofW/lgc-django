@@ -1,0 +1,88 @@
+{% load formset_tags %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<div class="row">&nbsp</div>
+<div class="row">&nbsp</div>
+<ul class="lgc_timeline" id="lgc_timeline">
+  {% for s in stages %}
+  <li class="li complete">
+    <div class="timestamp">
+      <!--span class="author">Abhi Sharma</span-->
+      <span class="date" style="white-space: nowrap;">{{ s.start_date.value }}<span>
+    </div>
+    <div class="status">
+      <h4 class="tl_h">
+	{% if LANGUAGE_CODE == 'fr' %}
+	{{ s.name_fr.value }}
+	{% else %}
+	{{ s.name_en.value }}
+	{% endif %}
+      </h4>
+    </div>
+  </li>
+  {% endfor %}
+  {% for s in stages_tbd %}
+  <li class="li">
+    <div class="timestamp">
+      <span class="date">&nbsp;<span>
+    </div>
+    <div class="status">
+      <h4 class="tl_h">{{ s }}</h4>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+<div class="row">&nbsp</div>
+<div class="row">&nbsp</div>
+
+<div class="form-row"><div class="form-group col-md-4">
+{% if stages|length > 0 %}
+<table class="table table-striped table-bordered table-hover">
+  <thead>
+    <tr>
+      <th scope="col">{% trans 'Name' %}</th>
+      <th scope="col">{% trans 'Comments' %}</th>
+      <th scope="col">Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in stages %}
+    <tr>
+      <td>
+	{% if LANGUAGE_CODE == 'fr' %}
+	{{ s.name_fr.value }}
+	{% else %}
+	{{ s.name_en.value }}
+	{% endif %}
+      </td>
+      <td>{{ s.stage_comments.value }}</td>
+      <td>{{ s.start_date.value }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+</div></div>
+<div class="form-row"> <div class="form-group col-md-4">
+    <div class="form-group">
+      {% trans 'Comments for stage' %}:<b>
+      {% if LANGUAGE_CODE == 'fr' %}
+      {{ stage.name_fr.value }}
+      {% else %}
+      {{ stage.name_en.value }}
+      {% endif %}</b>
+    </div>
+    <div class="form-group">{{ stage.stage_comments }}</div>
+    <div class="form-group">{{ stage.validate_stage.label }} {{ stage.validate_stage }}</div>
+</div>
+
+<div class="row">
+  <div id="div_id_comments" class="form-group">
+    <label for="id_comments" class="col-form-label ">
+      {{ stage.label }}
+    </label>
+    <div class="">{{ stage.comment }}</div>
+  </div>
+</div>

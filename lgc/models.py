@@ -460,14 +460,11 @@ class PersonInfo(models.Model):
                                        max_length=3, default='',
                                        choices=SOUS_PREFECTURE_CHOICES,
                                        blank=True)
-
-    consulat = models.CharField('Préfecture / OFII compétent',
-                                       max_length=3, default='',
-                                       choices=CONSULAT_CHOICES, blank=True)
+    consulat = models.CharField('Consulat', max_length=3, default='',
+                                choices=CONSULAT_CHOICES, blank=True)
     direccte = models.CharField('Direccte compétente', max_length=3,
                                 default='', choices=DIRECCTE_CHOICES,
                                 blank=True)
-
     juridiction = models.CharField('Juridiction spécifique', max_length=3,
                                    default='',
                                    choices=JURIDICTION_SPECIFIQUE_CHOICES,
@@ -482,13 +479,8 @@ class PersonInfo(models.Model):
 
 class Person(PersonInfo, AccountCommon):
     id = models.AutoField(primary_key=True)
-    # prefecture OFII competent
-    # consulat_competant
-    # direccte_competente
-    # sous-prefecture
-    # juridiction specifique
-    process = models.CharField(_('Process'), max_length=3, default='',
-                               choices=PROCESS_CHOICES)
+    info_process = models.CharField(_('Process'), max_length=3, default='',
+                                    choices=PROCESS_CHOICES)
     responsible = models.ManyToManyField(User,
                                          verbose_name=_('Persons in charge'),
                                          blank=True,
@@ -597,7 +589,29 @@ class Process(models.Model):
     name = models.CharField(max_length=50, validators=[alpha], unique=True)
     stages = models.ManyToManyField(ProcessStage, verbose_name=_('Stages'))
 
+    def __str__(self):
+        return self.name
+
 class PersonProcess(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     process = models.ForeignKey(Process, on_delete=models.CASCADE)
     current_stage = models.ForeignKey(ProcessStage, on_delete=models.CASCADE)
+    active = models.BooleanField(_('Active'), default=True)
+    consulat = models.CharField('Consulat', max_length=3, default='',
+                                choices=CONSULAT_CHOICES, blank=True)
+    prefecture = models.CharField('Préfecture / OFII compétent',
+                                  max_length=3, default='',
+                                  choices=PREFECTURE_CHOICES, blank=True)
+    no_billing = models.BooleanField(_('No billing for this process'),
+                                     default=False)
+
+class PersonProcessStage(models.Model):
+    person_process = models.ForeignKey(PersonProcess,
+                                       on_delete=models.CASCADE)
+    start_date = models.DateField(_('Start Date'), blank=True, null=True)
+    stage_comments = models.TextField(_('Comments'), max_length=100,
+                                      default='', blank=True)
+    name_fr = models.CharField(_('Name'), max_length=50, default='',
+                               blank=True)
+    name_en = models.CharField(_('Name'), max_length=50, default='',
+                               blank=True)

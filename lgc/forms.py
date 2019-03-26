@@ -7,15 +7,18 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class PersonCreateForm(forms.ModelForm):
+    birth_date = forms.DateField(widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
 
-    process_name = forms.ModelChoiceField(required=False, queryset=lgc_models.PersonProcess.objects.all())
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
     start_date = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}))
     local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Local Address'))
     foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Foreign Address'))
     comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Comments'))
+    process_name = forms.ModelChoiceField(required=False,
+                                          queryset=lgc_models.Process.objects.all(),
+                                          label=_('Create an active process'))
 
     class Meta:
         model = lgc_models.Person
@@ -130,4 +133,20 @@ class ProcessForm(forms.ModelForm):
 class ProcessStageForm(forms.ModelForm):
     class Meta:
         model = lgc_models.ProcessStage
+        fields = '__all__'
+
+class PersonProcessStageForm(forms.ModelForm):
+    stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+
+    class Meta:
+        model = lgc_models.PersonProcessStage
+        fields = '__all__'
+
+class UnboundPersonProcessStageForm(forms.Form):
+    stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+    validate_stage = forms.BooleanField(required=False, initial=False,
+                                        label=_('Validate Stage'),
+                                        help_text=_('Validate this stage and set the next one.'))
+
+    class Meta:
         fields = '__all__'
