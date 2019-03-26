@@ -143,10 +143,13 @@ class PersonProcessStageForm(forms.ModelForm):
         fields = '__all__'
 
 class UnboundPersonProcessStageForm(forms.Form):
-    stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+    stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
     validate_stage = forms.BooleanField(required=False, initial=False,
                                         label=_('Validate Stage'),
                                         help_text=_('Validate this stage and set the next one.'))
+    delete = forms.BooleanField(required=False, initial=False, label=_('Delete last stage'))
+    name_fr = forms.CharField(required=False)
+    name_en = forms.CharField(required=False)
 
     class Meta:
         fields = '__all__'

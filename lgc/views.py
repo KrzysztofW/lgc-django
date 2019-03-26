@@ -345,22 +345,39 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         next_stage.name_en = stage.name_en
         next_stage.save()
 
-    def get_next_process_stage(self, process_stages, process_stage):
-        if process_stage == None:
+    def get_next_process_stage(self, process_stages, person_process_stages):
+        if person_process_stages == 0:
             return process_stages.first()
+        last_pos = person_process_stages.count() - 1
+        process_stages = process_stages.all()
 
-        length = len(process_stages.all())
+        length = len(process_stages)
         pos = 0
-        for s in process_stages.all():
+        for s in process_stages:
+            if pos < last_pos:
+                pos += 1
+                continue
+            if pos == length:
+                return process_stages[pos]
+            try:
+                return process_stages[pos + 1]
+            except:
+                return None
+        return None
+
+    def get_previous_process_stage(self, process_stages, process_stage):
+        if process_stage == None or len(process_stages.all()) == 1:
+            return process_stages.first()
+        process_stages = process_stages.all()
+
+        length = len(process_stages)
+        pos = 0
+        for s in process_stages:
             if s.id != process_stage.id:
                 pos += 1
                 continue
             if pos == length:
-                return process_stages.all()[pos]
-            try:
-                return process_stages.all()[pos + 1]
-            except:
-                return None
+                return process_stages[pos - 1]
         return None
 
     def get_context_data(self, **kwargs):
@@ -423,6 +440,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                     context['stages'] = stagesFormSet(queryset=person_process_stages)
                     context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
                     context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
+                    context['stage'].fields['name_fr'].initial = self.get_last_person_process_stage(person_process_stages).name_fr
+                    context['stage'].fields['name_en'].initial = self.get_last_person_process_stage(person_process_stages).name_en
                     stages_tbd = []
 
                     i = len(context['stages'])
@@ -526,7 +545,6 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                                _('Cannot find the first stage of the process.'))
                 return super().form_valid(form)
 
-            person_process.current_stage = first_stage
             person_process.save()
             self.generate_next_person_process_stage(person_process, first_stage)
         elif person_process != None:
@@ -549,14 +567,21 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
             if not stage_form.is_valid():
                 return super().form_invalid(form)
+            if stage_form.cleaned_data['delete']:
+                if person_process_stages.count() <= 1:
+                    return super().form_valid(form)
+
+                person_process_stage.delete()
+                messages.success(self.request, _('Last stage deleted'))
+                return super().form_valid(form)
+
             person_process_stage.stage_comments = stage_form.cleaned_data['stage_comments']
             if stage_form.cleaned_data['validate_stage']:
                 next_process_stage = self.get_next_process_stage(process_stages,
-                                                                 person_process.current_stage)
+                                                                 person_process_stages)
                 if next_process_stage != None:
                     self.generate_next_person_process_stage(person_process,
                                                             next_process_stage)
-                    person_process.current_stage = next_process_stage
                     person_process.save()
             person_process_stage.save()
 

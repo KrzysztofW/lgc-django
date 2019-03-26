@@ -595,7 +595,6 @@ class Process(models.Model):
 class PersonProcess(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     process = models.ForeignKey(Process, on_delete=models.CASCADE)
-    current_stage = models.ForeignKey(ProcessStage, on_delete=models.CASCADE)
     active = models.BooleanField(_('Active'), default=True)
     consulat = models.CharField('Consulat', max_length=3, default='',
                                 choices=CONSULAT_CHOICES, blank=True)
