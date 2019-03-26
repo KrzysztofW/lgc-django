@@ -169,7 +169,7 @@ def local_user_get_person_form_layout(form, action, obj):
                      '&nbsp;<a href="' +
                      str(reverse_lazy('lgc-account',
                                       kwargs={'pk': obj.user.id})) +
-                     '">' + _('update profile') + '</a>'),
+                     '">' + _('update profile') + '</a><br><br>'),
                 css_class='form-row')
         else:
             pdiv = Div(
@@ -177,7 +177,7 @@ def local_user_get_person_form_layout(form, action, obj):
                      '&nbsp;<a href="' +
                      str(reverse_lazy('lgc-account-link',
                                       kwargs={'pk': obj.id})) +
-                     '">' + _('create profile') + '</a>'),
+                     '">' + _('create profile') + '</a><br><br>'),
                 css_class='form-row')
         external_profile.append(pdiv)
 
@@ -836,6 +836,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         if self.is_hr and self.object.role == user_models.HR_ADMIN:
             context['form'].fields['is_admin'].initial = True
         context['form'].fields['new_token'].initial = False
+        del context['user']
         return context
 
     def get_form(self, form_class=lgc_forms.InitiateAccountForm):
