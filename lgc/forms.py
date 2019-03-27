@@ -142,12 +142,15 @@ class PersonProcessStageForm(forms.ModelForm):
         model = lgc_models.PersonProcessStage
         fields = '__all__'
 
+PROCESS_STAGE_CHOICES = (
+    ('-', _('No action')),
+    ('D', _('Delete Last Stage')),
+    ('V', _('Validate Stage')),
+)
 class UnboundPersonProcessStageForm(forms.Form):
     stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
-    validate_stage = forms.BooleanField(required=False, initial=False,
-                                        label=_('Validate Stage'),
-                                        help_text=_('Validate this stage and set the next one.'))
-    delete = forms.BooleanField(required=False, initial=False, label=_('Delete last stage'))
+    action = forms.ChoiceField(required=False, choices=PROCESS_STAGE_CHOICES,
+                               widget=forms.RadioSelect)
     name_fr = forms.CharField(required=False)
     name_en = forms.CharField(required=False)
 

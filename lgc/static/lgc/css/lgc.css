@@ -85,3 +85,6 @@ input[type=submit] {
   background-color: DodgerBlue !important;
   color: #ffffff;
 }
+fieldset.inlineLabels ul {
+    list-style: none;
+}

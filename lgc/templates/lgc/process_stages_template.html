@@ -75,9 +75,11 @@
       {% endif %}</b>
     </div>
     <div class="form-group">{{ stage.stage_comments }}</div>
-    <div class="row">
-      <div class="form-group col-md-4">{{ stage.validate_stage.label }} {{ stage.validate_stage }}</div>
-      <div class="form-group col-md-4">{{ stage.delete.label }} {{ stage.delete }}</div>
+    <div class="form-group">
+	{% trans 'Choose an action:' %}
+	<fieldset class="inlineLabels">
+	  {{ stage.action }}
+	</fieldset>
     </div>
 </div>
 

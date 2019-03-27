@@ -567,7 +567,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
             if not stage_form.is_valid():
                 return super().form_invalid(form)
-            if stage_form.cleaned_data['delete']:
+            if stage_form.cleaned_data['action'] == 'D':
                 if person_process_stages.count() <= 1:
                     return super().form_valid(form)
 
@@ -576,7 +576,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                 return super().form_valid(form)
 
             person_process_stage.stage_comments = stage_form.cleaned_data['stage_comments']
-            if stage_form.cleaned_data['validate_stage']:
+            if stage_form.cleaned_data['action'] == 'V':
                 next_process_stage = self.get_next_process_stage(process_stages,
                                                                  person_process_stages)
                 if next_process_stage != None:
