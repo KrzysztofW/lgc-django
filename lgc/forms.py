@@ -144,9 +144,17 @@ class PersonProcessStageForm(forms.ModelForm):
 
 PROCESS_STAGE_CHOICES = (
     ('-', _('No action')),
-    ('D', _('Delete Last Stage')),
-    ('V', _('Validate Stage')),
+    ('D', _('Delete last stage')),
+    ('V', _('Validate stage')),
 )
+
+FINAL_PROCESS_STAGE_CHOICES = (
+    ('-', _('No action')),
+    ('D', _('Delete last stage')),
+    ('F', _('Generate an invoice and archive')),
+    ('NF', _('Archive (no invoice)')),
+)
+
 class UnboundPersonProcessStageForm(forms.Form):
     stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
     action = forms.ChoiceField(required=False, choices=PROCESS_STAGE_CHOICES,
@@ -154,5 +162,11 @@ class UnboundPersonProcessStageForm(forms.Form):
     name_fr = forms.CharField(required=False)
     name_en = forms.CharField(required=False)
 
+    class Meta:
+        fields = '__all__'
+
+class UnboundFinalPersonProcessStageForm(UnboundPersonProcessStageForm):
+    action = forms.ChoiceField(required=False, choices=FINAL_PROCESS_STAGE_CHOICES,
+                               widget=forms.RadioSelect)
     class Meta:
         fields = '__all__'

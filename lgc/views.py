@@ -346,7 +346,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         next_stage.save()
 
     def get_next_process_stage(self, process_stages, person_process_stages):
-        if person_process_stages == 0:
+        if person_process_stages == None:
             return process_stages.first()
         last_pos = person_process_stages.count() - 1
         process_stages = process_stages.all()
@@ -379,6 +379,9 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             if pos == length:
                 return process_stages[pos - 1]
         return None
+
+    def is_process_complete(self, process_stages, person_process_stages):
+        return len(process_stages.all()) == len(person_process_stages.all())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -438,7 +441,11 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                     # render all the stages, only the last one should be editable
                     person_process_stages = self.get_person_process_stages(person_process)
                     context['stages'] = stagesFormSet(queryset=person_process_stages)
-                    context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
+                    if self.is_process_complete(person_process.process.stages,
+                                                person_process_stages):
+                        context['stage'] = lgc_forms.UnboundFinalPersonProcessStageForm()
+                    else:
+                        context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
                     context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
                     context['stage'].fields['name_fr'].initial = self.get_last_person_process_stage(person_process_stages).name_fr
                     context['stage'].fields['name_en'].initial = self.get_last_person_process_stage(person_process_stages).name_en
