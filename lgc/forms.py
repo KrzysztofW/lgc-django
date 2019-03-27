@@ -152,18 +152,26 @@ class PersonProcessSpecificStageForm(forms.Form):
         fields = '__all__'
 
 
+PROCESS_STAGE_NONE = '-'
+PROCESS_STAGE_DELETE = 'D'
+PROCESS_STAGE_ADD_SPECIFIC = 'S'
+PROCESS_STAGE_VALIDATE = 'V'
+PROCESS_STAGE_GEN_INVOICE_AND_ARCHIVE = 'IA'
+PROCESS_STAGE_ARCHIVE = 'A'
+
 PROCESS_STAGE_COMMON_CHOICES = (
-    ('-', _('No action')),
-    ('D', _('Delete last stage')),
-    ('S', _('Add specific stage')),
+    (PROCESS_STAGE_NONE, _('No action')),
+    (PROCESS_STAGE_DELETE, _('Delete last stage')),
+    (PROCESS_STAGE_ADD_SPECIFIC, _('Add specific stage')),
 )
 PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
-    ('V', _('Validate stage')),
+    (PROCESS_STAGE_VALIDATE, _('Validate stage')),
 )
 
 FINAL_PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
-    ('F', _('Generate invoice and archive')),
-    ('NF', _('Archive (no invoice)')),
+    (PROCESS_STAGE_GEN_INVOICE_AND_ARCHIVE,
+     _('Generate invoice and archive')),
+    (PROCESS_STAGE_ARCHIVE, _('Archive (no invoice)')),
 )
 
 class UnboundPersonProcessStageForm(forms.Form):
