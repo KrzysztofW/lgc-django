@@ -3,8 +3,12 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 
+<div class="lgc_center">
+  <h3>{{ person_process.process.name }}</h3>
+</div>
 <div class="row">&nbsp</div>
-<div class="row">&nbsp</div>
+{{ consulate_prefecture }}
+<div class="row">&nbsp<br>&nbsp;</div>
 <ul class="lgc_timeline" id="lgc_timeline">
   {% for s in stages %}
   <li class="li complete">

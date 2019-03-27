@@ -88,3 +88,9 @@ input[type=submit] {
 fieldset.inlineLabels ul {
     list-style: none;
 }
+.lgc_center {
+    align-items: center;
+    justify-content: space-around;
+    display: flex;
+    float: none;
+}

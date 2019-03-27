@@ -190,3 +190,13 @@ class UnboundFinalPersonProcessStageForm(UnboundPersonProcessStageForm):
                                }))
     class Meta:
         fields = '__all__'
+
+class ConsulatePrefectureForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['consulate'].widget.attrs['disabled'] = True
+        self.fields['prefecture'].widget.attrs['disabled'] = True
+
+    class Meta:
+        model = lgc_models.PersonProcess
+        fields = ['consulate', 'prefecture']

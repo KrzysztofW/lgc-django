@@ -107,7 +107,8 @@ def get_template(name):
     except FileNotFoundError:
         raise Http404
 
-def local_user_get_person_form_layout(form, action, obj, process_stages):
+def local_user_get_person_form_layout(form, action, obj, process_stages,
+                                      archived_processes):
     external_profile = None
     form.helper = FormHelper()
     info_tab = Tab(
@@ -185,15 +186,15 @@ def local_user_get_person_form_layout(form, action, obj, process_stages):
 
     process_tab = Tab(_('Process'))
     if process_stages:
-        process_tab.append(HTML(get_template('process_stages_template.html')))
-        #pdiv = Div(Div(HTML('{% load crispy_forms_tags %}{{ stages|crispy }}'),
-        #               css_class='form-group col-md-4'),
-        #           css_class='form-row')
         pdiv = None
+        if archived_processes:
+            process_tab.append(HTML('<a href="' +
+                                    str(reverse_lazy('lgc-person-processes')) +
+                                    '">Archived processes</a><br><br>'))
+        process_tab.append(HTML(get_template('process_stages_template.html')))
     else:
-        pdiv = Div(
-            Div('process_name', css_class='form-group col-md-4'),
-            css_class='form-row')
+        pdiv = Div(Div('process_name', css_class='form-group col-md-4'),
+                   css_class='form-row')
     process_tab.append(pdiv)
 
     billing_tab = Tab(_('Billing'),
@@ -244,13 +245,9 @@ def employee_user_get_person_form_layout(form, action, obj, process):
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
 
-    process_tab = Tab(_('Process'),
-        #Div(Div(HTML('{% load crispy_forms_tags %}{{ process|crispy }}')),
-        #        css_class='form-group col-md-4'),
-        #    css_class='form-row'),
-        Div(Div('process_name', css_class='form-group col-md-4'),
-            css_class='form-row'),
-    )
+    process_tab = Tab(_('Process'))
+    process_tab.append(Div(Div('process_name', css_class='form-group col-md-4'),
+                           css_class='form-row'))
 
     tab_holder = TabHolder(info_tab)
     tab_holder.append(process_tab)
@@ -261,10 +258,12 @@ def employee_user_get_person_form_layout(form, action, obj, process):
     form.helper.layout = layout
     return form
 
-def get_person_form_layout(cur_user, form, action, obj, process_stages):
+def get_person_form_layout(cur_user, form, action, obj, process_stages,
+                           archived_processes=None):
     if cur_user.role in user_models.get_internal_roles():
         return local_user_get_person_form_layout(form, action, obj,
-                                                 process_stages)
+                                                 process_stages,
+                                                 archived_processes)
     if cur_user.role == user_models.EMPLOYEE:
         return employee_user_get_person_form_layout(form, action, obj,
                                                     process_stages)
@@ -451,6 +450,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                     person_process_stages = self.get_person_process_stages(person_process)
                     context['stages'] = stagesFormSet(queryset=person_process_stages)
                     context['specific_stage'] = lgc_forms.PersonProcessSpecificStageForm()
+                    context['person_process'] = person_process
+                    context['consulate_prefecture'] = lgc_forms.ConsulatePrefectureForm(instance=person_process)
                     if self.is_process_complete(person_process.process.stages,
                                                 person_process_stages):
                         context['stage'] = lgc_forms.UnboundFinalPersonProcessStageForm()
@@ -548,6 +549,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             person_process = lgc_models.PersonProcess()
             person_process.person = self.object
             person_process.process = form.cleaned_data['process_name']
+            person_process.consulate = form.cleaned_data['consulate']
+            person_process.prefecture = form.cleaned_data['prefecture']
             process_stages = self.get_process_stages(person_process.process)
 
             if process_stages == None:
@@ -591,7 +594,9 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         if not stage_form.is_valid():
             return super().form_invalid(form)
         if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_DELETE:
-            if person_process_stages.count() <= 1:
+            if person_process_stages.count() == 1:
+                person_process_stage.delete()
+                person_process.delete()
                 return super().form_valid(form)
 
             person_process_stage.delete()
@@ -618,6 +623,10 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                                                     specific_stage.cleaned_data['name_fr'],
                                                     specific_stage.cleaned_data['name_en'],
                                                     is_specific=True)
+        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ARCHIVE:
+            person_process.active = False
+        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_GEN_INVOICE_AND_ARCHIVE:
+            person_process.active = False
 
         person_process.save()
         person_process_stage.save()
@@ -631,7 +640,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                                           _('Create'), None, None)
         return get_person_form_layout(self.request.user, form, _('Update'),
                                       self.object,
-                                      self.get_active_person_process())
+                                      self.get_active_person_process(),
+                                      lgc_models.PersonProcess.objects.filter(person=self.object.id).filter(active=True))
 
     def form_invalid(self, form):
         context = self.get_context_data()
@@ -827,6 +837,13 @@ class ProcessStageDeleteView(ProcessDeleteView):
         context = super().get_context_data(**kwargs)
         context['lang'] = translation.get_language()
         return context
+
+class PersonProcessListView(LoginRequiredMixin, ListView):
+    def test_func(self):
+        if self.request.user.role not in user_models.get_internal_roles():
+            return False
+        return True
+
 
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');
