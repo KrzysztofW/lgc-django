@@ -140,33 +140,45 @@ class PersonProcessStageForm(forms.ModelForm):
 
     class Meta:
         model = lgc_models.PersonProcessStage
+        exclude = ['is_specific']
+
+class PersonProcessSpecificStageForm(forms.Form):
+    name_fr = forms.CharField(required=False,
+                              label=_('Specific stage French name'))
+    name_en = forms.CharField(required=False,
+                              label=_('Specific stage English name'))
+
+    class Meta:
         fields = '__all__'
 
-PROCESS_STAGE_CHOICES = (
+
+PROCESS_STAGE_COMMON_CHOICES = (
     ('-', _('No action')),
     ('D', _('Delete last stage')),
+    ('S', _('Add specific stage')),
+)
+PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
     ('V', _('Validate stage')),
 )
 
-FINAL_PROCESS_STAGE_CHOICES = (
-    ('-', _('No action')),
-    ('D', _('Delete last stage')),
-    ('F', _('Generate an invoice and archive')),
+FINAL_PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
+    ('F', _('Generate invoice and archive')),
     ('NF', _('Archive (no invoice)')),
 )
 
 class UnboundPersonProcessStageForm(forms.Form):
     stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
     action = forms.ChoiceField(required=False, choices=PROCESS_STAGE_CHOICES,
-                               widget=forms.RadioSelect)
-    name_fr = forms.CharField(required=False)
-    name_en = forms.CharField(required=False)
-
+                               widget = forms.RadioSelect(attrs = {
+                                   'onclick' : "specific_stage_action(this);",
+                               }))
     class Meta:
         fields = '__all__'
 
 class UnboundFinalPersonProcessStageForm(UnboundPersonProcessStageForm):
     action = forms.ChoiceField(required=False, choices=FINAL_PROCESS_STAGE_CHOICES,
-                               widget=forms.RadioSelect)
+                               widget = forms.RadioSelect(attrs = {
+                                   'onclick' : "specific_stage_action(this);",
+                               }))
     class Meta:
         fields = '__all__'

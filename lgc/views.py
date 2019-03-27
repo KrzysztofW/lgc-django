@@ -337,19 +337,27 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             return None
         return stages.all()[stages.all().count()-1]
 
-    def generate_next_person_process_stage(self, person_process, stage):
+    def generate_next_person_process_stage(self, person_process,
+                                           name_fr, name_en,
+                                           is_specific=False):
         next_stage = lgc_models.PersonProcessStage()
+        next_stage.is_specific = is_specific
         next_stage.person_process = person_process
         next_stage.start_date = str(datetime.date.today())
-        next_stage.name_fr = stage.name_fr
-        next_stage.name_en = stage.name_en
+        next_stage.name_fr = name_fr
+        next_stage.name_en = name_en
         next_stage.save()
 
     def get_next_process_stage(self, process_stages, person_process_stages):
         if person_process_stages == None:
             return process_stages.first()
-        last_pos = person_process_stages.count() - 1
+        person_process_stages = person_process_stages.filter(is_specific=False)
+        if (person_process_stages == None or
+            person_process_stages.count() == 0):
+            return process_stages.first()
+
         process_stages = process_stages.all()
+        last_pos = person_process_stages.count() - 1
 
         length = len(process_stages)
         pos = 0
@@ -381,6 +389,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         return None
 
     def is_process_complete(self, process_stages, person_process_stages):
+        person_process_stages = person_process_stages.filter(is_specific=False)
         return len(process_stages.all()) == len(person_process_stages.all())
 
     def get_context_data(self, **kwargs):
@@ -441,17 +450,16 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                     # render all the stages, only the last one should be editable
                     person_process_stages = self.get_person_process_stages(person_process)
                     context['stages'] = stagesFormSet(queryset=person_process_stages)
+                    context['specific_stage'] = lgc_forms.PersonProcessSpecificStageForm()
                     if self.is_process_complete(person_process.process.stages,
                                                 person_process_stages):
                         context['stage'] = lgc_forms.UnboundFinalPersonProcessStageForm()
                     else:
                         context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
                     context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
-                    context['stage'].fields['name_fr'].initial = self.get_last_person_process_stage(person_process_stages).name_fr
-                    context['stage'].fields['name_en'].initial = self.get_last_person_process_stage(person_process_stages).name_en
                     stages_tbd = []
 
-                    i = len(context['stages'])
+                    i = person_process_stages.filter(is_specific=False).count()
                     for s in person_process.process.stages.all():
                         if i:
                             i -= 1
@@ -553,7 +561,9 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                 return super().form_valid(form)
 
             person_process.save()
-            self.generate_next_person_process_stage(person_process, first_stage)
+            self.generate_next_person_process_stage(person_process,
+                                                    first_stage.name_fr,
+                                                    first_stage.name_en)
         elif person_process != None:
             process_stages = self.get_process_stages(person_process.process)
             if process_stages == None:
@@ -569,7 +579,6 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             if person_process_stage == None:
                 messages.error(self.request, 'Cannot get the person process last stage.')
                 return super().form_valid(form)
-
 
             stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
             if not stage_form.is_valid():
@@ -588,8 +597,20 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                                                                  person_process_stages)
                 if next_process_stage != None:
                     self.generate_next_person_process_stage(person_process,
-                                                            next_process_stage)
+                                                            next_process_stage.name_fr,
+                                                            next_process_stage.name_en)
                     person_process.save()
+            elif stage_form.cleaned_data['action'] == 'S':
+                specific_stage = lgc_forms.PersonProcessSpecificStageForm(self.request.POST)
+                if (not specific_stage.is_valid() or
+                    specific_stage.cleaned_data['name_fr'] == '' or
+                    specific_stage.cleaned_data['name_en'] == ''):
+                    messages.error(self.request, _('Invalid specific stage name'))
+                    return super().form_valid(form)
+                self.generate_next_person_process_stage(person_process,
+                                                        specific_stage.cleaned_data['name_fr'],
+                                                        specific_stage.cleaned_data['name_en'],
+                                                        is_specific=True)
             person_process_stage.save()
 
         return super().form_valid(form)

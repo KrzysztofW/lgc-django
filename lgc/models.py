@@ -607,6 +607,7 @@ class PersonProcess(models.Model):
 class PersonProcessStage(models.Model):
     person_process = models.ForeignKey(PersonProcess,
                                        on_delete=models.CASCADE)
+    is_specific = models.BooleanField(default=False)
     start_date = models.DateField(_('Start Date'), blank=True, null=True)
     stage_comments = models.TextField(_('Comments'), max_length=100,
                                       default='', blank=True)

@@ -133,3 +133,12 @@ function autocomplete(inp, arr) {
 	$("#search").submit();
     });
 }
+
+function specific_stage_action(elem) {
+    var div = document.getElementById('specific_stage');
+
+    if (elem.id == 'id_action_2')
+	div.style.display = "inline";
+    else
+	div.style.display = "none";
+}

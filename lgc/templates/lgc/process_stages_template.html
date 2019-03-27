@@ -9,7 +9,7 @@
   {% for s in stages %}
   <li class="li complete">
     <div class="timestamp">
-      <!--span class="author">Abhi Sharma</span-->
+      <!--span class="author"></span-->
       <span class="date" style="white-space: nowrap;">{{ s.start_date.value }}<span>
     </div>
     <div class="status">
@@ -80,6 +80,7 @@
 	<fieldset class="inlineLabels">
 	  {{ stage.action }}
 	</fieldset>
+	<div id="specific_stage" style="display:none;">{{ specific_stage }}</div>
     </div>
 </div>
 
