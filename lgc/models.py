@@ -110,7 +110,7 @@ PREFECTURE_CHOICES = (
     ('LA ', "La réunion (974)"),
 )
 
-SOUS_PREFECTURE_CHOICES = (
+SUBPREFECTURE_CHOICES = (
     ('', '----'),
     ('MAR', "Marseille (13)"),
     ('AIX', "Aix en Provence (13)"),
@@ -170,7 +170,7 @@ SOUS_PREFECTURE_CHOICES = (
     ('ARG', "Argenteuil (95)"),
 )
 
-JURIDICTION_SPECIFIQUE_CHOICES = (
+JURISDICTION_SPECIFIQUE_CHOICES = (
     ('', '----'),
     ('BER', "Berlin (Allemagne)"),
     ('FRA', "Francfort (Allemagne)"),
@@ -217,7 +217,7 @@ JURIDICTION_SPECIFIQUE_CHOICES = (
     ('ANK', "Ankara (Turquie)"),
 )
 
-CONSULAT_CHOICES = (
+CONSULATE_CHOICES = (
     ('', '----'),
     ('ZA', "Afrique Du Sud"),
     ('DE', "Allemagne"),
@@ -453,22 +453,26 @@ class PersonInfo(models.Model):
     foreign_phone_number = models.CharField(_('Foreign Phone Number'),
                                             max_length=50, default='',
                                             blank=True)
-    prefecture = models.CharField('Préfecture / OFII compétent',
+    # Préfecture / OFII compétent
+    prefecture = models.CharField(_('Prefecture'),
                                   max_length=3, default='',
                                   choices=PREFECTURE_CHOICES, blank=True)
-    sous_prefecture = models.CharField('Sous-Préfecture',
-                                       max_length=3, default='',
-                                       choices=SOUS_PREFECTURE_CHOICES,
-                                       blank=True)
-    consulat = models.CharField('Consulat', max_length=3, default='',
-                                choices=CONSULAT_CHOICES, blank=True)
-    direccte = models.CharField('Direccte compétente', max_length=3,
+    # Sous-Préfecture
+    subprefecture = models.CharField('Subprefecture',
+                                     max_length=3, default='',
+                                     choices=SUBPREFECTURE_CHOICES,
+                                     blank=True)
+    consulate = models.CharField('Consulate', max_length=3, default='',
+                                choices=CONSULATE_CHOICES, blank=True)
+    # Direccte compétente
+    direccte = models.CharField('DIRECCTE', max_length=3,
                                 default='', choices=DIRECCTE_CHOICES,
                                 blank=True)
-    juridiction = models.CharField('Juridiction spécifique', max_length=3,
-                                   default='',
-                                   choices=JURIDICTION_SPECIFIQUE_CHOICES,
-                                   blank=True)
+    # Juridiction spécifique
+    jurisdiction = models.CharField(_('Jurisdiction'), max_length=3,
+                                    default='',
+                                    choices=JURISDICTION_SPECIFIQUE_CHOICES,
+                                    blank=True)
     class Meta:
         abstract = True
 
@@ -596,9 +600,10 @@ class PersonProcess(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     process = models.ForeignKey(Process, on_delete=models.CASCADE)
     active = models.BooleanField(_('Active'), default=True)
-    consulat = models.CharField('Consulat', max_length=3, default='',
-                                choices=CONSULAT_CHOICES, blank=True)
-    prefecture = models.CharField('Préfecture / OFII compétent',
+    consulate = models.CharField(_('Consulate'), max_length=3, default='',
+                                 choices=CONSULATE_CHOICES, blank=True)
+    # Préfecture / OFII compétent
+    prefecture = models.CharField(_('Prefecture'),
                                   max_length=3, default='',
                                   choices=PREFECTURE_CHOICES, blank=True)
     no_billing = models.BooleanField(_('No billing for this process'),

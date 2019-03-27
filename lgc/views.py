@@ -142,12 +142,12 @@ def local_user_get_person_form_layout(form, action, obj, process_stages):
         Div(Div('foreign_country', css_class='form-group col-md-4'),
             css_class='form-row'),
         Div(Div('prefecture', css_class='form-group col-md-4'),
-            Div('sous_prefecture', css_class='form-group col-md-4'),
+            Div('subprefecture', css_class='form-group col-md-4'),
             css_class='form-row'),
-        Div(Div('consulat', css_class='form-group col-md-4'),
+        Div(Div('consulate', css_class='form-group col-md-4'),
             Div('direccte', css_class='form-group col-md-4'),
             css_class='form-row'),
-        Div(Div('juridiction', css_class='form-group col-md-4'),
+        Div(Div('jurisdiction', css_class='form-group col-md-4'),
             css_class='form-row'),
     )
 
@@ -459,10 +459,10 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                     context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
                     stages_tbd = []
 
-                    i = person_process_stages.filter(is_specific=False).count()
+                    to_skip = person_process_stages.filter(is_specific=False).count()
                     for s in person_process.process.stages.all():
-                        if i:
-                            i -= 1
+                        if to_skip:
+                            to_skip -= 1
                             continue
                         if translation.get_language() == 'fr':
                             stages_tbd.append(s.name_fr)
@@ -1008,9 +1008,6 @@ class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
     ajax_search_url = reverse_lazy('lgc-employee-user-search-ajax')
     search_url = reverse_lazy('lgc-accounts')
     users = user_models.get_employee_user_queryset()
-
-    def test_func(self):
-        return True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
