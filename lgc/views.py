@@ -583,7 +583,11 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             messages.error(self.request, 'Cannot get the person process last stage.')
             return super().form_valid(form)
 
-        stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
+        if self.is_process_complete(person_process.process.stages,
+                                    person_process_stages):
+            stage_form = lgc_forms.UnboundFinalPersonProcessStageForm(self.request.POST)
+        else:
+            stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
         if not stage_form.is_valid():
             return super().form_invalid(form)
         if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_DELETE:
