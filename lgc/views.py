@@ -564,54 +564,59 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             self.generate_next_person_process_stage(person_process,
                                                     first_stage.name_fr,
                                                     first_stage.name_en)
-        elif person_process != None:
-            process_stages = self.get_process_stages(person_process.process)
-            if process_stages == None:
-                messages.error(self.request, 'The process has no stages.')
+            return super().form_valid(form)
+        elif person_process == None:
+            return super().form_invalid(form)
+
+        process_stages = self.get_process_stages(person_process.process)
+        if process_stages == None:
+            messages.error(self.request, 'The process has no stages.')
+            return super().form_valid(form)
+
+        person_process_stages = self.get_person_process_stages(person_process)
+        if person_process_stages == None:
+            messages.error(self.request, 'The person process has no stages.')
+            return super().form_valid(form)
+
+        person_process_stage = self.get_last_person_process_stage(person_process_stages)
+        if person_process_stage == None:
+            messages.error(self.request, 'Cannot get the person process last stage.')
+            return super().form_valid(form)
+
+        stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
+        if not stage_form.is_valid():
+            return super().form_invalid(form)
+        if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_DELETE:
+            if person_process_stages.count() <= 1:
                 return super().form_valid(form)
 
-            person_process_stages = self.get_person_process_stages(person_process)
-            if person_process_stages == None:
-                messages.error(self.request, 'The person process has no stages.')
-                return super().form_valid(form)
+            person_process_stage.delete()
+            messages.success(self.request, _('Last stage deleted'))
+            return super().form_valid(form)
 
-            person_process_stage = self.get_last_person_process_stage(person_process_stages)
-            if person_process_stage == None:
-                messages.error(self.request, 'Cannot get the person process last stage.')
-                return super().form_valid(form)
+        person_process_stage.stage_comments = stage_form.cleaned_data['stage_comments']
 
-            stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
-            if not stage_form.is_valid():
-                return super().form_invalid(form)
-            if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_DELETE:
-                if person_process_stages.count() <= 1:
-                    return super().form_valid(form)
-
-                person_process_stage.delete()
-                messages.success(self.request, _('Last stage deleted'))
-                return super().form_valid(form)
-
-            person_process_stage.stage_comments = stage_form.cleaned_data['stage_comments']
-            if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_VALIDATE:
-                next_process_stage = self.get_next_process_stage(process_stages,
-                                                                 person_process_stages)
-                if next_process_stage != None:
-                    self.generate_next_person_process_stage(person_process,
-                                                            next_process_stage.name_fr,
-                                                            next_process_stage.name_en)
-                    person_process.save()
-            elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
-                specific_stage = lgc_forms.PersonProcessSpecificStageForm(self.request.POST)
-                if (not specific_stage.is_valid() or
-                    specific_stage.cleaned_data['name_fr'] == '' or
-                    specific_stage.cleaned_data['name_en'] == ''):
-                    messages.error(self.request, _('Invalid specific stage name'))
-                    return super().form_valid(form)
+        if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_VALIDATE:
+            next_process_stage = self.get_next_process_stage(process_stages,
+                                                             person_process_stages)
+            if next_process_stage != None:
                 self.generate_next_person_process_stage(person_process,
-                                                        specific_stage.cleaned_data['name_fr'],
-                                                        specific_stage.cleaned_data['name_en'],
-                                                        is_specific=True)
-            person_process_stage.save()
+                                                        next_process_stage.name_fr,
+                                                        next_process_stage.name_en)
+        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
+            specific_stage = lgc_forms.PersonProcessSpecificStageForm(self.request.POST)
+            if (not specific_stage.is_valid() or
+                specific_stage.cleaned_data['name_fr'] == '' or
+                specific_stage.cleaned_data['name_en'] == ''):
+                messages.error(self.request, _('Invalid specific stage name'))
+                return super().form_valid(form)
+            self.generate_next_person_process_stage(person_process,
+                                                    specific_stage.cleaned_data['name_fr'],
+                                                    specific_stage.cleaned_data['name_en'],
+                                                    is_specific=True)
+
+        person_process.save()
+        person_process_stage.save()
 
         return super().form_valid(form)
 
