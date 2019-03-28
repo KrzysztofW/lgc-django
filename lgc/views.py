@@ -60,7 +60,6 @@ def tables(request):
 class PersonCommonListView(LoginRequiredMixin, ListView):
     template_name = 'lgc/files.html'
     model = lgc_models.Person
-    fields = '__all__'
     ajax_search_url = reverse_lazy('lgc-file-search-ajax')
     search_url = reverse_lazy('lgc-files')
 
@@ -297,7 +296,6 @@ class TemplateTimelineStages():
 
 class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
     model = lgc_models.Person
-    fields = '__all__'
     is_update = False
     template_name = 'lgc/generic_form_with_formsets.html'
 
@@ -721,7 +719,6 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class ProcessListView(LoginRequiredMixin, ListView):
     template_name = 'lgc/processes.html'
     model = lgc_models.Process
-    fields = '__all__'
     title = _('Processes')
     create_url = reverse_lazy('lgc-process-create')
     item_url = 'lgc-process'
@@ -743,7 +740,6 @@ class ProcessListView(LoginRequiredMixin, ListView):
 
 class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = lgc_models.Process
-    fields = '__all__'
     success_message = _('Process successfully created')
     template_name = 'lgc/generic_form.html'
     success_url = reverse_lazy('lgc-process-create')
@@ -763,7 +759,6 @@ class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
 class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = lgc_models.Process
-    fields = ['name']
     success_message = _('Process successfully updated')
     success_url = 'lgc-process'
     template_name = 'lgc/generic_form.html'
@@ -861,7 +856,6 @@ class PersonProcessListView(LoginRequiredMixin, ListView):
             return False
         return True
 
-
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');
 
@@ -936,7 +930,6 @@ def get_hr_account_form(form, action, uid, new_token=False, show_tabs=True):
     return form
 
 class AccountView(LoginRequiredMixin):
-    fields = '__all__'
     template_name = 'lgc/generic_form_with_formsets.html'
     model = User
     success_url = 'lgc-account'
@@ -955,7 +948,6 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
     success_message = _('New account successfully initiated')
     title = _('Initiate a case')
     form_name = _('Initiate case')
-    fields = ['first_name', 'last_name', 'email'];
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
@@ -1070,7 +1062,6 @@ class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
 
 class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
     success_message = _('Account successfully updated')
-    fields = ['first_name', 'last_name', 'email'];
     title = _('Update Account')
     form_name = _('Update')
     is_hr = False
