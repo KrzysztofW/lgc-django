@@ -49,6 +49,9 @@ urlpatterns = [
     path('process-stage/<int:pk>/', views.ProcessStageUpdateView.as_view(),
          name='lgc-process-stage'),
 
-    path('person-process-list/', views.PersonProcessListView.as_view(),
+    path('person-process-list/<int:pk>/', views.PersonProcessListView.as_view(),
          name='lgc-person-processes'),
+    path('person-process/<int:pk>/', views.PersonProcessUpdateView.as_view(),
+         name='lgc-person-process'),
+
 ]

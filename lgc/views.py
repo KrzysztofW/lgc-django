@@ -184,12 +184,15 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
         external_profile.append(pdiv)
 
     process_tab = Tab(_('Process'))
+    if archived_processes:
+        process_tab.append(HTML('<a href="' +
+                                str(reverse_lazy('lgc-person-processes',
+                                                 kwargs={'pk': obj.id})) +
+                                '">Archived processes (' +
+                                str(len(archived_processes)) +
+                                ')</a><br><br>'))
     if process_stages:
         pdiv = None
-        if archived_processes:
-            process_tab.append(HTML('<a href="' +
-                                    str(reverse_lazy('lgc-person-processes')) +
-                                    '">Archived processes</a><br><br>'))
         process_tab.append(HTML(get_template('process_stages_template.html')))
     else:
         pdiv = Div(Div('process_name', css_class='form-group col-md-4'),
@@ -215,8 +218,7 @@ def employee_user_get_person_form_layout(form, action, obj, process):
     external_profile = None
     form.helper = FormHelper()
     if obj == None or obj.user == None:
-        print("Error")
-        return
+        return None
 
     info_tab = Tab(
         _('Information'),
@@ -390,6 +392,32 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                 return process_stages[pos - 1]
         return None
 
+    def get_timeline_stages(self, person_process, person_process_stages):
+        timeline_stages = []
+        for s in person_process_stages:
+            timeline_stage = TemplateTimelineStages()
+            timeline_stage.is_done = True
+            if translation.get_language() == 'fr':
+                timeline_stage.name = s.name_fr
+            else:
+                timeline_stage.name = s.name_en
+            timeline_stage.start_date = s.start_date
+            timeline_stages.append(timeline_stage)
+
+        to_skip = person_process_stages.filter(is_specific=False).count()
+        for s in person_process.process.stages.all():
+            if to_skip:
+                to_skip -= 1
+                continue
+            timeline_stage = TemplateTimelineStages()
+            if translation.get_language() == 'fr':
+                timeline_stage.name = s.name_fr
+            else:
+                timeline_stage.name = s.name_en
+            timeline_stages.append(timeline_stage)
+
+        return timeline_stages
+
     def is_process_complete(self, process_stages, person_process_stages):
         person_process_stages = person_process_stages.filter(is_specific=False)
         return len(process_stages.all()) == len(person_process_stages.all())
@@ -461,31 +489,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                     else:
                         context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
                     context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
-                    timeline_stages = []
-
-                    for s in person_process_stages:
-                        timeline_stage = TemplateTimelineStages()
-                        timeline_stage.is_done = True
-                        if translation.get_language() == 'fr':
-                            timeline_stage.name = s.name_fr
-                        else:
-                            timeline_stage.name = s.name_en
-                        timeline_stage.start_date = s.start_date
-                        timeline_stages.append(timeline_stage)
-
-                    to_skip = person_process_stages.filter(is_specific=False).count()
-                    for s in person_process.process.stages.all():
-                        if to_skip:
-                            to_skip -= 1
-                            continue
-                        timeline_stage = TemplateTimelineStages()
-                        if translation.get_language() == 'fr':
-                            timeline_stage.name = s.name_fr
-                        else:
-                            timeline_stage.name = s.name_en
-                        timeline_stages.append(timeline_stage)
-
-                    context['timeline_stages'] = timeline_stages
+                    context['timeline_stages'] = self.get_timeline_stages(person_process, person_process_stages)
                     context['process_name'] = person_process.process.name
 
                 children_queryset = lgc_models.Child.objects.filter(person=self.object.id)
@@ -656,7 +660,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         return get_person_form_layout(self.request.user, form, _('Update'),
                                       self.object,
                                       self.get_active_person_process(),
-                                      lgc_models.PersonProcess.objects.filter(person=self.object.id).filter(active=True))
+                                      lgc_models.PersonProcess.objects.filter(person=self.object.id).filter(active=False))
 
     def form_invalid(self, form):
         context = self.get_context_data()
@@ -716,7 +720,13 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
                 return super().form_invalid(form)
         return super().delete(request, *args, **kwargs)
 
-class ProcessListView(LoginRequiredMixin, ListView):
+class ProcessCommonView(LoginRequiredMixin):
+    def test_func(self):
+        if self.request.user.role not in user_models.get_internal_roles():
+            return False
+        return True
+
+class ProcessListView(ProcessCommonView, ListView):
     template_name = 'lgc/processes.html'
     model = lgc_models.Process
     title = _('Processes')
@@ -738,7 +748,7 @@ class ProcessListView(LoginRequiredMixin, ListView):
 
         return pagination(self, context, self.this_url)
 
-class ProcessCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
     model = lgc_models.Process
     success_message = _('Process successfully created')
     template_name = 'lgc/generic_form.html'
@@ -772,8 +782,9 @@ class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['delete_url'] = reverse_lazy(self.delete_url,
-                                             kwargs={'pk':self.object.id})
+        if self.delete_url != '':
+            context['delete_url'] = reverse_lazy(self.delete_url,
+                                                 kwargs={'pk':self.object.id})
         return context
 
     def get_form(self, form_class=lgc_forms.ProcessForm):
@@ -868,11 +879,55 @@ class ProcessStageDeleteView(ProcessDeleteView):
         context['lang'] = translation.get_language()
         return context
 
-class PersonProcessListView(LoginRequiredMixin, ListView):
-    def test_func(self):
-        if self.request.user.role not in user_models.get_internal_roles():
-            return False
-        return True
+class PersonProcessUpdateView(ProcessUpdateView):
+    model = lgc_models.PersonProcess
+    template_name = 'lgc/person_process.html'
+    title = _('Person Process')
+    delete_url = ''
+    fields = '__all__'
+
+    def get_context_data(self, **kwargs):
+        person_common = PersonCommonView()
+        context = super().get_context_data(**kwargs)
+        context['consulate_prefecture'] = lgc_forms.ConsulatePrefectureForm(instance=self.object)
+        context['person_process'] = self.object
+        person_process_stages = person_common.get_person_process_stages(self.object)
+        context['timeline_stages'] = person_common.get_timeline_stages(self.object, person_process_stages)
+        stagesFormSet = modelformset_factory(lgc_models.PersonProcessStage,
+                                             form=lgc_forms.PersonProcessStageForm,
+                                             can_delete=False,
+                                             extra=0)
+
+        context['stages'] = stagesFormSet(queryset=person_process_stages)
+        context['go_back'] = self.request.META.get('HTTP_REFERER')
+        return context
+
+    def get_form(self):
+        form = super().get_form()
+        form.helper = FormHelper()
+        form.helper.layout = Layout(HTML(get_template('process_stages_template.html')))
+        return form
+
+class PersonProcessListView(ProcessListView):
+    model = lgc_models.PersonProcess
+    create_url = ''
+    item_url = 'lgc-person-process'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for obj in context['object_list']:
+            obj.name = obj.process.name
+        return context
+
+    def get_queryset(self, *args, **kwargs):
+        pk = self.kwargs.get('pk', '')
+        object_list = lgc_models.PersonProcess.objects.filter(person=pk)
+        if object_list == None or object_list.count() == 0:
+            raise Http404
+        person = object_list[0].person
+        self.title = (_('Archived Processes of ') +
+                      "%s %s"%(person.first_name, person.last_name))
+        return object_list
 
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');
