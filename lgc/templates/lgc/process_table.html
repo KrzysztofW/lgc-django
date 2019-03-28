@@ -25,17 +25,7 @@
     {% for item in object_list %}
     <tr class="clickable-row" data-href="{% url item_url item.id %}">
       <td>{{ item.id }}</td>
-      <td>
-      {% if lang %}
-      {% if lang == 'en' %}
-      {{ item.name_fr }}
-      {% else %}
-      {{ item.name_en }}
-      {% endif %}
-      {% else %}
-      {{ item.name }}
-      {% endif %}
-      </td>
+      <td>{{ item.name }}</td>
     </tr>
     {% endfor %}
   </tbody>

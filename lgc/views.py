@@ -814,9 +814,27 @@ class ProcessStageListView(ProcessListView):
     item_url = 'lgc-process-stage'
     this_url = reverse_lazy('lgc-process-stages')
 
+    def get_ordering(self):
+        order_by = self.request.GET.get('order_by', 'id')
+        if order_by == 'name':
+            if translation.get_language() == 'fr':
+                return 'name_fr'
+            return 'name_en'
+        if order_by == '-name':
+            if translation.get_language() == 'fr':
+                return '-name_fr'
+            return '-name_en'
+
+        return order_by
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['lang'] = translation.get_language()
+        lang = translation.get_language()
+        for obj in context['object_list']:
+            if lang == 'fr':
+                obj.name = obj.name_fr
+            else:
+                obj.name = obj.name_en
         return context
 
 class ProcessStageCreateView(ProcessCreateView):
