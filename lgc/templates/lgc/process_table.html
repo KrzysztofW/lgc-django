@@ -3,18 +3,18 @@
   <thead>
     <tr>
       <th scope="col">ID{% if order_by == "id" %}
-	<a href="?{{ order_params }}&order_by=-id"><i class="fa fa-fw fa-sort-asc"></i></a>
+	<a href="?{{ order_params }}&order_by=-id"><i class="fa fa-fw fa-sort-up"></i></a>
 	{% elif order_by == "-id" %}
-	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort-desc"></i></a>
+	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort-down"></i></a>
 	{% else %}
 	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	{% endif %}
       </th>
       <th scope="col">{% trans "name" %}
 	{% if order_by == "name" %}
-	<a href="?{{ order_params }}&order_by=-name"><i class="fa fa-fw fa-sort-asc"></i></a>
+	<a href="?{{ order_params }}&order_by=-name"><i class="fa fa-fw fa-sort-up"></i></a>
 	{% elif order_by == "-name" %}
-	<a href="?{{ order_params }}&order_by=name"><i class="fa fa-fw fa-sort-desc"></i></a>
+	<a href="?{{ order_params }}&order_by=name"><i class="fa fa-fw fa-sort-down"></i></a>
 	{% else %}
 	<a href="?{{ order_params }}&order_by=name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	{% endif %}

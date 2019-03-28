@@ -44,63 +44,63 @@
 	    <tr>
 	      <th scope="col">{% trans "E-mail" %}
 		{% if order_by == "email" %}
-		<a href="?{{ order_params }}&order_by=-email"><i class="fa fa-fw fa-sort-asc"></i></a>
+		<a href="?{{ order_params }}&order_by=-email"><i class="fa fa-fw fa-sort-up"></i></a>
 		{% elif order_by == "-email" %}
-		<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort-desc"></i></a>
+		<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort-down"></i></a>
 		{% else %}
 		<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
 	      <th scope="col">{% trans "First name" %}
 		{% if order_by == "first_name" %}
-		<a href="?{{ order_params }}&order_by=-first_name"><i class="fa fa-fw fa-sort-asc"></i></a>
+		<a href="?{{ order_params }}&order_by=-first_name"><i class="fa fa-fw fa-sort-up"></i></a>
 		{% elif order_by == "-first_name" %}
-		<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort-desc"></i></a>
+		<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort-down"></i></a>
 		{% else %}
 		<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
 	      <th scope="col">{% trans "Last name" %}
 		{% if order_by == "last_name" %}
-		<a href="?{{ order_params }}&order_by=-last_name"><i class="fa fa-fw fa-sort-asc"></i></a>
+		<a href="?{{ order_params }}&order_by=-last_name"><i class="fa fa-fw fa-sort-up"></i></a>
 		{% elif order_by == "-last_name" %}
-		<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort-desc"></i></a>
+		<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort-down"></i></a>
 		{% else %}
 		<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
 	      <th scope="col">{% trans "Active" %}
 		{% if order_by == "is_active" %}
-		<a href="?{{ order_params }}&order_by=-is_active"><i class="fa fa-fw fa-sort-asc"></i></a>
+		<a href="?{{ order_params }}&order_by=-is_active"><i class="fa fa-fw fa-sort-up"></i></a>
 		{% elif order_by == "-is_active" %}
-		<a href="?{{ order_params }}&order_by=is_active"><i class="fa fa-fw fa-sort-desc"></i></a>
+		<a href="?{{ order_params }}&order_by=is_active"><i class="fa fa-fw fa-sort-down"></i></a>
 		{% else %}
 		<a href="?{{ order_params }}&order_by=is_active"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
 	      <th scope="col" style="width: 100px">{% trans "Role" %}
 		{% if order_by == "role" %}
-		<a href="?{{ order_params }}&order_by=-role"><i class="fa fa-fw fa-sort-asc"></i></a>
+		<a href="?{{ order_params }}&order_by=-role"><i class="fa fa-fw fa-sort-up"></i></a>
 		{% elif order_by == "-role" %}
-		<a href="?{{ order_params }}&order_by=role"><i class="fa fa-fw fa-sort-desc"></i></a>
+		<a href="?{{ order_params }}&order_by=role"><i class="fa fa-fw fa-sort-down"></i></a>
 		{% else %}
 		<a href="?{{ order_params }}&order_by=role"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
 	      <th scope="col" style="width: 100px">{% trans "Billing" %}
 		{% if order_by == "billing" %}
-		<a href="?{{ order_params }}&order_by=-billing"><i class="fa fa-fw fa-sort-asc"></i></a>
+		<a href="?{{ order_params }}&order_by=-billing"><i class="fa fa-fw fa-sort-up"></i></a>
 		{% elif order_by == "-billing" %}
-		<a href="?{{ order_params }}&order_by=billing"><i class="fa fa-fw fa-sort-desc"></i></a>
+		<a href="?{{ order_params }}&order_by=billing"><i class="fa fa-fw fa-sort-down"></i></a>
 		{% else %}
 		<a href="?{{ order_params }}&order_by=billing"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}
 	      </th>
 	      <th scope="col" style="width: 100px">{% trans "Staff" %}
 		{% if order_by == "is_staff" %}
-		<a href="?{{ order_params }}&order_by=-is_staff"><i class="fa fa-fw fa-sort-asc"></i></a>
+		<a href="?{{ order_params }}&order_by=-is_staff"><i class="fa fa-fw fa-sort-up"></i></a>
 		{% elif order_by == "-is_staff" %}
-		<a href="?{{ order_params }}&order_by=is_staff"><i class="fa fa-fw fa-sort-desc"></i></a>
+		<a href="?{{ order_params }}&order_by=is_staff"><i class="fa fa-fw fa-sort-down"></i></a>
 		{% else %}
 		<a href="?{{ order_params }}&order_by=is_staff"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 		{% endif %}

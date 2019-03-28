@@ -6,9 +6,9 @@
       {% if show_id %}
       <th scope="col">ID
 	{% if order_by == "id" %}
-	<a href="?{{ order_params }}&order_by=-id"><i class="fa fa-fw fa-sort-asc"></i></a>
+	<a href="?{{ order_params }}&order_by=-id"><i class="fa fa-fw fa-sort-up"></i></a>
 	{% elif order_by == "-id" %}
-	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort-desc"></i></a>
+	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort-down"></i></a>
 	{% else %}
 	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	{% endif %}
@@ -16,27 +16,27 @@
       {% endif %}
       <th scope="col">E-mail
 	{% if order_by == "email" %}
-	<a href="?{{ order_params }}&order_by=-email"><i class="fa fa-fw fa-sort-asc"></i></a>
+	<a href="?{{ order_params }}&order_by=-email"><i class="fa fa-fw fa-sort-up"></i></a>
 	{% elif order_by == "-email" %}
-	<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort-desc"></i></a>
+	<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort-down"></i></a>
 	{% else %}
 	<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	{% endif %}
       </th>
       <th scope="col">{% trans "First name" %}
 	{% if order_by == "first_name" %}
-	<a href="?{{ order_params }}&order_by=-first_name"><i class="fa fa-fw fa-sort-asc"></i></a>
+	<a href="?{{ order_params }}&order_by=-first_name"><i class="fa fa-fw fa-sort-up"></i></a>
 	{% elif order_by == "-first_name" %}
-	<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort-desc"></i></a>
+	<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort-down"></i></a>
 	{% else %}
 	<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	{% endif %}
       </th>
       <th scope="col">{% trans "Last name" %}
 	{% if order_by == "last_name" %}
-	<a href="?{{ order_params }}&order_by=-last_name"><i class="fa fa-fw fa-sort-asc"></i></a>
+	<a href="?{{ order_params }}&order_by=-last_name"><i class="fa fa-fw fa-sort-up"></i></a>
 	{% elif order_by == "-last_name" %}
-	<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort-desc"></i></a>
+	<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort-down"></i></a>
 	{% else %}
 	<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	{% endif %}
@@ -44,9 +44,9 @@
       {% if show_birth_date %}
       <th scope="col">{% trans "Birth Date" %}
 	{% if order_by == "birth_date" %}
-	<a href="?{{ order_params }}&order_by=-birth_date"><i class="fa fa-fw fa-sort-asc"></i></a>
+	<a href="?{{ order_params }}&order_by=-birth_date"><i class="fa fa-fw fa-sort-up"></i></a>
 	{% elif order_by == "-birth_date" %}
-	<a href="?{{ order_params }}&order_by=birth_date"><i class="fa fa-fw fa-sort-desc"></i></a>
+	<a href="?{{ order_params }}&order_by=birth_date"><i class="fa fa-fw fa-sort-down"></i></a>
 	{% else %}
 	<a href="?{{ order_params }}&order_by=birth_date"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	{% endif %}
@@ -54,9 +54,9 @@
       {% endif %}
       <th scope="col">{% trans "Created" %}
 	{% if order_by == "creation_date" %}
-	<a href="?{{ order_params }}&order_by=-creation_date"><i class="fa fa-fw fa-sort-asc"></i></a>
+	<a href="?{{ order_params }}&order_by=-creation_date"><i class="fa fa-fw fa-sort-up"></i></a>
 	{% elif order_by == "-creation_date" %}
-	<a href="?{{ order_params }}&order_by=creation_date"><i class="fa fa-fw fa-sort-desc"></i></a>
+	<a href="?{{ order_params }}&order_by=creation_date"><i class="fa fa-fw fa-sort-down"></i></a>
 	{% else %}
 	<a href="?{{ order_params }}&order_by=creation_date"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	{% endif %}
