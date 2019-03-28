@@ -290,6 +290,11 @@ def hr_add_employee(form_data, user_object):
         h.hr_employees.add(user_object.id)
         h.save()
 
+class TemplateTimelineStages():
+    is_done = False
+    name = ''
+    start_date = ''
+
 class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
     model = lgc_models.Person
     fields = '__all__'
@@ -458,19 +463,31 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                     else:
                         context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
                     context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
-                    stages_tbd = []
+                    timeline_stages = []
+
+                    for s in person_process_stages:
+                        timeline_stage = TemplateTimelineStages()
+                        timeline_stage.is_done = True
+                        if translation.get_language() == 'fr':
+                            timeline_stage.name = s.name_fr
+                        else:
+                            timeline_stage.name = s.name_en
+                        timeline_stage.start_date = s.start_date
+                        timeline_stages.append(timeline_stage)
 
                     to_skip = person_process_stages.filter(is_specific=False).count()
                     for s in person_process.process.stages.all():
                         if to_skip:
                             to_skip -= 1
                             continue
+                        timeline_stage = TemplateTimelineStages()
                         if translation.get_language() == 'fr':
-                            stages_tbd.append(s.name_fr)
+                            timeline_stage.name = s.name_fr
                         else:
-                            stages_tbd.append(s.name_en)
+                            timeline_stage.name = s.name_en
+                        timeline_stages.append(timeline_stage)
 
-                    context['stages_tbd'] = stages_tbd
+                    context['timeline_stages'] = timeline_stages
                     context['process_name'] = person_process.process.name
 
                 children_queryset = lgc_models.Child.objects.filter(person=self.object.id)

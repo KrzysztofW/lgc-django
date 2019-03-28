@@ -10,32 +10,21 @@
 {{ consulate_prefecture }}
 <div class="row">&nbsp<br>&nbsp;</div>
 <ul class="lgc_timeline" id="lgc_timeline">
-  {% for s in stages %}
-  <li class="li complete">
+  {% for s in timeline_stages %}
+  <li class="li{% if s.is_done %} complete{% endif %}">
     <div class="timestamp">
       <!--span class="author"></span-->
-      <span class="date" style="white-space: nowrap;">{{ s.start_date.value }}<span>
+      <span class="date" style="white-space: nowrap;">
+	{% if s.is_done %}{{ s.start_date }}{% else %}&nbsp;{% endif %}
+	<span>
     </div>
     <div class="status">
-      <h4 class="tl_h">
-	{% if LANGUAGE_CODE == 'fr' %}
-	{{ s.name_fr.value }}
-	{% else %}
-	{{ s.name_en.value }}
-	{% endif %}
-      </h4>
+      <h4 class="tl_h">{{ s.name }}</h4>
     </div>
   </li>
-  {% endfor %}
-  {% for s in stages_tbd %}
-  <li class="li">
-    <div class="timestamp">
-      <span class="date">&nbsp;<span>
-    </div>
-    <div class="status">
-      <h4 class="tl_h">{{ s }}</h4>
-    </div>
-  </li>
+  {% if forloop.counter0|divisibleby:5 and not forloop.last and not forloop.first %}
+  </ul><ul class="lgc_timeline" id="lgc_timeline">
+  {% endif %}
   {% endfor %}
 </ul>
 <div class="row">&nbsp</div>
