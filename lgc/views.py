@@ -726,6 +726,62 @@ class ProcessCommonView(LoginRequiredMixin):
             return False
         return True
 
+@login_required
+def ajax_process_search_view(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    term = request.GET.get('term', '')
+    objs = lgc_models.Process.objects.filter(name__istartswith=term)
+    objs = objs[:10]
+
+    for o in objs:
+        if term in o.name.lower():
+            o.b_name = o.name.lower()
+    context = {
+        'objects': objs
+    }
+    return render(request, 'lgc/process_search.html', context)
+
+@login_required
+def ajax_person_process_search_view(request, *args, **kwargs):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    pk = kwargs.get('pk', '')
+    objects = lgc_models.PersonProcess.objects.filter(person=pk).filter(active=False)
+    term = request.GET.get('term', '')
+    objs = objects.filter(process__name__istartswith=term)
+    objs = objs[:10]
+
+    for o in objs:
+        if term in o.process.name.lower():
+            o.b_name = o.process.name.lower()
+    context = {
+        'objects': objs
+    }
+    return render(request, 'lgc/process_search.html', context)
+
+@login_required
+def ajax_process_stage_search_view(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    term = request.GET.get('term', '')
+    objs = (lgc_models.ProcessStage.objects.filter(name_fr__istartswith=term)|
+            lgc_models.ProcessStage.objects.filter(name_en__istartswith=term))
+    objs = objs[:10]
+
+    for o in objs:
+        if term in o.name_fr.lower():
+            o.b_name = o.name_fr.lower()
+        elif term in o.name_en.lower():
+            o.b_name = o.name_en.lower()
+    context = {
+        'objects': objs
+    }
+    return render(request, 'lgc/process_search.html', context)
+
 class ProcessListView(ProcessCommonView, ListView):
     template_name = 'lgc/processes.html'
     model = lgc_models.Process
@@ -733,6 +789,16 @@ class ProcessListView(ProcessCommonView, ListView):
     create_url = reverse_lazy('lgc-process-create')
     item_url = 'lgc-process'
     this_url = reverse_lazy('lgc-processes')
+    ajax_search_url = reverse_lazy('lgc-process-search-ajax')
+    search_url = reverse_lazy('lgc-processes')
+
+    def get_queryset(self):
+        term = self.request.GET.get('term', '')
+        order_by = self.get_ordering()
+        if term == '':
+            return self.model.objects.order_by(order_by)
+        objs = self.model.objects.filter(name__istartswith=term)
+        return objs.order_by(order_by)
 
     def get_ordering(self):
         return self.request.GET.get('order_by', 'id')
@@ -745,7 +811,8 @@ class ProcessListView(ProcessCommonView, ListView):
         context['title'] = self.title
         context['create_url'] = self.create_url
         context['item_url'] = self.item_url
-
+        context['ajax_search_url'] = self.ajax_search_url
+        context['search_url'] = self.search_url
         return pagination(self, context, self.this_url)
 
 class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
@@ -824,6 +891,17 @@ class ProcessStageListView(ProcessListView):
     create_url = reverse_lazy('lgc-process-stage-create')
     item_url = 'lgc-process-stage'
     this_url = reverse_lazy('lgc-process-stages')
+    ajax_search_url = reverse_lazy('lgc-process-stage-search-ajax')
+    search_url = reverse_lazy('lgc-process-stages')
+
+    def get_queryset(self):
+        term = self.request.GET.get('term', '')
+        order_by = self.get_ordering()
+        if term == '':
+            return self.model.objects.order_by(order_by)
+        objs = (self.model.objects.filter(name_fr__istartswith=term)|
+                self.model.objects.filter(name_en__istartswith=term))
+        return objs.order_by(order_by)
 
     def get_ordering(self):
         order_by = self.request.GET.get('order_by', 'id')
@@ -921,9 +999,14 @@ class PersonProcessListView(ProcessListView):
 
     def get_queryset(self, *args, **kwargs):
         pk = self.kwargs.get('pk', '')
-        object_list = lgc_models.PersonProcess.objects.filter(person=pk)
+        # pk == '' already checked in urls.py
+        object_list = lgc_models.PersonProcess.objects.filter(person=pk).filter(active=False)
         if object_list == None or object_list.count() == 0:
             raise Http404
+        self.ajax_search_url = reverse_lazy('lgc-person-process-search-ajax',
+                                            kwargs={'pk':pk})
+        self.search_url = reverse_lazy('lgc-person-processes',
+                                       kwargs={'pk':pk})
         person = object_list[0].person
         self.title = (_('Archived Processes of ') +
                       "%s %s"%(person.first_name, person.last_name))

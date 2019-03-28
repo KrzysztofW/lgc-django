@@ -38,6 +38,8 @@ urlpatterns = [
          name='lgc-process-delete'),
     path('process/<int:pk>/', views.ProcessUpdateView.as_view(),
          name='lgc-process'),
+    path('process-search/ajax/', views.ajax_process_search_view,
+         name='lgc-process-search-ajax'),
 
     path('process-stage-create/', views.ProcessStageCreateView.as_view(),
          name='lgc-process-stage-create'),
@@ -48,10 +50,14 @@ urlpatterns = [
          name='lgc-process-stage-delete'),
     path('process-stage/<int:pk>/', views.ProcessStageUpdateView.as_view(),
          name='lgc-process-stage'),
+    path('process-stage-search/ajax/', views.ajax_process_stage_search_view,
+         name='lgc-process-stage-search-ajax'),
 
     path('person-process-list/<int:pk>/', views.PersonProcessListView.as_view(),
          name='lgc-person-processes'),
     path('person-process/<int:pk>/', views.PersonProcessUpdateView.as_view(),
          name='lgc-person-process'),
+    path('person-process-search/ajax/<int:pk>', views.ajax_person_process_search_view,
+         name='lgc-person-process-search-ajax'),
 
 ]
