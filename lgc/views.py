@@ -352,17 +352,20 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         next_stage.name_en = name_en
         next_stage.save()
 
-    def get_next_process_stage(self, process_stages, person_process_stages):
+    def get_next_process_stage(self, person_process_stages, process_id):
+        process_common = ProcessCommonView()
+        process_stages = process_common.get_ordered_stages(process_id)
+
         if person_process_stages == None:
-            return process_stages.first()
+            if process_stages == None or len(process_stages) == 0:
+                return None
+            return process_stages[0]
         person_process_stages = person_process_stages.filter(is_specific=False)
         if (person_process_stages == None or
             person_process_stages.count() == 0):
             return process_stages.first()
 
-        process_stages = process_stages.all()
         last_pos = person_process_stages.count() - 1
-
         length = len(process_stages)
         pos = 0
         for s in process_stages:
@@ -393,6 +396,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         return None
 
     def get_timeline_stages(self, person_process, person_process_stages):
+        process_common = ProcessCommonView()
         timeline_stages = []
         for s in person_process_stages:
             timeline_stage = TemplateTimelineStages()
@@ -405,7 +409,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             timeline_stages.append(timeline_stage)
 
         to_skip = person_process_stages.filter(is_specific=False).count()
-        for s in person_process.process.stages.all():
+        stages = process_common.get_ordered_stages(person_process.process.id)
+        for s in stages:
             if to_skip:
                 to_skip -= 1
                 continue
@@ -555,7 +560,6 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                         obj.instance.delete()
 
             if self.is_update and self.object.user != None:
-                #hr_add_employee(form.cleaned_data, self.object.user)
                 form.instance.user = self.object.user
 
             self.object = form.save()
@@ -576,7 +580,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                 messages.error(self.request, 'The process has no stages.')
                 return super().form_valid(form)
 
-            first_stage = self.get_next_process_stage(process_stages, None)
+            first_stage = self.get_next_process_stage(None, person_process.process.id)
             if first_stage == None:
                 messages.error(self.request,
                                _('Cannot find the first stage of the process.'))
@@ -625,8 +629,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         person_process_stage.stage_comments = stage_form.cleaned_data['stage_comments']
 
         if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_VALIDATE:
-            next_process_stage = self.get_next_process_stage(process_stages,
-                                                             person_process_stages)
+            next_process_stage = self.get_next_process_stage(person_process_stages,
+                                                             person_process.process.id)
             if next_process_stage != None:
                 self.generate_next_person_process_stage(person_process,
                                                         next_process_stage.name_fr,
@@ -720,12 +724,6 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
                 return super().form_invalid(form)
         return super().delete(request, *args, **kwargs)
 
-class ProcessCommonView(LoginRequiredMixin):
-    def test_func(self):
-        if self.request.user.role not in user_models.get_internal_roles():
-            return False
-        return True
-
 @login_required
 def ajax_process_search_view(request):
     if request.user.role not in user_models.get_internal_roles():
@@ -782,6 +780,42 @@ def ajax_process_stage_search_view(request):
     }
     return render(request, 'lgc/process_search.html', context)
 
+class ProcessCommonView(LoginRequiredMixin):
+    def test_func(self):
+        if self.request.user.role not in user_models.get_internal_roles():
+            return False
+        return True
+
+    def get_ordered_stages(self, process_id):
+        process_stages = lgc_models.Process.objects.filter(id=process_id).all()
+        if process_stages == None or len(process_stages) == 0:
+            return None
+        process_stages = process_stages[0].stages
+        all_process_stages = lgc_models.ProcessStage.objects
+        objects = []
+
+        for s in process_stages.through.objects.filter(process_id=process_id).order_by('id').all():
+            objects.append(all_process_stages.filter(id=s.processstage_id)[0])
+        return objects
+
+    def get_available_stages(self, selected_stages):
+        available_stages = []
+        for s in lgc_models.ProcessStage.objects.all():
+            if selected_stages == None:
+                available_stages.append(s)
+                continue
+            present = False
+            for s_selected in selected_stages.all():
+                if s.id == s_selected.id:
+                    present = True
+                    break
+            if present == False:
+                available_stages.append(s)
+        return available_stages
+
+    class Meta:
+        abstract = True
+
 class ProcessListView(ProcessCommonView, ListView):
     template_name = 'lgc/processes.html'
     model = lgc_models.Process
@@ -818,14 +852,15 @@ class ProcessListView(ProcessCommonView, ListView):
 class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
     model = lgc_models.Process
     success_message = _('Process successfully created')
-    template_name = 'lgc/generic_form.html'
+    template_name = 'lgc/process.html'
     success_url = reverse_lazy('lgc-process-create')
     title = _('New Process')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-
+        if self.model == lgc_models.Process:
+            context['available_stages'] = lgc_models.ProcessStage.objects.all()
         return context
 
     def test_func(self):
@@ -834,11 +869,11 @@ class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
     def get_form(self, form_class=lgc_forms.ProcessForm):
         return super().get_form(form_class=form_class)
 
-class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
     model = lgc_models.Process
     success_message = _('Process successfully updated')
     success_url = 'lgc-process'
-    template_name = 'lgc/generic_form.html'
+    template_name = 'lgc/process.html'
     title = _('Process')
     delete_url = 'lgc-process-delete'
 
@@ -852,7 +887,22 @@ class ProcessUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         if self.delete_url != '':
             context['delete_url'] = reverse_lazy(self.delete_url,
                                                  kwargs={'pk':self.object.id})
+        if self.model == lgc_models.Process:
+            context['available_stages'] = self.get_available_stages(self.object.stages)
+            context['stages'] = self.get_ordered_stages(self.object.id)
         return context
+
+    def form_valid(self, form):
+        if self.model != lgc_models.Process:
+            return super().form_valid(form)
+
+        """ always save the stages. This will keep their order. """
+        with transaction.atomic():
+            form.instance.stages.clear()
+            for s in form.data.getlist('stages'):
+                form.instance.stages.add(s)
+            form.instance.save()
+        return super().form_valid(form)
 
     def get_form(self, form_class=lgc_forms.ProcessForm):
         return super().get_form(form_class=form_class)
@@ -931,6 +981,7 @@ class ProcessStageCreateView(ProcessCreateView):
     success_message = _('Process stage successfully created')
     success_url = reverse_lazy('lgc-process-stage-create')
     title = _('New Process Stage')
+    template_name = 'lgc/generic_form.html'
 
     def get_form(self, form_class=lgc_forms.ProcessStageForm):
         return super().get_form(form_class=form_class)
@@ -941,6 +992,7 @@ class ProcessStageUpdateView(ProcessUpdateView):
     success_url = 'lgc-process-stage'
     title = _('Process Stage')
     delete_url = 'lgc-process-stage-delete'
+    template_name = 'lgc/generic_form.html'
 
     def get_form(self, form_class=lgc_forms.ProcessStageForm):
         return super().get_form(form_class=form_class)
@@ -991,6 +1043,15 @@ class PersonProcessListView(ProcessListView):
     create_url = ''
     item_url = 'lgc-person-process'
 
+    def get_ordering(self):
+        order_by = self.request.GET.get('order_by', 'id')
+        if order_by == 'name':
+            return 'process__name'
+        if order_by == '-name':
+            return '-process__name'
+
+        return order_by
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         for obj in context['object_list']:
@@ -999,7 +1060,6 @@ class PersonProcessListView(ProcessListView):
 
     def get_queryset(self, *args, **kwargs):
         pk = self.kwargs.get('pk', '')
-        # pk == '' already checked in urls.py
         object_list = lgc_models.PersonProcess.objects.filter(person=pk).filter(active=False)
         if object_list == None or object_list.count() == 0:
             raise Http404
@@ -1010,7 +1070,12 @@ class PersonProcessListView(ProcessListView):
         person = object_list[0].person
         self.title = (_('Archived Processes of ') +
                       "%s %s"%(person.first_name, person.last_name))
-        return object_list
+
+        term = self.request.GET.get('term', '')
+        order_by = self.get_ordering()
+        if term == '':
+            return object_list.order_by(order_by)
+        return object_list.filter(process__name__istartswith=term).order_by(order_by)
 
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');

@@ -1,0 +1,102 @@
+{% extends "lgc/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% get_current_language as LANG %}
+{% block content %}
+
+<div class="content-section">
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="form-group col-md-4">
+      </div>
+    </div>
+    {{ form.non_field_errors }}
+    <div class="form-row">
+      <div class="form-group col-md-4">
+	<fieldset class="form-group">
+	  <div class="form-group">
+	    <label for="id_name" class="col-form-label requiredField">
+              {{ form.name.label }}<span class="asteriskField">*</span>
+	    </label>
+	    <div class=""><input type="text" name="name" value="{{ form.name.value }}" maxlength="50" class="textinput textInput form-control {% if form.name.errors %}is-invalid{% endif %}" required="" id="id_name">
+	      {% for e in form.name.errors %}
+	      <p id="error_1_id_name" class="invalid-feedback"><strong>{{ e|escape }}</strong></p>
+	      {% endfor %}
+	    </div>
+	  </div>
+
+	  <label for="id_stages" class="col-form-label  requiredField">
+	    {{ form.stages.label }}<span class="asteriskField">*</span>
+	  </label>
+	  <table class="query-columns">
+	    <tbody><tr>
+		<td style="">
+		  <label for="available_c">{% trans 'Available Stages' %}</label>
+		  <br>
+		  <select class="selectmultiple form-control" name="available_columns[]" id="available_c" multiple="multiple" size="10" style="width:250px" ondblclick="moveOptions(this.form.available_c, this.form.selected_c);">
+		    {% for s in available_stages %}
+		    <option value="{{ s.id }}">
+		      {% if LANG == 'fr' %}{{ s.name_fr }}{% else %}{{ s.name_en }}{% endif %}
+		    </option>
+		    {% endfor %}
+		  </select>
+		  <p>&nbsp</p>
+		</td>
+		<td class="buttons">
+		  <input class="form-control" value="→" onclick="moveOptions(this.form.available_c, this.form.selected_c);" type="button">
+		  <input class="form-control" value="←" onclick="moveOptions(this.form.selected_c, this.form.available_c);" type="button">
+		</td>
+		<td>
+		  <label for="selected_c">{% trans 'Selected Stages' %}</label>
+		  <br>
+		  <select class="selectmultiple form-control {% if form.stages.errors %}is-invalid{% endif %}" name="stages" id="selected_c" multiple="multiple" size="10" style="width:250px" ondblclick="moveOptions(this.form.selected_c, this.form.available_c);">
+		    {% for s in stages %}
+		    <option value="{{ s.id }}">
+		      {% if LANG == 'fr' %}{{ s.name_fr }}{% else %}{{ s.name_en }}{% endif %}
+		    </option>
+		    {% endfor %}
+		  </select>
+		  {% for e in form.stages.errors %}
+		  <p id="error_1_id_stages" class="invalid-feedback"><strong>{{ e|escape }}</strong></p>
+		  {% endfor %}
+		  {% if not form.stages.errors %}
+		  <p>&nbsp</p>
+		  {% endif %}
+		</td>
+		<td class="buttons">
+		  <input class="form-control" value="⇈" onclick="moveOptionTop(this.form.selected_c);" type="button">
+		  <input class="form-control" value="↑" onclick="moveOptionUp(this.form.selected_c);" type="button">
+		  <input class="form-control" value="↓" onclick="moveOptionDown(this.form.selected_c);" type="button">
+		  <input class="form-control" value="⇊" onclick="moveOptionBottom(this.form.selected_c);" type="button">
+		</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</fieldset>
+      </div>
+    </div>
+    <div class="form-group">
+      <button class="btn btn-outline-info" type="submit">
+	{% trans "Submit" %}
+      </button>
+      {% if delete_url %}
+      <a href="{{ delete_url }}" class="btn btn-outline-danger">
+	{% trans "Delete" %}
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+{% endblock content %}
+{% block javascript %}
+<script>
+$(document).ready(function(){
+  $('.query-columns').closest('form').submit(function(){
+    $('#selected_c option').prop('selected', true);
+  });
+});
+</script>
+
+{% endblock %}
