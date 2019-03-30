@@ -10,6 +10,7 @@
 {{ consulate_prefecture }}
 <div class="row">&nbsp<br>&nbsp;</div>
 <ul class="lgc_timeline" id="lgc_timeline">
+  <div style="position:relative;top:31px;color:#3355a8"><i class="fa fa-play-circle"></i></div>
   {% for s in timeline_stages %}
   <li class="li{% if s.is_done %} complete{% endif %}">
     <div class="timestamp">
@@ -19,13 +20,18 @@
 	<span>
     </div>
     <div class="status">
-      <h4 class="tl_h">{{ s.name }}</h4>
+      <h4 class="tl_h">{{ s.name|wordwrap:18|linebreaksbr }}</h4>
     </div>
   </li>
-  {% if forloop.counter0|divisibleby:5 and not forloop.last and not forloop.first %}
-  </ul><ul class="lgc_timeline" id="lgc_timeline">
+  {% if forloop.counter0|divisibleby:4 and not forloop.last and not forloop.first %}
+  <div style="position:relative;top:30px;color:{% if s.is_done %}#3355a8{% else %}#ddd{% endif %}"><i class="fas fa-arrow-right fa-sm"></i></div>
+  </ul><ul class="lgc_timeline" id="lgc_timeline"><div style="position:relative;top:30px;color:{% if s.is_done %}#3355a8{% else %}#ddd{% endif %}"><i class="fas fa-arrow-right fa-sm"></i></div>
+
   {% endif %}
   {% endfor %}
+  {% with timeline_stages|last as last_stage %}
+  <div style="position:relative;top:31px;color:{% if last_stage.is_done %}#3355a8{% else %}#ddd{% endif %}"><i class="fa fa-stop-circle"></i></div>
+  {% endwith %}
 </ul>
 <div class="row">&nbsp</div>
 <div class="row">&nbsp</div>
