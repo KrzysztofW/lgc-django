@@ -15,17 +15,7 @@
     <div class="form-row">
       <div class="form-group col-md-4">
 	<fieldset class="form-group">
-	  <div class="form-group">
-	    <label for="id_name" class="col-form-label requiredField">
-              {{ form.name.label }}<span class="asteriskField">*</span>
-	    </label>
-	    <div class=""><input type="text" name="name" value="{{ form.name.value }}" maxlength="50" class="textinput textInput form-control {% if form.name.errors %}is-invalid{% endif %}" required="" id="id_name">
-	      {% for e in form.name.errors %}
-	      <p id="error_1_id_name" class="invalid-feedback"><strong>{{ e|escape }}</strong></p>
-	      {% endfor %}
-	    </div>
-	  </div>
-
+	  {{ form.name|as_crispy_field }}
 	  <label for="id_stages" class="col-form-label  requiredField">
 	    {{ form.stages.label }}<span class="asteriskField">*</span>
 	  </label>
