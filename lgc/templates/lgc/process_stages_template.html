@@ -7,9 +7,15 @@
   <h3>{{ person_process.process.name }}</h3>
 </div>
 <div class="row">&nbsp</div>
-<div class="form-group col-md-2">
-  {{ consulate_prefecture|crispy }}
+<div class="row">
+  <div class="form-group col-md-2">
+    {{ consulate_prefecture.consulate|as_crispy_field }}
+  </div>
+  <div class="form-group col-md-2">
+    {{ consulate_prefecture.prefecture|as_crispy_field }}
+  </div>
 </div>
+
 <div class="row">&nbsp<br>&nbsp;</div>
 <ul class="lgc_timeline" id="lgc_timeline">
   <div style="position:relative;top:31px;color:#3355a8"><i class="fa fa-play-circle"></i></div>
