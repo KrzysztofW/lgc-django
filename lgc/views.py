@@ -166,22 +166,16 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
     if obj:
         external_profile = Tab(_('Account Profile'))
         if obj.user:
-            pdiv = Div(
-                HTML(_("Click here to manage this person's account profile: ") +
-                     '&nbsp;<a href="' +
-                     str(reverse_lazy('lgc-account',
-                                      kwargs={'pk': obj.user.id})) +
-                     '">' + _('update profile') + '</a><br><br>'),
-                css_class='form-row')
+            html = (_("Click here to manage this person's account profile: ") +
+                    '&nbsp;<a href="' +
+                    str(reverse_lazy('lgc-account', kwargs={'pk': obj.user.id})) +
+                    '">' + _('update profile') + '</a><br><br>')
         else:
-            pdiv = Div(
-                HTML(_('The profile for this person does not exist. Follow this link to create it: ') +
-                     '&nbsp;<a href="' +
-                     str(reverse_lazy('lgc-account-link',
-                                      kwargs={'pk': obj.id})) +
-                     '">' + _('create profile') + '</a><br><br>'),
-                css_class='form-row')
-        external_profile.append(pdiv)
+            html = (_('The profile for this person does not exist. Follow this link to create it: ') +
+                    '&nbsp;<a href="' +
+                    str(reverse_lazy('lgc-account-link', kwargs={'pk': obj.id})) +
+                    '">' + _('create profile') + '</a><br><br>')
+            external_profile.append(Div(HTML(html), css_class='form-row'))
 
     process_tab = Tab(_('Process'))
     if archived_processes:
@@ -192,12 +186,12 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
                                 str(len(archived_processes)) +
                                 ')</a><br><br>'))
     if process_stages:
-        pdiv = None
-        process_tab.append(HTML(get_template('process_stages_template.html')))
+        pcontent = HTML(get_template('process_stages_template.html'))
     else:
-        pdiv = Div(Div('process_name', css_class='form-group col-md-4'),
-                   css_class='form-row')
-    process_tab.append(pdiv)
+        pcontent = Div(Div('process_name', css_class='form-group col-md-4'),
+                       css_class='form-row')
+    process_tab.append(pcontent)
+    billing_tab = Tab(_('Billing'))
 
     billing_tab = Tab(_('Billing'),
     )
