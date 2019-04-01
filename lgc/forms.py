@@ -200,3 +200,18 @@ class ConsulatePrefectureForm(forms.ModelForm):
     class Meta:
         model = lgc_models.PersonProcess
         fields = ['consulate', 'prefecture']
+
+class DocumentForm(forms.ModelForm):
+    document = forms.FileField(required=False, label=_('File*'))
+    description = forms.CharField(required=False, label=_('Description*'))
+
+    class Meta:
+        model = lgc_models.Document
+        fields = ['document', 'description']
+
+class DocumentFormSet(forms.ModelForm):
+    id = forms.CharField(required=True, widget=forms.HiddenInput())
+
+    class Meta:
+        model = lgc_models.Document
+        fields = ['id']

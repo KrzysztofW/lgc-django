@@ -511,6 +511,14 @@ class Person(PersonInfo, AccountCommon):
         if self.birth_date == None and Person.objects.exclude(id=self.id).filter(first_name=self.first_name, last_name=self.last_name, birth_date__isnull=True).exists():
             raise ValidationError(_('A person with this First Name, Last Name and Birth Date already exists.'))
 
+class Document(models.Model):
+    document = models.FileField(_('File'))
+    uploaded_date = models.DateTimeField(_('Uploaded'), auto_now_add=True)
+    uploaded_by = models.ForeignKey(User, verbose_name=_('Uploaded by'),
+                                    on_delete=models.SET_NULL, null=True)
+    description = models.CharField(_('Description'), max_length=50, default="")
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+
 class AuthorizationsCommon(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()

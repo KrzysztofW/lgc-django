@@ -134,4 +134,8 @@ EMAIL_HOST_PASSWORD = 'udis82udD'
 EMAIL_USE_TLS = True
 
 SITE_URL = 'http://localhost:8000'
-AUTH_TOKEN_EXPIRY=48
+AUTH_TOKEN_EXPIRY = 48
+
+MEDIA_ROOT= '/home/partage/LGC-documents'
+MEDIA_URL = '/docs/'
+MAX_FILE_SIZE = 2 # in megabytes

@@ -29,10 +29,12 @@ from django.http import Http404
 from users import models as user_models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.conf import settings
 from common import lgc_types
 import string
 import random
 import datetime
+import os
 
 contact_admin = _('Please contact your administrator.')
 
@@ -110,6 +112,7 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
                                       archived_processes):
     external_profile = None
     form.helper = FormHelper()
+    form.helper.form_tag = False
     info_tab = Tab(
         _('Information'),
         Div(Div('first_name', css_class='form-group col-md-4'),
@@ -151,9 +154,6 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
             css_class='form-row'),
     )
 
-    #if obj and obj.user:
-    #    info_tab.append(Div(Div('HR', css_class='form-group col-md-4'),
-    #                        css_class='form-row'))
     info_tab.append(Div(Div(HTML(get_template('formsets_template.html')),
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
@@ -193,15 +193,17 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
     process_tab.append(pcontent)
     billing_tab = Tab(_('Billing'))
 
-    billing_tab = Tab(_('Billing'),
-    )
-    tab_holder = TabHolder(info_tab)
+    documents_tab = Tab(_('Documents'))
+    documents_tab.append(HTML(get_template('document_form.html')))
 
+    tab_holder = TabHolder(info_tab)
     if external_profile:
         tab_holder.append(external_profile)
 
     tab_holder.append(process_tab)
     tab_holder.append(billing_tab)
+    tab_holder.append(documents_tab)
+
     layout = Layout(tab_holder)
     layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
                        action + '</button>'))
@@ -211,6 +213,7 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
 def employee_user_get_person_form_layout(form, action, obj, process):
     external_profile = None
     form.helper = FormHelper()
+    form.helper.form_tag = False
     if obj == None or obj.user == None:
         return None
 
@@ -266,6 +269,7 @@ def get_person_form_layout(cur_user, form, action, obj, process_stages,
         #return hr_user_get_person_form_layout(form, action, obj,
         # process_stages)
         return
+    return None
 
 def hr_add_employee(form_data, user_object):
     if user_object == None:
@@ -421,13 +425,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         person_process_stages = person_process_stages.filter(is_specific=False)
         return len(process_stages.all()) == len(person_process_stages.all())
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if not self.is_update:
-            context['title'] = _('New File')
-        else:
-            context['title'] = _('File')
-        context['process'] = lgc_models.PersonProcess.objects.filter(person=self.object)
+    def get_person_formsets(self):
+        formsets = []
         ChildrenFormSet = modelformset_factory(lgc_models.Child,
                                                form=lgc_forms.ChildCreateForm,
                                                can_delete=True)
@@ -444,70 +443,37 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         SpouseWorkPermitFormSet = modelformset_factory(lgc_models.SpouseWorkPermit,
                                                        form=lgc_forms.SpouseWorkPermitForm,
                                                        can_delete=True)
-        formsets = []
+
         if self.request.POST:
-            formsets.append(ChildrenFormSet(self.request.POST,
-                                            prefix='children'))
-            formsets.append(VisaFormSet(self.request.POST,
-                                        prefix='visa'))
-            formsets.append(SpouseVisaFormSet(self.request.POST,
-                                              prefix='spouse_visa'))
-            formsets.append(WorkPermitFormSet(self.request.POST,
-                                              prefix='wp'))
+            formsets.append(ChildrenFormSet(self.request.POST, prefix='children'))
+            formsets.append(VisaFormSet(self.request.POST, prefix='visa'))
+            formsets.append(SpouseVisaFormSet(self.request.POST, prefix='spouse_visa'))
+            formsets.append(WorkPermitFormSet(self.request.POST, prefix='wp'))
             formsets.append(SpouseWorkPermitFormSet(self.request.POST, prefix='spouse_wp'))
-            context['stage'] = lgc_forms.PersonProcessStageForm(self.request.POST)
+            return formsets
+
+        if self.is_update:
+            children_queryset = lgc_models.Child.objects.filter(person=self.object.id)
+            visas_queryset = lgc_models.VisaResidencePermit.objects.filter(person=self.object.id)
+            spouse_visas_queryset = lgc_models.SpouseVisaResidencePermit.objects.filter(person=self.object.id)
+            wp_queryset = lgc_models.WorkPermit.objects.filter(person=self.object.id)
+            wp_spouse_queryset = lgc_models.SpouseWorkPermit.objects.filter(person=self.object.id)
         else:
-            if not self.is_update:
-                context['form'].fields['start_date'].initial = str(datetime.date.today())
-                children_queryset = lgc_models.Child.objects.none()
-                visas_queryset = lgc_models.VisaResidencePermit.objects.none()
-                spouse_visas_queryset = lgc_models.VisaResidencePermit.objects.none()
-                wp_queryset = lgc_models.WorkPermit.objects.none()
-                wp_spouse_queryset = lgc_models.WorkPermit.objects.none()
-            else:
-                person_process = self.get_active_person_process()
-                if person_process:
-                    stages = self.get_process_stages(person_process.process)
-                else:
-                    stages = None
-                if person_process and stages and stages.count():
-                    stagesFormSet = modelformset_factory(lgc_models.PersonProcessStage,
-                                                         form=lgc_forms.PersonProcessStageForm,
-                                                         can_delete=False,
-                                                         extra=0)
-
-                    # render all the stages, only the last one should be editable
-                    person_process_stages = self.get_person_process_stages(person_process)
-                    context['stages'] = stagesFormSet(queryset=person_process_stages)
-                    context['specific_stage'] = lgc_forms.PersonProcessSpecificStageForm()
-                    context['person_process'] = person_process
-                    context['consulate_prefecture'] = lgc_forms.ConsulatePrefectureForm(instance=person_process)
-                    if self.is_process_complete(person_process.process.stages,
-                                                person_process_stages):
-                        context['stage'] = lgc_forms.UnboundFinalPersonProcessStageForm()
-                    else:
-                        context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
-                    context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
-                    context['timeline_stages'] = self.get_timeline_stages(person_process, person_process_stages)
-                    context['process_name'] = person_process.process.name
-
-                children_queryset = lgc_models.Child.objects.filter(person=self.object.id)
-                visas_queryset = lgc_models.VisaResidencePermit.objects.filter(person=self.object.id)
-                spouse_visas_queryset = lgc_models.SpouseVisaResidencePermit.objects.filter(person=self.object.id)
-                wp_queryset = lgc_models.WorkPermit.objects.filter(person=self.object.id)
-                wp_spouse_queryset = lgc_models.SpouseWorkPermit.objects.filter(person=self.object.id)
-
-            formsets.append(ChildrenFormSet(queryset=children_queryset,
-                                            prefix='children'))
-            formsets.append(VisaFormSet(queryset=visas_queryset,
-                                        prefix='visa'))
-            formsets.append(SpouseVisaFormSet(queryset=spouse_visas_queryset,
-                                              prefix='spouse_visa'))
-            formsets.append(WorkPermitFormSet(queryset=wp_queryset,
-                                              prefix='wp'))
-            formsets.append(SpouseWorkPermitFormSet(queryset=wp_spouse_queryset,
-                                                    prefix='spouse_wp'))
-
+            children_queryset = lgc_models.Child.objects.none()
+            visas_queryset = lgc_models.VisaResidencePermit.objects.none()
+            spouse_visas_queryset = lgc_models.VisaResidencePermit.objects.none()
+            wp_queryset = lgc_models.WorkPermit.objects.none()
+            wp_spouse_queryset = lgc_models.WorkPermit.objects.none()
+        formsets.append(ChildrenFormSet(queryset=children_queryset,
+                                        prefix='children'))
+        formsets.append(VisaFormSet(queryset=visas_queryset,
+                                    prefix='visa'))
+        formsets.append(SpouseVisaFormSet(queryset=spouse_visas_queryset,
+                                          prefix='spouse_visa'))
+        formsets.append(WorkPermitFormSet(queryset=wp_queryset,
+                                          prefix='wp'))
+        formsets.append(SpouseWorkPermitFormSet(queryset=wp_spouse_queryset,
+                                                prefix='spouse_wp'))
         formsets[0].title = _('Children')
         formsets[0].id = 'children_id'
         formsets[0].err_msg = _('Invalid Children table')
@@ -527,8 +493,60 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         formsets[4].title = _("Spouse's Work Permits")
         formsets[4].id = 'spouse_wp_id'
         formsets[4].err_msg = _("Invalid Spouse's Work Permits table")
+        return formsets
 
-        context['formsets'] = formsets
+    def set_person_process_stages(self, context):
+        person_process = self.get_active_person_process()
+        if person_process == None:
+            return
+
+        stages = self.get_process_stages(person_process.process)
+        if stages == None or stages.count() == 0:
+            return
+
+        stagesFormSet = modelformset_factory(lgc_models.PersonProcessStage,
+                                             form=lgc_forms.PersonProcessStageForm,
+                                             can_delete=False,
+                                             extra=0)
+
+        # render all the stages, only the last one should be editable
+        person_process_stages = self.get_person_process_stages(person_process)
+        context['stages'] = stagesFormSet(queryset=person_process_stages)
+        context['specific_stage'] = lgc_forms.PersonProcessSpecificStageForm()
+        context['person_process'] = person_process
+        context['consulate_prefecture'] = lgc_forms.ConsulatePrefectureForm(instance=person_process)
+        if self.is_process_complete(person_process.process.stages,
+                                    person_process_stages):
+            context['stage'] = lgc_forms.UnboundFinalPersonProcessStageForm()
+        else:
+            context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
+        context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
+        context['timeline_stages'] = self.get_timeline_stages(person_process, person_process_stages)
+        context['process_name'] = person_process.process.name
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        DocumentFormSet = modelformset_factory(lgc_models.Document,
+                                               form=lgc_forms.DocumentFormSet,
+                                               can_delete=True, extra=0)
+
+        context['docs'] = DocumentFormSet(prefix='docs')
+        context['process'] = lgc_models.PersonProcess.objects.filter(person=self.object)
+        context['formsets'] = self.get_person_formsets()
+        self.set_person_process_stages(context)
+
+        if self.request.POST:
+            context['stage'] = lgc_forms.PersonProcessStageForm(self.request.POST)
+            context['doc'] = lgc_forms.DocumentForm(self.request.POST,
+                                                     self.request.FILES)
+            context['deleted_docs'] = DocumentFormSet(self.request.POST, self.request.FILES,
+                                                      prefix='docs')
+        else:
+            context['doc'] = lgc_forms.DocumentForm()
+            if not self.is_update:
+                context['form'].fields['start_date'].initial = str(datetime.date.today())
+
         return context
 
     def save_formset_instances(self, instances):
@@ -540,7 +558,6 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         form.instance.modified_by = self.request.user
         if form.instance.start_date == None:
             form.instance.start_date = str(datetime.date.today())
-
         context = self.get_context_data()
 
         with transaction.atomic():
@@ -560,6 +577,41 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             for formset in context['formsets']:
                 instances = formset.save(commit=False)
                 self.save_formset_instances(instances)
+            doc = context['doc']
+            if not doc.is_valid():
+                messages.error(self.request, _('Invalid document.'))
+                return self.form_invalid(form)
+
+            if doc.cleaned_data['document'] != None:
+                if doc.cleaned_data['description'] == '':
+                    messages.error(self.request, _('Invalid document description.'))
+                    return self.form_invalid(form)
+                doc.instance = lgc_models.Document()
+                doc.instance.document = doc.cleaned_data['document']
+
+                if doc.instance.document.size > settings.MAX_FILE_SIZE << 20:
+                    messages.error(self.request, _('File too big. Maximum file size is %dM.')%
+                                   settings.MAX_FILE_SIZE)
+                    return self.form_invalid(form)
+
+                docs = lgc_models.Document.objects.filter(person=self.object)
+                for d in docs.all():
+                    if d.document.name != doc.instance.document.name:
+                        continue
+                    messages.error(self.request, _("File `%s' already exists.")%
+                                   d.document.name)
+                    return self.form_invalid(form)
+
+                doc.instance.description = doc.cleaned_data['description']
+                doc.instance.person = form.instance
+                doc.instance.uploaded_by = self.request.user
+                doc.save()
+
+            for d in context['deleted_docs'].deleted_forms:
+                if d.instance.id != None:
+                    d.instance.delete()
+                    os.remove(os.path.join(settings.MEDIA_ROOT,
+                                           d.instance.document.name))
 
         person_process = self.get_active_person_process()
         if form.cleaned_data['process_name'] and person_process == None:
@@ -572,36 +624,37 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
 
             if process_stages == None:
                 messages.error(self.request, 'The process has no stages.')
-                return super().form_valid(form)
+                return super().form_invalid(form)
 
             first_stage = self.get_next_process_stage(None, person_process.process.id)
             if first_stage == None:
                 messages.error(self.request,
                                _('Cannot find the first stage of the process.'))
-                return super().form_valid(form)
+                return super().form_invalid(form)
 
             person_process.save()
             self.generate_next_person_process_stage(person_process,
                                                     first_stage.name_fr,
                                                     first_stage.name_en)
             return super().form_valid(form)
+
         elif person_process == None:
             return super().form_invalid(form)
 
         process_stages = self.get_process_stages(person_process.process)
         if process_stages == None:
             messages.error(self.request, 'The process has no stages.')
-            return super().form_valid(form)
+            return super().form_invalid(form)
 
         person_process_stages = self.get_person_process_stages(person_process)
         if person_process_stages == None:
             messages.error(self.request, 'The person process has no stages.')
-            return super().form_valid(form)
+            return super().form_invalid(form)
 
         person_process_stage = self.get_last_person_process_stage(person_process_stages)
         if person_process_stage == None:
             messages.error(self.request, 'Cannot get the person process last stage.')
-            return super().form_valid(form)
+            return super().form_invalid(form)
 
         if self.is_process_complete(person_process.process.stages,
                                     person_process_stages):
@@ -635,7 +688,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                 specific_stage.cleaned_data['name_fr'] == '' or
                 specific_stage.cleaned_data['name_en'] == ''):
                 messages.error(self.request, _('Invalid specific stage name'))
-                return super().form_valid(form)
+                return super().form_invalid(form)
             self.generate_next_person_process_stage(person_process,
                                                     specific_stage.cleaned_data['name_fr'],
                                                     specific_stage.cleaned_data['name_en'],
@@ -672,10 +725,12 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         abstract = True
 
 class PersonCreateView(PersonCommonView, CreateView):
+    title = _('New File')
     is_update = False
     success_message = _('File successfully created')
 
 class PersonUpdateView(PersonCommonView, UpdateView):
+    title = _('File')
     is_update = True
     success_message = _('File successfully updated')
 
@@ -1493,3 +1548,22 @@ def ajax_file_search_view(request):
         'users': files
     }
     return render(request, 'users/search.html', context)
+
+@login_required
+def download_file(request, *args, **kwargs):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    pk = kwargs.get('pk', '')
+    doc = lgc_models.Document.objects.filter(id=pk).all()
+    if doc == None or len(doc) != 1:
+        raise Http404
+
+    file_path = os.path.join(settings.MEDIA_ROOT, doc[0].document.name)
+    if not os.path.exists(file_path):
+        raise Http404
+    with open(file_path, 'rb') as fh:
+        res = http.HttpResponse(fh.read(), content_type='application/octet-stream')
+        res['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+        return res
+    raise Http404

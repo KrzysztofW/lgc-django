@@ -60,4 +60,5 @@ urlpatterns = [
     path('person-process-search/ajax/<int:pk>', views.ajax_person_process_search_view,
          name='lgc-person-process-search-ajax'),
 
+    path('download/<int:pk>/', views.download_file, name='lgc-download-file'),
 ]
