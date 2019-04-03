@@ -425,6 +425,27 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         person_process_stages = person_process_stages.filter(is_specific=False)
         return len(process_stages.all()) == len(person_process_stages.all())
 
+    def set_person_formsets_data(self, formsets):
+        formsets[0].title = _('Children')
+        formsets[0].id = 'children_id'
+        formsets[0].err_msg = _('Invalid Children table')
+
+        formsets[1].title = _('Visas or Residence Permits')
+        formsets[1].id = 'visas_id'
+        formsets[1].err_msg = _('Invalid Visas table')
+
+        formsets[2].title = _("Spouse's Visas or Residence Permits")
+        formsets[2].id = 'spouse_visas_id'
+        formsets[2].err_msg = _("Invalid Spouse's Visas table")
+
+        formsets[3].title = _('Work Permits')
+        formsets[3].id = 'wp_id'
+        formsets[3].err_msg = _('Invalid Work Permits table')
+
+        formsets[4].title = _("Spouse's Work Permits")
+        formsets[4].id = 'spouse_wp_id'
+        formsets[4].err_msg = _("Invalid Spouse's Work Permits table")
+
     def get_person_formsets(self):
         formsets = []
         ChildrenFormSet = modelformset_factory(lgc_models.Child,
@@ -450,6 +471,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             formsets.append(SpouseVisaFormSet(self.request.POST, prefix='spouse_visa'))
             formsets.append(WorkPermitFormSet(self.request.POST, prefix='wp'))
             formsets.append(SpouseWorkPermitFormSet(self.request.POST, prefix='spouse_wp'))
+            self.set_person_formsets_data(formsets)
             return formsets
 
         if self.is_update:
@@ -474,25 +496,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                                           prefix='wp'))
         formsets.append(SpouseWorkPermitFormSet(queryset=wp_spouse_queryset,
                                                 prefix='spouse_wp'))
-        formsets[0].title = _('Children')
-        formsets[0].id = 'children_id'
-        formsets[0].err_msg = _('Invalid Children table')
-
-        formsets[1].title = _('Visas or Residence Permits')
-        formsets[1].id = 'visas_id'
-        formsets[1].err_msg = _('Invalid Visas table')
-
-        formsets[2].title = _("Spouse's Visas or Residence Permits")
-        formsets[2].id = 'spouse_visas_id'
-        formsets[2].err_msg = _("Invalid Spouse's Visas table")
-
-        formsets[3].title = _('Work Permits')
-        formsets[3].id = 'wp_id'
-        formsets[3].err_msg = _('Invalid Work Permits table')
-
-        formsets[4].title = _("Spouse's Work Permits")
-        formsets[4].id = 'spouse_wp_id'
-        formsets[4].err_msg = _("Invalid Spouse's Work Permits table")
+        self.set_person_formsets_data(formsets)
         return formsets
 
     def set_person_process_stages(self, context):
