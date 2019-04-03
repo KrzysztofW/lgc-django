@@ -1,9 +1,5 @@
-{% load i18n %}
-{% load static %}
-{% load crispy_forms_tags %}
-
-<!DOCTYPE html>
-<html lang="en">
+{% load i18n %}{% load static %}{% load crispy_forms_tags %}{% get_current_language as LANGUAGE_CODE %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
   {% include "lgc/header.html" %}
   <body>
     <div class="top-right-corner">
@@ -12,13 +8,19 @@
     <div class="bottom-right-corner">
       <img src="{% static 'lgc/images/bottom-corner.png' %}"/>
     </div>
+
     {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }}">
-      {{ message }}
+    {% if message.tags == "error" %}
+      <div class="alert alert-danger">
+    {% else %}
+      <div class="alert alert-{{ message.tags }}">
+    {% endif %}
+    {{ message }}
     </div>
     {% endfor %}
     {% endif %}
+
     <div class="container">
       <div class="row">
 	<div class="col-lg-8 mx-md-auto">
@@ -35,12 +37,6 @@
               <form role="form" method="POST">
 		{% csrf_token %}
 		<fieldset class="form-group">
-		  <!--div class="form-group">
-                    <input class="form-control" placeholder="{% trans "Password" %}" name="password1" type="password" autofocus required="">
-		  </div>
-		  <div class="form-group">
-                    <input class="form-control" placeholder="{% trans "Repeat the password" %}" name="password" type="password2" required="">
-		  </div-->
 		  {{ form|crispy }}
 		  <div class="form-check">
                     <label class="form-check-label">

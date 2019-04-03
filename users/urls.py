@@ -4,7 +4,7 @@ from . import views
 from .views import UserListView, UserDeleteView
 
 urlpatterns = [
-    path('login/', auth_views.LoginView.as_view(template_name='users/login.html'),
+    path('login/', views.LoginView.as_view(template_name='users/login.html'),
          name='lgc-login'),
     path('logout/', views.logout_then_login_with_msg, name='lgc-logout'),
     path('create/', views.create, name='lgc-user-create'),

@@ -1372,6 +1372,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         if form.cleaned_data['new_token']:
             form.instance.token = token_generator()
             form.instance.token_date = timezone.now()
+            form.instance.password = ''
             if self.is_hr:
                 type = lgc_types.MsgType.NEW_HR
             else:

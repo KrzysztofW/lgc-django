@@ -135,6 +135,7 @@ EMAIL_USE_TLS = True
 
 SITE_URL = 'http://localhost:8000'
 AUTH_TOKEN_EXPIRY = 48
+AUTH_PASSWORD_EXPIRY = 3 * 30
 
 MEDIA_ROOT= '/home/partage/LGC-documents'
 MEDIA_URL = '/docs/'

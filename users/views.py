@@ -6,18 +6,21 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import logout_then_login
+from django.contrib.auth.views import logout_then_login, LoginView as authLoginView
+from django.contrib.auth import logout
 from django.utils.translation import ugettext as _
 from django.utils import translation
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from . import forms as user_forms
 from lgc import models as lgc_models
+from lgc.views import token_generator
 from django.views.generic import (ListView, DetailView, CreateView,
                                   UpdateView, DeleteView)
+from django.contrib.auth.hashers import check_password
 from django.utils import timezone
 from django.conf import settings
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 from . import models as user_models
 User = get_user_model()
 
@@ -226,6 +229,25 @@ def update_profile(request):
     }
     return render(request, 'users/create.html', context)
 
+class LoginView(authLoginView):
+    def form_valid(self, form):
+        form = super().form_valid(form)
+        if self.request.user.role in user_models.get_internal_roles():
+            return form
+
+        if (self.request.user.password_last_update == None or
+            self.request.user.password_last_update + timedelta(days=settings.AUTH_PASSWORD_EXPIRY) < timezone.now().date()):
+            messages.error(self.request, _('Your password has expired. Please choose a new one'))
+            token = token_generator()
+            self.request.user.token = token
+            self.request.user.token_date = timezone.now()
+            self.request.user.save()
+            logout(self.request)
+            response = redirect('lgc-token')
+            response['Location'] += '?token=' + token
+            return response
+        return form
+
 @login_required
 def logout_then_login_with_msg(request):
     messages.success(request, _('You were successfully logged-out.'))
@@ -266,34 +288,52 @@ def handle_auth_token(request):
             return render(request, 'users/token_bad.html', context)
 
     user = user.get()
-    if user == None:
-        return render(request, 'users/token_bad.html', context)
-    if user.token_date + timedelta(hours=settings.AUTH_TOKEN_EXPIRY) < timezone.now():
+    if user == None or user.token_date + timedelta(hours=settings.AUTH_TOKEN_EXPIRY) < timezone.now():
         return render(request, 'users/token_bad.html', context)
 
     context['user'] = user
     if request.method == 'POST':
-        form = user_forms.UserPasswordUpdateForm(request.POST, instance=user)
+        if user.password == '':
+            form = user_forms.UserPasswordUpdateForm(request.POST, instance=user)
+        else:
+            form = user_forms.UserForcePasswordUpdateForm(request.POST, instance=user)
+        context['form'] = form
         terms = request.POST.get('terms', '')
-        if form.is_valid() and terms == '1':
-            form.instance.token = ''
-            form.instance.token_date = None
-            form.save()
-            if not hasattr(form.instance, 'person_user_set'):
-                p = lgc_models.Person()
-                p.first_name = form.instance.first_name
-                p.last_name = form.instance.last_name
-                p.email = form.instance.email
-                p.modified_by = form.instance
-                p.user = form.instance
-                p.save()
-            messages.success(request,
-                             _('The password for %s %s has been successfully set') %
-                             (user.first_name, user.last_name))
-            return redirect('lgc-login')
+
+        if not form.is_valid() or terms != '1':
+            return render(request, 'users/token.html', context)
+
+        if user.password != '':
+            if not check_password(form.cleaned_data['current_password'], form.instance.password):
+                messages.error(request, _('The current password does not match.'))
+                return render(request, 'users/token.html', context)
+            if form.cleaned_data['current_password'] == form.cleaned_data['password1']:
+                messages.error(request,
+                               _('The new password and the old one must be different.'))
+                return render(request, 'users/token.html', context)
+        form.instance.token = ''
+        form.instance.token_date = None
+        form.instance.GDPR_accepted = True
+        form.instance.password_last_update = timezone.now().date()
+        form.save()
+        if not hasattr(form.instance, 'person_user_set'):
+            p = lgc_models.Person()
+            p.first_name = form.instance.first_name
+            p.last_name = form.instance.last_name
+            p.email = form.instance.email
+            p.modified_by = form.instance
+            p.user = form.instance
+            p.save()
+        messages.success(request,
+                         _('The password for %s %s has been successfully set') %
+                         (user.first_name, user.last_name))
+        return redirect('lgc-login')
     else:
-        form = user_forms.UserPasswordUpdateForm()
-    context['form'] = form
+        if user.password == '':
+            form = user_forms.UserPasswordUpdateForm()
+        else:
+            form = user_forms.UserForcePasswordUpdateForm()
+        context['form'] = form
     return render(request, 'users/token.html', context)
 
 @login_required

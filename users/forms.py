@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from users import models as user_models
-
+from django.utils.translation import ugettext as _
 User = get_user_model()
 
 class UserCreateForm(UserCreationForm):
@@ -30,4 +30,14 @@ class UserPasswordUpdateForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['password1', 'password2']
+
+class UserForcePasswordUpdateForm(UserPasswordUpdateForm):
+    current_password = forms.CharField(required=False, label=_('Current password'),
+                                       min_length=6, widget=forms.PasswordInput())
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].label = _('New password')
+    class Meta:
+        model = User
+        fields = ['current_password', 'password1', 'password2']
 
