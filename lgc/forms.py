@@ -1,10 +1,24 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
+from crispy_forms.bootstrap import Tab
+from django.template.loader import render_to_string
+
 from . import models as lgc_models
 from users import models as user_models
 from django.contrib.auth import get_user_model
 User = get_user_model()
+
+class LgcTab(Tab):
+    link_template = 'lgc/lgc_tab.html'
+    lgc_active = False
+
+    def render_link(self, *args, **kwargs):
+        return render_to_string(self.link_template, {'link': self})
+
+    def __init__(self, *args, **kwargs):
+        self.lgc_active = kwargs.get("active", False)
+        super().__init__(*args, **kwargs)
 
 class PersonCreateForm(forms.ModelForm):
     birth_date = forms.DateField(widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Birth Date'))

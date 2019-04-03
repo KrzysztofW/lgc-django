@@ -17,6 +17,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from . import models as lgc_models
 from . import forms as lgc_forms
+from .forms import LgcTab
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML, MultiField
 from crispy_forms.bootstrap import (
@@ -113,7 +114,7 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
     external_profile = None
     form.helper = FormHelper()
     form.helper.form_tag = False
-    info_tab = Tab(
+    info_tab = LgcTab(
         _('Information'),
         Div(Div('first_name', css_class='form-group col-md-4'),
             Div('last_name', css_class='form-group col-md-4'),
@@ -164,7 +165,7 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
             css_class='form-row'))
 
     if obj:
-        external_profile = Tab(_('Account Profile'))
+        external_profile = LgcTab(_('Account Profile'))
         if obj.user:
             html = (_("Click here to manage this person's account profile: ") +
                     '&nbsp;<a href="' +
@@ -177,7 +178,7 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
                     '">' + _('create profile') + '</a><br><br>')
             external_profile.append(Div(HTML(html), css_class='form-row'))
 
-    process_tab = Tab(_('Process'))
+    process_tab = LgcTab(_('Process'))
     if archived_processes:
         process_tab.append(HTML('<a href="' +
                                 str(reverse_lazy('lgc-person-processes',
@@ -191,9 +192,9 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
         pcontent = Div(Div('process_name', css_class='form-group col-md-4'),
                        css_class='form-row')
     process_tab.append(pcontent)
-    billing_tab = Tab(_('Billing'))
+    billing_tab = LgcTab(_('Billing'))
 
-    documents_tab = Tab(_('Documents'))
+    documents_tab = LgcTab(_('Documents'))
     documents_tab.append(HTML(get_template('document_form.html')))
 
     tab_holder = TabHolder(info_tab)
@@ -217,7 +218,7 @@ def employee_user_get_person_form_layout(form, action, obj, process):
     if obj == None or obj.user == None:
         return None
 
-    info_tab = Tab(
+    info_tab = LgcTab(
         _('Information'),
         Div(Div('first_name', css_class='form-group col-md-4'),
             Div('last_name', css_class='form-group col-md-4'),
@@ -243,7 +244,7 @@ def employee_user_get_person_form_layout(form, action, obj, process):
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
 
-    process_tab = Tab(_('Process'))
+    process_tab = LgcTab(_('Process'))
     process_tab.append(Div(Div('process_name', css_class='form-group col-md-4'),
                            css_class='form-row'))
 
@@ -1181,9 +1182,9 @@ def get_hr_account_form(form, action, uid, new_token=False, show_tabs=True):
     form.helper = FormHelper()
     if show_tabs:
         form.helper.layout = Layout(TabHolder(
-            Tab(_('Information'), get_account_layout(Layout(), new_token,
+            LgcTab(_('Information'), get_account_layout(Layout(), new_token,
                                                      True, uid)),
-            Tab(_('Employees'),
+            LgcTab(_('Employees'),
                 Div(Div(HTML(get_template('employee_list.html')),
                         css_class="form-group col-md-10"),
                     css_class="form-row")),
