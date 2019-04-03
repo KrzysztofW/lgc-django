@@ -23,6 +23,12 @@ SET global log_output = 'FILE';
 SET global general_log_file='/tmp/mysqld.log';
 SET global general_log = 1;
 
+
+migrations debugging
+====================
+
+python3 ./manage.py sqlmigrate lgc 0030
+
 -------
 ./manage.py makemessages -l fr
 ./manage.py compilemessages
