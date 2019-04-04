@@ -114,9 +114,11 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
     external_profile = None
     form.helper = FormHelper()
     form.helper.form_tag = False
+
     info_tab = LgcTab(
         _('Information'),
-        Div(Div('first_name', css_class='form-group col-md-4'),
+        Div(Div('active_tab'),
+            Div('first_name', css_class='form-group col-md-4'),
             Div('last_name', css_class='form-group col-md-4'),
             css_class='form-row'),
         Div(Div('email', css_class='form-group col-md-4'),
@@ -542,12 +544,17 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         self.set_person_process_stages(context)
 
         if self.request.POST:
+            self.request.session['active_tab'] = self.request.POST.get('active_tab')
             context['stage'] = lgc_forms.PersonProcessStageForm(self.request.POST)
             context['doc'] = lgc_forms.DocumentForm(self.request.POST,
                                                      self.request.FILES)
             context['deleted_docs'] = DocumentFormSet(self.request.POST, self.request.FILES,
                                                       prefix='docs')
         else:
+            active_tab = self.request.session.get('active_tab')
+            if active_tab:
+                del self.request.session['active_tab']
+                context['form'].fields['active_tab'].initial = active_tab
             context['doc'] = lgc_forms.DocumentForm()
             if not self.is_update:
                 context['form'].fields['start_date'].initial = str(datetime.date.today())
@@ -585,19 +592,19 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             doc = context['doc']
             if not doc.is_valid():
                 messages.error(self.request, _('Invalid document.'))
-                return self.form_invalid(form)
+                return super().form_invalid(form)
 
             if doc.cleaned_data['document'] != None:
                 if doc.cleaned_data['description'] == '':
                     messages.error(self.request, _('Invalid document description.'))
-                    return self.form_invalid(form)
+                    return super().form_invalid(form)
                 doc.instance = lgc_models.Document()
                 doc.instance.document = doc.cleaned_data['document']
 
                 if doc.instance.document.size > settings.MAX_FILE_SIZE << 20:
                     messages.error(self.request, _('File too big. Maximum file size is %dM.')%
                                    settings.MAX_FILE_SIZE)
-                    return self.form_invalid(form)
+                    return super().form_invalid(form)
 
                 docs = lgc_models.Document.objects.filter(person=self.object)
                 for d in docs.all():
@@ -605,7 +612,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                         continue
                     messages.error(self.request, _("File `%s' already exists.")%
                                    d.document.name)
-                    return self.form_invalid(form)
+                    return super().form_invalid(form)
 
                 doc.instance.description = doc.cleaned_data['description']
                 doc.instance.person = form.instance
@@ -644,8 +651,9 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             return super().form_valid(form)
 
         elif person_process == None:
-            return super().form_invalid(form)
+            return super().form_valid(form)
 
+        # Process handling
         process_stages = self.get_process_stages(person_process.process)
         if process_stages == None:
             messages.error(self.request, 'The process has no stages.')
@@ -705,8 +713,14 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
 
         person_process.save()
         person_process_stage.save()
+        # do not add anything not related to processes
 
         return super().form_valid(form)
+
+    def get_active_tab(self):
+        if self.request.POST:
+            return self.request.POST.get('active_tab')
+        return None
 
     def get_form(self, form_class=lgc_forms.PersonCreateForm):
         form = super().get_form(form_class=form_class)
@@ -717,14 +731,6 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                                       self.object,
                                       self.get_active_person_process(),
                                       lgc_models.PersonProcess.objects.filter(person=self.object.id).filter(active=False))
-
-    def form_invalid(self, form):
-        context = self.get_context_data()
-
-        for formset in context['formsets']:
-            if not formset.is_valid():
-                messages.error(self.request, formset.err_msg)
-        return super().form_invalid(form)
 
     class Meta:
         abstract = True

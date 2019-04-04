@@ -1,7 +1,7 @@
 {% load i18n %}{% load static %}{% get_current_language as LANGUAGE_CODE %}<!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
   {% include "lgc/header.html" %}
-  <body>
+  <body onload="get_lgc_links();">
     {% if messages %}
     {% for message in messages %}
     {% if message.tags == "error" %}

@@ -17,10 +17,11 @@ class LgcTab(Tab):
         return render_to_string(self.link_template, {'link': self})
 
     def __init__(self, *args, **kwargs):
-        self.lgc_active = kwargs.get("active", False)
+        self.lgc_active = kwargs.get("lgc_active", False)
         super().__init__(*args, **kwargs)
 
 class PersonCreateForm(forms.ModelForm):
+    active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
     birth_date = forms.DateField(widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
