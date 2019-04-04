@@ -223,7 +223,8 @@ def employee_user_get_person_form_layout(form, action, obj, process):
 
     info_tab = LgcTab(
         _('Information'),
-        Div(Div('first_name', css_class='form-group col-md-4'),
+        Div(Div('active_tab'),
+            Div('first_name', css_class='form-group col-md-4'),
             Div('last_name', css_class='form-group col-md-4'),
             css_class='form-row'),
         Div(Div('email', css_class='form-group col-md-4'),
@@ -247,12 +248,15 @@ def employee_user_get_person_form_layout(form, action, obj, process):
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
 
-    process_tab = LgcTab(_('Process'))
-    process_tab.append(Div(Div('process_name', css_class='form-group col-md-4'),
-                           css_class='form-row'))
-
     tab_holder = TabHolder(info_tab)
-    tab_holder.append(process_tab)
+    if process:
+        process_tab = LgcTab(_('Process'))
+        process_tab.append(HTML(get_template('process_stages_template.html')))
+        tab_holder.append(process_tab)
+
+    documents_tab = LgcTab(_('Documents'))
+    documents_tab.append(HTML(get_template('document_form.html')))
+    tab_holder.append(documents_tab)
 
     layout = Layout(tab_holder)
     layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
@@ -307,6 +311,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         return reverse_lazy('lgc-file', kwargs={'pk': self.object.id})
 
     def get_active_person_process(self):
+        if self.object == None:
+            return
         process = lgc_models.PersonProcess.objects.filter(person=self.object.id).filter(active=True)
         if process.count() > 1:
             messages.error(self.request,
@@ -521,7 +527,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         person_process_stages = self.get_person_process_stages(person_process)
         context['stages'] = stagesFormSet(queryset=person_process_stages)
         context['specific_stage'] = lgc_forms.PersonProcessSpecificStageForm()
-        context['person_process'] = person_process
+        if self.request.user.role in user_models.get_internal_roles():
+            context['person_process'] = person_process
         context['consulate_prefecture'] = lgc_forms.ConsulatePrefectureForm(instance=person_process)
         if self.is_process_complete(person_process.process.stages,
                                     person_process_stages):
@@ -539,8 +546,9 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                                                form=lgc_forms.DocumentFormSet,
                                                can_delete=True, extra=0)
 
-        context['docs'] = DocumentFormSet(prefix='docs')
-        context['process'] = lgc_models.PersonProcess.objects.filter(person=self.object)
+        if self.object:
+            context['docs'] = DocumentFormSet(prefix='docs', queryset=lgc_models.Document.objects.filter(person=self.object))
+            context['process'] = lgc_models.PersonProcess.objects.filter(person=self.object)
         context['formsets'] = self.get_person_formsets()
         self.set_person_process_stages(context)
 
@@ -566,6 +574,99 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         for i in instances:
             i.person_id = self.object.id
             i.save()
+
+    def process_form_valid(self, form):
+        if self.request.user.role not in user_models.get_internal_roles():
+            return 0
+        person_process = self.get_active_person_process()
+        if form.cleaned_data['process_name'] and person_process == None:
+            person_process = lgc_models.PersonProcess()
+            person_process.person = self.object
+            person_process.process = form.cleaned_data['process_name']
+            person_process.consulate = form.cleaned_data['consulate']
+            person_process.prefecture = form.cleaned_data['prefecture']
+            process_stages = self.get_process_stages(person_process.process)
+
+            if process_stages == None:
+                messages.error(self.request, 'The process has no stages.')
+                return -1
+
+            first_stage = self.get_next_process_stage(None, person_process.process.id)
+            if first_stage == None:
+                messages.error(self.request,
+                               _('Cannot find the first stage of the process.'))
+                return -1
+
+            person_process.save()
+            self.generate_next_person_process_stage(person_process,
+                                                    first_stage.name_fr,
+                                                    first_stage.name_en)
+            return 0
+
+        elif person_process == None:
+            return 0
+
+        # Process handling
+        process_stages = self.get_process_stages(person_process.process)
+        if process_stages == None:
+            messages.error(self.request, 'The process has no stages.')
+            return -1
+
+        person_process_stages = self.get_person_process_stages(person_process)
+        if person_process_stages == None:
+            messages.error(self.request, 'The person process has no stages.')
+            return -1
+
+        person_process_stage = self.get_last_person_process_stage(person_process_stages)
+        if person_process_stage == None:
+            messages.error(self.request, 'Cannot get the person process last stage.')
+            return -1
+
+        if self.is_process_complete(person_process.process.stages,
+                                    person_process_stages):
+            stage_form = lgc_forms.UnboundFinalPersonProcessStageForm(self.request.POST)
+        else:
+            stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
+        if not stage_form.is_valid():
+            return -1
+        if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_DELETE:
+            if person_process_stages.count() == 1:
+                person_process_stage.delete()
+                person_process.delete()
+                return 0
+
+            person_process_stage.delete()
+            messages.success(self.request, _('Last stage deleted'))
+            return 0
+
+        person_process_stage.stage_comments = stage_form.cleaned_data['stage_comments']
+
+        if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_VALIDATE:
+            next_process_stage = self.get_next_process_stage(person_process_stages,
+                                                             person_process.process.id)
+            if next_process_stage != None:
+                self.generate_next_person_process_stage(person_process,
+                                                        next_process_stage.name_fr,
+                                                        next_process_stage.name_en)
+        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
+            specific_stage = lgc_forms.PersonProcessSpecificStageForm(self.request.POST)
+            if (not specific_stage.is_valid() or
+                specific_stage.cleaned_data['name_fr'] == '' or
+                specific_stage.cleaned_data['name_en'] == ''):
+                messages.error(self.request, _('Invalid specific stage name'))
+                return -1
+            self.generate_next_person_process_stage(person_process,
+                                                    specific_stage.cleaned_data['name_fr'],
+                                                    specific_stage.cleaned_data['name_en'],
+                                                    is_specific=True)
+        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ARCHIVE:
+            person_process.active = False
+        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_GEN_INVOICE_AND_ARCHIVE:
+            person_process.active = False
+
+        person_process.save()
+        person_process_stage.save()
+        return 0
 
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
@@ -626,95 +727,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                     os.remove(os.path.join(settings.MEDIA_ROOT,
                                            d.instance.document.name))
 
-        person_process = self.get_active_person_process()
-        if form.cleaned_data['process_name'] and person_process == None:
-            person_process = lgc_models.PersonProcess()
-            person_process.person = self.object
-            person_process.process = form.cleaned_data['process_name']
-            person_process.consulate = form.cleaned_data['consulate']
-            person_process.prefecture = form.cleaned_data['prefecture']
-            process_stages = self.get_process_stages(person_process.process)
-
-            if process_stages == None:
-                messages.error(self.request, 'The process has no stages.')
-                return super().form_invalid(form)
-
-            first_stage = self.get_next_process_stage(None, person_process.process.id)
-            if first_stage == None:
-                messages.error(self.request,
-                               _('Cannot find the first stage of the process.'))
-                return super().form_invalid(form)
-
-            person_process.save()
-            self.generate_next_person_process_stage(person_process,
-                                                    first_stage.name_fr,
-                                                    first_stage.name_en)
-            return super().form_valid(form)
-
-        elif person_process == None:
-            return super().form_valid(form)
-
-        # Process handling
-        process_stages = self.get_process_stages(person_process.process)
-        if process_stages == None:
-            messages.error(self.request, 'The process has no stages.')
+        if self.process_form_valid(form) < 0:
             return super().form_invalid(form)
-
-        person_process_stages = self.get_person_process_stages(person_process)
-        if person_process_stages == None:
-            messages.error(self.request, 'The person process has no stages.')
-            return super().form_invalid(form)
-
-        person_process_stage = self.get_last_person_process_stage(person_process_stages)
-        if person_process_stage == None:
-            messages.error(self.request, 'Cannot get the person process last stage.')
-            return super().form_invalid(form)
-
-        if self.is_process_complete(person_process.process.stages,
-                                    person_process_stages):
-            stage_form = lgc_forms.UnboundFinalPersonProcessStageForm(self.request.POST)
-        else:
-            stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
-        if not stage_form.is_valid():
-            return super().form_invalid(form)
-        if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_DELETE:
-            if person_process_stages.count() == 1:
-                person_process_stage.delete()
-                person_process.delete()
-                return super().form_valid(form)
-
-            person_process_stage.delete()
-            messages.success(self.request, _('Last stage deleted'))
-            return super().form_valid(form)
-
-        person_process_stage.stage_comments = stage_form.cleaned_data['stage_comments']
-
-        if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_VALIDATE:
-            next_process_stage = self.get_next_process_stage(person_process_stages,
-                                                             person_process.process.id)
-            if next_process_stage != None:
-                self.generate_next_person_process_stage(person_process,
-                                                        next_process_stage.name_fr,
-                                                        next_process_stage.name_en)
-        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
-            specific_stage = lgc_forms.PersonProcessSpecificStageForm(self.request.POST)
-            if (not specific_stage.is_valid() or
-                specific_stage.cleaned_data['name_fr'] == '' or
-                specific_stage.cleaned_data['name_en'] == ''):
-                messages.error(self.request, _('Invalid specific stage name'))
-                return super().form_invalid(form)
-            self.generate_next_person_process_stage(person_process,
-                                                    specific_stage.cleaned_data['name_fr'],
-                                                    specific_stage.cleaned_data['name_en'],
-                                                    is_specific=True)
-        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ARCHIVE:
-            person_process.active = False
-        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_GEN_INVOICE_AND_ARCHIVE:
-            person_process.active = False
-
-        person_process.save()
-        person_process_stage.save()
-        # do not add anything not related to processes
 
         return super().form_valid(form)
 
@@ -724,6 +738,10 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         return None
 
     def get_form(self, form_class=lgc_forms.PersonCreateForm):
+        if self.request.user.role in user_models.get_internal_roles():
+            form_class = lgc_forms.PersonCreateForm
+        else:
+            form_class = lgc_forms.EmployeeUpdateForm
         form = super().get_form(form_class=form_class)
         if not self.is_update:
             return get_person_form_layout(self.request.user, form,

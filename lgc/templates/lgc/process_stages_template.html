@@ -4,9 +4,12 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 <div class="lgc_center">
+  {% if person_process %}
   <h3>{{ person_process.process.name }}</h3>
+  {% endif %}
 </div>
 <div class="row">&nbsp</div>
+{% if person_process %}
 <div class="row">
   <div class="form-group col-md-2">
     {{ consulate_prefecture.consulate|as_crispy_field }}
@@ -15,6 +18,7 @@
     {{ consulate_prefecture.prefecture|as_crispy_field }}
   </div>
 </div>
+{% endif %}
 
 <div class="row">&nbsp<br>&nbsp;</div>
 <ul class="lgc_timeline" id="lgc_timeline">
@@ -77,7 +81,7 @@
     {% endif %}
   </div>
 </div>
-{% if stage %}
+{% if stage and person_process %}
 <div class="form-row">
   <div class="form-group col-md-4">
     <div class="form-group">
