@@ -52,6 +52,15 @@ def token_generator():
         if len(User.objects.filter(token=r)) == 0:
             return r
 
+def set_active_tab(obj, context):
+    if obj.request.POST:
+            obj.request.session['active_tab'] = obj.request.POST.get('active_tab')
+            return
+    active_tab = obj.request.session.get('active_tab')
+    if active_tab:
+        del obj.request.session['active_tab']
+        context['form'].fields['active_tab'].initial = active_tab
+
 @login_required
 def home(request):
     return render(request, 'lgc/index.html', {'title':'Home'})
@@ -274,8 +283,6 @@ def get_person_form_layout(cur_user, form, action, obj, process_stages,
         return employee_user_get_person_form_layout(form, action, obj,
                                                     process_stages)
     if cur_user.role in user_model.get_hr_roles():
-        #return hr_user_get_person_form_layout(form, action, obj,
-        # process_stages)
         return
     return None
 
@@ -552,18 +559,14 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         context['formsets'] = self.get_person_formsets()
         self.set_person_process_stages(context)
 
+        set_active_tab(self, context)
         if self.request.POST:
-            self.request.session['active_tab'] = self.request.POST.get('active_tab')
             context['stage'] = lgc_forms.PersonProcessStageForm(self.request.POST)
             context['doc'] = lgc_forms.DocumentForm(self.request.POST,
                                                      self.request.FILES)
             context['deleted_docs'] = DocumentFormSet(self.request.POST, self.request.FILES,
                                                       prefix='docs')
         else:
-            active_tab = self.request.session.get('active_tab')
-            if active_tab:
-                del self.request.session['active_tab']
-                context['form'].fields['active_tab'].initial = active_tab
             context['doc'] = lgc_forms.DocumentForm()
             if not self.is_update:
                 context['form'].fields['start_date'].initial = str(datetime.date.today())
@@ -578,6 +581,7 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
     def process_form_valid(self, form):
         if self.request.user.role not in user_models.get_internal_roles():
             return 0
+
         person_process = self.get_active_person_process()
         if form.cleaned_data['process_name'] and person_process == None:
             person_process = lgc_models.PersonProcess()
@@ -731,11 +735,6 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             return super().form_invalid(form)
 
         return super().form_valid(form)
-
-    def get_active_tab(self):
-        if self.request.POST:
-            return self.request.POST.get('active_tab')
-        return None
 
     def get_form(self, form_class=lgc_forms.PersonCreateForm):
         if self.request.user.role in user_models.get_internal_roles():
@@ -1158,6 +1157,8 @@ class PersonProcessListView(ProcessListView):
 
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');
+    if is_hr:
+        layout.append(Div('active_tab'))
 
     layout.append(
         Div(
@@ -1457,13 +1458,13 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
         EmployeeFormSet = formset_factory(lgc_forms.HREmployeeForm,
                                           extra=0, can_delete=True)
 
+        set_active_tab(self, context)
         if self.request.POST:
             context['formset'] = EmployeeFormSet(self.request.POST)
         else:
             init = []
             for p in self.object.hr_employees.all():
                 if p.role != user_models.EMPLOYEE:
-                    print("employee cannot have an HR role")
                     continue;
                 init.append({'id':p.id,
                              'first_name':p.first_name,

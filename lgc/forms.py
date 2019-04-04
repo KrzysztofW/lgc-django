@@ -66,13 +66,14 @@ class InitiateAccountForm(forms.ModelForm):
                   'responsible', 'new_token', 'is_active']
 
 class InitiateHRForm(InitiateAccountForm):
+    active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
     is_admin = forms.BooleanField(required=False, label=_('Is admin'),
                                   help_text=_('This HR user can initiate new cases'))
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'language', 'company',
-                  'responsible', 'new_token', 'is_admin', 'is_active']
+        fields = ['active_tab', 'first_name', 'last_name', 'email', 'language',
+                  'company', 'responsible', 'new_token', 'is_admin', 'is_active']
 
 class HREmployeeForm(forms.Form):
     id = forms.CharField(required=True, widget=forms.HiddenInput())
