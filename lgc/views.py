@@ -178,7 +178,7 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
                     '&nbsp;<a href="' +
                     str(reverse_lazy('lgc-account-link', kwargs={'pk': obj.id})) +
                     '">' + _('create profile') + '</a><br><br>')
-            external_profile.append(Div(HTML(html), css_class='form-row'))
+        external_profile.append(Div(HTML(html), css_class='form-row'))
 
     process_tab = LgcTab(_('Process'))
     if archived_processes:
@@ -200,7 +200,8 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
     documents_tab.append(HTML(get_template('document_form.html')))
 
     tab_holder = TabHolder(info_tab)
-    if external_profile:
+
+    if external_profile != None:
         tab_holder.append(external_profile)
 
     tab_holder.append(process_tab)
