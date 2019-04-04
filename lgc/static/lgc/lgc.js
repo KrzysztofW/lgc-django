@@ -150,11 +150,12 @@ function get_lgc_links() {
     var active_tab = document.getElementById('id_active_tab');
     var l = document.links;
 
+    /* build IDs */
     for (var i = 0; i < l.length; i++) {
-      if (l[i].id.match('^lgc-tab.*$')) {
-	lgc_tab_link_ids.push(l[i].id);
-	lgc_tab_body_ids.push(l[i].id.substring(8));
-      }
+	if (l[i].id.match('^lgc-tab.*$')) {
+	    lgc_tab_link_ids.push(l[i].id);
+	    lgc_tab_body_ids.push(l[i].id.substring(8));
+	}
     }
 
     if (active_tab && typeof active_tab !== 'undefined') {
@@ -162,20 +163,22 @@ function get_lgc_links() {
 	var tab_body = document.getElementById(body_id);
 	var tab = document.getElementById(active_tab.value);
 
-      if (tab && typeof tab !== 'undefined' &&
-	  tab_body && typeof tab_body !== 'undefined') {
-	for (var i = 0; i < lgc_tab_body_ids.length; i++) {
-	  var pane = document.getElementById(lgc_tab_body_ids[i]);
-	  pane.className = "tab-pane";
+	if (tab && typeof tab !== 'undefined' &&
+	    tab_body && typeof tab_body !== 'undefined') {
+	    for (var i = 0; i < lgc_tab_body_ids.length; i++) {
+		var pane = document.getElementById(lgc_tab_body_ids[i]);
+		pane.className = "tab-pane";
+	    }
+	    tab_body.className = "tab-pane show active";
+	    tab.className = "nav-link active show";
+	} else {
+	    /* set first tab as active */
+	    active_tab.value = lgc_tab_link_ids[0];
+	    tab = document.getElementById(lgc_tab_link_ids[0]);
+	    if (tab) {
+		tab.className = "nav-link active show";
+	    }
 	}
-	tab_body.className = "tab-pane show active";
-	tab.className = "nav-link active show";
-      } else {
-	var tab = document.getElementById(lgc_tab_link_ids[0]);
-	if (tab) {
-	  tab.className = "nav-link active show";
-	}
-      }
     }
 }
 
