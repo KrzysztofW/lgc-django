@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 from crispy_forms.bootstrap import Tab
 from django.template.loader import render_to_string
-
+from bootstrap_datepicker_plus import DatePickerInput
 from . import models as lgc_models
 from users import models as user_models
 from django.contrib.auth import get_user_model
@@ -22,7 +22,7 @@ class LgcTab(Tab):
 
 class EmployeeUpdateForm(forms.ModelForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
-    birth_date = forms.DateField(widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Birth Date'))
+    birth_date = forms.DateField(widget=DatePickerInput(), label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
 
@@ -37,12 +37,12 @@ class EmployeeUpdateForm(forms.ModelForm):
 
 class PersonCreateForm(forms.ModelForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
-    birth_date = forms.DateField(widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Birth Date'))
+    birth_date = forms.DateField(widget=DatePickerInput(), label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
 
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
-    start_date = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}))
+    start_date = forms.DateField(widget=DatePickerInput(), label=_('Start Date'))
     local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Local Address'))
     foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Foreign Address'))
     comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Comments'))
@@ -88,8 +88,8 @@ class ProcessForm(forms.Form):
 class ChildCreateForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))
     last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control'}))
-    birth_date = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Birth Date'))
-    passport_expiry = forms.DateField(required=False, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Passport Expiry'))
+    birth_date = forms.DateField(widget=DatePickerInput(), label=_('Birth Date'))
+    passport_expiry = forms.DateField(widget=DatePickerInput(), label=_('Passport Expiry'))
     passport_nationality = CountryField().formfield(required=False, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:100px'}))
 
     class Meta:
@@ -102,8 +102,8 @@ class ModerationChildCreateForm(ChildCreateForm):
         exclude = ['person']
 
 class AuthorizationsCommonForm(forms.ModelForm):
-    start_date = forms.DateField(required=True, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('Start Date'))
-    end_date = forms.DateField(required=True, widget=forms.TextInput(attrs={'type': 'date', 'class':'form-control', 'style':'width:155px'}), label=_('End Date'))
+    start_date = forms.DateField(widget=DatePickerInput(), label=_('Start Date'))
+    end_date = forms.DateField(widget=DatePickerInput(), label=_('End Date'))
 
     class Meta:
         abstract = True

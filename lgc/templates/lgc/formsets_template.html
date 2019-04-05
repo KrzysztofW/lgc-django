@@ -4,7 +4,7 @@
 
 <div class="accordion" id="formset_accordion">
   {% for formset in formsets %}
-  <div class="card">
+  <div class="card" style="overflow:visible;">
     <div class="card-header" id="heading_{{ formset.id }}">
       <h5 class="mb-0">
         <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_{{ formset.id }}" aria-expanded="false" aria-controls="collapse_{{ formset.id }}">
