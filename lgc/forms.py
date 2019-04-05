@@ -90,7 +90,7 @@ class ChildCreateForm(forms.ModelForm):
     last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control'}))
     birth_date = forms.DateField(widget=DatePickerInput(), label=_('Birth Date'))
     passport_expiry = forms.DateField(widget=DatePickerInput(), label=_('Passport Expiry'))
-    passport_nationality = CountryField().formfield(required=False, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:100px'}))
+    passport_nationality = CountryField().formfield(required=False, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:150px'}))
 
     class Meta:
         model = lgc_models.Child

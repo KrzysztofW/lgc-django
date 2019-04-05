@@ -463,9 +463,10 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         formsets[4].id = 'spouse_wp_id'
         formsets[4].err_msg = _("Invalid Spouse's Work Permits table")
 
-        formsets[5].title = _('Archive boxes')
-        formsets[5].id = 'ab_id'
-        formsets[5].err_msg = _('Invalid archive box number')
+        if self.request.user.role in user_models.get_internal_roles():
+            formsets[5].title = _('Archive boxes')
+            formsets[5].id = 'ab_id'
+            formsets[5].err_msg = _('Invalid archive box number')
 
     def get_person_formsets(self):
         formsets = []
@@ -485,9 +486,10 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
         SpouseWorkPermitFormSet = modelformset_factory(lgc_models.SpouseWorkPermit,
                                                        form=lgc_forms.SpouseWorkPermitForm,
                                                        can_delete=True)
-        ArchiveBoxFormSet = modelformset_factory(lgc_models.ArchiveBox,
-                                                 form=lgc_forms.ArchiveBoxForm,
-                                                 can_delete=True)
+        if self.request.user.role in user_models.get_internal_roles():
+            ArchiveBoxFormSet = modelformset_factory(lgc_models.ArchiveBox,
+                                                     form=lgc_forms.ArchiveBoxForm,
+                                                     can_delete=True)
 
         if self.request.POST:
             formsets.append(ChildrenFormSet(self.request.POST, prefix='children'))
@@ -495,7 +497,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             formsets.append(SpouseVisaFormSet(self.request.POST, prefix='spouse_visa'))
             formsets.append(WorkPermitFormSet(self.request.POST, prefix='wp'))
             formsets.append(SpouseWorkPermitFormSet(self.request.POST, prefix='spouse_wp'))
-            formsets.append(ArchiveBoxFormSet(self.request.POST, prefix='ab'))
+            if self.request.user.role in user_models.get_internal_roles():
+                formsets.append(ArchiveBoxFormSet(self.request.POST, prefix='ab'))
             self.set_person_formsets_data(formsets)
             return formsets
 
@@ -512,7 +515,8 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
             spouse_visas_queryset = lgc_models.VisaResidencePermit.objects.none()
             wp_queryset = lgc_models.WorkPermit.objects.none()
             wp_spouse_queryset = lgc_models.WorkPermit.objects.none()
-            archive_box_queryset = lgc_models.ArchiveBox.objects.none()
+            if self.request.user.role in user_models.get_internal_roles():
+                archive_box_queryset = lgc_models.ArchiveBox.objects.none()
         formsets.append(ChildrenFormSet(queryset=children_queryset,
                                         prefix='children'))
         formsets.append(VisaFormSet(queryset=visas_queryset,
@@ -523,8 +527,9 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                                           prefix='wp'))
         formsets.append(SpouseWorkPermitFormSet(queryset=wp_spouse_queryset,
                                                 prefix='spouse_wp'))
-        formsets.append(ArchiveBoxFormSet(queryset=archive_box_queryset,
-                                          prefix='ab'))
+        if self.request.user.role in user_models.get_internal_roles():
+            formsets.append(ArchiveBoxFormSet(queryset=archive_box_queryset,
+                                              prefix='ab'))
 
         self.set_person_formsets_data(formsets)
         return formsets
