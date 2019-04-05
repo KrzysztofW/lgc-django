@@ -1199,7 +1199,7 @@ def get_account_form(form, action, uid, new_token=False):
              action + '</button>'))
     if uid:
         form.helper.layout.append(
-            HTML(' <a href="{% url "lgc-user-delete" ' + str(uid) +
+            HTML(' <a href="{% url "lgc-account-delete" ' + str(uid) +
                  '%}" class="btn btn-outline-danger">' + delete_str + '</a>')
         )
     return form
@@ -1224,7 +1224,7 @@ def get_hr_account_form(form, action, uid, new_token=False, show_tabs=True):
              action + '</button>'))
     if uid:
         form.helper.layout.append(
-            HTML(' <a href="{% url "lgc-user-delete" ' + str(uid) +
+            HTML(' <a href="{% url "lgc-hr-delete" ' + str(uid) +
                  '%}" class="btn btn-outline-danger">' + delete_str + '</a>')
         )
 
@@ -1533,7 +1533,7 @@ class HRAccountListView(HRView, Accounts):
     users = user_models.get_hr_user_queryset()
 
 class HRDeleteView(HRView, DeleteAccount):
-    success_url = reverse_lazy('lgc-hrs')
+    success_url = reverse_lazy('lgc-hr-accounts')
     obj_name = _('HR account')
     title = _('Delete HR account')
     template_name = 'lgc/person_confirm_delete.html'

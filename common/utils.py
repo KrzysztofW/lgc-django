@@ -109,7 +109,7 @@ def lgc_send_email(obj, action):
         tpl = 'message_employee'
     elif action == lgc_types.MsgType.DEL:
         subject = _('new account delete subject')
-        tpl = 'message_employee'
+        tpl = 'message_delete'
     else:
         return
 
