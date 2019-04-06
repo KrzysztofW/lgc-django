@@ -7,7 +7,7 @@ urlpatterns = [
     path('login/', views.LoginView.as_view(template_name='users/login.html'),
          name='lgc-login'),
     path('logout/', views.logout_then_login_with_msg, name='lgc-logout'),
-    path('create/', views.create, name='lgc-user-create'),
+    path('create/', views.UserCreateView.as_view(), name='lgc-user-create'),
     path('list/', UserListView.as_view(), name='lgc-users'),
     path('delete/<int:pk>/', UserDeleteView.as_view(), name='lgc-user-delete'),
 
@@ -18,11 +18,12 @@ urlpatterns = [
     path('employee-search/ajax/', views.ajax_employee_user_seach_view,
          name='lgc-employee-user-search-ajax'),
 
-    path('<int:user_id>/', views.update, name='lgc-user'),
+    path('<int:pk>/', views.UserUpdateView.as_view(), name='lgc-user'),
     path('pw-reset/<int:user_id>/', views.password_reset, name='lgc-pw-reset'),
     path('profile/', views.update_profile, name='lgc-profile'),
     path('profile-pw-reset/', views.profile_password_reset,
          name='lgc-profile-pw-reset'),
+    path('delete-profile/', views.profile_delete, name='lgc-profile-delete'),
 
     path('auth/', views.handle_auth_token, name='lgc-token'),
 ]

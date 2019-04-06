@@ -4,6 +4,7 @@ from django.http import HttpResponseForbidden
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout_then_login, LoginView as authLoginView
@@ -56,25 +57,71 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         return pagination(self, context, reverse_lazy('lgc-users'))
 
+class UserCreateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixin,
+                     CreateView):
+    model = User
+    template_name = 'users/create.html'
+    success_message = _('User successfully created.')
+    success_url = reverse_lazy('lgc-user-create')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('New User')
+        return context
+
+    def get_form(self):
+        return super().get_form(form_class=user_forms.UserCreateForm)
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixin,
+                     UpdateView):
+    model = User
+    template_name = 'users/create.html'
+    success_message = _('User successfully updated.')
+
+    def get_success_url(self):
+        self.object = self.get_object()
+        return reverse_lazy('lgc-user', kwargs={'pk':self.object.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Update User')
+        context['delete_url'] = reverse_lazy('lgc-user-delete',
+                                             kwargs={'pk': self.object.id})
+        context['pw_reset_url'] = reverse_lazy('lgc-pw-reset',
+                                               kwargs={'user_id': self.object.id})
+        return context
+
+    def get_form(self):
+        return super().get_form(form_class=user_forms.UserUpdateForm)
+
+    def test_func(self):
+        return self.request.user.is_staff
+
 class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
     template_name = 'users/confirm_delete.html'
     success_url = reverse_lazy('lgc-users')
-    success_message = _('User deleted successfully.')
+    title = _('Delete User')
+    success_message = _('User successfully deleted.')
+    profile_update = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = _('Delete User')
-        context['object'] = self.object
-        if self.object.role in user_models.get_hr_roles():
-            context['cancel_url'] = reverse_lazy('lgc-hr',
-                                             kwargs={'pk': self.object.id})
-        elif self.object.role == user_models.EMPLOYEE:
-            context['cancel_url'] = reverse_lazy('lgc-account',
-                                             kwargs={'pk': self.object.id})
+        context['title'] = self.title
+        if not self.profile_update:
+            cancel_url = reverse_lazy('lgc-user',
+                                      kwargs={'pk': self.object.id})
+            confirm_message = _('Are you sure you want to delete the account of %s %s'%(
+                self.object.first_name, self.object.last_name))
         else:
-            context['cancel_url'] = reverse_lazy('lgc-user',
-                                             kwargs={'user_id': self.object.id})
+            cancel_url = reverse_lazy('lgc-profile')
+            confirm_message = _('Are you sure you want to delete your account?')
+        context['cancel_url'] = cancel_url
+        context['profile_update'] = self.profile_update
+        context['confirm_message'] = confirm_message
         return context
 
     def test_func(self):
@@ -82,34 +129,13 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-@login_required
-@must_be_staff
-def create(request):
-    title = _("New User")
-
-    if request.method == 'POST':
-        form = user_forms.UserCreateForm(request.POST)
-
-        if form.is_valid():
-            user = form.save()
-            email = form.cleaned_data.get('email')
-            messages.success(request,
-                             _('The account for %(email)s has been created') %
-                             { 'email': email})
-            return redirect('lgc-user-create')
-        context = {
-            'form': form,
-            'title': title,
-        }
-        return render(request, 'users/create.html', context)
-
-    context = {
-        'form': user_forms.UserCreateForm(),
-        'title': title,
-    }
-    return render(request, 'users/create.html', context)
+        if not self.profile_update:
+            return super().delete(request, *args, **kwargs)
+        obj = self.get_object()
+        obj.is_active = False
+        obj.GDPR_accepted = False
+        obj.save()
+        return redirect('lgc-logout')
 
 @login_required
 @must_be_staff
@@ -128,18 +154,34 @@ def password_reset(request, user_id):
             messages.success(request,
                              _('The password for %s %s has been successfully updated') %
                              (user[0].first_name, user[0].last_name))
-            return redirect('lgc-user', user[0].id)
+            return redirect('lgc-user', user_id)
 
     context = {
         'form': form,
         'user': user[0],
         'title': title,
+        'cancel_url': reverse_lazy('lgc-user', kwargs={'pk': user_id})
+
     }
     return render(request, 'users/password_reset.html', context)
 
+def return_true(obj):
+    return True
+
+@login_required
+def profile_delete(request):
+    user_delete_view = UserDeleteView
+    user_delete_view.title = _('Delete My Account')
+    user_delete_view.success_url = reverse_lazy('lgc-logout')
+    user_delete_view.success_message = _('Your account has been successfully deleted.')
+    user_delete_view.profile_update = True
+    user_delete_view.test_func = return_true
+    view = user_delete_view.as_view()
+    return view(request, pk=request.user.id)
+
 @login_required
 def profile_password_reset(request):
-    title = _("Password Reset")
+    title = _('Password Reset')
     form = user_forms.UserPasswordUpdateForm()
 
     if request.method == 'POST':
@@ -154,48 +196,19 @@ def profile_password_reset(request):
     context = {
         'form': form,
         'title': title,
-        'profile': 1,
+        'cancel_url': reverse_lazy('lgc-profile'),
+        'profile_update': 1,
     }
     return render(request, 'users/password_reset.html', context)
 
 @login_required
-@must_be_staff
-def update(request, user_id):
-    user = User.objects.filter(id=user_id)
-    title = _("Update User")
-
-    if user.count() != 1:
-        raise Http404
-
-    if request.method == 'POST':
-        form = user_forms.UserUpdateForm(request.POST, instance=user[0])
-
-        if form.is_valid():
-            user = form.save()
-            messages.success(request,
-                             _('The account of %(first_name)s %(last_name)s has been updated') %
-                             { 'first_name': user.first_name,
-                               'last_name' : user.last_name })
-            return redirect('lgc-users')
-        context = {
-            'form': form,
-            'update': 1,
-            'user_id': user_id,
-            'title': title,
-        }
-        return render(request, 'users/create.html', context)
-
-    context = {
-        'form': user_forms.UserUpdateForm(instance=user[0]),
-        'update': 1,
-        'user_id': user_id,
-        'title': title,
-    }
-    return render(request, 'users/create.html', context)
-
-@login_required
 def update_profile(request):
-    title = _("My Account Profile")
+    context = {
+        'profile_update': 1,
+        'title': _("My Account Profile"),
+        'delete_url': reverse_lazy('lgc-profile-delete'),
+        'pw_reset_url': reverse_lazy('lgc-profile-pw-reset'),
+    }
 
     if request.method == 'POST':
         form = user_forms.UserUpdateProfileForm(request.POST,
@@ -212,21 +225,10 @@ def update_profile(request):
                              _('Your account profile has been updated'))
             return redirect('lgc-profile')
 
-        context = {
-            'form': form,
-            'update': 1,
-            'user_id': request.user.id,
-            'title': title,
-        }
-        return render(request, 'users/create.html', context)
+        context['form'] = form
+    else:
+        context['form'] = user_forms.UserUpdateProfileForm(instance=request.user)
 
-    context = {
-        'form': user_forms.UserUpdateProfileForm(instance=request.user),
-        'update': 1,
-        'profile' : 1,
-        'user_id': request.user.id,
-        'title': title,
-    }
     return render(request, 'users/create.html', context)
 
 class LoginView(authLoginView):
