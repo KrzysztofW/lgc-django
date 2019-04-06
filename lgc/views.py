@@ -63,7 +63,7 @@ def set_active_tab(obj, context):
 
 @login_required
 def home(request):
-    return render(request, 'lgc/index.html', {'title':'Home'})
+    return render(request, 'lgc/home.html', {'title':'Home'})
 
 @login_required
 def tables(request):
