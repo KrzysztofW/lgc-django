@@ -52,6 +52,17 @@
 	{% endif %}
       </th>
       {% endif %}
+      {% if show_status %}
+      <th scope="col">{% trans "Status" %}
+	{% if order_by == "GDPR_accepted" %}
+	<a href="?{{ order_params }}&order_by=-GDPR_accepted"><i class="fa fa-fw fa-sort-up"></i></a>
+	{% elif order_by == "-GDPR_accepted" %}
+	<a href="?{{ order_params }}&order_by=GDPR_accepted"><i class="fa fa-fw fa-sort-down"></i></a>
+	{% else %}
+	<a href="?{{ order_params }}&order_by=GDPR_accepted"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+	{% endif %}
+      </th>
+      {% endif %}
       <th scope="col">{% trans "Created" %}
 	{% if order_by == "creation_date" %}
 	<a href="?{{ order_params }}&order_by=-creation_date"><i class="fa fa-fw fa-sort-up"></i></a>
@@ -66,12 +77,35 @@
   </thead>
   <tbody>
     {% for person in object_list %}
-    <tr class="clickable-row" data-href="{% url update_url person.id %}">
+    <tr data-href="{% url update_url person.id %}"
+	{% if show_status %}
+	{% if person.GDPR_accepted == None %}
+	class="clickable-row table-warning"
+	{% elif person.GDPR_accepted == True %}
+	class="clickable-row table-success"
+	{% else %}
+	class="clickable-row bg-danger"
+	{% endif %}
+	{% else %}
+	class="clickable-row"
+	{% endif %}
+	>
       {% if show_id %}<td>{{ person.id }}</td>{% endif %}
       <td>{{ person.email }}</td>
       <td>{{ person.first_name }}</td>
       <td>{{ person.last_name }}</td>
       {% if show_birth_date %}<td>{{ person.birth_date }}</td>{% endif %}
+      {% if show_status %}
+      <td>
+	{% if person.GDPR_accepted == None %}
+	{% trans "Pending" %}
+	{% elif person.GDPR_accepted == True %}
+	{% trans "Accepted" %}
+	{% else %}
+	{% trans "Refused" %}
+	{% endif %}
+      </td>
+      {% endif %}
       <td>
 	{% if person.creation_date %}
 	{{ person.creation_date|date }}

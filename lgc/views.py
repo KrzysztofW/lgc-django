@@ -1367,6 +1367,7 @@ class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
         context['title'] = self.title
         context['create_url'] = self.create_url
         context['update_url'] = self.update_url
+        context['show_status'] = True
 
         return pagination(self, context, self.list_url)
 
