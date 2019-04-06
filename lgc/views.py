@@ -94,6 +94,11 @@ class PersonCommonListView(LoginRequiredMixin, ListView):
 
         return pagination(self, context, reverse_lazy('lgc-files'))
 
+    def test_func(self):
+        if self.request.user.role not in user_models.get_internal_roles():
+            return False
+        return True
+
 class PersonListView(PersonCommonListView):
     def get_queryset(self):
         term = self.request.GET.get('term', '')
@@ -1026,7 +1031,7 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = _("%s %s deleted successfully.")%(self.obj_name,
+        success_message = _("%s %s successfully deleted.")%(self.obj_name,
                                                             self.object.id)
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
@@ -1263,6 +1268,11 @@ class AccountView(LoginRequiredMixin):
     class Meta:
         abstract = True
 
+    def test_func(self):
+        if self.request.user.role not in user_models.get_internal_roles():
+            return False
+        return True
+
 class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
     success_message = _('New account successfully initiated')
     title = _('Initiate a case')
@@ -1460,6 +1470,11 @@ class HRView(LoginRequiredMixin):
     class Meta:
         abstract = True
 
+    def test_func(self):
+        if self.request.user.role not in user_models.get_hr_roles() + user_models.get_internal_roles():
+            return False
+        return True
+
 class HRCreateView(HRView, InitiateAccount):
     success_message = _('New HR account successfully initiated')
     title = _('New HR account')
@@ -1536,12 +1551,6 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
             self.object.hr_employees.add(u)
         self.object.save()
         return super().form_valid(form, self.object.hr_employees.all())
-
-    def test_func(self):
-        obj = self.get_object()
-        if obj.role not in user_models.get_hr_roles():
-            return False
-        return True
 
 class HRAccountListView(HRView, Accounts):
     title = _('HR accounts')
