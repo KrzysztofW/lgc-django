@@ -1269,9 +1269,7 @@ class AccountView(LoginRequiredMixin):
         abstract = True
 
     def test_func(self):
-        if self.request.user.role not in user_models.get_internal_roles():
-            return False
-        return True
+        return self.request.user.role in user_models.get_internal_roles()
 
 class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
     success_message = _('New account successfully initiated')
