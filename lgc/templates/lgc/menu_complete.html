@@ -4,14 +4,16 @@
   <div class="sidebar-nav collapse navbar-collapse show" id="side-menu-wrapper">
     <ul class="nav navbar-nav navbar-collapse flex-column side-nav list-group" id="side-menu">
       <li class="sidebar-search">
+	<form method="GET" action="{% url 'lgc-files' %}">
         <div class="input-group custom-search-form">
-          <input type="text" class="form-control" placeholder="Search...">
+          <input type="text" name="term" class="form-control" placeholder="Search...">
           <span class="input-group-btn">
             <button class="btn btn-white" type="button">
               <i class="fa fa-search"></i>
             </button>
           </span>
         </div>
+	</form>
         <!-- /input-group -->
       </li>
       <li class="list-group-item">
