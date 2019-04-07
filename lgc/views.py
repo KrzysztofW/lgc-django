@@ -697,8 +697,10 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
 
     def form_valid(self, form):
         form.instance.modified_by = self.request.user
+        form.instance.modification_date = timezone.now()
         if form.instance.start_date == None:
             form.instance.start_date = str(datetime.date.today())
+
         context = self.get_context_data()
 
         with transaction.atomic():

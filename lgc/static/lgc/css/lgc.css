@@ -94,3 +94,53 @@ fieldset.inlineLabels ul {
     display: flex;
     float: none;
 }
+.notification {
+    position: absolute;
+    background-color: #fb404b;
+    text-align: center;
+    border-radius: 10px;
+    min-width: 18px;
+    padding: 0 5px;
+    height: 18px;
+    font-size: 12px;
+    color: #fff;
+    font-weight: 700;
+    line-height: 18px;
+    top: 5px;
+    left: 9px;
+}
+.numbers {
+    position: relative;
+    top: 10px;
+    right: 15px;
+    font-size: 2em;
+    text-align: right;
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.card .stats {
+    color: #a9a9a9;
+}
+
+.card .footer {
+    padding: 0 15px 10px;
+    background-color: transparent;
+    line-height: 30px; }
+
+/* success, .text-success:hover {
+    color: #87cb16 !important;
+} */
+
+.lgc_big_icon {
+    position:relative;
+    top:7px;
+    left:5px;
+}
+.lgc_hr {
+    position:relative;
+    top:5px;
+}

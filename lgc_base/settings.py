@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'jquery',
     'djangoformsetjs',
     'bootstrap_datepicker_plus',
+    'lgc.templatetags',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

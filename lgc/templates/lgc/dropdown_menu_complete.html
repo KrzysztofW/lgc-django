@@ -1,5 +1,8 @@
 {% load i18n %}
+{% load custom_tags %}
+{% load humanize %}
 
+{% get_notification_menu request as notifs %}
 <ul class="nav navbar-nav ml-md-auto flex-row navbar-top-links bg-light">
 
   {% include 'lgc/dropdown_menu_lang.html' %}
@@ -87,8 +90,19 @@
     <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
        aria-haspopup="true" aria-expanded="false">
       <i class="far fa-bell fa-fw"></i>
+      {% if notifs.nb_items > 0 %}<span class="notification">{{ notifs.nb_items }}</span>{% endif %}
     </a>
-    <div class="dropdown-menu dropdown-menu-right dropdown-alerts">
+    <div class="dropdown-menu dropdown-menu-right dropdown-alerts" style="width:400px;">
+      {% for f in notifs.updated_files %}
+      <a class="dropdown-item" href="{% url 'lgc-file' f.id %}">
+        <div>
+          <i class="fa fa-file fa-fw"></i> {{ f.first_name }} {{ f.last_name }} ({% trans 'pending' %})
+          <span class="float-right text-muted small">{{ f.modification_date|naturaltime }}</span>
+        </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      {% endfor %}
+
       <a class="dropdown-item" href="#">
         <div>
           <i class="fa fa-comment fa-fw"></i> Passport expired

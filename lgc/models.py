@@ -492,6 +492,7 @@ class Person(PersonInfo, AccountCommon):
     modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
                                     on_delete=models.CASCADE,
                                     related_name='person_modified_by_set')
+    modification_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
     start_date = models.DateField(_('Start Date'), blank=True, null=True)
 
     state = models.CharField(_('State'), max_length=3,
