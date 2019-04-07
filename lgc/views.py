@@ -717,6 +717,13 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                 form.instance.user = self.object.user
 
             self.object = form.save()
+            if form.instance.user:
+                form.instance.user.first_name = form.instance.first_name
+                form.instance.user.last_name = form.instance.last_name
+                form.instance.user.email = form.instance.email
+                form.instance.user.responsible.set(form.instance.responsible.all())
+                form.instance.user.save()
+
             for formset in context['formsets']:
                 instances = formset.save(commit=False)
                 self.save_formset_instances(instances)
@@ -1420,6 +1427,13 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
 
     def form_valid(self, form, relations = None):
         self.object = form.save(commit=False)
+
+        if self.object.person_user_set:
+            self.object.person_user_set.first_name = self.object.first_name
+            self.object.person_user_set.last_name = self.object.last_name
+            self.object.person_user_set.email = self.object.email
+            self.object.person_user_set.responsible.set(form.instance.responsible.all())
+            self.object.person_user_set.save()
 
         if self.is_hr:
             if form.cleaned_data['is_admin']:

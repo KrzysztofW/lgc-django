@@ -326,6 +326,7 @@ def handle_auth_token(request):
             p.modified_by = form.instance
             p.user = form.instance
             p.save()
+            p.responsible.set(form.instance.responsible.all())
         messages.success(request,
                          _('The password for %s %s has been successfully set') %
                          (user.first_name, user.last_name))
