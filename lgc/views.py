@@ -69,7 +69,28 @@ def home(request):
 def tables(request):
     return render(request, 'lgc/tables.html', {'title':'Tables'})
 
-class PersonCommonListView(LoginRequiredMixin, ListView):
+class UserTest(UserPassesTestMixin):
+    def test_func(self):
+        self.object = self.get_object()
+        """ Employee check """
+        if (self.request.user.role == user_models.EMPLOYEE and
+            self.object.user == self.request.user):
+            return True
+
+        """ HR check """
+        if (self.request.user.role in user_models.get_hr_roles() and
+            self.request.user in self.object.responsible.all()):
+            return True
+
+        """ Internal user check """
+        if self.request.user.role not in user_models.get_internal_roles():
+            return False
+        if (self.request.user.role == user_models.JURISTE and
+            (not self.request.user in self.object.responsible.all())):
+            return False
+        return True
+
+class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
     template_name = 'lgc/files.html'
     model = lgc_models.Person
     ajax_search_url = reverse_lazy('lgc-file-search-ajax')
@@ -103,11 +124,15 @@ class PersonListView(PersonCommonListView):
     def get_queryset(self):
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
+        if self.request.user.role == user_models.JURISTE:
+            objs = lgc_models.Person.objects.filter(responsible=self.request.user)
+        else:
+            objs = lgc_models.Person.objects
         if term == '':
-            return lgc_models.Person.objects.order_by(order_by)
-        objs = (lgc_models.Person.objects.filter(email__istartswith=term)|
-                lgc_models.Person.objects.filter(first_name__istartswith=term)|
-                lgc_models.Person.objects.filter(last_name__istartswith=term))
+            return objs.order_by(order_by)
+
+        objs = (objs.filter(email__istartswith=term)|objs.filter(first_name__istartswith=term)|
+                objs.filter(last_name__istartswith=term))
         return objs.order_by(order_by)
 
     def get_context_data(self, **kwargs):
@@ -314,7 +339,7 @@ class TemplateTimelineStages():
     name = ''
     start_date = ''
 
-class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
+class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     model = lgc_models.Person
     is_update = False
     template_name = 'lgc/generic_form_with_formsets.html'
@@ -891,7 +916,7 @@ def ajax_process_stage_search_view(request):
     }
     return render(request, 'lgc/process_search.html', context)
 
-class ProcessCommonView(LoginRequiredMixin):
+class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         if self.request.user.role not in user_models.get_internal_roles():
             return False
@@ -1606,9 +1631,14 @@ def ajax_insert_employee_view(request):
 def ajax_file_search_view(request):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
-
+    if request.user.role == user_models.JURISTE:
+        objs = lgc_models.Person.objects.filter(responsible=request.user)
+    else:
+        objs = lgc_models.Person.objects
     term = request.GET.get('term', '')
-    files = lgc_models.Person.objects.filter(first_name__istartswith=term)|lgc_models.Person.objects.filter(last_name__istartswith=term)|lgc_models.Person.objects.filter(email__istartswith=term)
+    files = (objs.filter(first_name__istartswith=term)|
+             objs.filter(last_name__istartswith=term)|
+             objs.filter(email__istartswith=term))
     files = files[:10]
 
     for f in files:
