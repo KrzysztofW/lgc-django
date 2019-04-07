@@ -757,11 +757,12 @@ class PersonCommonView(LoginRequiredMixin, SuccessMessageMixin):
                 doc.instance.uploaded_by = self.request.user
                 doc.save()
 
-            for d in context['deleted_docs'].deleted_forms:
-                if d.instance.id != None:
-                    d.instance.delete()
-                    os.remove(os.path.join(settings.MEDIA_ROOT,
-                                           d.instance.document.name))
+            if self.is_update and context.get('deleted_docs', '') != '':
+                for d in context['deleted_docs'].deleted_forms:
+                    if d.instance.id != None:
+                        d.instance.delete()
+                        os.remove(os.path.join(settings.MEDIA_ROOT,
+                                               d.instance.document.name))
 
         if self.process_form_valid(form) < 0:
             return super().form_invalid(form)
