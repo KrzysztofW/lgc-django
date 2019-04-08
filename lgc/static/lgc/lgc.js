@@ -192,3 +192,106 @@ function select_tab(elem) {
 	}
     }
 }
+
+var prefecture_select = [];
+var subprefecture_select = [];
+var direccte_select = [];
+var jurisdiction_select = [];
+var consulate_select = [];
+
+function __fill_select(selectobject, array) {
+  for (var i = 0; i < selectobject.length; i++)
+    array.push(selectobject[i]);
+}
+
+function fill_selects() {
+  var prefecture = document.getElementById("id_prefecture");
+  var subprefecture = document.getElementById("id_subprefecture");
+  var direccte = document.getElementById("id_direccte");
+  var jurisdiction = document.getElementById("id_jurisdiction");
+  var consulate = document.getElementById("id_consulate");
+
+  __fill_select(prefecture, prefecture_select);
+  __fill_select(subprefecture, subprefecture_select);
+  __fill_select(direccte, direccte_select);
+  __fill_select(jurisdiction, jurisdiction_select);
+  __fill_select(consulate, consulate_select);
+}
+
+function find_in_select(select, str) {
+  var re = new RegExp(str + '.*');
+
+  for (var i = 0; i < select.length; i++) {
+    if (select[i].text.match(re))
+      return true;
+  }
+  return false;
+}
+
+function empty_select(select) {
+  while (select.options.length)
+    select.remove(0);
+}
+
+function build_select(from_select, to_select, str) {
+  var re = new RegExp(str + '.*');
+
+  empty_select(to_select);
+  for (var i = 0; i < from_select.length; i++) {
+    if (from_select[i].text.match(re))
+      to_select.appendChild(from_select[i]);
+  }
+}
+
+function build_selects(post_code) {
+  var prefecture = document.getElementById("id_prefecture");
+  var subprefecture = document.getElementById("id_subprefecture");
+  var direccte = document.getElementById("id_direccte");
+
+  code = post_code.substr(0, 2);
+  build_select(prefecture_select, prefecture, code);
+  build_select(subprefecture_select, subprefecture, code);
+  build_select(direccte_select, direccte, code);
+}
+
+function auto_complete_region(elem) {
+  if (elem.value == '')
+    return;
+
+  if (prefecture_select.length == 0)
+    fill_selects();
+
+  post_code = elem.value.match(/\d{5}/)
+  if (post_code && post_code.length)
+     build_selects(post_code[0]);
+}
+
+function auto_complete_jurisdiction(elem) {
+  if (elem.value == '')
+    return;
+
+  if (prefecture_select.length == 0)
+    fill_selects();
+
+  country = elem.value
+  if (!country || country.length == 0)
+    return;
+
+  var jurisdiction = document.getElementById("id_jurisdiction");
+  empty_select(jurisdiction);
+
+  for (var i = 0; i < jurisdiction_select.length; i++) {
+    c = jurisdiction_select[i].value.substr(0, 2);
+    if (c && c == country)
+      jurisdiction.appendChild(jurisdiction_select[i]);
+  }
+
+  var consulate = document.getElementById("id_consulate");
+  empty_select(consulate);
+
+  for (var i = 0; i < consulate_select.length; i++) {
+    c = consulate_select[i].value;
+    if (c && c == country)
+      consulate.appendChild(consulate_select[i]);
+  }
+}

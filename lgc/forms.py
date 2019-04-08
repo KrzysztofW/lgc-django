@@ -7,6 +7,8 @@ from bootstrap_datepicker_plus import DatePickerInput
 from . import models as lgc_models
 from users import models as user_models
 from django.contrib.auth import get_user_model
+from django_countries.fields import CountryField
+
 User = get_user_model()
 
 class LgcTab(Tab):
@@ -43,12 +45,16 @@ class PersonCreateForm(forms.ModelForm):
 
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
     start_date = forms.DateField(widget=DatePickerInput(), label=_('Start Date'))
-    local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Local Address'))
+    local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80, 'onchange':'auto_complete_region(this);'}),
+                                    label=_('Local Address'))
+
     foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Foreign Address'))
     comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Comments'))
     process_name = forms.ModelChoiceField(required=False,
                                           queryset=lgc_models.Process.objects.all(),
                                           label=_('Create an active process'))
+    foreign_country = CountryField().formfield(required=False,
+                                               widget=forms.Select(attrs={'onchange':'auto_complete_jurisdiction(this);'}))
 
     class Meta:
         model = lgc_models.Person
