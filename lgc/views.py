@@ -477,26 +477,18 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         formsets[0].id = 'children_id'
         formsets[0].err_msg = _('Invalid Children table')
 
-        formsets[1].title = _('Visas or Residence Permits')
-        formsets[1].id = 'visas_id'
-        formsets[1].err_msg = _('Invalid Visas table')
+        formsets[1].title = _('Visas / Residence Permits / Work Permits')
+        formsets[1].id = 'expiration_id'
+        formsets[1].err_msg = _('Invalid Visas / Residence Permits / Work Permits table')
 
-        formsets[2].title = _("Spouse's Visas or Residence Permits")
-        formsets[2].id = 'spouse_visas_id'
-        formsets[2].err_msg = _("Invalid Spouse's Visas table")
-
-        formsets[3].title = _('Work Permits')
-        formsets[3].id = 'wp_id'
-        formsets[3].err_msg = _('Invalid Work Permits table')
-
-        formsets[4].title = _("Spouse's Work Permits")
-        formsets[4].id = 'spouse_wp_id'
-        formsets[4].err_msg = _("Invalid Spouse's Work Permits table")
+        formsets[2].title = _('Spouse Visas / Residence Permits / Work Permits')
+        formsets[2].id = 'spouse_expiration_id'
+        formsets[2].err_msg = _('Invalid Spouse Visas / Residence Permits / Work Permits table')
 
         if self.request.user.role in user_models.get_internal_roles():
-            formsets[5].title = _('Archive boxes')
-            formsets[5].id = 'ab_id'
-            formsets[5].err_msg = _('Invalid archive box number')
+            formsets[3].title = _('Archive boxes')
+            formsets[3].id = 'ab_id'
+            formsets[3].err_msg = _('Invalid archive box number')
 
     def get_person_formsets(self):
         formsets = []
@@ -504,18 +496,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                                form=lgc_forms.ChildCreateForm,
                                                can_delete=True)
 
-        VisaFormSet = modelformset_factory(lgc_models.VisaResidencePermit,
-                                           form=lgc_forms.VisaResidencePermitForm,
-                                           can_delete=True)
-        SpouseVisaFormSet = modelformset_factory(lgc_models.SpouseVisaResidencePermit,
-                                                 form=lgc_forms.SpouseVisaResidencePermitForm,
+        ExpirationFormSet = modelformset_factory(lgc_models.Expiration,
+                                                 form=lgc_forms.ExpirationForm,
                                                  can_delete=True)
-        WorkPermitFormSet = modelformset_factory(lgc_models.WorkPermit,
-                                                 form=lgc_forms.WorkPermitForm,
-                                                 can_delete=True)
-        SpouseWorkPermitFormSet = modelformset_factory(lgc_models.SpouseWorkPermit,
-                                                       form=lgc_forms.SpouseWorkPermitForm,
+        SpouseExpirationFormSet = modelformset_factory(lgc_models.Expiration,
+                                                       form=lgc_forms.SpouseExpirationForm,
                                                        can_delete=True)
+
         if self.request.user.role in user_models.get_internal_roles():
             ArchiveBoxFormSet = modelformset_factory(lgc_models.ArchiveBox,
                                                      form=lgc_forms.ArchiveBoxForm,
@@ -523,10 +510,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         if self.request.POST:
             formsets.append(ChildrenFormSet(self.request.POST, prefix='children'))
-            formsets.append(VisaFormSet(self.request.POST, prefix='visa'))
-            formsets.append(SpouseVisaFormSet(self.request.POST, prefix='spouse_visa'))
-            formsets.append(WorkPermitFormSet(self.request.POST, prefix='wp'))
-            formsets.append(SpouseWorkPermitFormSet(self.request.POST, prefix='spouse_wp'))
+            formsets.append(ExpirationFormSet(self.request.POST, prefix='expiration'))
+            formsets.append(SpouseExpirationFormSet(self.request.POST, prefix='spouse_expiration'))
             if self.request.user.role in user_models.get_internal_roles():
                 formsets.append(ArchiveBoxFormSet(self.request.POST, prefix='ab'))
             self.set_person_formsets_data(formsets)
@@ -534,29 +519,22 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         if self.is_update:
             children_queryset = lgc_models.Child.objects.filter(person=self.object.id)
-            visas_queryset = lgc_models.VisaResidencePermit.objects.filter(person=self.object.id)
-            spouse_visas_queryset = lgc_models.SpouseVisaResidencePermit.objects.filter(person=self.object.id)
-            wp_queryset = lgc_models.WorkPermit.objects.filter(person=self.object.id)
-            wp_spouse_queryset = lgc_models.SpouseWorkPermit.objects.filter(person=self.object.id)
+            expiration_queryset = lgc_models.Expiration.objects.filter(person=self.object.id).filter(type__in=[(i[0]) for i in lgc_models.PERSON_EXPIRATIONS_CHOICES])
+            spouse_expiration_queryset = lgc_models.Expiration.objects.filter(person=self.object.id).filter(type__in=[(i[0]) for i in lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES])
             archive_box_queryset = lgc_models.ArchiveBox.objects.filter(person=self.object.id)
         else:
             children_queryset = lgc_models.Child.objects.none()
-            visas_queryset = lgc_models.VisaResidencePermit.objects.none()
-            spouse_visas_queryset = lgc_models.VisaResidencePermit.objects.none()
-            wp_queryset = lgc_models.WorkPermit.objects.none()
-            wp_spouse_queryset = lgc_models.WorkPermit.objects.none()
+            expiration_queryset = lgc_models.Expiration.objects.none()
+            spouse_expiration_queryset = lgc_models.Expiration.objects.none()
             if self.request.user.role in user_models.get_internal_roles():
                 archive_box_queryset = lgc_models.ArchiveBox.objects.none()
         formsets.append(ChildrenFormSet(queryset=children_queryset,
                                         prefix='children'))
-        formsets.append(VisaFormSet(queryset=visas_queryset,
-                                    prefix='visa'))
-        formsets.append(SpouseVisaFormSet(queryset=spouse_visas_queryset,
-                                          prefix='spouse_visa'))
-        formsets.append(WorkPermitFormSet(queryset=wp_queryset,
-                                          prefix='wp'))
-        formsets.append(SpouseWorkPermitFormSet(queryset=wp_spouse_queryset,
-                                                prefix='spouse_wp'))
+        formsets.append(ExpirationFormSet(queryset=expiration_queryset,
+                                          prefix='expiration'))
+        formsets.append(SpouseExpirationFormSet(queryset=spouse_expiration_queryset,
+                                          prefix='spouse_expiration'))
+
         if self.request.user.role in user_models.get_internal_roles():
             formsets.append(ArchiveBoxFormSet(queryset=archive_box_queryset,
                                               prefix='ab'))

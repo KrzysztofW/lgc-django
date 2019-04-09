@@ -32,7 +32,11 @@
       {% for f in form.visible_fields %}
       {% if f.name != "DELETE" %}
       <div class="form-group col-md-2">
+	{% if f.field.widget.input_type == 'select' %}
+	<span style="font-size:11px;">{{ f }}</span>
+	{% else %}
 	{{ f }}
+	{% endif %}
 	{% if f.errors %}
 	<span class="invalid-feedback" style="display:inline;">
 	  <strong>{{ f.errors.0 }}</strong>
@@ -57,7 +61,13 @@
       {% endfor %}
       {% for f in formset.empty_form.visible_fields %}
       {% if f.name != "DELETE" %}
-      <div class="form-group col-md-2">{{ f }}</div>
+      <div class="form-group col-md-2">
+	{% if f.field.widget.input_type == 'select' %}
+	<span style="font-size:11px;">{{ f }}</span>
+	{% else %}
+	{{ f }}
+	{% endif %}
+      </div>
       {% else %}
       <div class="d-none">{{ f }}</div>
       <div class="form-group col-md-1 justify-content-center d-flex">

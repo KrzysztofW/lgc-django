@@ -28,6 +28,8 @@ migrations debugging
 ====================
 
 python3 ./manage.py sqlmigrate lgc 0030
+# skip a failing migration
+python3 ./manage.py migrate --fake
 
 -------
 ./manage.py makemessages -l fr

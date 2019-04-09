@@ -107,54 +107,29 @@ class ModerationChildCreateForm(ChildCreateForm):
         model = lgc_models.ModerationChild
         exclude = ['person']
 
-class AuthorizationsCommonForm(forms.ModelForm):
+class ExpirationCommon(forms.ModelForm):
     start_date = forms.DateField(widget=DatePickerInput(), label=_('Start Date'))
     end_date = forms.DateField(widget=DatePickerInput(), label=_('End Date'))
 
     class Meta:
         abstract = True
 
-# Visa:
-class VisaResidencePermitForm(AuthorizationsCommonForm):
+empty_select = (('', '----'),)
+class ExpirationForm(ExpirationCommon):
+    options = empty_select + lgc_models.PERSON_EXPIRATIONS_CHOICES
+    type = forms.ChoiceField(choices=options)
+
     class Meta:
-        model = lgc_models.VisaResidencePermit
+        model = lgc_models.Expiration
         fields = ['type', 'start_date', 'end_date', 'enabled']
 
-class ModerationVisaResidencePermitForm(AuthorizationsCommonForm):
+class SpouseExpirationForm(ExpirationCommon):
+    options = empty_select + lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES
+    type = forms.ChoiceField(choices=options)
+
     class Meta:
-        model = lgc_models.ModerationVisaResidencePermit
+        model = lgc_models.Expiration
         fields = ['type', 'start_date', 'end_date', 'enabled']
-
-class SpouseVisaResidencePermitForm(AuthorizationsCommonForm):
-    class Meta:
-        model = lgc_models.SpouseVisaResidencePermit
-        fields = ['type', 'start_date', 'end_date', 'enabled']
-
-class ModerationSpouseVisaResidencePermitForm(AuthorizationsCommonForm):
-    class Meta:
-        model = lgc_models.ModerationSpouseVisaResidencePermit
-        fields = ['type', 'start_date', 'end_date', 'enabled']
-
-# Work Permit:
-class WorkPermitForm(AuthorizationsCommonForm):
-    class Meta:
-        model = lgc_models.WorkPermit
-        fields = ['start_date', 'end_date', 'enabled']
-
-class ModerationWorkPermitForm(AuthorizationsCommonForm):
-    class Meta:
-        model = lgc_models.ModerationWorkPermit
-        fields = ['start_date', 'end_date', 'enabled']
-
-class SpouseWorkPermitForm(AuthorizationsCommonForm):
-    class Meta:
-        model = lgc_models.SpouseWorkPermit
-        fields = ['start_date', 'end_date', 'enabled']
-
-class ModerationSpouseWorkPermitForm(AuthorizationsCommonForm):
-    class Meta:
-        model = lgc_models.ModerationSpouseWorkPermit
-        fields = ['start_date', 'end_date', 'enabled']
 
 class ArchiveBoxForm(forms.ModelForm):
     class Meta:

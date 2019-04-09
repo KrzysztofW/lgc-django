@@ -366,13 +366,36 @@ DIRECCTE_CHOICES = (
     ('NOU', "Nouvelle Calédonie (988)"),
 )
 
-VISA_RP_CHOICES = (
-    ('', '----'),
-    ('VLS', 'VLS-TS'),
-    ('CST', 'CST'),
-    ('CSP', 'CSP'),
-    ('APS', 'APS'),
+EXPIRATION_TYPE_WP = 'WP'
+EXPIRATION_TYPE_SWP = 'SWP'
+EXPIRATION_TYPE_VLS  = 'VLS'
+EXPIRATION_TYPE_SVLS = 'SVLS'
+EXPIRATION_TYPE_CST  = 'CST'
+EXPIRATION_TYPE_SCST = 'CST'
+EXPIRATION_TYPE_CSP = 'CSP'
+EXPIRATION_TYPE_SCSP = 'SCSP'
+EXPIRATION_TYPE_APS = 'APS'
+EXPIRATION_TYPE_SAPS = 'SAPS'
+
+PERSON_EXPIRATIONS_CHOICES = (
+    (EXPIRATION_TYPE_WP, _('Work Permit')),
+    (EXPIRATION_TYPE_VLS, _('Visa or Residence Permit (VLS-TS)')),
+    (EXPIRATION_TYPE_CST, _('Visa or Residence Permit (CST)')),
+    (EXPIRATION_TYPE_CSP, 'Visa or Residence Permit (CSP)'),
+    (EXPIRATION_TYPE_APS, _('Visa or Residence Permit (APS)')),
 )
+
+PERSON_SPOUSE_EXPIRATIONS_CHOICES = (
+    (EXPIRATION_TYPE_SWP, _('Work Permit')),
+    (EXPIRATION_TYPE_SVLS, _('Visa or Residence Permit (VLS-TS)')),
+    (EXPIRATION_TYPE_SCST, _('Visa or Residence Permit (CST)')),
+    (EXPIRATION_TYPE_SCSP, _('Visa or Residence Permit (CSP)')),
+    (EXPIRATION_TYPE_SAPS, _('Visa or Residence Permit (APS)')),
+)
+
+EXPIRATION_CHOICES = (
+    ('', '----'),
+) + PERSON_EXPIRATIONS_CHOICES + PERSON_SPOUSE_EXPIRATIONS_CHOICES
 
 FILE_STATE_ACTIVE  = 'A'
 FILE_STATE_PENDING = 'P'
@@ -521,50 +544,17 @@ class Document(models.Model):
     description = models.CharField(_('Description'), max_length=50, default="")
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
-class AuthorizationsCommon(models.Model):
+class Expiration(models.Model):
+    label = _('Visas / Residence Permits / Work Permits')
+    type = models.CharField(max_length=4, default='', choices=EXPIRATION_CHOICES)
     start_date = models.DateField()
     end_date = models.DateField()
     enabled = models.BooleanField(default=True)
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
-    class Meta:
-        abstract = True
-
     def clean(self, model_class=None):
         check_dates(self.start_date, self.end_date, self.label)
         return super().clean()
-
-class VisaResidencePermitCommon(models.Model):
-    type = models.CharField(max_length=3, default='', choices=VISA_RP_CHOICES)
-    class Meta:
-        abstract = True
-
-class VisaResidencePermit(AuthorizationsCommon, VisaResidencePermitCommon):
-    label = _('residence permit')
-
-class ModerationVisaResidencePermit(AuthorizationsCommon,
-                                    VisaResidencePermitCommon):
-    pass
-
-class SpouseVisaResidencePermit(AuthorizationsCommon,
-                                VisaResidencePermitCommon):
-    label = _("spouse's residence permit")
-
-class ModerationSpouseVisaResidencePermit(AuthorizationsCommon,
-                                          VisaResidencePermitCommon):
-    pass
-
-class WorkPermit(AuthorizationsCommon):
-    label = _('work permit')
-
-class ModerationWorkPermit(WorkPermit):
-    pass
-
-class SpouseWorkPermit(AuthorizationsCommon):
-    label = _("spouse's work permit")
-
-class ModerationSpouseWorkPermit(SpouseWorkPermit):
-    pass
 
 class ArchiveBox(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
