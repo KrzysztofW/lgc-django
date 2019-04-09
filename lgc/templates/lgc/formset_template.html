@@ -67,6 +67,12 @@
       {% endfor %}
     </div>
     {% endescapescript %}
+    <script>
+      jQuery(function ($) {
+      lgc_datepicker();
+      });
+    </script>
+
   </script>
 
   <input type="button" value="{% trans 'Add' %}" data-formset-add>
