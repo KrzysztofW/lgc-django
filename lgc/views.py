@@ -71,6 +71,9 @@ def tables(request):
 
 class UserTest(UserPassesTestMixin):
     def test_func(self):
+        if not self.is_update:
+            return self.request.user.role in user_models.get_internal_roles()
+
         self.object = self.get_object()
         """ Employee check """
         if (self.request.user.role == user_models.EMPLOYEE and
@@ -1634,13 +1637,14 @@ def ajax_file_search_view(request):
 
 @login_required
 def download_file(request, *args, **kwargs):
-    if request.user.role not in user_models.get_internal_roles():
-        return http.HttpResponseForbidden()
-
     pk = kwargs.get('pk', '')
     doc = lgc_models.Document.objects.filter(id=pk).all()
     if doc == None or len(doc) != 1:
         raise Http404
+
+    if (request.user.role not in user_models.get_internal_roles() and
+        doc.person.user.id != request.user.id):
+        return http.HttpResponseForbidden()
 
     file_path = os.path.join(settings.MEDIA_ROOT, doc[0].document.name)
     if not os.path.exists(file_path):
