@@ -373,25 +373,43 @@ EXPIRATION_TYPE_SCSP = 'SCSP'
 EXPIRATION_TYPE_APS = 'APS'
 EXPIRATION_TYPE_SAPS = 'SAPS'
 
+work_permit = _('Work Permit')
+vls_ts = _('Visa or Residence Permit (VLS-TS)')
+cst = _('Visa or Residence Permit (CST)')
+csp = _('Visa or Residence Permit (CSP)')
+aps = _('Visa or Residence Permit (APS)')
+
+s_work_permit = _('Spouse Work Permit')
+s_vls_ts = _('Spouse Visa or Residence Permit (VLS-TS)')
+s_cst = _('Spouse Visa or Residence Permit (CST)')
+s_csp = _('Spouse Visa or Residence Permit (CSP)')
+s_aps = _('Spouse Visa or Residence Permit (APS)')
+
 PERSON_EXPIRATIONS_CHOICES = (
-    (EXPIRATION_TYPE_WP, _('Work Permit')),
-    (EXPIRATION_TYPE_VLS, _('Visa or Residence Permit (VLS-TS)')),
-    (EXPIRATION_TYPE_CST, _('Visa or Residence Permit (CST)')),
-    (EXPIRATION_TYPE_CSP, 'Visa or Residence Permit (CSP)'),
-    (EXPIRATION_TYPE_APS, _('Visa or Residence Permit (APS)')),
+    (EXPIRATION_TYPE_WP, work_permit),
+    (EXPIRATION_TYPE_VLS, vls_ts),
+    (EXPIRATION_TYPE_CST, cst),
+    (EXPIRATION_TYPE_CSP, csp),
+    (EXPIRATION_TYPE_APS, aps),
 )
 
 PERSON_SPOUSE_EXPIRATIONS_CHOICES = (
-    (EXPIRATION_TYPE_SWP, _('Work Permit')),
-    (EXPIRATION_TYPE_SVLS, _('Visa or Residence Permit (VLS-TS)')),
-    (EXPIRATION_TYPE_SCST, _('Visa or Residence Permit (CST)')),
-    (EXPIRATION_TYPE_SCSP, _('Visa or Residence Permit (CSP)')),
-    (EXPIRATION_TYPE_SAPS, _('Visa or Residence Permit (APS)')),
+    (EXPIRATION_TYPE_SWP, s_work_permit),
+    (EXPIRATION_TYPE_SVLS, s_vls_ts),
+    (EXPIRATION_TYPE_SCST, s_cst),
+    (EXPIRATION_TYPE_SCSP, s_csp),
+    (EXPIRATION_TYPE_SAPS, s_aps),
 )
 
-EXPIRATION_CHOICES = (
-    ('', '----'),
-) + PERSON_EXPIRATIONS_CHOICES + PERSON_SPOUSE_EXPIRATIONS_CHOICES
+PERSON_SPOUSE_EXPIRATIONS_CHOICES_SHORT = (
+    (EXPIRATION_TYPE_SWP, work_permit),
+    (EXPIRATION_TYPE_SVLS, vls_ts),
+    (EXPIRATION_TYPE_SCST, cst),
+    (EXPIRATION_TYPE_SCSP, csp),
+    (EXPIRATION_TYPE_SAPS, aps),
+)
+
+EXPIRATION_CHOICES = PERSON_EXPIRATIONS_CHOICES + PERSON_SPOUSE_EXPIRATIONS_CHOICES
 
 FILE_STATE_ACTIVE  = 'A'
 FILE_STATE_PENDING = 'P'

@@ -1,0 +1,124 @@
+{% extends "lgc/base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load tz %}
+
+{% block content %}
+{% now "Y-m-d" as today %}
+
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card">
+      <div class="card-header">
+	<div class="float-left">
+	  {% blocktrans count entries=page_obj.paginator.count %}
+	  Found {{ entries }} entry
+	  {% plural %}
+	  Found {{ entries }} entries
+	  {% endblocktrans %}
+	</div>
+      </div>
+
+      <div class="card-body">
+	<div class="row">
+	  <div class="col-sm-8">
+	    {% crispy search_form %}
+	  </div>
+	  <div class="col-sm-12 col-md-6">
+	    {% include "common/pagination_header.html" %}
+	  </div>
+	</div>
+	<table class="table table-striped table-bordered table-hover">
+	  <thead>
+	    <th scope="col">{% trans 'Type' %}
+	      {% if order_by == "type" %}
+	      <a href="?{{ order_params }}&order_by=-type"><i class="fa fa-fw fa-sort-up"></i></a>
+	      {% elif order_by == "-type" %}
+	      <a href="?{{ order_params }}&order_by=type"><i class="fa fa-fw fa-sort-down"></i></a>
+	      {% else %}
+	      <a href="?{{ order_params }}&order_by=type"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+	      {% endif %}
+	    </th>
+	    <th scope="col">{% trans "First name" %}
+	      {% if order_by == "person__first_name" %}
+	      <a href="?{{ order_params }}&order_by=-person__first_name"><i class="fa fa-fw fa-sort-up"></i></a>
+	      {% elif order_by == "-person__first_name" %}
+	      <a href="?{{ order_params }}&order_by=person__first_name"><i class="fa fa-fw fa-sort-down"></i></a>
+	      {% else %}
+	      <a href="?{{ order_params }}&order_by=person__first_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+	      {% endif %}
+	    </th>
+	    <th scope="col">{% trans "Last name" %}
+	      {% if order_by == "person__last_name" %}
+	      <a href="?{{ order_params }}&order_by=-person__last_name"><i class="fa fa-fw fa-sort-up"></i></a>
+	      {% elif order_by == "-person__last_name" %}
+	      <a href="?{{ order_params }}&order_by=person__last_name"><i class="fa fa-fw fa-sort-down"></i></a>
+	      {% else %}
+	      <a href="?{{ order_params }}&order_by=person__last_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+	      {% endif %}
+	    </th>
+	    <th scope="col">{% trans "Home entity" %}
+	      {% if order_by == "person__home_entity" %}
+	      <a href="?{{ order_params }}&order_by=-person__home_entity"><i class="fa fa-fw fa-sort-up"></i></a>
+	      {% elif order_by == "-person__home_entity" %}
+	      <a href="?{{ order_params }}&order_by=person__home_entity"><i class="fa fa-fw fa-sort-down"></i></a>
+	      {% else %}
+	      <a href="?{{ order_params }}&order_by=person__home_entity"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+	      {% endif %}
+	    </th>
+	    <th scope="col">{% trans "Expiration Date" %}
+	      {% if order_by == "end_date" %}
+	      <a href="?{{ order_params }}&order_by=-end_date"><i class="fa fa-fw fa-sort-up"></i></a>
+	      {% elif order_by == "-end_date" %}
+	      <a href="?{{ order_params }}&order_by=end_date"><i class="fa fa-fw fa-sort-down"></i></a>
+	      {% else %}
+	      <a href="?{{ order_params }}&order_by=end_date"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+	      {% endif %}
+	    </th>
+	    <th scope="col">{% trans "Enabled" %}
+	      {% if order_by == "enabled" %}
+	      <a href="?{{ order_params }}&order_by=-enabled"><i class="fa fa-fw fa-sort-up"></i></a>
+	      {% elif order_by == "-enabled" %}
+	      <a href="?{{ order_params }}&order_by=enabled"><i class="fa fa-fw fa-sort-down"></i></a>
+	      {% else %}
+	      <a href="?{{ order_params }}&order_by=enabled"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
+	      {% endif %}
+	    </th>
+
+	  </thead>
+	  <tbody>
+	    {% for o in page_obj %}
+	    <tr data-href="{% url 'lgc-file' o.person.id %}"
+		{% if not o.enabled %}
+		class="clickable-row table-secondary"
+		{% else %}
+		{% if today > o.end_date|date:"Y-m-d" %}
+		class="clickable-row bg-danger"
+		{% else %}
+		class="clickable-row table-success"
+		{% endif %}
+		{% endif %}
+		>
+	      <td>{{ o.get_type_display }}</td>
+	      <td>{{ o.person.first_name }}</td>
+	      <td>{{ o.person.last_name }}</td>
+	      <td>{{ o.person.home_entity }}</td>
+	      <td>{{ o.end_date }}</td>
+	      <td>
+		{% if o.enabled %}
+		{% trans 'Enabled' %}
+		{% else %}
+		{% trans 'Disabled' %}
+		{% endif %}
+	      </td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+	{% include 'common/pagination_buttons.html' %}
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock content %}

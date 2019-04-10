@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
+from django.core.paginator import Paginator
 from django.utils import translation
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -116,7 +117,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
 
-        return pagination(self, context, reverse_lazy('lgc-files'))
+        return pagination(self.request, context, reverse_lazy('lgc-files'))
 
     def test_func(self):
         if self.request.user.role not in user_models.get_internal_roles():
@@ -964,7 +965,7 @@ class ProcessListView(ProcessCommonView, ListView):
         context['item_url'] = self.item_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
-        return pagination(self, context, self.this_url)
+        return pagination(self.request, context, self.this_url)
 
 class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
     model = lgc_models.Process
@@ -1385,7 +1386,7 @@ class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
         context['update_url'] = self.update_url
         context['show_status'] = True
 
-        return pagination(self, context, self.list_url)
+        return pagination(self.request, context, self.list_url)
 
     def get_queryset(self):
         term = self.request.GET.get('term', '')
@@ -1654,3 +1655,76 @@ def download_file(request, *args, **kwargs):
         res['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
         return res
     raise Http404
+
+def paginate_expirations(request, object_list):
+    paginate = request.GET.get('paginate', 10)
+    order_by = request.GET.get('order_by', 'end_date')
+    object_list = object_list.order_by(order_by)
+    paginator = Paginator(object_list, paginate)
+    page = request.GET.get('page')
+    return paginator.get_page(page)
+
+@login_required
+def expirations(request, *args, **kwargs):
+    days = 90
+
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    if len(request.GET):
+        form = lgc_forms.ExpirationSearchForm(request.GET)
+    else:
+        form = lgc_forms.ExpirationSearchForm()
+        form.fields['expires'].initial = days
+
+    form.helper = FormHelper()
+    form.helper.form_method = 'get'
+    form.helper.layout = Layout(
+        Div(
+            Div('user', css_class='form-group col-md-2'),
+            Div('expires', css_class='form-group col-md-2'),
+            Div('expiry_type', css_class='form-group col-md-3'),
+            Div('show_disabled', css_class='form-group col-md-2 lgc_aligned_checkbox'),
+            css_class='form-row'),
+        Div(
+
+            css_class='form-row'),
+        )
+
+    context = {
+        'title': 'Expirations',
+        'search_form': form,
+    }
+    context = pagination(request, context, reverse_lazy('lgc-expirations'), 'end_date')
+
+    user = request.GET.get('user', None)
+    expires = request.GET.get('expires', None)
+    expiry_type = request.GET.get('expiry_type', None)
+    show_disabled = request.GET.get('show_disabled', None)
+
+    objs = lgc_models.Expiration.objects
+    if user:
+        user = User.objects.filter(id=user)
+        if len(user):
+            objs = objs.filter(person__responsible__in=user)
+
+    if expires:
+        try:
+            days = int(expires)
+            compare_date = timezone.now().date() + datetime.timedelta(days=days)
+            objs = objs.filter(end_date__lte=compare_date)
+        except:
+            pass
+    if expiry_type:
+        objs = objs.filter(type=expiry_type)
+    if not show_disabled:
+        objs = objs.filter(enabled=True)
+    context['page_obj'] = paginate_expirations(request, objs)
+
+    if context['page_obj'].has_next() or context['page_obj'].has_previous():
+        context['is_paginated'] = True
+    else:
+        context['is_paginated'] = False
+    context['today'] = timezone.now().date()
+
+    return render(request, 'lgc/expirations.html', context)

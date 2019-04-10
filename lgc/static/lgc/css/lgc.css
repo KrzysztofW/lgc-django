@@ -144,3 +144,7 @@ p {
     position:relative;
     top:5px;
 }
+
+.lgc_aligned_checkbox {
+    margin: 10px 0 0;
+}

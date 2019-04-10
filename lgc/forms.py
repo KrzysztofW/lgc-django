@@ -11,6 +11,8 @@ from django_countries.fields import CountryField
 
 User = get_user_model()
 
+empty_select = (('', '----'),)
+
 class LgcTab(Tab):
     link_template = 'lgc/lgc_tab.html'
     lgc_active = False
@@ -114,7 +116,6 @@ class ExpirationCommon(forms.ModelForm):
     class Meta:
         abstract = True
 
-empty_select = (('', '----'),)
 class ExpirationForm(ExpirationCommon):
     options = empty_select + lgc_models.PERSON_EXPIRATIONS_CHOICES
     type = forms.ChoiceField(choices=options)
@@ -124,7 +125,7 @@ class ExpirationForm(ExpirationCommon):
         fields = ['type', 'start_date', 'end_date', 'enabled']
 
 class SpouseExpirationForm(ExpirationCommon):
-    options = empty_select + lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES
+    options = empty_select + lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES_SHORT
     type = forms.ChoiceField(choices=options)
 
     class Meta:
@@ -162,7 +163,6 @@ class PersonProcessSpecificStageForm(forms.Form):
 
     class Meta:
         fields = '__all__'
-
 
 PROCESS_STAGE_NONE = '-'
 PROCESS_STAGE_DELETE = 'D'
@@ -227,3 +227,24 @@ class DocumentFormSet(forms.ModelForm):
     class Meta:
         model = lgc_models.Document
         fields = ['id']
+
+class ExpirationSearchForm(forms.Form):
+    user = forms.ModelChoiceField(required=False, label=_('Responsible'),
+                                  widget=forms.Select(attrs={'class':'form-control',
+                                                             'onchange':'form.submit();'}),
+                                  queryset=user_models.get_local_user_queryset())
+    expiry_type = forms.ChoiceField(label=_('Expiration Type'),
+                                    required=False,
+                                    choices=empty_select +
+                                    lgc_models.EXPIRATION_CHOICES,
+                                    widget=forms.Select(attrs={'class':'form-control',
+                                                               'onchange':'form.submit();'}))
+
+    expires = forms.IntegerField(required=False, label=_('Expires in days'),
+                                 min_value=0, max_value=10000,
+                                 widget=forms.NumberInput(attrs={'onchange':'form.submit();'}))
+    show_disabled = forms.BooleanField(required=False, label=_('Show disabled'),
+                                       widget=forms.CheckboxInput(attrs={'onchange':'form.submit();'}))
+
+    class Meta:
+        fields = '__all__'
