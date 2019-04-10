@@ -111,7 +111,6 @@ PREFECTURE_CHOICES = (
 )
 
 SUBPREFECTURE_CHOICES = (
-    ('', '----'),
     ('MAR', "Marseille (13)"),
     ('AIX', "Aix en Provence (13)"),
     ('IST', "Istres (13)"),
@@ -172,7 +171,6 @@ SUBPREFECTURE_CHOICES = (
 
 # the first two characters must match a real country code
 JURISDICTION_SPECIFIQUE_CHOICES = (
-    ('', '----'),
     ('DEB', "Berlin (Allemagne)"),
     ('DEF', "Francfort (Allemagne)"),
     ('BRB', "Brasilia (Brésil)"),
@@ -219,7 +217,6 @@ JURISDICTION_SPECIFIQUE_CHOICES = (
 )
 
 CONSULATE_CHOICES = (
-    ('', '----'),
     ('ZA', "Afrique Du Sud"),
     ('DE', "Allemagne"),
     ('DZ', "Algérie"),
@@ -288,7 +285,6 @@ CONSULATE_CHOICES = (
 )
 
 DIRECCTE_CHOICES = (
-    ('', '----'),
     ('AIN', "Ain (01)"),
     ('AIS', "Aisne (02)"),
     ('ALL', "Allier (03)"),
@@ -415,7 +411,6 @@ class AccountCommon(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 null=True, blank=True,
                                 related_name='person_user_set')
-
     class Meta:
         abstract = True
 
@@ -466,6 +461,7 @@ class PersonInfo(models.Model):
 
     local_address = models.TextField(_('Local Address'), max_length=100,
                                      default='', blank=True)
+
     local_phone_number = models.CharField(_('Local Phone Number'),
                                           max_length=50, default='',
                                           blank=True)
