@@ -55,7 +55,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         order_by = self.get_ordering()
         context['title'] = _("Users")
 
-        return pagination(self, context, reverse_lazy('lgc-users'))
+        return pagination(self.request, context, reverse_lazy('lgc-users'))
 
 class UserCreateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixin,
                      CreateView):

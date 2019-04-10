@@ -24,28 +24,25 @@ def must_be_staff(view_func):
         return view_func(request, *args, **kwargs)
     return func_wrapper
 
-def pagination(django_object, context, url):
-    context['params'] = urlencode(django_object.request.GET)
+def pagination(request, context, url, default_order_by='id'):
+    context['params'] = urlencode(request.GET)
     context['url'] = url
-    order_by = django_object.request.GET.get('order_by', 'id')
-    get_order = django_object.request.GET.copy()
+    order_by = request.GET.get('order_by', default_order_by)
+    get_order = request.GET.copy()
 
-    if 'order_by' in get_order:
-        get_order.pop('order_by')
-        context['order_params'] = urlencode(get_order)
+    get_order.pop('order_by', '')
+    context['order_params'] = urlencode(get_order)
 
-    get_page = django_object.request.GET.copy()
-    if 'page' in get_page:
-        del get_page['page']
+    get_page = request.GET.copy()
+    get_page.pop('page', '')
     context['page_params'] = urlencode(get_page)
 
     get_paginate = get_page.copy()
-    if 'paginate' in get_paginate:
-        del get_paginate['paginate']
+    get_paginate.pop('paginate', '')
     context['paginate_params'] = urlencode(get_paginate)
 
     context['order_by'] = order_by
-    paginate = django_object.request.GET.get('paginate')
+    paginate = request.GET.get('paginate')
     if paginate == "25":
         context['25_selected'] = "selected"
     elif paginate == "50":
