@@ -89,7 +89,7 @@ class UserTest(UserPassesTestMixin):
         """ Internal user check """
         if self.request.user.role not in user_models.get_internal_roles():
             return False
-        if (self.request.user.role == user_models.JURISTE and
+        if (self.request.user.role == user_models.JURIST and
             (not self.request.user in self.object.responsible.all())):
             return False
         return True
@@ -128,7 +128,7 @@ class PersonListView(PersonCommonListView):
     def get_queryset(self):
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
-        if self.request.user.role == user_models.JURISTE:
+        if self.request.user.role == user_models.JURIST:
             objs = lgc_models.Person.objects.filter(responsible=self.request.user)
         else:
             objs = lgc_models.Person.objects
@@ -1614,7 +1614,7 @@ def ajax_file_search_view(request):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
 
-    if request.user.role == user_models.JURISTE:
+    if request.user.role == user_models.JURIST:
         objs = lgc_models.Person.objects.filter(responsible=request.user)
     else:
         objs = lgc_models.Person.objects

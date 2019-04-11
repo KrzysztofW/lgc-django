@@ -9,7 +9,7 @@ LANGUAGE_CHOICES = (
     (FRENCH, _('French')),
 )
 
-JURISTE    = 'JU'
+JURIST    = 'JU'
 CONSULTANT = 'CO'
 HR_ADMIN   = 'HA'
 HR         = 'HR'
@@ -22,12 +22,12 @@ EXTERNAL_ROLE_CHOICES = (
 )
 
 INTERNAL_ROLE_CHOICES = (
-    (JURISTE,    _('Juriste')),
+    (JURIST,    _('Jurist')),
     (CONSULTANT, _('Consultant')),
 )
 
 ALL_ROLE_CHOICES = (
-    (JURISTE,    _('Juriste')),
+    (JURIST,    _('Jurist')),
     (CONSULTANT, _('Consultant')),
     (HR_ADMIN,   _('HR Admin')),
     (HR,         _('HR')),
@@ -49,8 +49,14 @@ def get_external_roles():
 def get_hr_roles():
     return [HR, HR_ADMIN]
 
+def get_jurist_queryset():
+    return User.objects.filter(role__exact=JURIST)
+
+def get_consultant_queryset():
+    return User.objects.filter(role__exact=CONSULTANT)
+
 def get_local_user_queryset():
-    return User.objects.filter(role__exact=JURISTE)|User.objects.filter(role__exact=CONSULTANT)
+    return get_jurist_queryset()|get_consultant_queryset()
 
 def get_employee_user_queryset():
     return User.objects.filter(role__exact=EMPLOYEE)
@@ -102,7 +108,7 @@ class User(AbstractUser):
                                 default=None)
 
     role = models.CharField(max_length=2, choices=ALL_ROLE_CHOICES,
-                            default=JURISTE)
+                            default=JURIST)
     billing = models.BooleanField(default=False)
     objects = UserManager()
     token = models.CharField(max_length=64, default="", blank=True)
