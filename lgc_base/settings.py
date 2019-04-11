@@ -143,3 +143,5 @@ AUTH_PASSWORD_EXPIRY = 3 * 30
 MEDIA_ROOT= '/home/partage/LGC-documents'
 MEDIA_URL = '/docs/'
 MAX_FILE_SIZE = 2 # in megabytes
+
+EXPIRATIONS_NB_DAYS  = 90

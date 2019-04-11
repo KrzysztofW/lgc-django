@@ -2,11 +2,12 @@
 {% load custom_tags %}
 {% load humanize %}
 
+{% now "Y-m-d" as today %}
 {% get_notification_menu request as notifs %}
+
 <ul class="nav navbar-nav ml-md-auto flex-row navbar-top-links bg-light">
 
   {% include 'lgc/dropdown_menu_lang.html' %}
-
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
        aria-haspopup="true" aria-expanded="false">
@@ -90,26 +91,49 @@
     <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
        aria-haspopup="true" aria-expanded="false">
       <i class="far fa-bell fa-fw"></i>
-      {% if notifs.nb_items > 0 %}<span class="notification">{{ notifs.nb_items }}</span>{% endif %}
+      {% if notifs.nb_items > 0 and notifs.nb_items < 100 %}
+      <span class="notification">{{ notifs.nb_items }}</span>
+      {% elif notifs.nb_items > 100 %}
+      <span class="notification">+99</span>
+      {% endif %}
     </a>
     <div class="dropdown-menu dropdown-menu-right dropdown-alerts" style="width:400px;">
       {% for f in notifs.updated_files %}
       <a class="dropdown-item" href="{% url 'lgc-file' f.id %}">
         <div>
-          <i class="fa fa-file fa-fw"></i> {{ f.first_name }} {{ f.last_name }} ({% trans 'pending' %})
+          <i class="fa fa-file fa-fw"></i> {{ f.first_name }} {{ f.last_name }} ({% trans 'file updated' %})
           <span class="float-right text-muted small">{{ f.modification_date|naturaltime }}</span>
         </div>
       </a>
       <div class="dropdown-divider"></div>
       {% endfor %}
 
-      <a class="dropdown-item" href="#">
+      {% for e in notifs.expirations %}
+      <a class="dropdown-item" href="{% url 'lgc-file' e.person.id %}">
         <div>
-          <i class="fa fa-comment fa-fw"></i> Passport expired
-          <span class="float-right text-muted small">4 minutes ago</span>
+          <i class="fa fa-hourglass-end fa-fw"></i>
+	  {% with name=e.person.first_name|add:' '|add:e.person.last_name line_length=e.person.first_name %}
+	  {{ name|truncatechars:19 }}
+	  {% endwith %}
+	  <span class="float-right text-muted small">
+	    {% get_expiration_mapping e.type as e_mapping %}
+	    {{ e_mapping }}
+	    {% if e.end_date|date:'Y-m-d' < today %}
+	    {% trans 'expired' %}
+	    {% else %}
+	    {% trans 'expires in' %}
+	    {% if e.end_date|timeuntil|wordcount > 2 %}
+	    {{ e.end_date|timeuntil|truncatewords:2|slice:":-3" }}
+	    {% else %}
+	    {{ e.end_date|timeuntil }}
+	    {% endif %}
+	    {% endif %}
+	  </span>
         </div>
       </a>
       <div class="dropdown-divider"></div>
+      {% endfor %}
+
       <a class="dropdown-item" href="#">
         <div>
           <i class="fa fa-envelope fa-fw"></i> Work authorization expired

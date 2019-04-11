@@ -1666,7 +1666,7 @@ def paginate_expirations(request, object_list):
 
 @login_required
 def expirations(request, *args, **kwargs):
-    days = 90
+    days = settings.EXPIRATIONS_NB_DAYS
 
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
@@ -1725,6 +1725,5 @@ def expirations(request, *args, **kwargs):
         context['is_paginated'] = True
     else:
         context['is_paginated'] = False
-    context['today'] = timezone.now().date()
 
     return render(request, 'lgc/expirations.html', context)

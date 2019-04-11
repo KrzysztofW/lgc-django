@@ -364,8 +364,8 @@ DIRECCTE_CHOICES = (
 
 EXPIRATION_TYPE_WP = 'WP'
 EXPIRATION_TYPE_SWP = 'SWP'
-EXPIRATION_TYPE_VLS  = 'VLS'
-EXPIRATION_TYPE_SVLS = 'SVLS'
+EXPIRATION_TYPE_VLS  = 'VLS-TS'
+EXPIRATION_TYPE_SVLS = 'SVLS-TS'
 EXPIRATION_TYPE_CST  = 'CST'
 EXPIRATION_TYPE_SCST = 'CST'
 EXPIRATION_TYPE_CSP = 'CSP'
@@ -384,6 +384,12 @@ s_vls_ts = _('Spouse Visa or Residence Permit (VLS-TS)')
 s_cst = _('Spouse Visa or Residence Permit (CST)')
 s_csp = _('Spouse Visa or Residence Permit (CSP)')
 s_aps = _('Spouse Visa or Residence Permit (APS)')
+
+compact_s_work_permit = _('Spouse WP')
+compact_s_vls_ts = _('Spouse VLS-TS')
+compact_s_cst = _('Spouse CST')
+compact_s_csp = _('Spouse CSP')
+compact_s_aps = _('Spouse APS')
 
 PERSON_EXPIRATIONS_CHOICES = (
     (EXPIRATION_TYPE_WP, work_permit),
@@ -407,6 +413,14 @@ PERSON_SPOUSE_EXPIRATIONS_CHOICES_SHORT = (
     (EXPIRATION_TYPE_SCST, cst),
     (EXPIRATION_TYPE_SCSP, csp),
     (EXPIRATION_TYPE_SAPS, aps),
+)
+
+PERSON_SPOUSE_EXPIRATIONS_CHOICES_COMPACT = (
+    (EXPIRATION_TYPE_SWP, compact_s_work_permit),
+    (EXPIRATION_TYPE_SVLS, compact_s_vls_ts),
+    (EXPIRATION_TYPE_SCST, compact_s_cst),
+    (EXPIRATION_TYPE_SCSP, compact_s_csp),
+    (EXPIRATION_TYPE_SAPS, compact_s_aps),
 )
 
 EXPIRATION_CHOICES = PERSON_EXPIRATIONS_CHOICES + PERSON_SPOUSE_EXPIRATIONS_CHOICES
@@ -560,7 +574,7 @@ class Document(models.Model):
 
 class Expiration(models.Model):
     label = _('Visas / Residence Permits / Work Permits')
-    type = models.CharField(max_length=4, default='', choices=EXPIRATION_CHOICES)
+    type = models.CharField(max_length=7, default='', choices=EXPIRATION_CHOICES)
     start_date = models.DateField()
     end_date = models.DateField()
     enabled = models.BooleanField(default=True)
