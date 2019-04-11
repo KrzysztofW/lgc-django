@@ -852,7 +852,7 @@ def ajax_process_search_view(request):
     objs = objs[:10]
 
     for o in objs:
-        if term in o.name.lower():
+        if o.name.lower().startswith(term):
             o.b_name = o.name.lower()
     context = {
         'objects': objs
@@ -871,7 +871,7 @@ def ajax_person_process_search_view(request, *args, **kwargs):
     objs = objs[:10]
 
     for o in objs:
-        if term in o.process.name.lower():
+        if o.process.name.lower().startswith(term):
             o.b_name = o.process.name.lower()
     context = {
         'objects': objs
@@ -889,9 +889,9 @@ def ajax_process_stage_search_view(request):
     objs = objs[:10]
 
     for o in objs:
-        if term in o.name_fr.lower():
+        if o.name_fr.lower().startswith(term):
             o.b_name = o.name_fr.lower()
-        elif term in o.name_en.lower():
+        elif o.name_en.lower().startswith(term):
             o.b_name = o.name_en.lower()
     context = {
         'objects': objs
@@ -1597,11 +1597,11 @@ def ajax_insert_employee_view(request):
     employees = employees[:10]
 
     for f in employees:
-        if term in f.first_name.lower():
+        if f.first_name.lower().startswith(term):
             f.b_first_name = f.first_name.lower()
-        elif term in f.last_name.lower():
+        elif f.last_name.lower().startswith(term):
             f.b_last_name = f.last_name.lower()
-        elif term in f.email.lower():
+        elif f.email.lower().startswith(term):
             f.b_email = f.email.lower()
 
     context = {
@@ -1620,6 +1620,8 @@ def ajax_file_search_view(request):
         objs = lgc_models.Person.objects
 
     term = request.GET.get('term', '')
+    if term == '':
+        return
     files = (objs.filter(first_name__istartswith=term)|
              objs.filter(last_name__istartswith=term)|
              objs.filter(email__istartswith=term)|
@@ -1628,15 +1630,15 @@ def ajax_file_search_view(request):
     files = files[:10]
 
     for f in files:
-        if term in f.first_name.lower():
+        if f.first_name.lower().startswith(term):
             f.b_first_name = f.first_name.lower()
-        elif term in f.last_name.lower():
+        elif f.last_name.lower().startswith(term):
             f.b_last_name = f.last_name.lower()
-        elif f.email and term in f.email.lower():
+        elif f.email and f.email.lower().startswith(term):
             f.b_email = f.email.lower()
-        elif f.host_entity and term in f.host_entity.lower():
+        elif f.host_entity and f.host_entity.lower().startswith(term):
             f.b_host_entity = f.host_entity.lower()
-        elif f.home_entity and term in f.home_entity.lower():
+        elif f.home_entity and f.home_entity.lower().startswith(term):
             f.b_home_entity = f.home_entity.lower()
 
     context = {

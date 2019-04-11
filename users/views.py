@@ -264,9 +264,9 @@ def __ajax_view(request, users):
     for u in users:
         if u.email.lower().startswith(term):
             u.b_email = u.email.lower()
-        elif u.first_name.lower().startswith(term):
+        if u.first_name.lower().startswith(term):
             u.b_first_name = u.first_name.lower()
-        elif u.last_name.lower().startswith(term):
+        if u.last_name.lower().startswith(term):
             u.b_last_name = u.last_name.lower()
     context = {
         'users': users

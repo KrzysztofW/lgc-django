@@ -11,6 +11,48 @@ $(document).ready(function(){
     });
 });
 
+function listener_cb(inp, arr) {
+    var a, b, i, val = inp.value;
+    /* close any already open lists of autocompleted values */
+    closeAllLists(null, inp);
+    if (!val || typeof arr == 'undefined')
+	return false;
+
+    currentFocus = -1;
+    /* create a DIV element that will contain the items (values): */
+    a = document.createElement("DIV");
+    a.setAttribute("id", inp.id + "autocomplete-list");
+    a.setAttribute("class", "autocomplete-items");
+    /* append the DIV element as a child of the autocomplete container: */
+    inp.parentNode.appendChild(a);
+    /* for each item in the array... */
+    for (i = 0; i < arr.length; i++) {
+	val = val.toLowerCase();
+	/* create a DIV element for each matching element: */
+	b = document.createElement("DIV");
+	b.innerHTML = arr[i].replace(val, "<strong>" + val + "</strong>");
+	b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+	b.addEventListener("click", function(e) {
+	    input_values = this.getElementsByTagName("input")
+	    inp.value = input_values[0].value;
+	    closeAllLists(null, inp);
+	});
+	a.appendChild(b);
+    }
+}
+
+function closeAllLists(elmnt, inp) {
+    /* close all autocomplete lists in the document,
+     * except the one passed as an argument: */
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (var i = 0; i < x.length; i++) {
+	if (elmnt != x[i] && elmnt != inp) {
+	    x[i].parentNode.removeChild(x[i]);
+	}
+    }
+}
+
+
 $("#search_box").keyup(function (event) {
     var term = $("#search_box").val();
 
@@ -47,7 +89,14 @@ $("#search_box").keyup(function (event) {
 		    continue;
 		array2.push(array[item]);
 	    }
-	    autocomplete(document.getElementById("search_box"), array2);
+
+	    /* remove duplicates */
+	    set = new Set(array2);
+	    array = Array.from(set);
+
+	    search_box = document.getElementById("search_box");
+	    autocomplete(search_box, array);
+	    listener_cb(search_box, array);
 	}
     });
 });
@@ -56,51 +105,26 @@ function autocomplete(inp, arr) {
     var currentFocus = -1;
 
     inp.addEventListener("input", function(e) {
-	var a, b, i, val = this.value;
-	/* close any already open lists of autocompleted values */
-	closeAllLists();
-	if (!val || typeof arr == 'undefined')
-	    return false;
-
-	currentFocus = -1;
-	/* create a DIV element that will contain the items (values): */
-	a = document.createElement("DIV");
-	a.setAttribute("id", this.id + "autocomplete-list");
-	a.setAttribute("class", "autocomplete-items");
-	/* append the DIV element as a child of the autocomplete container: */
-	this.parentNode.appendChild(a);
-	/* for each item in the array... */
-	for (i = 0; i < arr.length; i++) {
-	    val = val.toLowerCase();
-
-	    /* create a DIV element for each matching element: */
-	    b = document.createElement("DIV");
-	    b.innerHTML = arr[i].replace(val, "<strong>" + val + "</strong>");
-	    b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-	    b.addEventListener("click", function(e) {
-		inp.value = this.getElementsByTagName("input")[0].value;
-		closeAllLists();
-	    });
-	    a.appendChild(b);
-	}
+	listener_cb(inp, arr);
     });
+    function show_completed(e, keyCode) {
+	var x = document.getElementById(inp.id + "autocomplete-list");
 
-    inp.addEventListener("keydown", function(e) {
-	var x = document.getElementById(this.id + "autocomplete-list");
-	if (x) x = x.getElementsByTagName("div");
-	if (e.keyCode == 40) {
+	if (x)
+		x = x.getElementsByTagName("div");
+	if (keyCode == 40) {
 	    /* If the arrow DOWN key is pressed,
 	     * increase the currentFocus variable: */
 	    currentFocus++;
-	    /* and and make the current item more visible: */
+	    /* and make the current item more visible: */
 	    addActive(x);
-	} else if (e.keyCode == 38) { //up
+	} else if (keyCode == 38) { //up
 	    /* If the arrow UP key is pressed,
 	     * decrease the currentFocus variable: */
 	    currentFocus--;
 	    /* and and make the current item more visible: */
 	    addActive(x);
-	} else if (e.keyCode == 13) {
+	} else if (keyCode == 13) {
 	    /* If the ENTER key is pressed, prevent the form from being submitted */
 	    e.preventDefault();
 	    if (currentFocus > -1) {
@@ -108,6 +132,10 @@ function autocomplete(inp, arr) {
 		if (x) x[currentFocus].click();
 	    }
 	}
+    }
+
+    inp.addEventListener("keydown", function(e) {
+	show_completed(e, e.keyCode);
     });
     function addActive(x) {
 	/* a function to classify an item as "active": */
@@ -125,19 +153,10 @@ function autocomplete(inp, arr) {
 	    x[i].classList.remove("autocomplete-active");
 	}
     }
-    function closeAllLists(elmnt) {
-	/* close all autocomplete lists in the document,
-	 * except the one passed as an argument: */
-	var x = document.getElementsByClassName("autocomplete-items");
-	for (var i = 0; i < x.length; i++) {
-	    if (elmnt != x[i] && elmnt != inp) {
-		x[i].parentNode.removeChild(x[i]);
-	    }
-	}
-    }
+    show_completed(null, 38);
     /* execute a function when someone clicks in the document: */
     document.addEventListener("click", function (e) {
-	closeAllLists(e.target);
+	closeAllLists(e.target, inp);
 	$("#search").submit();
     });
 }
