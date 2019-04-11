@@ -7,21 +7,29 @@ $(document).ready(function(){
     if (d == "break")
 	delim = /\n/;
     $(".clickable-row").click(function() {
-        window.location = $(this).data("href");
+	window.location = $(this).data("href");
     });
 });
 
 $("#search_box").keyup(function (event) {
     var term = $("#search_box").val();
 
-    if (term.length < 2)
+    if (term.length == 0)
 	return;
+
     if (event.keyCode === 13) {
 	$("#search").submit();
 	return;
     }
+
+    /* ignore up/down arrow keys */
     if (event.keyCode == 40 || event.keyCode == 38)
 	return;
+
+    /* ignore left/right arrow keys */
+    if (event.keyCode == 37 || event.keyCode == 39)
+	return;
+
     $.ajax({
 	url: url,
 	data: {

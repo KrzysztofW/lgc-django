@@ -1613,14 +1613,18 @@ def ajax_insert_employee_view(request):
 def ajax_file_search_view(request):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
+
     if request.user.role == user_models.JURISTE:
         objs = lgc_models.Person.objects.filter(responsible=request.user)
     else:
         objs = lgc_models.Person.objects
+
     term = request.GET.get('term', '')
     files = (objs.filter(first_name__istartswith=term)|
              objs.filter(last_name__istartswith=term)|
-             objs.filter(email__istartswith=term))
+             objs.filter(email__istartswith=term)|
+             objs.filter(host_entity__istartswith=term)|
+             objs.filter(home_entity__istartswith=term))
     files = files[:10]
 
     for f in files:
@@ -1628,13 +1632,17 @@ def ajax_file_search_view(request):
             f.b_first_name = f.first_name.lower()
         elif term in f.last_name.lower():
             f.b_last_name = f.last_name.lower()
-        elif term in f.email.lower():
+        elif f.email and term in f.email.lower():
             f.b_email = f.email.lower()
+        elif f.host_entity and term in f.host_entity.lower():
+            f.b_host_entity = f.host_entity.lower()
+        elif f.home_entity and term in f.home_entity.lower():
+            f.b_home_entity = f.home_entity.lower()
 
     context = {
-        'users': files
+        'persons': files
     }
-    return render(request, 'users/search.html', context)
+    return render(request, 'lgc/file_search.html', context)
 
 @login_required
 def download_file(request, *args, **kwargs):
