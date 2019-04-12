@@ -1609,26 +1609,9 @@ def ajax_insert_employee_view(request):
     }
     return render(request, 'lgc/insert_employee.html', context)
 
-@login_required
-def ajax_file_search_view(request):
-    if request.user.role not in user_models.get_internal_roles():
-        return http.HttpResponseForbidden()
-
-    if request.user.role == user_models.JURIST:
-        objs = lgc_models.Person.objects.filter(responsible=request.user)
-    else:
-        objs = lgc_models.Person.objects
-
-    term = request.GET.get('term', '')
-    if term == '':
-        return
-    files = (objs.filter(first_name__istartswith=term)|
-             objs.filter(last_name__istartswith=term)|
-             objs.filter(email__istartswith=term)|
-             objs.filter(host_entity__istartswith=term)|
-             objs.filter(home_entity__istartswith=term))
-    files = files[:10]
-
+def ajax_file_search_mark_bold(files, term):
+    if files == None:
+        return None
     for f in files:
         if f.first_name.lower().startswith(term):
             f.b_first_name = f.first_name.lower()
@@ -1640,9 +1623,46 @@ def ajax_file_search_view(request):
             f.b_host_entity = f.host_entity.lower()
         elif f.home_entity and f.home_entity.lower().startswith(term):
             f.b_home_entity = f.home_entity.lower()
+    return files
+
+def ajax_file_search_find_objs(objs, term):
+    return (objs.filter(first_name__istartswith=term)|
+            objs.filter(last_name__istartswith=term)|
+            objs.filter(email__istartswith=term)|
+            objs.filter(host_entity__istartswith=term)|
+            objs.filter(home_entity__istartswith=term))
+
+@login_required
+def ajax_file_search_view(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    if request.user.role == user_models.JURIST:
+        objs = lgc_models.Person.objects.filter(responsible=request.user)
+    else:
+        objs = lgc_models.Person.objects
+
+    term = request.GET.get('term', '')
+
+    """ ignore empty requests """
+    if term == '':
+        return
+
+    if term == 'le' or term == 'la':
+        eterm = term + ' '
+        efiles = ajax_file_search_find_objs(objs, eterm)[:10]
+        if len(efiles) < 10:
+            files = objs.exclude(first_name__istartswith=eterm).exclude(last_name__istartswith=eterm).exclude(email__istartswith=eterm).exclude(host_entity__istartswith=eterm).exclude(home_entity__istartswith=eterm)
+            files = ajax_file_search_find_objs(files, term)[:(10-len(efiles))]
+        else:
+            files = None
+    else:
+        efiles = None
+        files = ajax_file_search_find_objs(objs, term)[:10]
 
     context = {
-        'persons': files
+        'persons': ajax_file_search_mark_bold(files, term),
+        'extra_persons': ajax_file_search_mark_bold(efiles, term),
     }
     return render(request, 'lgc/file_search.html', context)
 
