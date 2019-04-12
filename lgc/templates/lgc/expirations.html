@@ -89,8 +89,12 @@
 		{% endif %}
 		{% endif %}
 		>
-	      <td>{{ o.get_type_display }}
-		{% if not o.enabled %} (<i>{% trans 'disabled' %}</i>){% endif %}
+	      <td>
+		{% if not o.enabled %}
+		<i>{{ o.get_type_display }} ({% trans 'disabled' %})</i>
+		{% else %}
+		{{ o.get_type_display }}
+		{% endif %}
 	      </td>
 	      <td>{{ o.person.first_name }}</td>
 	      <td>{{ o.person.last_name }}</td>
