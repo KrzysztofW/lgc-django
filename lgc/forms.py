@@ -1,3 +1,4 @@
+from django.utils import translation
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
@@ -12,6 +13,12 @@ from django_countries.fields import CountryField
 User = get_user_model()
 
 empty_select = (('', '----'),)
+
+def datepicker_set_lang_widget(obj, field):
+    if translation.get_language() == 'fr':
+        obj.fields[field].widget = DatePickerInput(format='%d/%m/%Y')
+    else:
+        obj.fields[field].widget = DatePickerInput(format='%m/%d/%Y')
 
 class LgcTab(Tab):
     link_template = 'lgc/lgc_tab.html'
@@ -38,6 +45,10 @@ class EmployeeUpdateForm(forms.ModelForm):
         model = lgc_models.Person
         exclude = ['creation_date', 'modified_by', 'responsible',
                    'info_process', 'state']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_lang_widget(self, 'birth_date')
 
 class PersonSearchForm(forms.Form):
     id = forms.CharField(required=False, )
@@ -73,6 +84,9 @@ class PersonSearchForm(forms.Form):
     start_date = forms.CharField(required=False,
                                  widget=DatePickerInput(attrs={'onchange':'form.submit();'}),
                                  label=_('Start Date'))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_lang_widget(self, 'start_date')
 
 class PersonCreateForm(forms.ModelForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
@@ -92,6 +106,10 @@ class PersonCreateForm(forms.ModelForm):
                                           label=_('Create an active process'))
     foreign_country = CountryField().formfield(required=False,
                                                widget=forms.Select(attrs={'onchange':'auto_complete_jurisdiction(this);'}))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_lang_widget(self, 'birth_date')
+        datepicker_set_lang_widget(self, 'start_date')
 
     class Meta:
         model = lgc_models.Person
@@ -139,6 +157,11 @@ class ChildCreateForm(forms.ModelForm):
         model = lgc_models.Child
         exclude = ['person']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_lang_widget(self, 'birth_date')
+        datepicker_set_lang_widget(self, 'passport_expiry')
+
 class ModerationChildCreateForm(ChildCreateForm):
     class Meta:
         model = lgc_models.ModerationChild
@@ -159,6 +182,11 @@ class ExpirationForm(ExpirationCommon):
         model = lgc_models.Expiration
         fields = ['type', 'start_date', 'end_date', 'enabled']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_lang_widget(self, 'start_date')
+        datepicker_set_lang_widget(self, 'end_date')
+
 class SpouseExpirationForm(ExpirationCommon):
     options = empty_select + lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES_SHORT
     type = forms.ChoiceField(choices=options)
@@ -166,6 +194,11 @@ class SpouseExpirationForm(ExpirationCommon):
     class Meta:
         model = lgc_models.Expiration
         fields = ['type', 'start_date', 'end_date', 'enabled']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_lang_widget(self, 'start_date')
+        datepicker_set_lang_widget(self, 'end_date')
 
 class ArchiveBoxForm(forms.ModelForm):
     class Meta:
