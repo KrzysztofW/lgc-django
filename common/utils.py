@@ -1,3 +1,5 @@
+from django.utils.formats import get_format
+from datetime import datetime
 from django.utils.translation import ugettext as _
 from django.urls import reverse_lazy
 import time
@@ -130,3 +132,15 @@ def lgc_send_email(obj, action):
                     [to], html_message=msg_html)
     if ret != 1:
         raise RuntimeError('cannot send email')
+
+    from datetime import datetime
+
+def parse_date(date_str):
+    """Parse date from string by DATE_INPUT_FORMATS of current language"""
+    for item in get_format('DATE_INPUT_FORMATS'):
+        try:
+            return datetime.strptime(date_str, item).date()
+        except (ValueError, TypeError):
+            continue
+
+    return None

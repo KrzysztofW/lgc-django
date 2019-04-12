@@ -39,6 +39,41 @@ class EmployeeUpdateForm(forms.ModelForm):
         exclude = ['creation_date', 'modified_by', 'responsible',
                    'info_process', 'state']
 
+class PersonSearchForm(forms.Form):
+    id = forms.CharField(required=False, )
+    info_process = forms.ChoiceField(required=False,
+                                     choices=lgc_models.PROCESS_CHOICES,
+                                     label=_('Process'),
+                                     widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    state = forms.ChoiceField(required=False,
+                              choices=lgc_models.FILE_STATE_CHOICES,
+                              label=_('State'),
+                              widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    jurist = forms.ModelChoiceField(required=False, label=_('Jurist'),
+                                    widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}),
+                                    queryset=user_models.get_jurist_queryset())
+    consultant = forms.ModelChoiceField(required=False, label=_('Consultant'),
+                                        widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}),
+                                        queryset=user_models.get_consultant_queryset())
+    prefecture = forms.ChoiceField(required=False, label=_('Prefecture'),
+                                   choices=lgc_models.PREFECTURE_CHOICES,
+                                   widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    subprefecture = forms.ChoiceField(required=False, label=_('Subprefecture'),
+                                      choices=lgc_models.SUBPREFECTURE_CHOICES,
+                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    consulate = forms.ChoiceField(required=False, label=_('Consulate'),
+                                  choices=lgc_models.CONSULATE_CHOICES,
+                                  widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    direccte = forms.ChoiceField(required=False, label='DIRECCTE',
+                                 choices=lgc_models.DIRECCTE_CHOICES,
+                                 widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    jurisdiction = forms.ChoiceField(required=False, label=_('Jurisdiction'),
+                                     choices=lgc_models.JURISDICTION_SPECIFIQUE_CHOICES,
+                                     widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    start_date = forms.CharField(required=False,
+                                 widget=DatePickerInput(attrs={'onchange':'form.submit();'}),
+                                 label=_('Start Date'))
+
 class PersonCreateForm(forms.ModelForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
     birth_date = forms.DateField(widget=DatePickerInput(), label=_('Birth Date'))

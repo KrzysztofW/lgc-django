@@ -1,7 +1,8 @@
+import pdb                # pdb.set_trace()
 from django.db import transaction
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
 from common.utils import pagination, lgc_send_email, must_be_staff
-from common.lgc_types import ReqType, ReqAction
+import common.utils as common_utils
 from django import http
 from django.contrib import messages
 from django.shortcuts import render
@@ -112,11 +113,12 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Files')
-        context['create_url'] = reverse_lazy('lgc-file-create')
         context['update_url'] = 'lgc-file'
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
 
+        if self.request.user.role == user_models.CONSULTANT:
+            context['create_url'] = reverse_lazy('lgc-file-create')
         return pagination(self.request, context, reverse_lazy('lgc-files'))
 
     def test_func(self):
@@ -125,6 +127,51 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
         return True
 
 class PersonListView(PersonCommonListView):
+    def match_extra_terms(self, objs):
+        id = self.request.GET.get('id', '')
+        info_process = self.request.GET.get('info_process', '')
+        state = self.request.GET.get('state', '')
+        jurist = self.request.GET.get('jurist', '')
+        consultant = self.request.GET.get('consultant', '')
+        prefecture = self.request.GET.get('prefecture', '')
+        subprefecture = self.request.GET.get('subprefecture', '')
+        consulate = self.request.GET.get('consulate', '')
+        direccte = self.request.GET.get('direccte', '')
+        jurisdiction = self.request.GET.get('jurisdiction', '')
+        start_date = self.request.GET.get('start_date', '')
+
+        #pdb.set_trace()
+        if id:
+            objs = objs.filter(id=id)
+
+        if info_process:
+            objs = objs.filter(info_process__iexact=info_process)
+        if state:
+            objs = objs.filter(state__exact=state)
+        if jurist:
+            o = User.objects.filter(id=jurist)
+            if len(o):
+                objs = objs.filter(responsible__in=o)
+        if consultant:
+            o = User.objects.filter(id=consultant)
+            if len(o):
+                objs = objs.filter(responsible__in=o)
+        if prefecture:
+            objs = objs.filter(prefecture__exact=prefecture)
+        if subprefecture:
+            objs = objs.filter(subprefecture__exact=subprefecture)
+        if consulate:
+            objs = objs.filter(consulate__exact=consulate)
+        if direccte:
+            objs = objs.filter(direccte__exact=direccte)
+        if jurisdiction:
+            objs = objs.filter(jurisdiction__exact=jurisdiction)
+        if start_date:
+            #pdb.set_trace()
+            #objs = objs.filter(start_date=datetime(start_date)
+            objs = objs.filter(start_date=common_utils.parse_date(start_date))
+        return objs
+
     def get_queryset(self):
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
@@ -132,17 +179,51 @@ class PersonListView(PersonCommonListView):
             objs = lgc_models.Person.objects.filter(responsible=self.request.user)
         else:
             objs = lgc_models.Person.objects
+
+        objs = self.match_extra_terms(objs)
         if term == '':
             return objs.order_by(order_by)
 
-        objs = (objs.filter(email__istartswith=term)|objs.filter(first_name__istartswith=term)|
+        objs = (objs.filter(email__istartswith=term)|
+                objs.filter(first_name__istartswith=term)|
                 objs.filter(last_name__istartswith=term))
         return objs.order_by(order_by)
+
+    def get_search_form(self):
+        if len(self.request.GET):
+            form = lgc_forms.PersonSearchForm(self.request.GET)
+        else:
+            form = lgc_forms.PersonSearchForm()
+
+        form.helper = FormHelper()
+        form.helper.form_tag = False
+        form.helper.form_method = 'get'
+        form.helper.layout = Layout(
+            Div(
+                Div('id', css_class='form-group col-md-3'),
+                Div('info_process', css_class='form-group col-md-3'),
+                Div('state', css_class='form-group col-md-3'),
+                Div('jurist', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('consultant', css_class='form-group col-md-3'),
+                Div('prefecture', css_class='form-group col-md-3'),
+                Div('subprefecture', css_class='form-group col-md-3'),
+                Div('consulate', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('direccte', css_class='form-group col-md-3'),
+                Div('jurisdiction', css_class='form-group col-md-3'),
+                Div('start_date', css_class='form-group col-md-3'),
+                css_class='form-row'),
+        )
+        return form
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['show_id'] = True
         context['show_birth_date'] = True
+        context['search_form'] = self.get_search_form()
         return context
 
 def get_template(name):
@@ -1478,7 +1559,7 @@ class DeleteAccount(AccountView, PersonDeleteView):
     template_name = 'lgc/person_confirm_delete.html'
 
 class HRView(LoginRequiredMixin):
-    req_type = ReqType.HR
+    req_type = lgc_types.ReqType.HR
     template_name = 'lgc/generic_form_with_formsets.html'
     model = User
     success_url = 'lgc-hr'
@@ -1716,10 +1797,7 @@ def expirations(request, *args, **kwargs):
             Div('expiry_type', css_class='form-group col-md-3'),
             Div('show_disabled', css_class='form-group col-md-2 lgc_aligned_checkbox'),
             css_class='form-row'),
-        Div(
-
-            css_class='form-row'),
-        )
+    )
 
     context = {
         'title': 'Expirations',

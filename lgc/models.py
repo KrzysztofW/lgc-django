@@ -12,6 +12,7 @@ alpha = RegexValidator(r'^[^0-9`;:_{}()$^~"\%&*#!?.,\\<>|@/]*$',
                        _('Numbers and special characters are not allowed.'))
 
 PROCESS_CHOICES = (
+    ('', '---------'),
     ('OD', 'Obtention de docs/légalisation'),
     ('AP', 'Apprenti'),
     ('CR', 'Carte de résident'),
@@ -45,6 +46,7 @@ PROCESS_CHOICES = (
 )
 
 PREFECTURE_CHOICES = (
+    ('', '---------'),
     ('AIN', "Ain (01)"),
     ('AIS', "Aisne (02)"),
     ('ALL', "Allier (03)"),
@@ -111,6 +113,7 @@ PREFECTURE_CHOICES = (
 )
 
 SUBPREFECTURE_CHOICES = (
+    ('', '---------'),
     ('MAR', "Marseille (13)"),
     ('AIX', "Aix en Provence (13)"),
     ('IST', "Istres (13)"),
@@ -171,6 +174,7 @@ SUBPREFECTURE_CHOICES = (
 
 # the first two characters must match a real country code
 JURISDICTION_SPECIFIQUE_CHOICES = (
+    ('', '---------'),
     ('DEB', "Berlin (Allemagne)"),
     ('DEF', "Francfort (Allemagne)"),
     ('BRB', "Brasilia (Brésil)"),
@@ -217,6 +221,7 @@ JURISDICTION_SPECIFIQUE_CHOICES = (
 )
 
 CONSULATE_CHOICES = (
+    ('', '---------'),
     ('ZA', "Afrique Du Sud"),
     ('DE', "Allemagne"),
     ('DZ', "Algérie"),
@@ -285,6 +290,7 @@ CONSULATE_CHOICES = (
 )
 
 DIRECCTE_CHOICES = (
+    ('', '---------'),
     ('AIN', "Ain (01)"),
     ('AIS', "Aisne (02)"),
     ('ALL', "Allier (03)"),
@@ -430,6 +436,7 @@ FILE_STATE_PENDING = 'P'
 FILE_STATE_CLOSED  = 'C'
 
 FILE_STATE_CHOICES = (
+    ('', '---------'),
     (FILE_STATE_ACTIVE, _('Active')),
     (FILE_STATE_PENDING, _('Pending')),
     (FILE_STATE_CLOSED, _('Closed')),
@@ -510,11 +517,11 @@ class PersonInfo(models.Model):
                                   max_length=3, default='',
                                   choices=PREFECTURE_CHOICES, blank=True)
     # Sous-Préfecture
-    subprefecture = models.CharField('Subprefecture',
+    subprefecture = models.CharField(_('Subprefecture'),
                                      max_length=3, default='',
                                      choices=SUBPREFECTURE_CHOICES,
                                      blank=True)
-    consulate = models.CharField('Consulate', max_length=3, default='',
+    consulate = models.CharField(_('Consulate'), max_length=3, default='',
                                 choices=CONSULATE_CHOICES, blank=True)
     # Direccte compétente
     direccte = models.CharField('DIRECCTE', max_length=3,

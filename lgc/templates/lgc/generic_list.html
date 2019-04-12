@@ -14,17 +14,27 @@
 	  Found {{ entries }} entries
 	  {% endblocktrans %}
 	</div>
+	{% if create_url %}
 	<div class="float-right">
 	  <a class="btn btn-outline-info btn-lgc" href="{{ create_url }}">
 	    {% trans "Add" %}</a>
 	</div>
+	{% endif %}
       </div>
       <!-- /.card-header -->
       <div class="card-body">
 	<form id="search" ajax-search="{{ ajax_search_url }}" method="get" action="{{ search_url }}">
-	<div class="row">
+	  {% if search_form %}
+	  <div class="row">
+	    <div  class="col-sm-12 col-md-7">
+	      {% crispy search_form %}
+	    </div>
+	  </div>
+	  {% endif %}
+
+	  <div class="row">
 	    {% block search_bar %}{% endblock %}
-	    <div class="col-sm-12 col-md-6">
+	    <div {% if search_form %}class="col-md-3 "{% else %}class="col-sm-12 col-md-6"{% endif %} {% if page_obj.paginator.num_pages > 1 %}style="top:15px;"{% endif %}>
 	      <div class="dataTables_filter">
 		<div class="input-group custom-search-form">
                   <input type="text" class="form-control" name="term" value="{{ request.GET.term }}" id="search_box" placeholder="{% trans 'Search...' %}" autocomplete="off" onfocus="this.selectionStart = this.selectionEnd = this.value.length;
@@ -49,6 +59,3 @@
   </div>
 </div>
 {% endblock content %}
-
-{% block javascript %}
-{% endblock %}
