@@ -75,16 +75,6 @@
 	      <a href="?{{ order_params }}&order_by=end_date"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
 	      {% endif %}
 	    </th>
-	    <th scope="col">{% trans "Enabled" %}
-	      {% if order_by == "enabled" %}
-	      <a href="?{{ order_params }}&order_by=-enabled"><i class="fa fa-fw fa-sort-up"></i></a>
-	      {% elif order_by == "-enabled" %}
-	      <a href="?{{ order_params }}&order_by=enabled"><i class="fa fa-fw fa-sort-down"></i></a>
-	      {% else %}
-	      <a href="?{{ order_params }}&order_by=enabled"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	      {% endif %}
-	    </th>
-
 	  </thead>
 	  <tbody>
 	    {% for o in page_obj %}
@@ -99,18 +89,13 @@
 		{% endif %}
 		{% endif %}
 		>
-	      <td>{{ o.get_type_display }}</td>
+	      <td>{{ o.get_type_display }}
+		{% if not o.enabled %} (<i>{% trans 'disabled' %}</i>){% endif %}
+	      </td>
 	      <td>{{ o.person.first_name }}</td>
 	      <td>{{ o.person.last_name }}</td>
 	      <td>{{ o.person.home_entity }}</td>
 	      <td>{{ o.end_date }}</td>
-	      <td>
-		{% if o.enabled %}
-		{% trans 'Enabled' %}
-		{% else %}
-		{% trans 'Disabled' %}
-		{% endif %}
-	      </td>
 	    </tr>
 	    {% endfor %}
 	  </tbody>
