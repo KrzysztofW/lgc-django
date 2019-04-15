@@ -4,10 +4,11 @@
 
 {% now "Y-m-d" as today %}
 {% get_notification_menu request as notifs %}
-
+{% get_process_progress request as process_progress %}
 <ul class="nav navbar-nav ml-md-auto flex-row navbar-top-links bg-light">
 
   {% include 'lgc/dropdown_menu_lang.html' %}
+
   <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
        aria-haspopup="true" aria-expanded="false">
@@ -15,76 +16,36 @@
     </a>
 
     <div class="dropdown-menu dropdown-menu-right dropdown-tasks">
-      <a class="dropdown-item" href="#">
+      {% for p in process_progress %}
+      <a class="dropdown-item" href="{{ p.5 }}">
         <div>
           <p>
-            <strong>Pierre Dupond (IBM)</strong>
-            <span class="float-right text-muted">40%</span>
+            <strong>{{ p.0 }} {{ p.1 }}{{ p.2 }}</strong>
+            <span class="float-right text-muted">{{ p.3 }}%</span>
           </p>
           <div class="progress active">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
-                 role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
-                 style="width: 40%">
-              <span class="sr-only">40%</span>
+            <div class="progress-bar progress-bar-striped progress-bar-animated {{ p.4 }}"
+                 role="progressbar" aria-valuenow="{{ p.3 }}" aria-valuemin="0" aria-valuemax="100"
+                 style="width: {{ p.3 }}%">
+              <span class="sr-only">{{ p.3 }}%</span>
             </div>
           </div>
         </div>
       </a>
       <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="#">
-        <div>
-          <p>
-            <strong>John Doe (Accenture)</strong>
-            <span class="float-right text-muted">20%</span>
-          </p>
-          <div class="progress active">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
-                 role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"
-                 style="width: 20%">
-              <span class="sr-only">20%</span>
-            </div>
-          </div>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="#">
-        <div>
-          <p>
-            <strong>Myriam Tissot (AAA)</strong>
-            <span class="float-right text-muted">60%</span>
-          </p>
-          <div class="progress active">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
-                 role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
-                 style="width: 60%">
-              <span class="sr-only">60%</span>
-            </div>
-          </div>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="#">
-        <div>
-          <p>
-            <strong>Patrick Bruel (Universal)</strong>
-            <span class="float-right text-muted">80%</span>
-          </p>
-          <div class="progress active">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger"
-                 role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
-                 style="width: 80%">
-              <span class="sr-only">80%</span>
-            </div>
-          </div>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item see-more text-center" href="#">
-        <strong>{% trans 'See all pending moderations' %}</strong>
+      {% endfor %}
+      <strong class="dropdown-item see-more text-center">
+	{% if process_progress|length %}
+	{% trans 'Pending processes' %}
+	{% else %}
+	{% trans 'No pending processes' %}
+	{% endif %}
+      </strong>
+      <!--a class="dropdown-item see-more text-center" href="#">
+        <strong>{% trans 'See all pending processes' %}</strong>
         <i class="fa fa-angle-right"></i>
-      </a>
+      </a-->
     </div>
-
   </li>
 
   <li class="nav-item dropdown">
@@ -98,15 +59,6 @@
       {% endif %}
     </a>
     <div class="dropdown-menu dropdown-menu-right dropdown-alerts" style="width:400px;">
-      {% for f in notifs.updated_files %}
-      <a class="dropdown-item" href="{% url 'lgc-file' f.id %}">
-        <div>
-          <i class="fa fa-file fa-fw"></i> {{ f.first_name }} {{ f.last_name }} ({% trans 'file updated' %})
-          <span class="float-right text-muted small">{{ f.modification_date|naturaltime }}</span>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
-      {% endfor %}
 
       {% for e in notifs.expirations %}
       <a class="dropdown-item" href="{% url 'lgc-file' e.person.id %}">
@@ -134,27 +86,6 @@
       <div class="dropdown-divider"></div>
       {% endfor %}
 
-      <a class="dropdown-item" href="#">
-        <div>
-          <i class="fa fa-envelope fa-fw"></i> Work authorization expired
-          <span class="float-right text-muted small">4 minutes ago</span>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="#">
-        <div>
-          <i class="fa fa-tasks fa-fw"></i> New Task
-          <span class="float-right text-muted small">4 minutes ago</span>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="#">
-        <div>
-          <i class="fa fa-upload fa-fw"></i> Server Rebooted
-          <span class="float-right text-muted small">4 minutes ago</span>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
       <a class="dropdown-item see-more text-center" href="{% url 'lgc-expirations' %}">
         <strong>{% trans 'See All Expirations' %}</strong>
         <i class="fa fa-angle-right"></i>
