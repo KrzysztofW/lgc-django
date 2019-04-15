@@ -15,7 +15,7 @@ def get_notification_menu(request):
     expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user).filter(enabled=True).order_by('end_date')
     compare_date = timezone.now().date() + datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS)
     expirations = expirations.filter(end_date__lte=compare_date)
-    res['expirations'] = expirations[:5]
+    res['expirations'] = expirations[:10]
     res['nb_items'] = len(expirations)
     res['today'] = timezone.now().date()
     return res
@@ -31,9 +31,9 @@ def get_expiration_mapping(val):
 @register.simple_tag
 def get_process_progress(request):
     res = []
-    files = lgc_models.Person.objects.filter(responsible=request.user).order_by('modification_date')
     external_users = user_models.get_employee_user_queryset()|user_models.get_hr_user_queryset()
-    files = lgc_models.Person.objects.filter(responsible=request.user).filter(modified_by__in=external_users)
+    files = lgc_models.Person.objects.filter(responsible=request.user)
+    files = lgc_models.Person.objects.filter(modified_by__in=external_users).order_by('modification_date')
 
     person_common_view = lgc_views.PersonCommonView()
 
