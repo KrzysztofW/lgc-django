@@ -40,3 +40,8 @@ pip issues
 
 pip-install => locale-error-unsupported-locale-setting
 export LC_ALL=C
+
+JS datepicker
+=============
+
+https://eonasdan.github.io/bootstrap-datetimepicker/Events/#dpchange
