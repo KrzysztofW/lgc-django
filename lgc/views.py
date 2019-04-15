@@ -65,7 +65,17 @@ def set_active_tab(obj, context):
 
 @login_required
 def home(request):
-    return render(request, 'lgc/home.html', {'title':'Home'})
+    employees = user_models.get_employee_user_queryset().filter(GDPR_accepted=None).count()
+    hrs = user_models.get_hr_user_queryset().filter(GDPR_accepted=None).count()
+    files = lgc_models.Person.objects.count()
+
+    context = {
+        'title': _('Dashboard'),
+        'nb_pending_employees': employees,
+        'nb_pending_hrs': hrs,
+        'nb_files': files,
+    }
+    return render(request, 'lgc/home.html', context)
 
 @login_required
 def tables(request):
