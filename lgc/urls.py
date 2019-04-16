@@ -63,4 +63,7 @@ urlpatterns = [
     path('download/<int:pk>/', views.download_file, name='lgc-download-file'),
 
     path('expirations/', views.expirations, name='lgc-expirations'),
+    path('hr-expirations/', views.hr_expirations, name='lgc-hr-expirations'),
+    path('my-expirations/', views.my_expirations, name='lgc-my-expirations'),
+
 ]

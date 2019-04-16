@@ -1793,19 +1793,33 @@ def paginate_expirations(request, object_list):
     page = request.GET.get('page')
     return paginator.get_page(page)
 
-@login_required
-def expirations(request, *args, **kwargs):
-    days = settings.EXPIRATIONS_NB_DAYS
+def expirations_filter_objs(request, objs):
+    expires = request.GET.get('expires', None)
+    expiry_type = request.GET.get('expiry_type', None)
+    show_disabled = request.GET.get('show_disabled', None)
 
-    if request.user.role not in user_models.get_internal_roles():
-        return http.HttpResponseForbidden()
+    if expires == None:
+        request.GET = request.GET.copy()
+        request.GET['expires'] = settings.EXPIRATIONS_NB_DAYS
 
+    try:
+        days = int(expires)
+        compare_date = timezone.now().date() + datetime.timedelta(days=days)
+        objs = objs.filter(end_date__lte=compare_date)
+    except:
+        pass
+    if expiry_type:
+        objs = objs.filter(type=expiry_type)
+    if not show_disabled:
+        objs = objs.filter(enabled=True)
+    return objs
+
+def get_expirations_form(request):
     if len(request.GET):
         form = lgc_forms.ExpirationSearchForm(request.GET)
     else:
         form = lgc_forms.ExpirationSearchForm()
-        form.fields['expires'].initial = days
-
+        form.fields['expires'].initial = settings.EXPIRATIONS_NB_DAYS
     form.helper = FormHelper()
     form.helper.form_method = 'get'
     form.helper.layout = Layout(
@@ -1816,35 +1830,17 @@ def expirations(request, *args, **kwargs):
             Div('show_disabled', css_class='form-group col-md-2 lgc_aligned_checkbox'),
             css_class='form-row'),
     )
+    return form
 
+@login_required
+def __expirations(request, form, objs):
     context = {
         'title': 'Expirations',
         'search_form': form,
     }
     context = pagination(request, context, reverse_lazy('lgc-expirations'), 'end_date')
 
-    user = request.GET.get('user', None)
-    expires = request.GET.get('expires', None)
-    expiry_type = request.GET.get('expiry_type', None)
-    show_disabled = request.GET.get('show_disabled', None)
-
-    objs = lgc_models.Expiration.objects
-    if user:
-        user = User.objects.filter(id=user)
-        if len(user):
-            objs = objs.filter(person__responsible__in=user)
-
-    if expires:
-        try:
-            days = int(expires)
-            compare_date = timezone.now().date() + datetime.timedelta(days=days)
-            objs = objs.filter(end_date__lte=compare_date)
-        except:
-            pass
-    if expiry_type:
-        objs = objs.filter(type=expiry_type)
-    if not show_disabled:
-        objs = objs.filter(enabled=True)
+    objs = expirations_filter_objs(request, objs)
     context['page_obj'] = paginate_expirations(request, objs)
 
     if context['page_obj'].has_next() or context['page_obj'].has_previous():
@@ -1853,3 +1849,60 @@ def expirations(request, *args, **kwargs):
         context['is_paginated'] = False
 
     return render(request, 'lgc/expirations.html', context)
+
+@login_required
+def expirations(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    form = get_expirations_form(request)
+    objs = expirations_filter_objs(request, lgc_models.Expiration.objects)
+
+    user = request.GET.get('user', None)
+    if user:
+        user = User.objects.filter(id=user)
+        if len(user) != 1:
+            raise Http404
+        objs = objs.filter(person__responsible__in=user)
+
+    return __expirations(request, form, objs)
+
+@login_required
+def my_expirations(request):
+    if request.user.role != user_models.EMPLOYEE:
+        return http.HttpResponseForbidden()
+
+    form = get_expirations_form(request)
+
+    """ remove the user field """
+    del form.fields['user']
+    form.helper.layout[0].pop(0)
+
+    objs = lgc_models.Expiration.objects.filter(person=request.user.person_user_set)
+    objs = expirations_filter_objs(request, objs)
+    return __expirations(request, form, objs)
+
+@login_required
+def hr_expirations(request):
+    if request.user.role not in user_models.get_hr_roles():
+        return http.HttpResponseForbidden()
+
+    form = get_expirations_form(request)
+    form.fields['user'].label = _('Employee')
+    form.fields['user'].queryset = User.objects.filter(id__in=request.user.hr_employees.all())
+
+    persons = []
+    for u in request.user.hr_employees.all():
+        if u.person_user_set:
+            persons.append(u.person_user_set)
+    objs = lgc_models.Expiration.objects.filter(person__in=persons)
+    objs = expirations_filter_objs(request, objs)
+
+    user = request.GET.get('user', None)
+    if user:
+        user = User.objects.filter(id=user)
+        if len(user) != 1:
+            raise Http404
+        objs = objs.filter(person=user[0].person_user_set)
+
+    return __expirations(request, form, objs)
