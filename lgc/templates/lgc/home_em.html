@@ -1,0 +1,57 @@
+{% extends "lgc/base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-3 col-sm-6">
+    <div class="card">
+      <div class="content">
+	<div class="row">
+	  <div class="col-xs-5">
+	    <div class="text-center lgc_big_icon">
+	      <i class="far fa-comments fa-5x text-success"></i>
+	    </div>
+	  </div>
+	  <div class="col-xs-7">
+	    <div class="numbers">
+	      <p>{% trans 'My Case' %}</p>
+	    </div>
+	  </div>
+	</div>
+      </div>
+      <div class="footer">
+	<hr class="lgc_hr">
+	<div class="stats">
+	  <i class="fa fa-sync"></i>
+	  <a href="{% url 'lgc-my-file' %}"> {% trans 'Show' %}</a>
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-sm-6">
+    <div class="card">
+      <div class="content">
+	<div class="row">
+	  <div class="col-xs-5">
+	    <div class="text-center lgc_big_icon">
+	      <i class="far fa-bell fa-5x text-primary"></i>
+	    </div>
+	  </div>
+	  <div class="col-xs-7">
+	    <div class="numbers">
+	      <p>{% trans 'My Expirations' %}</p>
+	    </div>
+	  </div>
+	</div>
+      </div>
+      <div class="footer">
+	<hr class="lgc_hr">
+	<div class="stats">
+	  <i class="fa fa-sync"></i>
+	  <a href="{% url 'lgc-my-expirations' %}"> {% trans 'Show' %}</a>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

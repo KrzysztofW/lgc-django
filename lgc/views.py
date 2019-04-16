@@ -68,14 +68,22 @@ def home(request):
     employees = user_models.get_employee_user_queryset().filter(GDPR_accepted=None).count()
     hrs = user_models.get_hr_user_queryset().filter(GDPR_accepted=None).count()
     files = lgc_models.Person.objects.count()
-
-    context = {
-        'title': _('Dashboard'),
-        'nb_pending_employees': employees,
-        'nb_pending_hrs': hrs,
-        'nb_files': files,
-    }
-    return render(request, 'lgc/home.html', context)
+    if request.user.role == user_models.EMPLOYEE:
+        home = 'lgc/home_em.html'
+        context = {
+            'title': (_('Welcome %(first_name)s %(last_name)s')%
+                      {'first_name':request.user.first_name,
+                       'last_name':request.user.last_name}),
+        }
+    else:
+        home = 'lgc/home.html'
+        context = {
+            'title': _('Dashboard'),
+            'nb_pending_employees': employees,
+            'nb_pending_hrs': hrs,
+            'nb_files': files,
+        }
+    return render(request, home, context)
 
 @login_required
 def tables(request):
@@ -894,7 +902,7 @@ class PersonUpdateView(PersonCommonView, UpdateView):
     is_update = True
     success_message = _('File successfully updated')
 
-def myfile(request):
+def my_file(request):
     view = PersonUpdateView.as_view()
     return view(request, pk=request.user.person_user_set.id)
 
