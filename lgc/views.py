@@ -1361,7 +1361,7 @@ def get_hr_account_form(form, action, uid, new_token=False, show_tabs=True):
 
     return form
 
-class AccountView(LoginRequiredMixin):
+class AccountView(LoginRequiredMixin, UserPassesTestMixin):
     template_name = 'lgc/generic_form_with_formsets.html'
     model = User
     success_url = 'lgc-account'
@@ -1383,6 +1383,11 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
     success_message = _('New account successfully initiated')
     title = _('Initiate a case')
     form_name = _('Initiate case')
+
+    def test_func(self):
+        if (self.request.user.role in user_models.get_internal_roles() or
+            self.request.user.role == user_models.HR_ADMIN):
+            return True
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
@@ -1456,6 +1461,9 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         self.object = form.save()
         if p:
             p.user = self.object
+            p.email = self.object.email
+            p.first_name = self.object.first_name
+            p.last_name = self.object.last_name
             p.save()
         return ret
 
@@ -1527,7 +1535,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
     def form_valid(self, form, relations = None):
         self.object = form.save(commit=False)
 
-        if self.object.person_user_set:
+        if hasattr(self.object, 'person_user_set'):
             self.object.person_user_set.first_name = self.object.first_name
             self.object.person_user_set.last_name = self.object.last_name
             self.object.person_user_set.email = self.object.email
