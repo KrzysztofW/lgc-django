@@ -29,6 +29,7 @@ from crispy_forms.bootstrap import (
 )
 from pathlib import Path
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from users import models as user_models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -118,6 +119,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
     model = lgc_models.Person
     ajax_search_url = reverse_lazy('lgc-file-search-ajax')
     search_url = reverse_lazy('lgc-files')
+    update_url = 'lgc-file'
 
     class Meta:
         abstract = True
@@ -131,7 +133,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Files')
-        context['update_url'] = 'lgc-file'
+        context['update_url'] = self.update_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
 
@@ -140,9 +142,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
         return pagination(self.request, context, reverse_lazy('lgc-files'))
 
     def test_func(self):
-        if self.request.user.role not in user_models.get_internal_roles():
-            return False
-        return True
+        return self.request.user.role in user_models.get_internal_roles()
 
 class PersonListView(PersonCommonListView):
     def match_extra_terms(self, objs):
@@ -158,7 +158,6 @@ class PersonListView(PersonCommonListView):
         jurisdiction = self.request.GET.get('jurisdiction', '')
         start_date = self.request.GET.get('start_date', '')
 
-        #pdb.set_trace()
         if id:
             objs = objs.filter(id=id)
 
@@ -185,13 +184,12 @@ class PersonListView(PersonCommonListView):
         if jurisdiction:
             objs = objs.filter(jurisdiction__exact=jurisdiction)
         if start_date:
-            #pdb.set_trace()
-            #objs = objs.filter(start_date=datetime(start_date)
             objs = objs.filter(start_date=common_utils.parse_date(start_date))
         return objs
 
     def get_queryset(self):
         term = self.request.GET.get('term', '')
+
         order_by = self.get_ordering()
         if self.request.user.role == user_models.JURIST:
             objs = lgc_models.Person.objects.filter(responsible=self.request.user)
@@ -1331,7 +1329,8 @@ def get_account_layout(layout, new_token, is_hr=False, is_active=False):
 
 def get_account_form(form, action, uid, new_token=False):
     form.helper = FormHelper()
-    form.helper.layout = get_account_layout(Layout(), new_token, False, uid)
+    form.helper.layout = get_account_layout(Layout(), new_token, is_hr=False,
+                                            is_active=uid)
 
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
@@ -1343,20 +1342,19 @@ def get_account_form(form, action, uid, new_token=False):
         )
     return form
 
-def get_hr_account_form(form, action, uid, new_token=False, show_tabs=True):
+def get_hr_account_form(form, action, uid, new_token=False):
     form.helper = FormHelper()
-    if show_tabs:
+    if uid:
         form.helper.layout = Layout(TabHolder(
             LgcTab(_('Information'), get_account_layout(Layout(), new_token,
-                                                     True, uid)),
+                                                        is_hr=True, is_active=True)),
             LgcTab(_('Employees'),
                 Div(Div(HTML(get_template('employee_list.html')),
                         css_class="form-group col-md-10"),
                     css_class="form-row")),
         ))
     else:
-        form.helper.layout = get_account_layout(Layout(), new_token,
-                                                is_hr=True)
+        form.helper.layout = get_account_layout(Layout(), new_token, is_hr=True)
 
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
@@ -1389,13 +1387,11 @@ class AccountView(LoginRequiredMixin, UserPassesTestMixin):
 
 class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
     success_message = _('New account successfully initiated')
-    title = _('Initiate a case')
-    form_name = _('Initiate case')
+    title = _('Initiate an account')
+    form_name = _('Initiate account')
 
     def test_func(self):
-        if (self.request.user.role in user_models.get_internal_roles() or
-            self.request.user.role == user_models.HR_ADMIN):
-            return True
+        return self.request.user.role in user_models.get_internal_roles()
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
@@ -1418,9 +1414,9 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         form = super().get_form(form_class=self.form_class)
 
         if self.is_hr:
-            return get_hr_account_form(form, self.form_name, None, True,
-                                       False)
-        return get_account_form(form, self.form_name, None, True)
+            return get_hr_account_form(form, self.form_name, None,
+                                       new_token=True)
+        return get_account_form(form, self.form_name, None, new_token=True)
 
     def return_non_existant(self, form, pk):
         messages.error(self.request,
@@ -1537,8 +1533,9 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
 
         if self.is_hr:
             return get_hr_account_form(form, self.form_name, self.object.id,
-                                       True, True)
-        return get_account_form(form, self.form_name, self.object.id, True)
+                                       new_token=True)
+        return get_account_form(form, self.form_name, self.object.id,
+                                new_token=True)
 
     def form_valid(self, form, relations = None):
         self.object = form.save(commit=False)
@@ -1806,16 +1803,18 @@ def expirations_filter_objs(request, objs):
     expiry_type = request.GET.get('expiry_type', None)
     show_disabled = request.GET.get('show_disabled', None)
 
+    """ initial value of 'expires' must be set """
     if expires == None:
         request.GET = request.GET.copy()
         request.GET['expires'] = settings.EXPIRATIONS_NB_DAYS
 
     try:
-        days = int(expires)
-        compare_date = timezone.now().date() + datetime.timedelta(days=days)
-        objs = objs.filter(end_date__lte=compare_date)
+        delta = datetime.timedelta(days=int(expires))
     except:
-        pass
+        delta = datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS)
+    compare_date = timezone.now().date() + delta
+    objs = objs.filter(end_date__lte=compare_date)
+
     if expiry_type:
         objs = objs.filter(type=expiry_type)
     if not show_disabled:
@@ -1901,7 +1900,7 @@ def hr_expirations(request):
 
     persons = []
     for u in request.user.hr_employees.all():
-        if u.person_user_set:
+        if hasattr(u, 'person_user_set'):
             persons.append(u.person_user_set)
     objs = lgc_models.Expiration.objects.filter(person__in=persons)
     objs = expirations_filter_objs(request, objs)

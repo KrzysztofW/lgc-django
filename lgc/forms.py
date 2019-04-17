@@ -119,7 +119,12 @@ class InitiateAccountForm(forms.ModelForm):
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset(), label=_('Persons in charge'))
     new_token = forms.BooleanField(required=False, initial=True,
                                    label=_('Send new token'),
-                                   help_text=_('Send new authentication token allowing to choose a new password.'))
+                                   help_text=_('Send authentication token allowing to choose a new password.'))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
 
     class Meta:
         model = User

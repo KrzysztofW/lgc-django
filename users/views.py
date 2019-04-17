@@ -223,6 +223,12 @@ def update_profile(request):
             request.session[translation.LANGUAGE_SESSION_KEY] = user.language
             messages.success(request,
                              _('Your account profile has been updated'))
+
+            if hasattr(user, 'person_user_set'):
+                user.person_user_set.first_name = user.first_name
+                user.person_user_set.last_name = user.last_name
+                user.person_user_set.email = user.email
+                user.person_user_set.save()
             return redirect('lgc-profile')
 
         context['form'] = form

@@ -54,6 +54,8 @@ function closeAllLists(elmnt, inp) {
 
 
 $("#search_box").keyup(function (event) {
+    if (url == '')
+       return;
     var term = $("#search_box").val();
 
     if (term.length == 0)

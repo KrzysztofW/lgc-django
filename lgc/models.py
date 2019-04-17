@@ -444,8 +444,8 @@ FILE_STATE_CHOICES = (
 
 class AccountCommon(models.Model):
     creation_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
-    first_name = models.CharField(_('First name'), max_length=50, default="", validators=[alpha])
-    last_name = models.CharField(_('Last name'), max_length=50, default="", validators=[alpha])
+    first_name = models.CharField(_('First name'), max_length=50, validators=[alpha])
+    last_name = models.CharField(_('Last name'), max_length=50, validators=[alpha])
     email = models.EmailField(_('Email'), max_length=50, null=True, blank=True, unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 null=True, blank=True,
