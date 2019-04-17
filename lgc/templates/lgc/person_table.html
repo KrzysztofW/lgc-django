@@ -1,87 +1,35 @@
 {% load i18n %}
+{% load custom_tags %}
 
 <table class="table table-striped table-bordered table-hover">
   <thead>
     <tr>
       {% if show_id %}
-      <th scope="col">ID
-	{% if order_by == "id" %}
-	<a href="?{{ order_params }}&order_by=-id"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-id" %}
-	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
+      {% get_table_th 'ID' 'id' order_by order_params %}
       {% endif %}
-      <th scope="col">E-mail
-	{% if order_by == "email" %}
-	<a href="?{{ order_params }}&order_by=-email"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-email" %}
-	<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=email"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
-      <th scope="col">{% trans "First name" %}
-	{% if order_by == "first_name" %}
-	<a href="?{{ order_params }}&order_by=-first_name"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-first_name" %}
-	<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=first_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
-      <th scope="col">{% trans "Last name" %}
-	{% if order_by == "last_name" %}
-	<a href="?{{ order_params }}&order_by=-last_name"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-last_name" %}
-	<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=last_name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
-      {% if show_birth_date %}
-      <th scope="col">{% trans "Birth Date" %}
-	{% if order_by == "birth_date" %}
-	<a href="?{{ order_params }}&order_by=-birth_date"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-birth_date" %}
-	<a href="?{{ order_params }}&order_by=birth_date"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=birth_date"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
-      {% endif %}
-      {% if show_status %}
-      <th scope="col">{% trans "Status" %}
-	{% if order_by == "GDPR_accepted" %}
-	<a href="?{{ order_params }}&order_by=-GDPR_accepted"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-GDPR_accepted" %}
-	<a href="?{{ order_params }}&order_by=GDPR_accepted"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=GDPR_accepted"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
-      {% endif %}
-      <th scope="col">{% trans "Created" %}
-	{% if order_by == "creation_date" %}
-	<a href="?{{ order_params }}&order_by=-creation_date"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-creation_date" %}
-	<a href="?{{ order_params }}&order_by=creation_date"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=creation_date"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
 
+      {% get_table_th 'E-mail' 'email' order_by order_params %}
+      {% get_table_th _('First name') 'first_name' order_by order_params %}
+      {% get_table_th _('Last name') 'last_name' order_by order_params %}
+
+      {% if show_birth_date %}
+      {% get_table_th _('Birth Date') 'birth_date' order_by order_params %}
+      {% endif %}
+
+      {% if show_status %}
+      {% get_table_th _('Status') 'GDPR_accepted' order_by order_params %}
+      {% endif %}
+
+      {% get_table_th _('Created') 'creation_date' order_by order_params %}
     </tr>
   </thead>
   <tbody>
-    {% for person in object_list %}
-    <tr data-href="{% url update_url person.id %}"
+    {% for obj in object_list %}
+    <tr data-href="{% url update_url obj.id %}"
 	{% if show_status %}
-	{% if person.GDPR_accepted == None %}
+	{% if obj.GDPR_accepted == None %}
 	class="clickable-row table-warning"
-	{% elif person.GDPR_accepted == True %}
+	{% elif obj.GDPR_accepted == True %}
 	class="clickable-row table-success"
 	{% else %}
 	class="clickable-row bg-danger"
@@ -90,16 +38,16 @@
 	class="clickable-row"
 	{% endif %}
 	>
-      {% if show_id %}<td>{{ person.id }}</td>{% endif %}
-      <td>{{ person.email }}</td>
-      <td>{{ person.first_name }}</td>
-      <td>{{ person.last_name }}</td>
-      {% if show_birth_date %}<td>{{ person.birth_date }}</td>{% endif %}
+      {% if show_id %}<td>{{ obj.id }}</td>{% endif %}
+      <td>{{ obj.email }}</td>
+      <td>{{ obj.first_name }}</td>
+      <td>{{ obj.last_name }}</td>
+      {% if show_birth_date %}<td>{{ obj.birth_date }}</td>{% endif %}
       {% if show_status %}
       <td>
-	{% if person.GDPR_accepted == None %}
+	{% if obj.GDPR_accepted == None %}
 	{% trans "Pending" %}
-	{% elif person.GDPR_accepted == True %}
+	{% elif obj.GDPR_accepted == True %}
 	{% trans "Accepted" %}
 	{% else %}
 	{% trans "Refused" %}
@@ -107,12 +55,12 @@
       </td>
       {% endif %}
       <td>
-	{% if person.creation_date %}
-	{{ person.creation_date|date }}
-	{{ person.creation_date|time:'H:i:s' }}
+	{% if obj.creation_date %}
+	{{ obj.creation_date|date }}
+	{{ obj.creation_date|time:'H:i:s' }}
 	{% else %}
-	{{ person.date_joined|date }}
-	{{ person.date_joined|time:'H:i:s' }}
+	{{ obj.date_joined|date }}
+	{{ obj.date_joined|time:'H:i:s' }}
 	{% endif %}
       </td>
     </tr>

@@ -1,24 +1,11 @@
 {% load i18n %}
+{% load custom_tags %}
+
 <table class="table table-striped table-bordered table-hover">
   <thead>
     <tr>
-      <th scope="col">ID{% if order_by == "id" %}
-	<a href="?{{ order_params }}&order_by=-id"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-id" %}
-	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=id"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
-      <th scope="col">{% trans "name" %}
-	{% if order_by == "name" %}
-	<a href="?{{ order_params }}&order_by=-name"><i class="fa fa-fw fa-sort-up"></i></a>
-	{% elif order_by == "-name" %}
-	<a href="?{{ order_params }}&order_by=name"><i class="fa fa-fw fa-sort-down"></i></a>
-	{% else %}
-	<a href="?{{ order_params }}&order_by=name"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>
-	{% endif %}
-      </th>
+      {% get_table_th 'ID' 'id' order_by order_params %}
+      {% get_table_th _('Name') 'name' order_by order_params %}
     </tr>
   </thead>
   <tbody>

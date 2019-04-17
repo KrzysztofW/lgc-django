@@ -5,6 +5,7 @@ from lgc import views as lgc_views
 from django.conf import settings
 from django.utils import timezone
 from django.urls import reverse_lazy
+from django.utils.safestring import mark_safe
 import datetime
 
 register = template.Library()
@@ -65,3 +66,16 @@ def get_process_progress(request):
         if len(res) > 10:
             return res
     return res
+
+@register.simple_tag
+def get_table_th(label, value, order_by, order_params):
+    label = str(label)
+    res = '<th scope="col">' + label
+    if order_by == value:
+        res += '<a href="?' + order_params + '&order_by=-' + value + '"><i class="fa fa-fw fa-sort-up"></i></a>'
+    elif order_by == '-' + value:
+        res += '<a href="?' + order_params + '&order_by=' + value + '"><i class="fa fa-fw fa-sort-down"></i></a>'
+    else:
+        res += '<a href="?' + order_params +'&order_by=' + value + '"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>'
+    res += '</th>'
+    return mark_safe(res)
