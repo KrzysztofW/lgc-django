@@ -125,6 +125,8 @@ class InitiateAccountForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
+        if self.fields.get('status', ''):
+            self.fields['status'].required = False
 
     class Meta:
         model = User

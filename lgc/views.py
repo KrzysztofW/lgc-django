@@ -1549,9 +1549,20 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
                                  'the user has not accepted our terms and ' +
                                  'condiftions yet.')
 
-        if (self.object.status == user_models.USER_STATUS_PENDING and
+        user = User.objects.filter(id=self.object.id)
+        if len(user) != 1:
+            return self.form_invalid(form)
+        user = user[0]
+
+        if (user.status == user_models.USER_STATUS_PENDING and
             form.cleaned_data['status'] == user_models.USER_STATUS_ACTIVE):
             messages.error(self.request, pending_user_err_msg)
+            return redirect('lgc-account', self.object.id)
+
+        if (user.status not in user_models.get_user_deleted_statuses() and
+            form.cleaned_data['status'] in user_models.get_user_deleted_statuses()):
+            messages.error(self.request, _('Deleted status cannot be set.'))
+            form.cleaned_data['status'] = user.status
             return redirect('lgc-account', self.object.id)
 
         self.object = form.save(commit=False)
@@ -1562,7 +1573,8 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             self.object.person_user_set.email = self.object.email
             self.object.person_user_set.responsible.set(form.instance.responsible.all())
             self.object.person_user_set.save()
-        elif self.object.status == user_models.USER_STATUS_ACTIVE:
+        elif (self.object.status == user_models.USER_STATUS_ACTIVE and
+              self.object.role == user_models.EMPLOYEE):
             messages.error(self.request, pending_user_err_msg)
             return redirect('lgc-account', self.object.id)
 

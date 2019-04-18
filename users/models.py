@@ -22,12 +22,12 @@ EXTERNAL_ROLE_CHOICES = (
 )
 
 INTERNAL_ROLE_CHOICES = (
-    (JURIST,    _('Jurist')),
+    (JURIST,     _('Jurist')),
     (CONSULTANT, _('Consultant')),
 )
 
 ALL_ROLE_CHOICES = (
-    (JURIST,    _('Jurist')),
+    (JURIST,     _('Jurist')),
     (CONSULTANT, _('Consultant')),
     (HR_ADMIN,   _('HR Admin')),
     (HR,         _('HR')),
