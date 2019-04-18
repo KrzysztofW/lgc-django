@@ -6,8 +6,10 @@ from django.conf import settings
 from django.utils import timezone
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
+from django.contrib.auth import get_user_model
 import datetime
 
+User = get_user_model()
 register = template.Library()
 
 @register.simple_tag
@@ -16,8 +18,10 @@ def get_notification_menu(request):
     expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user).filter(enabled=True).order_by('end_date')
     compare_date = timezone.now().date() + datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS)
     expirations = expirations.filter(end_date__lte=compare_date)
+    deletion_requests = User.objects.filter(status__in=user_models.get_user_deleted_statuses())
     res['expirations'] = expirations[:10]
-    res['nb_items'] = len(expirations)
+    res['deletion_requests'] = deletion_requests[:5]
+    res['nb_items'] = len(expirations) + len(deletion_requests)
     res['today'] = timezone.now().date()
     return res
 
