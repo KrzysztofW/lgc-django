@@ -26,4 +26,5 @@ urlpatterns += i18n_patterns(
     path('', include('lgc.urls')),
     path('user/', include('users.urls')),
     path('hr/', include('hr.urls')),
+    path('emp/', include('employee.urls')),
 )

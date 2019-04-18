@@ -72,6 +72,9 @@ def home(request):
                    'last_name':request.user.last_name}),
     }
 
+    if request.user.role == user_models.EMPLOYEE:
+        return render(request, 'employee/home.html', context)
+
     if request.user.role in user_models.get_hr_roles():
         return render(request, 'hr/home.html', context)
 
