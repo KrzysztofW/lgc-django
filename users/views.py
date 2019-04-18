@@ -55,14 +55,14 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         order_by = self.get_ordering()
         context['title'] = _("Users")
 
-        return pagination(self.request, context, reverse_lazy('lgc-users'))
+        return pagination(self.request, context, reverse_lazy('user-list'))
 
 class UserCreateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixin,
                      CreateView):
     model = User
     template_name = 'users/create.html'
     success_message = _('User successfully created.')
-    success_url = reverse_lazy('lgc-user-create')
+    success_url = reverse_lazy('user-create')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -83,14 +83,14 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixi
 
     def get_success_url(self):
         self.object = self.get_object()
-        return reverse_lazy('lgc-user', kwargs={'pk':self.object.id})
+        return reverse_lazy('user', kwargs={'pk':self.object.id})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = _('Update User')
-        context['delete_url'] = reverse_lazy('lgc-user-delete',
+        context['delete_url'] = reverse_lazy('user-delete',
                                              kwargs={'pk': self.object.id})
-        context['pw_reset_url'] = reverse_lazy('lgc-pw-reset',
+        context['pw_reset_url'] = reverse_lazy('user-pw-reset',
                                                kwargs={'user_id': self.object.id})
         return context
 
@@ -103,7 +103,7 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixi
 class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
     template_name = 'users/confirm_delete.html'
-    success_url = reverse_lazy('lgc-users')
+    success_url = reverse_lazy('user-list')
     title = _('Delete User')
     success_message = _('User successfully deleted.')
     profile_update = False
@@ -112,12 +112,11 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         if not self.profile_update:
-            cancel_url = reverse_lazy('lgc-user',
-                                      kwargs={'pk': self.object.id})
+            cancel_url = reverse_lazy('user', kwargs={'pk': self.object.id})
             confirm_message = _('Are you sure you want to delete the account of %s %s'%(
                 self.object.first_name, self.object.last_name))
         else:
-            cancel_url = reverse_lazy('lgc-profile')
+            cancel_url = reverse_lazy('user-profile')
             confirm_message = _('Are you sure you want to delete your account?')
         context['cancel_url'] = cancel_url
         context['profile_update'] = self.profile_update
@@ -135,7 +134,7 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         obj.is_active = False
         obj.GDPR_accepted = False
         obj.save()
-        return redirect('lgc-logout')
+        return redirect('user-logout')
 
 @login_required
 @must_be_staff
@@ -154,13 +153,13 @@ def password_reset(request, user_id):
             messages.success(request,
                              _('The password for %s %s has been successfully updated') %
                              (user[0].first_name, user[0].last_name))
-            return redirect('lgc-user', user_id)
+            return redirect('user', user_id)
 
     context = {
         'form': form,
         'user': user[0],
         'title': title,
-        'cancel_url': reverse_lazy('lgc-user', kwargs={'pk': user_id})
+        'cancel_url': reverse_lazy('user', kwargs={'pk': user_id})
 
     }
     return render(request, 'users/password_reset.html', context)
@@ -172,7 +171,7 @@ def return_true(obj):
 def profile_delete(request):
     user_delete_view = UserDeleteView
     user_delete_view.title = _('Delete My Account')
-    user_delete_view.success_url = reverse_lazy('lgc-logout')
+    user_delete_view.success_url = reverse_lazy('user-logout')
     user_delete_view.success_message = _('Your account has been successfully deleted.')
     user_delete_view.profile_update = True
     user_delete_view.test_func = return_true
@@ -191,12 +190,12 @@ def profile_password_reset(request):
             form.save()
             messages.success(request,
                              _('Your password has been successfully updated'))
-            return redirect('lgc-profile')
+            return redirect('user-profile')
 
     context = {
         'form': form,
         'title': title,
-        'cancel_url': reverse_lazy('lgc-profile'),
+        'cancel_url': reverse_lazy('user-profile'),
         'profile_update': 1,
     }
     return render(request, 'users/password_reset.html', context)
@@ -206,8 +205,8 @@ def update_profile(request):
     context = {
         'profile_update': 1,
         'title': _("My Account Profile"),
-        'delete_url': reverse_lazy('lgc-profile-delete'),
-        'pw_reset_url': reverse_lazy('lgc-profile-pw-reset'),
+        'delete_url': reverse_lazy('user-profile-delete'),
+        'pw_reset_url': reverse_lazy('user-profile-pw-reset'),
     }
 
     if request.method == 'POST':
@@ -229,7 +228,7 @@ def update_profile(request):
                 user.person_user_set.last_name = user.last_name
                 user.person_user_set.email = user.email
                 user.person_user_set.save()
-            return redirect('lgc-profile')
+            return redirect('user-profile')
 
         context['form'] = form
     else:
@@ -251,7 +250,7 @@ class LoginView(authLoginView):
             self.request.user.token_date = timezone.now()
             self.request.user.save()
             logout(self.request)
-            response = redirect('lgc-token')
+            response = redirect('user-token')
             response['Location'] += '?token=' + token
             return response
         return form
@@ -336,7 +335,7 @@ def handle_auth_token(request):
         messages.success(request,
                          _('The password for %s %s has been successfully set') %
                          (user.first_name, user.last_name))
-        return redirect('lgc-login')
+        return redirect('user-login')
     else:
         if user.password == '':
             form = user_forms.UserPasswordUpdateForm()

@@ -127,7 +127,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = 'lgc-home'
-LOGIN_URL = 'lgc-login'
+LOGIN_URL = 'user-login'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 EMAIL_HOST = 'kw-net.com'

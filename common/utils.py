@@ -119,7 +119,7 @@ def lgc_send_email(obj, action):
     msg_tpl_html = read_template(tpl_html)
 
     name = obj.first_name + ' ' + obj.last_name
-    url = reverse_lazy('lgc-token')[3:]
+    url = reverse_lazy('user-token')[3:]
     url = settings.SITE_URL + '/' + lang + url + '?token=' + obj.token
 
     msg = msg_tpl.substitute(PERSON_NAME=name, URL=url)

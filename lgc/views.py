@@ -66,25 +66,22 @@ def set_active_tab(obj, context):
 
 @login_required
 def home(request):
-    employees = user_models.get_employee_user_queryset().filter(GDPR_accepted=None).count()
-    hrs = user_models.get_hr_user_queryset().filter(GDPR_accepted=None).count()
-    files = lgc_models.Person.objects.count()
-    if request.user.role == user_models.EMPLOYEE:
-        home = 'lgc/home_em.html'
-        context = {
-            'title': (_('Welcome %(first_name)s %(last_name)s')%
-                      {'first_name':request.user.first_name,
-                       'last_name':request.user.last_name}),
-        }
-    else:
-        home = 'lgc/home.html'
-        context = {
-            'title': _('Dashboard'),
-            'nb_pending_employees': employees,
-            'nb_pending_hrs': hrs,
-            'nb_files': files,
-        }
-    return render(request, home, context)
+    context = {
+        'title': (_('Welcome %(first_name)s %(last_name)s')%
+                  {'first_name':request.user.first_name,
+                   'last_name':request.user.last_name}),
+    }
+
+    if request.user.role in user_models.get_internal_roles():
+        employees = user_models.get_employee_user_queryset().filter(status=user_models.USER_STATUS_PENDING).count()
+        hrs = user_models.get_hr_user_queryset().filter(status=user_models.USER_STATUS_PENDING).count()
+        files = lgc_models.Person.objects.count()
+        context['nb_pending_employees'] = employees
+        context['nb_pending_hrs'] = hrs
+        context['nb_files'] = files
+        return render(request, 'lgc/home.html', context)
+
+    return http.HttpResponseForbidden()
 
 @login_required
 def tables(request):
@@ -103,7 +100,7 @@ class UserTest(UserPassesTestMixin):
 
         """ HR check """
         if (self.request.user.role in user_models.get_hr_roles() and
-            self.request.user in self.object.responsible.all()):
+            self.object.user in self.request.user.hr_employees.all()):
             return True
 
         """ Internal user check """
@@ -413,8 +410,9 @@ def get_person_form_layout(cur_user, form, action, obj, process_stages,
     if cur_user.role == user_models.EMPLOYEE:
         return employee_user_get_person_form_layout(form, action, obj,
                                                     process_stages)
-    if cur_user.role in user_model.get_hr_roles():
-        return
+    if cur_user.role in user_models.get_hr_roles():
+        return employee_user_get_person_form_layout(form, action, obj,
+                                                    process_stages)
     return None
 
 def hr_add_employee(form_data, user_object):
@@ -899,10 +897,6 @@ class PersonUpdateView(PersonCommonView, UpdateView):
     title = _('File')
     is_update = True
     success_message = _('File successfully updated')
-
-def my_file(request):
-    view = PersonUpdateView.as_view()
-    return view(request, pk=request.user.person_user_set.id)
 
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = lgc_models.Person
@@ -1478,7 +1472,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
 class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
     title = _('Employee Accounts')
     template_name = 'lgc/accounts.html'
-    ajax_search_url = reverse_lazy('lgc-employee-user-search-ajax')
+    ajax_search_url = reverse_lazy('user-employee-search-ajax')
     search_url = reverse_lazy('lgc-accounts')
     users = user_models.get_employee_user_queryset()
 
@@ -1682,7 +1676,7 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
 class HRAccountListView(HRView, Accounts):
     title = _('HR accounts')
     template_name = 'lgc/accounts.html'
-    ajax_search_url = reverse_lazy('lgc-hr-user-search-ajax')
+    ajax_search_url = reverse_lazy('user-hr-search-ajax')
     search_url = reverse_lazy('lgc-hr-accounts')
     users = user_models.get_hr_user_queryset()
 
@@ -1847,11 +1841,12 @@ def __expirations(request, form, objs):
     }
     context = pagination(request, context, reverse_lazy('lgc-expirations'), 'end_date')
 
-    objs = expirations_filter_objs(request, objs)
-    context['page_obj'] = paginate_expirations(request, objs)
+    if objs:
+        objs = expirations_filter_objs(request, objs)
+        context['page_obj'] = paginate_expirations(request, objs)
 
-    if context['page_obj'].has_next() or context['page_obj'].has_previous():
-        context['is_paginated'] = True
+        if context['page_obj'].has_next() or context['page_obj'].has_previous():
+            context['is_paginated'] = True
     else:
         context['is_paginated'] = False
 
@@ -1871,45 +1866,5 @@ def expirations(request):
         if len(user) != 1:
             raise Http404
         objs = objs.filter(person__responsible__in=user)
-
-    return __expirations(request, form, objs)
-
-@login_required
-def my_expirations(request):
-    if request.user.role != user_models.EMPLOYEE:
-        return http.HttpResponseForbidden()
-
-    form = get_expirations_form(request)
-
-    """ remove the user field """
-    del form.fields['user']
-    form.helper.layout[0].pop(0)
-
-    objs = lgc_models.Expiration.objects.filter(person=request.user.person_user_set)
-    objs = expirations_filter_objs(request, objs)
-    return __expirations(request, form, objs)
-
-@login_required
-def hr_expirations(request):
-    if request.user.role not in user_models.get_hr_roles():
-        return http.HttpResponseForbidden()
-
-    form = get_expirations_form(request)
-    form.fields['user'].label = _('Employee')
-    form.fields['user'].queryset = User.objects.filter(id__in=request.user.hr_employees.all())
-
-    persons = []
-    for u in request.user.hr_employees.all():
-        if hasattr(u, 'person_user_set'):
-            persons.append(u.person_user_set)
-    objs = lgc_models.Expiration.objects.filter(person__in=persons)
-    objs = expirations_filter_objs(request, objs)
-
-    user = request.GET.get('user', None)
-    if user:
-        user = User.objects.filter(id=user)
-        if len(user) != 1:
-            raise Http404
-        objs = objs.filter(person=user[0].person_user_set)
 
     return __expirations(request, form, objs)

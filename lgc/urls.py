@@ -16,7 +16,6 @@ urlpatterns = [
     path('file-delete/<int:pk>', views.PersonDeleteView.as_view(),
          name='lgc-file-delete'),
     path('file/<int:pk>/', views.PersonUpdateView.as_view(), name='lgc-file'),
-    path('my-file/', views.my_file, name='lgc-my-file'),
     path('file-search/ajax/', views.ajax_file_search_view,
          name='lgc-file-search-ajax'),
 
@@ -63,7 +62,4 @@ urlpatterns = [
     path('download/<int:pk>/', views.download_file, name='lgc-download-file'),
 
     path('expirations/', views.expirations, name='lgc-expirations'),
-    path('hr-expirations/', views.hr_expirations, name='lgc-hr-expirations'),
-    path('my-expirations/', views.my_expirations, name='lgc-my-expirations'),
-
 ]

@@ -26,7 +26,7 @@
             <span class="navbar-toggler-icon"></span>
           </button>
         </div>
-	{% if user.role == 'JU' or user.role == 'CO' %}
+	{% if request.user.role == 'JU' or request.user.role == 'CO' %}
 	{% include 'lgc/dropdown_menu_complete.html' %}
 	{% else %}
 	{% include 'lgc/dropdown_menu_limited.html' %}
@@ -37,20 +37,14 @@
       	<img id="kw-logo" align="right" src="{% static 'lgc/images/kw-logo-right.png' %}">
       </div>
       <div class="d-md-flex">
-	{% if user.role == 'JU' or user.role == 'CO' %}
+	{% if request.user.role == 'JU' or request.user.role == 'CO' %}
 	{% include 'lgc/menu_complete.html' %}
-	{% endif %}
-
-	{% if user.role == 'EM' %}
-	{% include 'lgc/menu_em.html' %}
-	{% endif %}
-
-	{% if user.role == 'HR' %}
-	{% include 'lgc/menu_hr.html' %}
-	{% endif %}
-
-	{% if user.role == 'HA' %}
-	{% include 'lgc/menu_ha.html' %}
+	{% elif request.user.role == 'EM' %}
+	{% include 'employee/menu.html' %}
+	{% elif request.user.role == 'HR' %}
+	{% include 'hr/menu_hr_simple.html' %}
+	{% elif request.user.role == 'HA' %}
+	{% include 'hr/menu_hr_admin.html' %}
 	{% endif %}
 
         <div id="page-wrapper" class="p-4">
