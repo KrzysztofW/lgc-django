@@ -1310,6 +1310,9 @@ def get_account_layout(layout, new_token, is_hr=False, is_active=False):
         row_div = Div(css_class='form-row')
         row_div.append(Div('is_active', css_class='form-group col-md-4'))
         layout.append(row_div)
+        row_div = Div(css_class='form-row')
+        row_div.append(Div('status', css_class='form-group col-md-4'))
+        layout.append(row_div)
 
     if new_token or is_hr:
         row_div = Div(css_class='form-row')
@@ -1489,9 +1492,9 @@ class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
         term = self.request.GET.get('term', '')
         options = self.request.GET.get('options', '')
         if options == 'pending':
-            users = self.users.filter(GDPR_accepted=None)
-        elif options == 'refused':
-            users = self.users.filter(GDPR_accepted=False)
+            users = self.users.filter(status=user_models.USER_STATUS_PENDING)
+        elif options == 'deleted':
+            users = self.users.filter(status__in=user_models.get_user_deleted_statuses())
         else:
             users = self.users
         order_by = self.get_ordering()
@@ -1532,6 +1535,15 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
                                 new_token=True)
 
     def form_valid(self, form, relations = None):
+        pending_user_err_msg = _('The status cannot be set to active as ' +
+                                 'the user has not accepted our terms and ' +
+                                 'condiftions yet.')
+
+        if (self.object.status == user_models.USER_STATUS_PENDING and
+            form.cleaned_data['status'] == user_models.USER_STATUS_ACTIVE):
+            messages.error(self.request, pending_user_err_msg)
+            return redirect('lgc-account', self.object.id)
+
         self.object = form.save(commit=False)
 
         if hasattr(self.object, 'person_user_set'):
@@ -1540,6 +1552,9 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             self.object.person_user_set.email = self.object.email
             self.object.person_user_set.responsible.set(form.instance.responsible.all())
             self.object.person_user_set.save()
+        elif self.object.status == user_models.USER_STATUS_ACTIVE:
+            messages.error(self.request, pending_user_err_msg)
+            return redirect('lgc-account', self.object.id)
 
         if self.is_hr:
             if form.cleaned_data['is_admin']:

@@ -132,7 +132,7 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return super().delete(request, *args, **kwargs)
         obj = self.get_object()
         obj.is_active = False
-        obj.GDPR_accepted = False
+        obj.status = user_models.USER_STATUS_DELETED_BY_EMPLOYEE
         obj.save()
         return redirect('user-logout')
 
@@ -320,10 +320,11 @@ def handle_auth_token(request):
                 return render(request, 'users/token.html', context)
         form.instance.token = ''
         form.instance.token_date = None
-        form.instance.GDPR_accepted = True
+        form.instance.status = user_models.USER_STATUS_ACTIVE
         form.instance.password_last_update = timezone.now().date()
         form.save()
-        if not hasattr(form.instance, 'person_user_set'):
+        if (form.instance.role == user_models.EMPLOYEE and
+            not hasattr(form.instance, 'person_user_set')):
             p = lgc_models.Person()
             p.first_name = form.instance.first_name
             p.last_name = form.instance.last_name

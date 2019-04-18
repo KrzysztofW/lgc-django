@@ -17,7 +17,7 @@
       {% endif %}
 
       {% if show_status %}
-      {% get_table_th _('Status') 'GDPR_accepted' order_by order_params %}
+      {% get_table_th _('Status') 'status' order_by order_params %}
       {% endif %}
 
       {% get_table_th _('Created') 'creation_date' order_by order_params %}
@@ -27,9 +27,9 @@
     {% for obj in object_list %}
     <tr data-href="{% url update_url obj.id %}"
 	{% if show_status %}
-	{% if obj.GDPR_accepted == None %}
+	{% if obj.status == 'P' %}
 	class="clickable-row table-warning"
-	{% elif obj.GDPR_accepted == True %}
+	{% elif obj.status == 'A' %}
 	class="clickable-row table-success"
 	{% else %}
 	class="clickable-row bg-danger"
@@ -45,12 +45,12 @@
       {% if show_birth_date %}<td>{{ obj.birth_date }}</td>{% endif %}
       {% if show_status %}
       <td>
-	{% if obj.GDPR_accepted == None %}
+	{% if obj.status == 'P' %}
 	{% trans "Pending" %}
-	{% elif obj.GDPR_accepted == True %}
+	{% elif obj.status == 'A' %}
 	{% trans "Accepted" %}
 	{% else %}
-	{% trans "Refused" %}
+	{% trans "Deletion requested" %}
 	{% endif %}
       </td>
       {% endif %}

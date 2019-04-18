@@ -17,10 +17,10 @@
 	 {% if request.GET.options == "pending" %}
 	 checked
 	 {% endif %}> {% trans 'Pending' %}
-  <input onclick="this.form.submit();" type="radio" name="options" value="refused"
-	 {% if request.GET.options == "refused" %}
+  <input onclick="this.form.submit();" type="radio" name="options" value="deleted"
+	 {% if request.GET.options == "deleted" %}
 	 checked
-	 {% endif %}> {% trans 'Refused' %}
+	 {% endif %}> {% trans 'Deletion requested' %}
 </div>
 {% endblock %}
 

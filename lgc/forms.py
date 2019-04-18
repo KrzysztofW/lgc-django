@@ -129,7 +129,7 @@ class InitiateAccountForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'language',
-                  'responsible', 'new_token', 'is_active']
+                  'responsible', 'new_token', 'is_active', 'status']
 
 class InitiateHRForm(InitiateAccountForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
@@ -139,7 +139,8 @@ class InitiateHRForm(InitiateAccountForm):
     class Meta:
         model = User
         fields = ['active_tab', 'first_name', 'last_name', 'email', 'language',
-                  'company', 'responsible', 'new_token', 'is_admin', 'is_active']
+                  'company', 'responsible', 'new_token', 'is_admin',
+                  'is_active', 'status']
 
 class HREmployeeForm(forms.Form):
     id = forms.CharField(required=True, widget=forms.HiddenInput())

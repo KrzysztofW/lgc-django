@@ -97,6 +97,20 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
+USER_STATUS_PENDING = 'P'
+USER_STATUS_ACTIVE  = 'A'
+USER_STATUS_DELETED_BY_EMPLOYEE = 'DE'
+USER_STATUS_DELETED_BY_HR = 'DH'
+USER_STATUS_CHOICES = (
+    (USER_STATUS_PENDING, _('Pending')),
+    (USER_STATUS_ACTIVE, _('Active')),
+    (USER_STATUS_DELETED_BY_EMPLOYEE, _('Deleted by employee')),
+    (USER_STATUS_DELETED_BY_HR, _('Deleted by HR')),
+)
+
+def get_user_deleted_statuses():
+    return [ USER_STATUS_DELETED_BY_EMPLOYEE, USER_STATUS_DELETED_BY_HR ]
+
 class User(AbstractUser):
     # changes email to unique and blank to false
     USERNAME_FIELD = 'email'
@@ -114,7 +128,8 @@ class User(AbstractUser):
     token = models.CharField(max_length=64, default="", blank=True)
     token_date = models.DateTimeField(null=True)
     password_last_update = models.DateField(blank=True, null=True)
-    GDPR_accepted = models.BooleanField(default=None, null=True)
+    status = models.CharField(max_length=2, choices=USER_STATUS_CHOICES,
+                              default=USER_STATUS_PENDING)
     responsible = models.ManyToManyField("self", blank=True)
     hr_employees = models.ManyToManyField("self", blank=True,
                                           related_name='hr_employee_set')
@@ -125,7 +140,7 @@ class User(AbstractUser):
     def __str__(self):
         if self.first_name != '' or self.last_name != '':
             return self.first_name + ' ' + self.last_name
-        return ''
+        return self.email
 
 class UserOldPasswords(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
