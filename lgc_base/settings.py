@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'common.apps.CommonConfig',
     'users.apps.UsersConfig',
     'lgc.apps.LgcConfig',
+    'hr.apps.HrConfig',
     'crispy_forms',
     'django_countries',
     'django.contrib.admin',

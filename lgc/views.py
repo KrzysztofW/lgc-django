@@ -72,6 +72,9 @@ def home(request):
                    'last_name':request.user.last_name}),
     }
 
+    if request.user.role in user_models.get_hr_roles():
+        return render(request, 'hr/home.html', context)
+
     if request.user.role in user_models.get_internal_roles():
         employees = user_models.get_employee_user_queryset().filter(status=user_models.USER_STATUS_PENDING).count()
         hrs = user_models.get_hr_user_queryset().filter(status=user_models.USER_STATUS_PENDING).count()

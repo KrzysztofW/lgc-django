@@ -1,0 +1,86 @@
+{% extends "lgc/base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row">
+  {% if request.user.role == 'HA' %}
+  <div class="col-lg-3 col-sm-6">
+    <div class="card">
+      <div class="content">
+	<div class="row">
+	  <div class="col-xs-5">
+	    <div class="text-center lgc_big_icon">
+	      <i class="fas fa-user-plus fa-5x text-primary"></i>
+	    </div>
+	  </div>
+	  <div class="col-xs-7">
+	    <div class="numbers">
+	      <p>{% trans 'Initiate a case' %}</p>
+	    </div>
+	  </div>
+	</div>
+      </div>
+      <div class="footer">
+	<hr class="lgc_hr">
+	<div class="stats">
+	  <i class="fa fa-arrow-circle-right"></i>
+	  <a href="{% url 'hr-initiate-account' %}"> {% trans 'Go' %}</a>
+	</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="col-lg-3 col-sm-6">
+    <div class="card">
+      <div class="content">
+	<div class="row">
+	  <div class="col-xs-5">
+	    <div class="text-center lgc_big_icon">
+	      <i class="fas fa-user-friends fa-5x text-primary"></i>
+	    </div>
+	  </div>
+	  <div class="col-xs-7">
+	    <div class="numbers">
+	      <p>{% trans 'Employees' %}</p>
+	    </div>
+	  </div>
+	</div>
+      </div>
+      <div class="footer">
+	<hr class="lgc_hr">
+	<div class="stats">
+	  <i class="fa fa-arrow-circle-right"></i>
+	  <a href="{% url 'hr-employees' %}"> {% trans 'Show' %}</a>
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-sm-6">
+    <div class="card">
+      <div class="content">
+	<div class="row">
+	  <div class="col-xs-5">
+	    <div class="text-center lgc_big_icon">
+	      <i class="far fa-bell fa-5x text-warning"></i>
+	    </div>
+	  </div>
+	  <div class="col-xs-7">
+	    <div class="numbers">
+	      <p>{% trans 'Expirations' %}</p>
+	    </div>
+	  </div>
+	</div>
+      </div>
+      <div class="footer">
+	<hr class="lgc_hr">
+	<div class="stats">
+	  <i class="fa fa-arrow-circle-right"></i>
+	  <a href="{% url 'hr-expirations' %}"> {% trans 'Show' %}</a>
+	</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
