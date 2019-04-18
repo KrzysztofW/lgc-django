@@ -83,3 +83,29 @@ def get_table_th(label, value, order_by, order_params):
         res += '<a href="?' + order_params +'&order_by=' + value + '"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>'
     res += '</th>'
     return mark_safe(res)
+
+@register.simple_tag
+def generate_table(header_values, object_list, order_by, order_params, url):
+    res = '<table class="table table-striped table-bordered table-hover">'
+    res += '<thead>'
+    res += '<tr>'
+    for th in header_values:
+        res += get_table_th(th[0], th[1], order_by, order_params)
+    res += '</tr>'
+
+    res += '</thead>'
+    res += '<tbody>'
+    for obj in object_list:
+        res += '<tr '
+        if url:
+            res += 'data-href="' + str(reverse_lazy(url, kwargs={'pk':obj.id})) + '"'
+        res += 'class="clickable-row">'
+        for th in header_values:
+            #if th[1] in get_class_attrs(obj):
+            if th[1] in object_list[0].__dict__.keys():
+                res += '<td>' + str(getattr(obj, th[1])) + '</td>'
+        res += '</tr>'
+
+    res += '</tbody>'
+    res += '</table>'
+    return mark_safe(res)

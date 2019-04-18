@@ -1056,6 +1056,7 @@ class ProcessListView(ProcessCommonView, ListView):
         context['item_url'] = self.item_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
+        context['header_values'] = [('ID', 'id'), (_('Name'), 'name')]
         return pagination(self.request, context, self.this_url)
 
 class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
