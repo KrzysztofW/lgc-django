@@ -1146,8 +1146,9 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = _("%s %s successfully deleted.")%(self.obj_name,
-                                                            self.object.id)
+        success_message = (_("%(obj_name)s %(id)s successfully deleted."%
+                           {'obj_name': self.obj_name,
+                            'id': self.object.id}))
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
@@ -1284,8 +1285,9 @@ class PersonProcessListView(ProcessListView):
         self.search_url = reverse_lazy('lgc-person-processes',
                                        kwargs={'pk':pk})
         person = object_list[0].person
-        self.title = (_('Archived Processes of ') +
-                      "%s %s"%(person.first_name, person.last_name))
+        self.title = (_('Archived Processes of %(first_name)s %(last_name)s'%
+                      {'first_name': person.first_name,
+                       'last_name': person.last_name}))
 
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
