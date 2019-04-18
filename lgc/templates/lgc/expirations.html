@@ -39,7 +39,7 @@
 	  </thead>
 	  <tbody>
 	    {% for o in page_obj %}
-	    <tr data-href="{% url 'lgc-file' o.person.id %}"
+	    <tr data-href="{% if request.user.role != 'EM' %}{% url 'lgc-file' o.person.id %}{% else %}{% url 'employee-file' %}{% endif %}"
 		{% if not o.enabled %}
 		class="clickable-row table-secondary"
 		{% else %}

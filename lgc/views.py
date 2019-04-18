@@ -448,9 +448,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     model = lgc_models.Person
     is_update = False
     template_name = 'lgc/generic_form_with_formsets.html'
+    success_url = 'lgc-file'
 
     def get_success_url(self):
-        return reverse_lazy('lgc-file', kwargs={'pk': self.object.id})
+        return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
 
     def get_active_person_process(self):
         if self.object == None:

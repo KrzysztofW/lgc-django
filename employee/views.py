@@ -42,8 +42,12 @@ import os
 
 User = get_user_model()
 
+class PersonUpdateView(lgc_views.PersonUpdateView):
+    def get_success_url(self):
+        return reverse_lazy('employee-file')
+
 def my_file(request):
-    view = lgc_views.PersonUpdateView.as_view()
+    view = PersonUpdateView.as_view()
     return view(request, pk=request.user.person_user_set.id)
 
 @login_required
