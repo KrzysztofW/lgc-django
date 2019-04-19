@@ -19,6 +19,8 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from . import models as lgc_models
 from . import forms as lgc_forms
+from employee import forms as employee_forms
+from employee import models as employee_models
 from .forms import LgcTab
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML, MultiField
@@ -85,6 +87,11 @@ def home(request):
         context['nb_pending_employees'] = employees
         context['nb_pending_hrs'] = hrs
         context['nb_files'] = files
+        expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user).filter(enabled=True).order_by('end_date')
+        compare_date = (timezone.now().date() +
+                        datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
+        context['nb_expirations'] = len(expirations.filter(end_date__lte=compare_date))
+
         return render(request, 'lgc/home.html', context)
 
     return http.HttpResponseForbidden()
@@ -598,21 +605,27 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
     def get_person_formsets(self):
         formsets = []
-        ChildrenFormSet = modelformset_factory(lgc_models.Child,
-                                               form=lgc_forms.ChildCreateForm,
-                                               can_delete=True)
-
-        ExpirationFormSet = modelformset_factory(lgc_models.Expiration,
-                                                 form=lgc_forms.ExpirationForm,
-                                                 can_delete=True)
-        SpouseExpirationFormSet = modelformset_factory(lgc_models.Expiration,
-                                                       form=lgc_forms.SpouseExpirationForm,
-                                                       can_delete=True)
 
         if self.request.user.role in user_models.get_internal_roles():
             ArchiveBoxFormSet = modelformset_factory(lgc_models.ArchiveBox,
                                                      form=lgc_forms.ArchiveBoxForm,
                                                      can_delete=True)
+            form_app = lgc_forms
+            models = lgc_models
+        else:
+            form_app = employee_forms
+            models = employee_models
+
+        ChildrenFormSet = modelformset_factory(models.Child,
+                                               form=form_app.ChildCreateForm,
+                                               can_delete=True)
+
+        ExpirationFormSet = modelformset_factory(models.Expiration,
+                                                 form=form_app.ExpirationForm,
+                                                 can_delete=True)
+        SpouseExpirationFormSet = modelformset_factory(models.Expiration,
+                                                       form=form_app.SpouseExpirationForm,
+                                                       can_delete=True)
 
         if self.request.POST:
             formsets.append(ChildrenFormSet(self.request.POST, prefix='children'))
@@ -624,14 +637,15 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             return formsets
 
         if self.is_update:
-            children_queryset = lgc_models.Child.objects.filter(person=self.object.id)
-            expiration_queryset = lgc_models.Expiration.objects.filter(person=self.object.id).filter(type__in=[(i[0]) for i in lgc_models.PERSON_EXPIRATIONS_CHOICES])
-            spouse_expiration_queryset = lgc_models.Expiration.objects.filter(person=self.object.id).filter(type__in=[(i[0]) for i in lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES])
-            archive_box_queryset = lgc_models.ArchiveBox.objects.filter(person=self.object.id)
+            children_queryset = models.Child.objects.filter(person=self.object)
+            expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=[(i[0]) for i in lgc_models.PERSON_EXPIRATIONS_CHOICES])
+            spouse_expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=[(i[0]) for i in lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES])
+            if self.request.user.role in user_models.get_internal_roles():
+                archive_box_queryset = lgc_models.ArchiveBox.objects.filter(person=self.object.id)
         else:
-            children_queryset = lgc_models.Child.objects.none()
-            expiration_queryset = lgc_models.Expiration.objects.none()
-            spouse_expiration_queryset = lgc_models.Expiration.objects.none()
+            children_queryset = models.Child.objects.none()
+            expiration_queryset = models.Expiration.objects.none()
+            spouse_expiration_queryset = models.Expiration.objects.none()
             if self.request.user.role in user_models.get_internal_roles():
                 archive_box_queryset = lgc_models.ArchiveBox.objects.none()
         formsets.append(ChildrenFormSet(queryset=children_queryset,
@@ -686,8 +700,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                                can_delete=True, extra=0)
 
         if self.object:
-            context['docs'] = DocumentFormSet(prefix='docs', queryset=lgc_models.Document.objects.filter(person=self.object))
-            context['process'] = lgc_models.PersonProcess.objects.filter(person=self.object)
+            if self.request.user.role in user_models.get_internal_roles():
+                obj = self.object
+            else:
+                emp_obj = self.get_object()
+                obj = emp_obj.user.person_user_set
+            context['docs'] = DocumentFormSet(prefix='docs', queryset=lgc_models.Document.objects.filter(person=obj))
+            context['process'] = lgc_models.PersonProcess.objects.filter(person=obj)
         context['formsets'] = self.get_person_formsets()
         self.set_person_process_stages(context)
 
@@ -695,13 +714,11 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if self.request.POST:
             context['stage'] = lgc_forms.PersonProcessStageForm(self.request.POST)
             context['doc'] = lgc_forms.DocumentForm(self.request.POST,
-                                                     self.request.FILES)
+                                                    self.request.FILES)
             context['deleted_docs'] = DocumentFormSet(self.request.POST, self.request.FILES,
                                                       prefix='docs')
         else:
             context['doc'] = lgc_forms.DocumentForm()
-            if not self.is_update:
-                context['form'].fields['start_date'].initial = str(datetime.date.today())
 
         return context
 
@@ -804,11 +821,66 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         person_process_stage.save()
         return 0
 
+    def clear_related_objects(self, objs):
+        for o in objs:
+            o.delete()
+
+    def copy_related_object(self, src, dst):
+        for k in src.__dict__.keys():
+            if k == '_state' or k == 'id' or k == 'person_id':
+                continue
+            setattr(dst, k, getattr(src, k))
+
+    def set_employee_data(self, form, formsets):
+        if self.request.user.role not in user_models.get_internal_roles():
+            return
+
+        if (not hasattr(self.object, 'user') or
+            not hasattr(self.object.user, 'employee_user_set')):
+            return
+
+        employee_obj = self.object.user.employee_user_set
+
+        for k in employee_obj.__dict__.keys():
+            if k == '_state' or k == 'updated' or k == 'id':
+                continue
+            setattr(employee_obj, k, getattr(self.object, k))
+        employee_obj.updated = False
+        employee_obj.save()
+
+        self.clear_related_objects(employee_obj.child_set.all())
+        self.clear_related_objects(employee_obj.expiration_set.all())
+
+        for formset in formsets:
+            if formset.id == 'children_id':
+                model_class = employee_models.Child
+            elif (formset.id == 'expiration_id' or
+                  formset.id == 'spouse_expiration_id'):
+                model_class = employee_models.Expiration
+            else:
+                continue
+
+            for form in formset.forms:
+                if form.instance.id == None:
+                    continue
+                if form.cleaned_data['DELETE']:
+                    continue
+                obj = model_class()
+                self.copy_related_object(form.instance, obj)
+                obj.person_id = employee_obj.id
+                obj.save()
+
     def form_valid(self, form):
-        form.instance.modified_by = self.request.user
-        form.instance.modification_date = timezone.now()
-        if form.instance.start_date == None:
-            form.instance.start_date = str(datetime.date.today())
+        if self.request.user.role in user_models.get_internal_roles():
+            if form.instance.start_date == None:
+                form.instance.start_date = str(datetime.date.today())
+            form.instance.modified_by = self.request.user
+            form.instance.modification_date = timezone.now()
+            person = form.instance
+        else:
+            form.instance.updated = True
+            emp_obj = self.get_object()
+            person = emp_obj.user.person_user_set
 
         context = self.get_context_data()
 
@@ -830,8 +902,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 form.instance.user.first_name = form.instance.first_name
                 form.instance.user.last_name = form.instance.last_name
                 form.instance.user.email = form.instance.email
-                form.instance.user.responsible.set(form.instance.responsible.all())
-                form.instance.user.save()
+                if self.request.user.role in user_models.get_internal_roles():
+                    form.instance.user.responsible.set(form.instance.responsible.all())
+                    form.instance.user.save()
 
             for formset in context['formsets']:
                 instances = formset.save(commit=False)
@@ -843,17 +916,19 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
             if doc.cleaned_data['document'] != None:
                 if doc.cleaned_data['description'] == '':
-                    messages.error(self.request, _('Invalid document description.'))
+                    messages.error(self.request,
+                                   _('Invalid document description.'))
                     return super().form_invalid(form)
                 doc.instance = lgc_models.Document()
                 doc.instance.document = doc.cleaned_data['document']
 
                 if doc.instance.document.size > settings.MAX_FILE_SIZE << 20:
-                    messages.error(self.request, _('File too big. Maximum file size is %dM.')%
+                    messages.error(self.request,
+                                   _('File too big. Maximum file size is %dM.')%
                                    settings.MAX_FILE_SIZE)
                     return super().form_invalid(form)
 
-                docs = lgc_models.Document.objects.filter(person=self.object)
+                docs = lgc_models.Document.objects.filter(person=person)
                 for d in docs.all():
                     if d.document.name != doc.instance.document.name:
                         continue
@@ -862,7 +937,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                     return super().form_invalid(form)
 
                 doc.instance.description = doc.cleaned_data['description']
-                doc.instance.person = form.instance
+                doc.instance.person = person
                 doc.instance.uploaded_by = self.request.user
                 doc.save()
 
@@ -873,8 +948,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                         os.remove(os.path.join(settings.MEDIA_ROOT,
                                                d.instance.document.name))
 
-        if self.process_form_valid(form) < 0:
-            return super().form_invalid(form)
+            if self.process_form_valid(form) < 0:
+                return super().form_invalid(form)
+
+            self.set_employee_data(form, context['formsets'])
 
         return super().form_valid(form)
 
@@ -882,8 +959,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if self.request.user.role in user_models.get_internal_roles():
             form_class = lgc_forms.PersonCreateForm
         else:
-            form_class = lgc_forms.EmployeeUpdateForm
+            form_class = employee_forms.EmployeeUpdateForm
         form = super().get_form(form_class=form_class)
+
+        """ fill form with local data """
+        if hasattr(self, 'set_initial_fields'):
+            self.set_initial_fields(form)
+
         if not self.is_update:
             return get_person_form_layout(self.request.user, form,
                                           _('Create'), None, None)

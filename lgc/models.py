@@ -442,27 +442,15 @@ FILE_STATE_CHOICES = (
     (FILE_STATE_CLOSED, _('Closed')),
 )
 
-class AccountCommon(models.Model):
-    creation_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
-    first_name = models.CharField(_('First name'), max_length=50, validators=[alpha])
-    last_name = models.CharField(_('Last name'), max_length=50, validators=[alpha])
-    email = models.EmailField(_('Email'), max_length=50, null=True, blank=True, unique=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE,
-                                null=True, blank=True,
-                                related_name='person_user_set')
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        if self.first_name != '' or self.last_name != '':
-            return self.first_name + ' ' + self.last_name
-        return ''
-
 def check_dates(start, end, what):
     if start and end and end <= start:
         raise ValidationError(_("End date of %s cannot be earlier than start date"%(what)))
 
 class PersonInfo(models.Model):
+    creation_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
+    first_name = models.CharField(_('First name'), max_length=50, validators=[alpha])
+    last_name = models.CharField(_('Last name'), max_length=50, validators=[alpha])
+    email = models.EmailField(_('Email'), max_length=50, null=True, blank=True, unique=True)
     foreigner_id = models.PositiveIntegerField(_('Foreigner ID'), blank=True,
                                                null=True)
     birth_date = models.DateField(_('Birth Date'), null=True)
@@ -512,6 +500,25 @@ class PersonInfo(models.Model):
     foreign_phone_number = models.CharField(_('Foreign Phone Number'),
                                             max_length=50, default='',
                                             blank=True)
+    class Meta:
+        abstract = True
+
+    def validate_unique(self, exclude=None):
+        super().validate_unique()
+        if self.birth_date == None and Person.objects.exclude(id=self.id).filter(first_name=self.first_name, last_name=self.last_name, birth_date__isnull=True).exists():
+            raise ValidationError(_("A person with this First Name, Last Name and Birth Date already exists."))
+
+    def __str__(self):
+        if self.first_name != '' or self.last_name != '':
+            return self.first_name + ' ' + self.last_name
+        return ''
+
+class Person(PersonInfo):
+    id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                null=True, blank=True,
+                                related_name='person_user_set')
+
     # Préfecture / OFII compétent
     prefecture = models.CharField(_('Prefecture'),
                                   max_length=3, default='',
@@ -532,21 +539,10 @@ class PersonInfo(models.Model):
                                     default='',
                                     choices=JURISDICTION_SPECIFIQUE_CHOICES,
                                     blank=True)
-    class Meta:
-        abstract = True
-
-    def validate_unique(self, exclude=None):
-        super().validate_unique()
-        if self.birth_date == None and Person.objects.exclude(id=self.id).filter(first_name=self.first_name, last_name=self.last_name, birth_date__isnull=True).exists():
-            raise ValidationError(_("A person with this First Name, Last Name and Birth Date already exists."))
-
-class Person(PersonInfo, AccountCommon):
-    id = models.AutoField(primary_key=True)
     info_process = models.CharField(_('Process'), max_length=3, default='',
                                     choices=PROCESS_CHOICES)
-    responsible = models.ManyToManyField(User,
+    responsible = models.ManyToManyField(User, blank=True,
                                          verbose_name=_('Persons in charge'),
-                                         blank=True,
                                          related_name='person_resp_set')
     modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
                                     on_delete=models.CASCADE,
@@ -566,11 +562,6 @@ class Person(PersonInfo, AccountCommon):
     class Meta:
         unique_together = ('first_name', 'last_name', 'birth_date')
 
-    def validate_unique(self, exclude=None):
-        super().validate_unique()
-        if self.birth_date == None and Person.objects.exclude(id=self.id).filter(first_name=self.first_name, last_name=self.last_name, birth_date__isnull=True).exists():
-            raise ValidationError(_('A person with this First Name, Last Name and Birth Date already exists.'))
-
 class Document(models.Model):
     document = models.FileField(_('File'))
     uploaded_date = models.DateTimeField(_('Uploaded'), auto_now_add=True)
@@ -579,17 +570,23 @@ class Document(models.Model):
     description = models.CharField(_('Description'), max_length=50, default="")
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
-class Expiration(models.Model):
+class ExpirationCommon(models.Model):
     label = _('Visas / Residence Permits / Work Permits')
     type = models.CharField(max_length=7, default='', choices=EXPIRATION_CHOICES)
     start_date = models.DateField()
     end_date = models.DateField()
     enabled = models.BooleanField(default=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
     def clean(self, model_class=None):
         check_dates(self.start_date, self.end_date, self.label)
         return super().clean()
+
+    class Meta:
+        abstract = True
+
+class Expiration(ExpirationCommon):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    pass
 
 class ArchiveBox(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -603,15 +600,12 @@ class ChildCommon(models.Model):
     birth_date = models.DateField(blank=True, null=True)
     passport_expiry = models.DateField(blank=True, null=True)
     passport_nationality = CountryField(blank=True, null=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
 
 class Child(ChildCommon):
-    pass
-
-class ModerationChild(ChildCommon):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
     pass
 
 class ProcessStage(models.Model):

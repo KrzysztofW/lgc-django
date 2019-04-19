@@ -31,6 +31,7 @@ from pathlib import Path
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 from users import models as user_models
+from . import models as employee_models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.conf import settings
@@ -38,17 +39,26 @@ from common import lgc_types
 import string
 import random
 import datetime
-import os
+import os, pdb
 
 User = get_user_model()
 
 class PersonUpdateView(lgc_views.PersonUpdateView):
+    model = employee_models.Employee
+
     def get_success_url(self):
         return reverse_lazy('employee-file')
 
 def my_file(request):
+    if not hasattr(request.user, 'employee_user_set'):
+        employee = employee_models.Employee()
+        employee.first_name = request.user.first_name
+        employee.last_name = request.user.last_name
+        employee.email = request.user.email
+        employee.user = request.user
+        employee.save()
     view = PersonUpdateView.as_view()
-    return view(request, pk=request.user.person_user_set.id)
+    return view(request, pk=request.user.employee_user_set.id)
 
 @login_required
 def my_expirations(request):
