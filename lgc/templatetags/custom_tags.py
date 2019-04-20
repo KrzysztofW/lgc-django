@@ -39,7 +39,6 @@ def get_process_progress(request):
     external_users = user_models.get_employee_user_queryset()|user_models.get_hr_user_queryset()
     files = lgc_models.Person.objects.filter(responsible=request.user)
     files = lgc_models.Person.objects.filter(modified_by__in=external_users).order_by('modification_date')
-
     person_common_view = lgc_views.PersonCommonView()
 
     for f in files:
@@ -50,8 +49,9 @@ def get_process_progress(request):
         stages = person_common_view.get_process_stages(person_process.process)
         if stages == None or stages.count() == 0:
             return
-        person_process_stages = person_common_view.get_person_process_stages(person_process)
+        person_process_stages = lgc_models.PersonProcessStage.objects.filter(is_specific=False).filter(person_process=person_process)
         progress = (person_process_stages.count() / stages.count()) * 100
+
         if f.host_entity:
             host_entity = ' (' + f.host_entity + ')'
         else:
