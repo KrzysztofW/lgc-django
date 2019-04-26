@@ -35,6 +35,7 @@
 	  <div class="row">
 	    {% block search_bar %}{% endblock %}
 	    <div {% if search_form %}class="col-md-3 "{% else %}class="col-sm-12 col-md-6"{% endif %} {% if page_obj.paginator.num_pages > 1 %}style="top:15px;"{% endif %}>
+	      {% if not dont_show_search_bar %}
 	      <div class="dataTables_filter">
 		<div class="input-group custom-search-form">
                   <input type="text" class="form-control" name="term" value="{{ request.GET.term }}" id="search_box" placeholder="{% trans 'Search...' %}" autocomplete="off" onfocus="this.selectionStart = this.selectionEnd = this.value.length;
@@ -46,6 +47,7 @@
                   </span>
 		</div>
 	      </div>
+	      {% endif %}
 	      <label>
 		<span id="search-result-container"></span>
 	      </label>

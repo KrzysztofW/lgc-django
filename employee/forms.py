@@ -15,10 +15,11 @@ class EmployeeUpdateForm(forms.ModelForm):
     passport_expiry = forms.DateField(required=False,
                                       widget=DatePickerInput(),
                                       label=_('Passport Expiry'))
+    version = forms.CharField(required=True, widget=forms.HiddenInput())
 
     class Meta:
         model = employee_models.Employee
-        exclude = ['updated']
+        exclude = ['modified_by', 'modification_date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

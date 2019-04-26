@@ -4,7 +4,72 @@
 {% load formset_tags %}
 {% load i18n %}
 {% block content %}
+
 <form method="post" enctype="multipart/form-data">
+
+{% if changes_detected_form %}
+{% trans 'The form has been updated by an other user while you were editing it.' %}
+{% trans 'See the changes below:' %}<br><br>
+
+{% if form_diff %}
+<table class="table table-striped">
+{% for d in form_diff %}
+<tr>
+  <td width="200">{{ d.0 }}:</td>
+  <td>
+    {% if d.1 %}
+    {% for i in d.2 %}
+    {{ i.first_name }} {{ i.last_name }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+    {% else %}
+    {{ d.2 }}
+    {% endif %}
+  </td>
+  </tr>
+{% endfor %}
+  </tbody>
+</table>
+<br>
+{% endif %}
+{% endif %}
+
+{% for formset_diff in formsets_diff %}
+<div class="row">
+  <div class="col-sm-7">
+    {{ formset_diff.0 }}:
+    <table class="table-sm  table-bordered">
+      {% for obj_lists in formset_diff.1 %}
+      {% if forloop.first %}
+      <thead>
+	<tr>
+	  {% for label in obj_lists %}
+	  <th>{{ label }}</th>
+	  {% endfor %}
+	</tr>
+      </thead>
+      <tbody>
+	{% else %}
+	{% for objs in obj_lists %}
+	<tr>
+	  {% for obj in objs %}
+	  <td width="250">{{ obj }}</td>
+	  {% endfor %}
+	</tr>
+	{% endfor %}
+      </tbody>
+      {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+</div>
+<hr><br>
+{% endfor %}
+{% if changes_detected_form %}
+{% crispy changes_detected_form %}
+<button class="btn btn-outline-info" type="submit">{% trans 'Submit' %}</button>
+<hr>
+{% endif %}
+
 {% crispy form %}
 </form>
 

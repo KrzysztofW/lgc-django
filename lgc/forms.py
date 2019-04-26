@@ -32,7 +32,7 @@ class LgcTab(Tab):
         super().__init__(*args, **kwargs)
 
 class PersonSearchForm(forms.Form):
-    id = forms.CharField(required=False, )
+    id = forms.CharField(required=False)
     info_process = forms.ChoiceField(required=False,
                                      choices=lgc_models.PROCESS_CHOICES,
                                      label=_('Process'),
@@ -90,6 +90,7 @@ class PersonCreateForm(forms.ModelForm):
     passport_expiry = forms.DateField(required=False,
                                       widget=DatePickerInput(),
                                       label=_('Passport Expiry'))
+    version = forms.IntegerField(min_value=0, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -98,7 +99,7 @@ class PersonCreateForm(forms.ModelForm):
 
     class Meta:
         model = lgc_models.Person
-        exclude = ['creation_date', 'modified_by']
+        exclude = ['creation_date', 'modified_by', 'modification_date']
 
 class InitiateAccountForm(forms.ModelForm):
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset(), label=_('Persons in charge'))
@@ -169,7 +170,7 @@ class ExpirationCommon(forms.ModelForm):
 
 class ExpirationForm(ExpirationCommon):
     options = empty_select + lgc_models.PERSON_EXPIRATIONS_CHOICES
-    type = forms.ChoiceField(choices=options)
+    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:160px'}))
 
     class Meta:
         model = lgc_models.Expiration
@@ -177,7 +178,7 @@ class ExpirationForm(ExpirationCommon):
 
 class SpouseExpirationForm(ExpirationCommon):
     options = empty_select + lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES_SHORT
-    type = forms.ChoiceField(choices=options)
+    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:160px'}))
 
     class Meta:
         model = lgc_models.Expiration
@@ -297,5 +298,19 @@ class ExpirationSearchForm(forms.Form):
     show_disabled = forms.BooleanField(required=False, label=_('Show disabled'),
                                        widget=forms.CheckboxInput(attrs={'onchange':'form.submit();'}))
 
+    class Meta:
+        fields = '__all__'
+
+CHANGES_DETECTED_FORCE = 'F'
+CHANGES_DETECTED_DISCARD = 'D'
+CHANGES_DETECTED_CHOICES = (
+    (CHANGES_DETECTED_FORCE, _('Apply my changes anyway.')),
+    (CHANGES_DETECTED_DISCARD, _('Discard all my changes and redisplay.')),
+)
+
+class ChangesDetectedForm(forms.Form):
+    changes_action = forms.ChoiceField(required=False, choices=CHANGES_DETECTED_CHOICES,
+                                       widget=forms.RadioSelect(),
+                                       label=_('Choose an action:'))
     class Meta:
         fields = '__all__'

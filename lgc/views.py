@@ -270,6 +270,7 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
         Div(Div('active_tab'),
             Div('first_name', css_class='form-group col-md-4'),
             Div('last_name', css_class='form-group col-md-4'),
+            Div('version'),
             css_class='form-row'),
         Div(Div('email', css_class='form-group col-md-4'),
             Div('citizenship', css_class='form-group col-md-4'),
@@ -376,6 +377,7 @@ def employee_user_get_person_form_layout(form, action, obj, process):
         Div(Div('active_tab'),
             Div('first_name', css_class='form-group col-md-4'),
             Div('last_name', css_class='form-group col-md-4'),
+            Div('version'),
             css_class='form-row'),
         Div(Div('email', css_class='form-group col-md-4'),
             Div('citizenship', css_class='form-group col-md-4'),
@@ -456,6 +458,11 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     is_update = False
     template_name = 'lgc/generic_form_with_formsets.html'
     success_url = 'lgc-file'
+    form_diff = []
+    is_children_diff = False
+    is_expirations_diff = False
+    is_spouse_expirations_diff = False
+    is_archive_box_diff = False
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
@@ -638,8 +645,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         if self.is_update:
             children_queryset = models.Child.objects.filter(person=self.object)
-            expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=[(i[0]) for i in lgc_models.PERSON_EXPIRATIONS_CHOICES])
-            spouse_expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=[(i[0]) for i in lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES])
+            expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list())
+            spouse_expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list())
             if self.request.user.role in user_models.get_internal_roles():
                 archive_box_queryset = lgc_models.ArchiveBox.objects.filter(person=self.object.id)
         else:
@@ -692,9 +699,53 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         context['timeline_stages'] = self.get_timeline_stages(person_process, person_process_stages)
         context['process_name'] = person_process.process.name
 
+    def get_formset_objs(self, queryset):
+        obj_lists = []
+        key_list = []
+        first_loop = True
+        for o in queryset:
+            obj_list = []
+            for k in o.__dict__.keys():
+                if k == 'id' or k == '_state' or k == 'person_id':
+                    continue
+                if first_loop:
+                    k_verbose_name = o._meta.get_field(k).verbose_name.title()
+                    key_list += [k_verbose_name]
+                attr = 'get_' + k + '_display'
+                if hasattr(o, attr):
+                    v = getattr(o, attr)
+                else:
+                    v = getattr(o, k)
+                obj_list += [v]
+            obj_lists.append(obj_list)
+            first_loop = False
+        return (key_list, obj_lists)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
+        if self.form_diff:
+            context['form_diff'] = self.form_diff
+        context['formsets_diff'] = []
+        if self.is_children_diff:
+            context['formsets_diff'] += [(_('Children'),
+                                          self.get_formset_objs(lgc_models.Child.objects.filter(person=self.object)))]
+        if self.is_expirations_diff:
+            context['formsets_diff'] += [(_('Expirations'),
+                                          self.get_formset_objs(lgc_models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list())))]
+        if self.is_spouse_expirations_diff:
+            context['formsets_diff'] += [(_('Spouse Expirations'),
+                                          self.get_formset_objs(lgc_models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list())))]
+        if self.is_archive_box_diff:
+            context['formsets_diff'] += [(_('Archive boxes'),
+                                          self.get_formset_objs(lgc_models.ArchiveBox.objects.filter(person=self.object)))]
+        if self.form_diff or len(context['formsets_diff']):
+            changes_form = lgc_forms.ChangesDetectedForm()
+            changes_form.helper = FormHelper()
+            changes_form.helper.form_tag = False
+
+            context['changes_detected_form'] = changes_form
+
         DocumentFormSet = modelformset_factory(lgc_models.Document,
                                                form=lgc_forms.DocumentFormSet,
                                                can_delete=True, extra=0)
@@ -839,17 +890,17 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             not hasattr(self.object.user, 'employee_user_set')):
             return
 
-        employee_obj = self.object.user.employee_user_set
+        employee = self.object.user.employee_user_set
 
-        for k in employee_obj.__dict__.keys():
+        for k in employee.__dict__.keys():
             if k == '_state' or k == 'updated' or k == 'id':
                 continue
-            setattr(employee_obj, k, getattr(self.object, k))
-        employee_obj.updated = False
-        employee_obj.save()
+            setattr(employee, k, getattr(self.object, k))
+        employee.modified_by = self.request.user
+        employee.save()
 
-        self.clear_related_objects(employee_obj.child_set.all())
-        self.clear_related_objects(employee_obj.expiration_set.all())
+        self.clear_related_objects(employee.child_set.all())
+        self.clear_related_objects(employee.expiration_set.all())
 
         for formset in formsets:
             if formset.id == 'children_id':
@@ -867,10 +918,116 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                     continue
                 obj = model_class()
                 self.copy_related_object(form.instance, obj)
-                obj.person_id = employee_obj.id
+                obj.person_id = employee.id
                 obj.save()
 
+    def __check_form_diff(self, obj, form, cleaned_data):
+        form_diff = []
+
+        for key in cleaned_data.keys():
+            if key == 'version' or key == 'user' or key == 'id' or key == 'DELETE':
+                continue
+            try:
+                val = getattr(obj, key)
+            except:
+                continue
+
+            if cleaned_data[key] == val:
+                continue
+
+            attr = 'get_' + key + '_display'
+            if hasattr(obj, attr):
+                val = getattr(obj, attr)
+
+            if form.fields[key].label:
+                label = form.fields[key].label
+            else:
+                label = key.capitalize()
+
+            if not hasattr(val, 'all'):
+                form_diff.append((label, False, val))
+                continue
+
+            """ check all manyToMany objects """
+            val = val.all()
+            form_val = cleaned_data[key]
+            for i in range(len(val)):
+                if i + 1 > len(form_val) or val[i] != form_val[i]:
+                    form_diff.append((label, True, val))
+                    break
+                continue
+
+        return form_diff
+
+    def check_formset_diff(self, formset, objs):
+        forms_len = 0
+        for i in range(len(formset.cleaned_data)):
+            if (formset.forms[i].instance.id != None and
+                formset.cleaned_data[i]['DELETE'] != True):
+                forms_len += 1
+
+        if len(objs.all()) != forms_len:
+            return True
+
+        for i in range(len(formset.cleaned_data)):
+            if formset.forms[i].instance.id == None:
+                continue
+            obj = objs.filter(id=formset.forms[i].instance.id)
+            try:
+                obj = obj[0]
+            except:
+                return True
+            if len(self.__check_form_diff(obj, formset.forms[i],
+                                          formset.cleaned_data[i])):
+                return True
+        return False
+
+    def check_formsets_diff(self, context):
+        for formset in context['formsets']:
+            if formset.id == 'children_id':
+                self.is_children_diff = self.check_formset_diff(formset,
+                                                                lgc_models.Child.objects.filter(person=self.object))
+            if formset.id == 'expiration_id':
+                self.is_expirations_diff = self.check_formset_diff(formset,
+                                                                   lgc_models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list()))
+            if formset.id == 'spouse_expiration_id':
+                self.is_spouse_expirations_diff = self.check_formset_diff(formset,
+                                                                          lgc_models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list()))
+        return (self.is_children_diff or self.is_expirations_diff or
+                self.is_spouse_expirations_diff)
+
+    def check_form_diff(self, obj, form, context):
+        if obj == None:
+            return []
+
+        if form.cleaned_data['version'] == obj.version:
+            return False
+
+        self.form_diff = self.__check_form_diff(obj, form, form.cleaned_data)
+        formsets_diff = self.check_formsets_diff(context)
+        return len(self.form_diff) or formsets_diff
+
     def form_valid(self, form):
+        context = self.get_context_data()
+        for formset in context['formsets']:
+            if not formset.is_valid():
+                messages.error(self.request, formset.err_msg)
+                return super().form_invalid(form)
+
+        try:
+            obj = self.get_object()
+        except:
+            obj = None
+
+        if obj:
+            changes_action = self.request.POST.get('changes_action', '')
+            if changes_action == lgc_forms.CHANGES_DETECTED_DISCARD:
+                return redirect('lgc-file', self.object.id)
+            if (changes_action != lgc_forms.CHANGES_DETECTED_FORCE and
+                self.check_form_diff(obj, form, context)):
+                return self.form_invalid(form)
+            form.instance.version = obj.version + 1
+
         if self.request.user.role in user_models.get_internal_roles():
             if form.instance.start_date == None:
                 form.instance.start_date = str(datetime.date.today())
@@ -879,17 +1036,11 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             person = form.instance
         else:
             form.instance.updated = True
-            emp_obj = self.get_object()
-            person = emp_obj.user.person_user_set
-
-        context = self.get_context_data()
+            """ obj is valid as external users can only update the form """
+            person = obj.user.person_user_set
 
         with transaction.atomic():
             for formset in context['formsets']:
-                if not formset.is_valid():
-                    messages.error(self.request, formset.err_msg)
-                    return super().form_invalid(form)
-
                 for obj in formset.deleted_forms:
                     if (obj.instance.id != None):
                         obj.instance.delete()
@@ -961,10 +1112,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         else:
             form_class = employee_forms.EmployeeUpdateForm
         form = super().get_form(form_class=form_class)
-
-        """ fill form with local data """
-        if hasattr(self, 'set_initial_fields'):
-            self.set_initial_fields(form)
 
         if not self.is_update:
             return get_person_form_layout(self.request.user, form,
@@ -1413,6 +1560,7 @@ def get_account_layout(layout, new_token, is_hr=False, is_active=False):
         if is_hr:
             row_div.append(Div('is_admin', css_class='form-group col-md-4'))
         layout.append(row_div)
+
 
     return layout
 

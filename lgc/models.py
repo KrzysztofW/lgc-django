@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -431,6 +432,12 @@ PERSON_SPOUSE_EXPIRATIONS_CHOICES_COMPACT = (
 
 EXPIRATION_CHOICES = PERSON_EXPIRATIONS_CHOICES + PERSON_SPOUSE_EXPIRATIONS_CHOICES
 
+def get_expiration_list():
+    return [(i[0]) for i in PERSON_EXPIRATIONS_CHOICES]
+
+def get_spouse_expiration_list():
+    return [(i[0]) for i in PERSON_SPOUSE_EXPIRATIONS_CHOICES]
+
 FILE_STATE_ACTIVE  = 'A'
 FILE_STATE_PENDING = 'P'
 FILE_STATE_CLOSED  = 'C'
@@ -447,6 +454,7 @@ def check_dates(start, end, what):
         raise ValidationError(_("End date of %s cannot be earlier than start date"%(what)))
 
 class PersonInfo(models.Model):
+    version = models.PositiveIntegerField(default=0)
     creation_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
     first_name = models.CharField(_('First name'), max_length=50, validators=[alpha])
     last_name = models.CharField(_('Last name'), max_length=50, validators=[alpha])
@@ -500,6 +508,10 @@ class PersonInfo(models.Model):
     foreign_phone_number = models.CharField(_('Foreign Phone Number'),
                                             max_length=50, default='',
                                             blank=True)
+    modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
+                                    on_delete=models.CASCADE)
+    modification_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
+
     class Meta:
         abstract = True
 
@@ -512,6 +524,9 @@ class PersonInfo(models.Model):
         if self.first_name != '' or self.last_name != '':
             return self.first_name + ' ' + self.last_name
         return ''
+    def save(self, *args, **kwargs):
+        self.modification_date = timezone.now()
+        return super().save(*args, **kwargs)
 
 class Person(PersonInfo):
     id = models.AutoField(primary_key=True)
@@ -544,10 +559,6 @@ class Person(PersonInfo):
     responsible = models.ManyToManyField(User, blank=True,
                                          verbose_name=_('Persons in charge'),
                                          related_name='person_resp_set')
-    modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
-                                    on_delete=models.CASCADE,
-                                    related_name='person_modified_by_set')
-    modification_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
     start_date = models.DateField(_('Start Date'), blank=True, null=True)
 
     state = models.CharField(_('State'), max_length=3,
@@ -593,13 +604,13 @@ class ArchiveBox(models.Model):
     number = models.PositiveIntegerField(_('Number'))
 
 class ChildCommon(models.Model):
-    first_name = models.CharField(max_length=50, null=False,
+    first_name = models.CharField(verbose_name=_('First name'), max_length=50, null=False,
                                   validators=[alpha])
-    last_name = models.CharField(max_length=50, default='', blank=True,
+    last_name = models.CharField(_('Last name'), max_length=50, default='', blank=True,
                                  validators=[alpha])
-    birth_date = models.DateField(blank=True, null=True)
-    passport_expiry = models.DateField(blank=True, null=True)
-    passport_nationality = CountryField(blank=True, null=True)
+    birth_date = models.DateField(_('Birth date'), blank=True, null=True)
+    passport_expiry = models.DateField(_('Passport expiry'), blank=True, null=True)
+    passport_nationality = CountryField(_('Passport nationality'), blank=True, null=True)
 
     class Meta:
         abstract = True

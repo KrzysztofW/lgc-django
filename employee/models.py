@@ -6,10 +6,10 @@ User = get_user_model()
 
 class Employee(lgc_models.PersonInfo):
     id = models.AutoField(primary_key=True)
+    version = models.PositiveIntegerField(default=0)
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 null=True, blank=True,
                                 related_name='employee_user_set')
-    updated = models.BooleanField(default=False)
 
 class Child(lgc_models.ChildCommon):
     person = models.ForeignKey(Employee, on_delete=models.CASCADE)

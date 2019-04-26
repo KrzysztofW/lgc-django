@@ -56,6 +56,7 @@ def my_file(request):
         employee.last_name = request.user.last_name
         employee.email = request.user.email
         employee.user = request.user
+        employee.modified_by = request.user
         employee.save()
     view = PersonUpdateView.as_view()
     return view(request, pk=request.user.employee_user_set.id)
