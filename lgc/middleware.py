@@ -3,19 +3,16 @@ from users import models as user_models
 from django.core.exceptions import PermissionDenied
 import re
 
-public_urls = ['/user/login',  '/user/auth/' ]
-allowed_urls = public_urls + [
-    '/', '/user/logout/', '/user/profile/',
-    '/user/profile-pw-reset/', '/user/delete-profile/',
+allowed_urls = [
+    '/', '/user/login',  '/user/auth/', '/user/logout/',
+    '/user/profile/', '/user/profile-pw-reset/',
+    '/user/delete-profile/',
 ]
 
 class UserRolesCheck(MiddlewareMixin):
     def process_request(self, request):
         if not hasattr(request.user, 'role'):
-            for i in public_urls:
-                if request.path == '/en' + i or request.path == '/fr' + i:
-                    return
-            raise PermissionDenied
+            return
 
         if request.user.role in user_models.get_internal_roles():
             return
