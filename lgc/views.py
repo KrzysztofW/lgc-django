@@ -470,7 +470,12 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     def get_active_person_process(self):
         if self.object == None:
             return
-        process = lgc_models.PersonProcess.objects.filter(person=self.object.id).filter(active=True)
+        if type(self.object).__name__ == 'Employee':
+            object = self.object.user.person_user_set
+        else:
+            object = self.object
+
+        process = lgc_models.PersonProcess.objects.filter(person=object).filter(active=True)
         if process.count() > 1:
             messages.error(self.request,
                            _('PersonProcess consistency error! ') +
@@ -925,7 +930,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         form_diff = []
 
         for key in cleaned_data.keys():
-            if key == 'version' or key == 'user' or key == 'id' or key == 'DELETE':
+            if key == 'version' or key == 'user' or key == 'id' or key == 'DELETE' or key == "updated":
                 continue
             try:
                 val = getattr(obj, key)
@@ -982,21 +987,21 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 return True
         return False
 
-    def check_formsets_diff(self, context):
+    def check_formsets_diff(self, context, model):
         for formset in context['formsets']:
             if formset.id == 'children_id':
                 self.is_children_diff = self.check_formset_diff(formset,
-                                                                lgc_models.Child.objects.filter(person=self.object))
+                                                                model.Child.objects.filter(person=self.object))
             if formset.id == 'expiration_id':
                 self.is_expirations_diff = self.check_formset_diff(formset,
-                                                                   lgc_models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list()))
+                                                                   model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list()))
             if formset.id == 'spouse_expiration_id':
                 self.is_spouse_expirations_diff = self.check_formset_diff(formset,
-                                                                          lgc_models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list()))
+                                                                          model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list()))
         return (self.is_children_diff or self.is_expirations_diff or
                 self.is_spouse_expirations_diff)
 
-    def check_form_diff(self, obj, form, context):
+    def check_form_diff(self, obj, form, context, model):
         if obj == None:
             return []
 
@@ -1004,7 +1009,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             return False
 
         self.form_diff = self.__check_form_diff(obj, form, form.cleaned_data)
-        formsets_diff = self.check_formsets_diff(context)
+        formsets_diff = self.check_formsets_diff(context, model)
         return len(self.form_diff) or formsets_diff
 
     def form_valid(self, form):
@@ -1023,8 +1028,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             changes_action = self.request.POST.get('changes_action', '')
             if changes_action == lgc_forms.CHANGES_DETECTED_DISCARD:
                 return redirect('lgc-file', self.object.id)
+
+            if type(obj).__name__ == 'Employee':
+                model = employee_models
+            else:
+                model = lgc_models
             if (changes_action != lgc_forms.CHANGES_DETECTED_FORCE and
-                self.check_form_diff(obj, form, context)):
+                self.check_form_diff(obj, form, context, model)):
                 return self.form_invalid(form)
             form.instance.version = obj.version + 1
 
