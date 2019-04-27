@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from bootstrap_datepicker_plus import DatePickerInput
 from lgc import forms as lgc_forms
+from lgc import models as lgc_models
 from . import models as employee_models
 
 class EmployeeUpdateForm(forms.ModelForm):
@@ -15,7 +16,7 @@ class EmployeeUpdateForm(forms.ModelForm):
     passport_expiry = forms.DateField(required=False,
                                       widget=DatePickerInput(),
                                       label=_('Passport Expiry'))
-    version = forms.CharField(required=True, widget=forms.HiddenInput())
+    version = forms.IntegerField(min_value=0, widget=forms.HiddenInput())
 
     class Meta:
         model = employee_models.Employee
@@ -39,3 +40,31 @@ class SpouseExpirationForm(lgc_forms.SpouseExpirationForm):
     class Meta:
         model = employee_models.Expiration
         fields = ['type', 'start_date', 'end_date', 'enabled']
+
+class ModerationPersonCreateForm(lgc_forms.PersonCreateForm):
+    active_tab = None
+    responsible = None
+    comments = None
+    process_name = None
+    start_date = None
+
+    class Meta:
+        model = lgc_models.Person
+        exclude = ['modified_by', 'modification_date', 'creation_date', 'id', 'user',
+                   'prefecture', 'subprefecture', 'consulate', 'direccte', 'jurisdiction',
+                   'info_process', 'responsible', 'start_date', 'state', 'comments']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for key in self.fields.keys():
+            if key == 'version':
+                continue
+            self.fields[key].widget.attrs['readonly'] = True
+            self.fields[key].widget.attrs['disabled'] = True
+
+class ModerationEmployeeUpdateForm(EmployeeUpdateForm):
+    active_tab = None
+
+    class Meta:
+        model = employee_models.Employee
+        exclude = ['modified_by', 'updated', 'user']

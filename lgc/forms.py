@@ -95,7 +95,8 @@ class PersonCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         datepicker_set_lang_widget(self, 'birth_date')
-        datepicker_set_lang_widget(self, 'start_date')
+        if hasattr(self, 'start_date') and self.start_date:
+            datepicker_set_lang_widget(self, 'start_date')
 
     class Meta:
         model = lgc_models.Person

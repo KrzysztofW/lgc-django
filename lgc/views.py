@@ -36,6 +36,7 @@ from users import models as user_models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.conf import settings
+from django.utils.safestring import mark_safe
 from common import lgc_types
 import string
 import random
@@ -881,9 +882,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         for o in objs:
             o.delete()
 
-    def copy_related_object(self, src, dst):
-        for k in src.__dict__.keys():
-            if k == '_state' or k == 'id' or k == 'person_id':
+    def copy_related_object(self, src, dst, keys_from):
+        for k in keys_from.__dict__.keys():
+            if (k == '_state' or k == 'id' or k == 'person_id' or k == 'updated' or
+                k == 'version'):
                 continue
             setattr(dst, k, getattr(src, k))
 
@@ -897,11 +899,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         employee = self.object.user.employee_user_set
 
-        for k in employee.__dict__.keys():
-            if k == '_state' or k == 'updated' or k == 'id':
-                continue
-            setattr(employee, k, getattr(self.object, k))
+        self.copy_related_object(self.object, employee, employee)
         employee.modified_by = self.request.user
+        employee.version += 1
         employee.save()
 
         self.clear_related_objects(employee.child_set.all())
@@ -922,7 +922,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 if form.cleaned_data['DELETE']:
                     continue
                 obj = model_class()
-                self.copy_related_object(form.instance, obj)
+                self.copy_related_object(form.instance, obj, form.instance)
                 obj.person_id = employee.id
                 obj.save()
 
@@ -1027,12 +1027,20 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if obj:
             changes_action = self.request.POST.get('changes_action', '')
             if changes_action == lgc_forms.CHANGES_DETECTED_DISCARD:
-                return redirect('lgc-file', self.object.id)
+                return redirect(self.get_success_url())
 
             if type(obj).__name__ == 'Employee':
                 model = employee_models
             else:
                 model = lgc_models
+                if obj.user.employee_user_set and obj.user.employee_user_set.updated:
+                    msg = _('There is a pending moderation on this file. <a href="' +
+                            str(reverse_lazy('employee-moderation',
+                                             kwargs={'pk':obj.user.employee_user_set.id})) +
+                            '">Click here to moderate it.</a>')
+                    messages.error(self.request, mark_safe(msg))
+                    return self.form_invalid(form)
+
             if (changes_action != lgc_forms.CHANGES_DETECTED_FORCE and
                 self.check_form_diff(obj, form, context, model)):
                 return self.form_invalid(form)

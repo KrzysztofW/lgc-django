@@ -19,6 +19,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from lgc import models as lgc_models, views as lgc_views
 from . import forms as employee_forms
+from lgc import forms as lgc_forms
 from lgc.forms import LgcTab
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML, MultiField
@@ -76,3 +77,90 @@ def my_expirations(request):
     objs = lgc_views.expirations_filter_objs(request, objs)
     return lgc_views.__expirations(request, form, objs)
 
+def paginate_moderations(request, object_list):
+    paginate = request.GET.get('paginate', 10)
+    order_by = request.GET.get('order_by', 'id')
+    object_list = object_list.order_by(order_by)
+    paginator = Paginator(object_list, paginate)
+    page = request.GET.get('page')
+    return paginator.get_page(page)
+
+@login_required
+def moderations(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    context = {
+        'title': 'Moderations',
+    }
+    context = pagination(request, context, reverse_lazy('employee-moderations'))
+    objs = employee_models.Employee.objects.filter(updated=True)
+    context['page_obj'] = paginate_moderations(request, objs)
+
+    if (len(objs) and (context['page_obj'].has_next() or
+                       context['page_obj'].has_previous())):
+        context['is_paginated'] = True
+    else:
+        context['is_paginated'] = False
+    context['header_values'] = [('ID', 'id'), (_('First name'), 'first_name'),
+                                (_('Last name'), 'last_name'),
+                                (_('E-mail'), 'email'),
+                                (_('Host entity'), 'host_entity'),]
+    context['object_list'] = context['page_obj'].object_list
+    context['dont_show_search_bar'] = True
+    context['item_url'] = 'employee-moderation'
+
+    return render(request, 'lgc/sub_generic_list.html', context)
+
+@login_required
+def moderation(request, *args, **kwargs):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    pk = kwargs.get('pk', '')
+    if pk == '':
+        raise Http404
+
+    obj = employee_models.Employee.objects.filter(id=pk)
+    if obj == None or len(obj) != 1:
+        raise Http404
+    obj = obj[0]
+
+    if request.POST:
+        person_form = employee_forms.ModerationPersonCreateForm(request.POST,
+                                                                instance=obj.user.person_user_set)
+        employee_form = employee_forms.ModerationEmployeeUpdateForm(request.POST,
+                                                                    instance=obj)
+        if person_form.is_valid() and employee_form.is_valid():
+            if person_form.cleaned_data['version'] == obj.user.person_user_set.version:
+                if employee_form.cleaned_data['version'] != obj.version:
+                    messages.error(request, _('Form modified by %(firstname)s %(lastname)s.'%{
+                        'firstname':obj.modified_by.first_name,
+                        'lastname': obj.modified_by.last_name
+                    }))
+                else:
+                    employee_form.instance.version += 1
+                    employee_form.instance.updated = False
+                    employee_form.save()
+                    person_common_view = lgc_views.PersonCommonView()
+                    person_common_view.copy_related_object(employee_form.instance,
+                                                           obj.user.person_user_set,
+                                                           employee_form.instance)
+                    obj.user.person_user_set.version += 1
+                    obj.user.person_user_set.save()
+                    messages.success(request, _('Moderation successfully submitted.'))
+            else:
+                messages.error(request, _('Form modified by %(firstname)s %(lastname)s.'%{
+                    'firstname':obj.user.person_user_set.modified_by.first_name,
+                    'lastname': obj.user.person_user_set.modified_by.last_name
+                }))
+    else:
+        person_form = employee_forms.ModerationPersonCreateForm(instance=obj.user.person_user_set)
+        employee_form = employee_forms.ModerationEmployeeUpdateForm(instance=obj)
+    context = {
+        'title': 'Moderation',
+        'employee_form': employee_form,
+        'person_form': person_form,
+    }
+
+    return render(request, 'employee/moderation.html', context)

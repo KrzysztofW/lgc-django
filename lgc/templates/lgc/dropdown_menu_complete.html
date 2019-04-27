@@ -25,7 +25,7 @@
     <div class="dropdown-menu dropdown-menu-right dropdown-alerts" style="width:400px;">
 
       {% for o in moderations.objs %}
-      <a class="dropdown-item" href="{% url 'lgc-moderation' o.id %}">
+      <a class="dropdown-item" href="{% url 'employee-moderation' o.id %}">
         <div>
           <i class="fa fa-exclamation fa-fw"></i>
 	  {% with name=o.first_name|add:' '|add:o.last_name line_length=o.first_name %}
@@ -41,10 +41,18 @@
       <div class="dropdown-divider"></div>
       {% endfor %}
 
-      <a class="dropdown-item see-more text-center" href="{% url 'lgc-moderations' %}">
-        <strong>{% trans 'See All Moderations' %}</strong>
+      {% if moderations.nb_items %}
+      <a class="dropdown-item see-more text-center" href="{% url 'employee-moderations' %}">
+        <strong>
+	  {% trans 'See All Moderations' %}
+	</strong>
         <i class="fa fa-angle-right"></i>
       </a>
+      {% else %}
+      <strong class="dropdown-item see-more text-center">
+	{% trans 'No pending moderations' %}
+      </strong>
+      {% endif %}
     </div>
   </li>
 

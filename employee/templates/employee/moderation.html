@@ -1,0 +1,31 @@
+{% extends "lgc/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block content %}
+
+<div class="content-section">
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="form-group col-md-4">
+	<label><b>{% trans 'Current form:' %}</b></label>
+	<fieldset class="form-group">
+	  {{ person_form|crispy }}
+	</fieldset>
+      </div>
+      <div class="form-group col-md-4">
+	<fieldset class="form-group">
+	  <label><b>{% trans 'To be moderated:' %}</b></label>
+	  {{ employee_form|crispy }}
+	</fieldset>
+      </div>
+    </div>
+    <div class="form-group">
+      <button class="btn btn-outline-info" type="submit">
+	{% trans "Accept" %}
+      </button>
+    </div>
+  </form>
+</div>
+
+{% endblock content %}
