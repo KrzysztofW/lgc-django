@@ -7,6 +7,7 @@ User = get_user_model()
 class Employee(lgc_models.PersonInfo):
     id = models.AutoField(primary_key=True)
     version = models.PositiveIntegerField(default=0)
+    updated = models.BooleanField(default=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 null=True, blank=True,
                                 related_name='employee_user_set')

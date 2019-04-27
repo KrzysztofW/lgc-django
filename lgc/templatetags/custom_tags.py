@@ -1,6 +1,7 @@
 from django import template
 from users import models as user_models
 from lgc import models as lgc_models
+from employee import models as employee_models
 from lgc import views as lgc_views
 from django.conf import settings
 from django.utils import timezone
@@ -69,6 +70,15 @@ def get_process_progress(request):
                     bg, url))
         if len(res) > 10:
             return res
+    return res
+
+@register.simple_tag
+def get_pending_moderations(request):
+    objs = employee_models.Employee.objects.filter(updated=True)
+    res = {
+        'objs': objs[:10],
+        'nb_items': len(objs),
+    }
     return res
 
 @register.simple_tag

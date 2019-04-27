@@ -510,7 +510,7 @@ class PersonInfo(models.Model):
                                             blank=True)
     modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
                                     on_delete=models.CASCADE)
-    modification_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
+    modification_date = models.DateTimeField(_('Modification date'), auto_now_add=True)
 
     class Meta:
         abstract = True
