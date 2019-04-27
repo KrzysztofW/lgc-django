@@ -1272,7 +1272,7 @@ class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
         abstract = True
 
 class ProcessListView(ProcessCommonView, ListView):
-    template_name = 'lgc/processes.html'
+    template_name = 'lgc/sub_generic_list.html'
     model = lgc_models.Process
     title = _('Processes')
     create_url = reverse_lazy('lgc-process-create')
