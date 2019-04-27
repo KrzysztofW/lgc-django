@@ -8,8 +8,11 @@
 <form method="post" enctype="multipart/form-data">
 
 {% if changes_detected_form %}
-{% trans 'The form has been updated by an other user while you were editing it.' %}
-{% trans 'See the changes below:' %}<br><br>
+{% blocktrans with firstname=object.modified_by.first_name lastname=object.modified_by.last_name %}
+The form has been updated by {{ firstname }} {{ lastname }} while you were editing it.
+See the changes below:
+{% endblocktrans %}
+<br><br>
 
 {% if form_diff %}
 <table class="table table-striped">
