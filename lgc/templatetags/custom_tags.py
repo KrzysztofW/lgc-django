@@ -38,7 +38,7 @@ def get_process_progress(request):
     res = []
     external_users = user_models.get_employee_user_queryset()|user_models.get_hr_user_queryset()
     files = lgc_models.Person.objects.filter(responsible=request.user)
-    files = lgc_models.Person.objects.filter(modified_by__in=external_users).order_by('modification_date')
+    files = files.filter(modified_by__in=external_users).order_by('modification_date')
     person_common_view = lgc_views.PersonCommonView()
 
     for f in files:
@@ -101,7 +101,6 @@ def generate_table(header_values, object_list, order_by, order_params, url):
             res += 'data-href="' + str(reverse_lazy(url, kwargs={'pk':obj.id})) + '"'
         res += 'class="clickable-row">'
         for th in header_values:
-            #if th[1] in get_class_attrs(obj):
             if th[1] in object_list[0].__dict__.keys():
                 res += '<td>' + str(getattr(obj, th[1])) + '</td>'
         res += '</tr>'
