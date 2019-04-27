@@ -9,5 +9,6 @@
 {% endblock %}
 
 {% block body %}
-{% include 'lgc/process_table.html' %}
+{% load custom_tags %}
+{% generate_table header_values object_list order_by order_params item_url %}
 {% endblock %}
