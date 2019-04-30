@@ -603,15 +603,15 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         formsets[0].id = 'children_id'
         formsets[0].err_msg = _('Invalid Children table')
 
-        formsets[1].title = _('Visas / Residence Permits / Work Permits')
-        formsets[1].id = 'expiration_id'
-        formsets[1].err_msg = _('Invalid Visas / Residence Permits / Work Permits table')
-
-        formsets[2].title = _('Spouse Visas / Residence Permits / Work Permits')
-        formsets[2].id = 'spouse_expiration_id'
-        formsets[2].err_msg = _('Invalid Spouse Visas / Residence Permits / Work Permits table')
-
         if self.request.user.role in user_models.get_internal_roles():
+            formsets[1].title = _('Visas / Residence Permits / Work Permits')
+            formsets[1].id = 'expiration_id'
+            formsets[1].err_msg = _('Invalid Visas / Residence Permits / Work Permits table')
+
+            formsets[2].title = _('Spouse Visas / Residence Permits / Work Permits')
+            formsets[2].id = 'spouse_expiration_id'
+            formsets[2].err_msg = _('Invalid Spouse Visas / Residence Permits / Work Permits table')
+
             formsets[3].title = _('Archive boxes')
             formsets[3].id = 'ab_id'
             formsets[3].err_msg = _('Invalid archive box number')
@@ -642,33 +642,32 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         if self.request.POST:
             formsets.append(ChildrenFormSet(self.request.POST, prefix='children'))
-            formsets.append(ExpirationFormSet(self.request.POST, prefix='expiration'))
-            formsets.append(SpouseExpirationFormSet(self.request.POST, prefix='spouse_expiration'))
             if self.request.user.role in user_models.get_internal_roles():
+                formsets.append(ExpirationFormSet(self.request.POST, prefix='expiration'))
+                formsets.append(SpouseExpirationFormSet(self.request.POST, prefix='spouse_expiration'))
                 formsets.append(ArchiveBoxFormSet(self.request.POST, prefix='ab'))
             self.set_person_formsets_data(formsets)
             return formsets
 
         if self.is_update:
             children_queryset = models.Child.objects.filter(person=self.object)
-            expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list())
-            spouse_expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list())
             if self.request.user.role in user_models.get_internal_roles():
+                expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list())
+                spouse_expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list())
                 archive_box_queryset = lgc_models.ArchiveBox.objects.filter(person=self.object.id)
         else:
             children_queryset = models.Child.objects.none()
-            expiration_queryset = models.Expiration.objects.none()
-            spouse_expiration_queryset = models.Expiration.objects.none()
             if self.request.user.role in user_models.get_internal_roles():
+                expiration_queryset = models.Expiration.objects.none()
+                spouse_expiration_queryset = models.Expiration.objects.none()
                 archive_box_queryset = lgc_models.ArchiveBox.objects.none()
         formsets.append(ChildrenFormSet(queryset=children_queryset,
                                         prefix='children'))
-        formsets.append(ExpirationFormSet(queryset=expiration_queryset,
-                                          prefix='expiration'))
-        formsets.append(SpouseExpirationFormSet(queryset=spouse_expiration_queryset,
-                                          prefix='spouse_expiration'))
-
         if self.request.user.role in user_models.get_internal_roles():
+            formsets.append(ExpirationFormSet(queryset=expiration_queryset,
+                                              prefix='expiration'))
+            formsets.append(SpouseExpirationFormSet(queryset=spouse_expiration_queryset,
+                                                    prefix='spouse_expiration'))
             formsets.append(ArchiveBoxFormSet(queryset=archive_box_queryset,
                                               prefix='ab'))
 
