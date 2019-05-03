@@ -148,3 +148,14 @@ p {
 .lgc_aligned_checkbox {
     margin: 10px 0 0;
 }
+
+.lgc_small_formset {
+    width: 9%;
+    font-size: 11px;
+}
+
+.lgc_col-md-1 {
+    -ms-flex:0 0 10%;
+    flex:0 0 10%;
+    max-width:10%
+}

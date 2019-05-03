@@ -13,11 +13,14 @@
     {% if forloop.first %}
     <div class="form-row">
       {% for f in form.visible_fields %}
+      <div
       {% if f.name == "DELETE" %}
-      <div class="form-group col-md-1 justify-content-center d-flex">
+	class="form-group col-xs-1 justify-content-center d-flex lgc_small_formset"
       {% else %}
-      <div class="form-group col-md-2">
+	class="form-group lgc_col-md-1 justify-content-center d-flex lgc_small_formset"
       {% endif %}
+      >
+
 	{{ f.label|capfirst }}
 	{% if f.field.required %}<span class="asteriskField">*</span>{% endif %}
       </div>
@@ -31,7 +34,7 @@
       {% endfor %}
       {% for f in form.visible_fields %}
       {% if f.name != "DELETE" %}
-      <div class="form-group col-md-2">
+      <div class="form-group lgc_col-md-1 justify-content-center d-flex">
 	{% if f.field.widget.input_type == 'select' %}
 	<span style="font-size:11px;">{{ f }}</span>
 	{% else %}
@@ -45,9 +48,9 @@
       </div>
       {% endif %}
       {% endfor %}
-      <div class="form-group col-md-1 justify-content-center d-flex">
+      <div class="form-group col-xs-1 justify-content-center d-flex lgc_small_formset">
 	<div class="d-none">{{ form.DELETE }}</div>
-	<i class="fa fa-trash fa-fw" data-formset-delete-button></i>
+	<i class="far fa-trash-alt" data-formset-delete-button></i>
       </div>
     </div>
     {% endfor %}
@@ -61,7 +64,7 @@
       {% endfor %}
       {% for f in formset.empty_form.visible_fields %}
       {% if f.name != "DELETE" %}
-      <div class="form-group col-md-2">
+      <div class="form-group lgc_col-md-1 justify-content-center d-flex">
 	{% if f.field.widget.input_type == 'select' %}
 	<span style="font-size:11px;">{{ f }}</span>
 	{% else %}
@@ -70,7 +73,7 @@
       </div>
       {% else %}
       <div class="d-none">{{ f }}</div>
-      <div class="form-group col-md-1 justify-content-center d-flex">
+      <div class="form-group lgc_col-md-1 justify-content-center d-flex">
 	<i class="fa fa-trash fa-fw" data-formset-delete-button></i>
       </div>
       {% endif %}

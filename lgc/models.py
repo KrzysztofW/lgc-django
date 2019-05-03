@@ -612,6 +612,10 @@ class ChildCommon(models.Model):
     passport_expiry = models.DateField(_('Passport expiry'), blank=True, null=True)
     passport_nationality = CountryField(_('Passport nationality'), blank=True, null=True)
 
+    # DCEM/TIR expiration
+    end_date = models.DateField(_('DCEM/TIR expiry'), blank=True, null=True)
+    enabled = models.BooleanField(_('Enabled'), default=True)
+
     class Meta:
         abstract = True
 

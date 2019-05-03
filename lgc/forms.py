@@ -14,11 +14,13 @@ User = get_user_model()
 
 empty_select = (('', '----'),)
 
-def datepicker_set_lang_widget(obj, field):
+def datepicker_set_widget_attrs(obj, field, attrs=None):
     if translation.get_language() == 'fr':
-        obj.fields[field].widget = DatePickerInput(format='%d/%m/%Y')
+        obj.fields[field].widget = DatePickerInput(format='%d/%m/%Y',
+                                                   attrs=attrs)
     else:
-        obj.fields[field].widget = DatePickerInput(format='%m/%d/%Y')
+        obj.fields[field].widget = DatePickerInput(format='%m/%d/%Y',
+                                                   attrs=attrs)
 
 class LgcTab(Tab):
     link_template = 'lgc/lgc_tab.html'
@@ -62,21 +64,19 @@ class PersonSearchForm(forms.Form):
     jurisdiction = forms.ChoiceField(required=False, label=_('Jurisdiction'),
                                      choices=lgc_models.JURISDICTION_SPECIFIQUE_CHOICES,
                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
-    start_date = forms.CharField(required=False,
-                                 widget=DatePickerInput(attrs={'onchange':'form.submit();'}),
-                                 label=_('Start Date'))
+    start_date = forms.CharField(required=False, label=_('Start Date'))
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        datepicker_set_lang_widget(self, 'start_date')
+        datepicker_set_widget_attrs(self, 'start_date')
 
 class PersonCreateForm(forms.ModelForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
-    birth_date = forms.DateField(widget=DatePickerInput(), label=_('Birth Date'))
+    birth_date = forms.DateField(label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
 
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
-    start_date = forms.DateField(widget=DatePickerInput(), label=_('Start Date'))
+    start_date = forms.DateField(label=_('Start Date'))
     local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80, 'onchange':'auto_complete_region(this);'}),
                                     label=_('Local Address'))
 
@@ -88,15 +88,14 @@ class PersonCreateForm(forms.ModelForm):
     foreign_country = CountryField().formfield(required=False,
                                                widget=forms.Select(attrs={'onchange':'auto_complete_jurisdiction(this);'}))
     passport_expiry = forms.DateField(required=False,
-                                      widget=DatePickerInput(),
                                       label=_('Passport Expiry'))
     version = forms.IntegerField(min_value=0, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        datepicker_set_lang_widget(self, 'birth_date')
-        if hasattr(self, 'start_date') and self.start_date:
-            datepicker_set_lang_widget(self, 'start_date')
+        datepicker_set_widget_attrs(self, 'birth_date')
+        if self.fields.get('start_date'):
+            datepicker_set_widget_attrs(self, 'start_date')
 
     class Meta:
         model = lgc_models.Person
@@ -142,11 +141,12 @@ class ProcessForm(forms.Form):
 
 # children:
 class ChildCreateForm(forms.ModelForm):
-    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control'}))
-    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control'}))
-    birth_date = forms.DateField(widget=DatePickerInput(), label=_('Birth Date'))
-    passport_expiry = forms.DateField(widget=DatePickerInput(), label=_('Passport Expiry'))
-    passport_nationality = CountryField().formfield(required=False, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:150px'}))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control lgc_small_formset'}))
+    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control lgc_small_formset'}))
+    birth_date = forms.DateField(label=_('Birth Date'))
+    passport_expiry = forms.DateField(label=_('Passport Expiry'))
+    passport_nationality = CountryField().formfield(required=False, widget=forms.Select(attrs={'class':'form-control lgc_small_formset', 'style':'width:90px;'}))
+    end_date = forms.DateField(required=False, label=_('DCEM/TIR Expiry'))
 
     class Meta:
         model = lgc_models.Child
@@ -154,24 +154,25 @@ class ChildCreateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        datepicker_set_lang_widget(self, 'birth_date')
-        datepicker_set_lang_widget(self, 'passport_expiry')
+        datepicker_set_widget_attrs(self, 'birth_date', attrs={'class':'form-control lgc_small_formset'})
+        datepicker_set_widget_attrs(self, 'passport_expiry', attrs={'class':'form-control lgc_small_formset'})
+        datepicker_set_widget_attrs(self, 'dcem_tir_expiry', attrs={'class':'form-control lgc_small_formset'})
 
 class ExpirationCommon(forms.ModelForm):
-    start_date = forms.DateField(widget=DatePickerInput(), label=_('Start Date'))
-    end_date = forms.DateField(widget=DatePickerInput(), label=_('End Date'))
+    start_date = forms.DateField(label=_('Start Date'))
+    end_date = forms.DateField(label=_('End Date'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        datepicker_set_lang_widget(self, 'start_date')
-        datepicker_set_lang_widget(self, 'end_date')
+        datepicker_set_widget_attrs(self, 'start_date')
+        datepicker_set_widget_attrs(self, 'end_date')
 
     class Meta:
         abstract = True
 
 class ExpirationForm(ExpirationCommon):
     options = empty_select + lgc_models.PERSON_EXPIRATIONS_CHOICES
-    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:160px'}))
+    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control'}))
 
     class Meta:
         model = lgc_models.Expiration
@@ -179,13 +180,16 @@ class ExpirationForm(ExpirationCommon):
 
 class SpouseExpirationForm(ExpirationCommon):
     options = empty_select + lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES_SHORT
-    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control', 'style': 'width:160px'}))
+    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control'}))
 
     class Meta:
         model = lgc_models.Expiration
         fields = ['type', 'start_date', 'end_date', 'enabled']
 
 class ArchiveBoxForm(forms.ModelForm):
+    number = forms.IntegerField(label=_('Number'), min_value=0,
+                                widget=forms.NumberInput(attrs={'class':'form-control'}))
+
     class Meta:
         model = lgc_models.ArchiveBox
         fields = ['number']
