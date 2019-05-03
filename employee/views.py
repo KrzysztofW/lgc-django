@@ -1,5 +1,6 @@
 import pdb                # pdb.set_trace()
 from django.db import transaction
+from django import forms
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
 from common.utils import pagination, lgc_send_email, must_be_staff
 import common.utils as common_utils
@@ -12,6 +13,7 @@ from django.core.paginator import Paginator
 from django.utils import translation
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.utils.safestring import mark_safe
 
 from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
                                   DeleteView)
@@ -50,6 +52,7 @@ class PersonUpdateView(lgc_views.PersonUpdateView):
     def get_success_url(self):
         return reverse_lazy('employee-file')
 
+@login_required
 def my_file(request):
     if not hasattr(request.user, 'employee_user_set'):
         employee = employee_models.Employee()
@@ -112,11 +115,52 @@ def moderations(request):
 
     return render(request, 'lgc/sub_generic_list.html', context)
 
-@login_required
-def moderation(request, *args, **kwargs):
-    if request.user.role not in user_models.get_internal_roles():
-        return http.HttpResponseForbidden()
+def objs_diff(objs1, objs2):
+    if len(objs1) != len(objs2):
+        return True
 
+    for i in range(len(objs1)):
+        for key in objs1[i].__dict__.keys():
+            if key == '_state' or key == 'id' or key == 'person_id':
+                continue
+            try:
+                obj1_val = getattr(objs1[i], key)
+                obj2_val = getattr(objs2[i], key)
+            except:
+                continue
+            if obj1_val != obj2_val:
+                return True
+    return False
+
+CURRENT_DIR = Path(__file__).parent
+def get_template(name):
+    try:
+        with Path(CURRENT_DIR, 'templates', 'employee', name).open() as fh:
+            return fh.read()
+    except FileNotFoundError:
+        raise Http404
+
+def set_modifiedby_err_msg(request, first_name, last_name, url):
+    msg = _('The form has been modified by %(firstname)s %(lastname)s while you were editing it. <a href="%(url)s">Reload the page</a> to continue (your modifications will be lost).'%{
+        'firstname':first_name,
+        'lastname': last_name,
+        'url': url,
+    })
+    messages.error(request, mark_safe(msg))
+
+def set_formset(request, context, form_class, queryset, person_objs, title,
+                prefix, id):
+    if queryset:
+        formset = form_class(queryset=queryset, prefix=prefix)
+    else:
+        formset = form_class(request.POST, prefix=prefix)
+
+    formset.person_objs = person_objs
+    formset.title = title
+    formset.id = id
+    context['formsets'].append(formset)
+
+def get_moderation_object(**kwargs):
     pk = kwargs.get('pk', '')
     if pk == '':
         raise Http404
@@ -124,43 +168,146 @@ def moderation(request, *args, **kwargs):
     obj = employee_models.Employee.objects.filter(id=pk)
     if obj == None or len(obj) != 1:
         raise Http404
-    obj = obj[0]
+    return obj[0]
 
-    if request.POST:
-        person_form = employee_forms.ModerationPersonCreateForm(request.POST,
-                                                                instance=obj.user.person_user_set)
-        employee_form = employee_forms.ModerationEmployeeUpdateForm(request.POST,
-                                                                    instance=obj)
-        if person_form.is_valid() and employee_form.is_valid():
-            if person_form.cleaned_data['version'] == obj.user.person_user_set.version:
-                if employee_form.cleaned_data['version'] != obj.version:
-                    messages.error(request, _('Form modified by %(firstname)s %(lastname)s.'%{
-                        'firstname':obj.modified_by.first_name,
-                        'lastname': obj.modified_by.last_name
-                    }))
-                else:
-                    employee_form.instance.version += 1
-                    employee_form.instance.updated = False
-                    employee_form.save()
-                    person_common_view = lgc_views.PersonCommonView()
-                    person_common_view.copy_related_object(employee_form.instance,
-                                                           obj.user.person_user_set,
-                                                           employee_form.instance)
-                    obj.user.person_user_set.version += 1
-                    obj.user.person_user_set.save()
-                    messages.success(request, _('Moderation successfully submitted.'))
-            else:
-                messages.error(request, _('Form modified by %(firstname)s %(lastname)s.'%{
-                    'firstname':obj.user.person_user_set.modified_by.first_name,
-                    'lastname': obj.user.person_user_set.modified_by.last_name
-                }))
-    else:
-        person_form = employee_forms.ModerationPersonCreateForm(instance=obj.user.person_user_set)
-        employee_form = employee_forms.ModerationEmployeeUpdateForm(instance=obj)
+def set_formset_form(context):
+    formset_form = forms.Form()
+    formset_form.helper = FormHelper()
+    formset_form.helper.form_tag = False
+    formset_form.helper.layout = Layout(
+        Div(Div(HTML(get_template('formsets_template.html')),
+                css_class='form-group col-md-10'),
+            css_class='form-row'))
+    context['formset_form'] = formset_form
+
+def check_form(request, context, obj, employee_form, url):
+    person_version = obj.user.person_user_set.version
+    try:
+        person_form_version = int(request.POST.get('pers-version', '0'))
+    except:
+        person_form_version = None
+    employee_version = obj.version
+
+    if person_form_version == None or not employee_form.is_valid():
+        return False
+
+    for formset in context['formsets']:
+        if not formset.is_valid():
+            messages.error(request, _('Invalid %(title)s table.'%{
+                'title':formset.title}))
+            return False
+
+    if person_form_version != person_version:
+        set_modifiedby_err_msg(request,
+                               obj.user.person_user_set.modified_by.first_name,
+                               obj.user.person_user_set.modified_by.last_name,
+                               url)
+        return False
+
+    if employee_form.cleaned_data['version'] != employee_version:
+        set_modifiedby_err_msg(request, obj.modified_by.first_name,
+                               obj.modified_by.last_name, url)
+        return False
+
+    return True
+
+def save_employee_form(request, employee_form):
+    employee_form.instance.version += 1
+    employee_form.instance.updated = False
+    employee_form.instance.modified_by = request.user
+    employee_form.instance.modification_date = timezone.now()
+    employee_form.save()
+
+def save_formsets(formsets, person_obj):
+    if len(formsets) == 0:
+        return
+
+    pcv = lgc_views.PersonCommonView()
+    pcv.clear_related_objects(person_obj.child_set.all())
+
+    for formset in formsets:
+        for obj in formset.deleted_forms:
+            if obj.instance.id != None:
+                obj.instance.delete()
+
+        instances = formset.save(commit=False)
+        pcv.save_formset_instances(instances)
+
+        if formset.id == 'children_id':
+            model_class = lgc_models.Child
+        elif (formset.id == 'expiration_id' or
+              formset.id == 'spouse_expiration_id'):
+            model_class = lgc_models.Expiration
+        else:
+            continue
+
+        for form in formset.forms:
+            if form.instance.id == None:
+                continue
+            if form.cleaned_data['DELETE']:
+                continue
+            obj = model_class()
+            pcv.copy_related_object(form.instance, obj, form.instance)
+            obj.person_id = person_obj.id
+            obj.save()
+
+@login_required
+def moderation(request, *args, **kwargs):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    obj = get_moderation_object(**kwargs)
+    formsets = []
+    person_form = employee_forms.ModerationPersonCreateForm(instance=obj.user.person_user_set,
+                                                            prefix='pers')
+    pchildren = lgc_models.Child.objects.filter(person=obj.user.person_user_set).all()
+
+    this_url = str(reverse_lazy('employee-moderation', kwargs={'pk':obj.id}))
+    ChildrenFormSet = modelformset_factory(employee_models.Child,
+                                           form=lgc_forms.ChildCreateForm,
+                                           can_delete=True)
     context = {
-        'title': 'Moderation',
-        'employee_form': employee_form,
-        'person_form': person_form,
+        'title': 'Moderation', 'person_form': person_form, 'object': obj,
+        'formsets': [], 'formset_form': None,
     }
 
+    if request.POST:
+        employee_form = (
+            employee_forms.ModerationEmployeeUpdateForm(request.POST,
+                                                        instance=obj,
+                                                        prefix='emp')
+        )
+        context['employee_form'] = employee_form
+        if request.POST.get('children-TOTAL_FORMS', '') != '':
+            set_formset(request, context, ChildrenFormSet, None, pchildren,
+                        _('Children'), 'children', 'children_id')
+            set_formset_form(context)
+
+        if not check_form(request, context, obj, employee_form, this_url):
+            return render(request, 'employee/moderation.html', context)
+
+        person_common_view = lgc_views.PersonCommonView()
+        person_common_view.copy_related_object(employee_form.instance,
+                                               obj.user.person_user_set,
+                                               employee_form.instance)
+        obj.user.person_user_set.version += 1
+
+        with transaction.atomic():
+            save_employee_form(request, employee_form)
+            save_formsets(context['formsets'], obj.user.person_user_set)
+            obj.user.person_user_set.save()
+
+        messages.success(request, _('Moderation successfully submitted.'))
+        return redirect('employee-moderations')
+
+    employee_form = employee_forms.ModerationEmployeeUpdateForm(instance=obj,
+                                                                prefix='emp')
+    echildren = employee_models.Child.objects.filter(person=obj).all()
+    if objs_diff(echildren, pchildren):
+        set_formset(request, context, ChildrenFormSet,
+                    employee_models.Child.objects.filter(person=obj),
+                    pchildren, _('Children'), 'children', 'children_id')
+        set_formset_form(context)
+
+    context['employee_form'] = employee_form
     return render(request, 'employee/moderation.html', context)

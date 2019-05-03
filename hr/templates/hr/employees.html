@@ -39,7 +39,7 @@
 	{% trans "Pending" %}
 	{% elif obj.status == 'A' %}
 	{% trans "Accepted" %}
-	<a href="{% url 'lgc-file' obj.person_user_set.id %}">
+	<a href="{% url 'hr-employee-file' obj.employee_user_set.id %}">
 	  ({% trans 'View file' %})
 	</a>
 	{% else %}

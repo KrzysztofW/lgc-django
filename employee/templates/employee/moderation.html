@@ -6,6 +6,12 @@
 <div class="content-section">
   <form method="POST">
     {% csrf_token %}
+    <i>
+    {% blocktrans with firstname=object.modified_by.first_name lastname=object.modified_by.last_name role=object.modified_by.get_role_display mdate=object.modification_date %}
+    Updated by {{ firstname }} {{ lastname }} ({{ role }}) on {{ mdate }}
+    {% endblocktrans %}
+    </i>
+    <br><br>
     <div class="form-row">
       <div class="form-group col-md-4">
 	<label><b>{% trans 'Current form:' %}</b></label>
@@ -20,6 +26,9 @@
 	</fieldset>
       </div>
     </div>
+    {% if formset_form %}
+    {% crispy formset_form %}
+    {% endif %}
     <div class="form-group">
       <button class="btn btn-outline-info" type="submit">
 	{% trans "Accept" %}

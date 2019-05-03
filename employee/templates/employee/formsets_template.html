@@ -1,0 +1,26 @@
+{% load formset_tags %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+<div class="accordion" id="formset_accordion">
+  {% for formset in formsets %}
+  {% for objs in formset.person_objs %}
+  {{ obj.first_name }} {{ obj.last_name }}<br>
+  {% endfor %}
+  <div class="card" style="overflow:visible;">
+    <div class="card-header" id="heading_{{ formset.id }}">
+      <h5 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_{{ formset.id }}" aria-expanded="false" aria-controls="collapse_{{ formset.id }}">
+          {{ formset.title }}
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapse_{{ formset.id }}" class="collapse" aria-labelledby="heading_{{ formset.id }}" data-parent="#formset_accordion">
+      <div class="card-body">
+	{% include 'lgc/formset_template.html' %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>

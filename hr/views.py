@@ -18,6 +18,7 @@ from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from lgc import models as lgc_models, views as lgc_views
+from employee import models as employee_models
 from . import forms as hr_forms
 from lgc.forms import LgcTab
 from crispy_forms.helper import FormHelper
@@ -148,6 +149,12 @@ class UpdateAccountByHR(CommonAccountByHR, UpdateView):
         form = super().get_form(form_class=form_class)
         return self.hr_admin_get_initiate_form(form, self.submit_button_label,
                                                self.object.id)
+class PersonUpdateView(lgc_views.PersonUpdateView):
+    model = employee_models.Employee
+    title = _('Employee File')
+
+    def get_success_url(self):
+        return reverse_lazy('hr-employee-file', kwargs={'pk':self.object.id})
 
 class HRPersonListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     update_url = 'hr-update-account'
