@@ -6,6 +6,9 @@
 {% block content %}
 
 <form method="post" enctype="multipart/form-data">
+  {% if file_url %}
+  <a href="{{ file_url }}">{% trans "View user's file." %}</a><hr>
+    {% endif %}
 
 {% if changes_detected_form %}
 {% blocktrans with firstname=object.modified_by.first_name lastname=object.modified_by.last_name %}
@@ -39,9 +42,9 @@ See the changes below:
 {% for formset_diff in formsets_diff %}
 <div class="row">
   <div class="col-sm-7">
-    {{ formset_diff.0 }}:
+    {{ formset_diff.1 }}:
     <table class="table-sm  table-bordered">
-      {% for obj_lists in formset_diff.1 %}
+      {% for obj_lists in formset_diff.2 %}
       {% if forloop.first %}
       <thead>
 	<tr>

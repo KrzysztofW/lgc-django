@@ -45,3 +45,26 @@ JS datepicker
 =============
 
 https://eonasdan.github.io/bootstrap-datetimepicker/Events/#dpchange
+
+class methods execution order
+=============================
+
+form valid
+----------
+
+get_form post: <QueryDict: {'csrfmiddlewaretoken': ['xgcTLnZcG4Mm0T5KmkdxoZYb4y7rfoXLNZQ1VZ1onYkWI4h3WdFPYjqPSL4FwwiE'], 'name': ['process one'], 'stages': ['1', '2', '3']}>
+from_valid post: <QueryDict: {'csrfmiddlewaretoken': ['xgcTLnZcG4Mm0T5KmkdxoZYb4y7rfoXLNZQ1VZ1onYkWI4h3WdFPYjqPSL4FwwiE'], 'name': ['process one'], 'stages': ['1', '2', '3']}>
+[02/May/2019 09:52:22] "POST /en/process/1/ HTTP/1.1" 302 0
+
+get_context_data post: <QueryDict: {}>
+get_form post: <QueryDict: {}>
+[02/May/2019 09:52:23] "GET /en/process/1/ HTTP/1.1" 200 13849
+
+
+form invalid
+------------
+
+get_form post: <QueryDict: {'csrfmiddlewaretoken': ['kSWLEflnyiicoY71qpHW6R4qANAb4McCABATORnzfcQM69jk0i9eGbw4o0xplUxv'], 'name': ['process one2'], 'stages': ['1', '2', '3']}>
+form_invalid, post: <QueryDict: {'csrfmiddlewaretoken': ['kSWLEflnyiicoY71qpHW6R4qANAb4McCABATORnzfcQM69jk0i9eGbw4o0xplUxv'], 'name': ['process one2'], 'stages': ['1', '2', '3']}>
+get_context_data post: <QueryDict: {'csrfmiddlewaretoken': ['kSWLEflnyiicoY71qpHW6R4qANAb4McCABATORnzfcQM69jk0i9eGbw4o0xplUxv'], 'name': ['process one2'], 'stages': ['1', '2', '3']}>
+[02/May/2019 09:53:05] "POST /en/process/1/ HTTP/1.1" 200 13889
