@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 import re
 
 allowed_urls = [
-    '/', '/user/login',  '/user/auth/', '/user/logout/',
+    '/', '/favicon.ico', '/user/login',  '/user/auth/', '/user/logout/',
     '/user/profile/', '/user/profile-pw-reset/',
     '/user/delete-profile/',
 ]
