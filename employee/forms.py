@@ -24,12 +24,24 @@ class EmployeeUpdateForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        lgc_forms.datepicker_set_lang_widget(self, 'birth_date')
+        lgc_forms.datepicker_set_widget_attrs(self, 'birth_date')
+        lgc_forms.datepicker_set_widget_attrs(self, 'spouse_birth_date')
 
 class ChildCreateForm(lgc_forms.ChildCreateForm):
+    # unset DCEM/TIR expiration
+    dcem_id = None
+    dcem_end_date = None
+    dcem_enabled = None
+
     class Meta:
         model = employee_models.Child
-        exclude = ['person']
+        exclude = ['person', 'dcem_expiration', 'dcem_id',
+                   'dcem_end_date', 'dcem_enabled', 'person_child']
+
+class ChildCreateForm2(lgc_forms.ChildCreateForm):
+    class Meta:
+        model = employee_models.Child
+        exclude = ['person', 'dcem_expiration', 'person_child']
 
 class ExpirationForm(lgc_forms.ExpirationForm):
     class Meta:

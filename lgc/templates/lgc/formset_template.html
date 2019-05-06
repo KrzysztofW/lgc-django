@@ -3,6 +3,9 @@
 {% load i18n %}
 
 <label><b>{{ formset.title }}</b></label>
+{% if formset.db_objs %}
+{% include 'lgc/display_current_objects.html' %}
+{% endif %}
 <div id="{{ formset.id }}" data-formset-prefix="{{ formset.prefix }}">
   {{ formset.management_form }}
 
@@ -14,12 +17,15 @@
     <div class="form-row">
       {% for f in form.visible_fields %}
       <div
-      {% if f.name == "DELETE" %}
-	class="form-group col-xs-1 justify-content-center d-flex lgc_small_formset"
+	class="form-group justify-content-center d-flex lgc_small_formset_label
+      {% if f.name == 'DELETE' or f.name == 'enabled' %}
+	col-xs-1
+      {% elif formset.id != 'children_id' %}
+	col-md-2
       {% else %}
-	class="form-group lgc_col-md-1 justify-content-center d-flex lgc_small_formset"
+	lgc_col-md-1
       {% endif %}
-      >
+      ">
 
 	{{ f.label|capfirst }}
 	{% if f.field.required %}<span class="asteriskField">*</span>{% endif %}
@@ -28,28 +34,30 @@
     </div>
     {% endif %}
 
-    <div data-formset-form class="form-row">
+    <div data-formset-form class="form-row mt-2">
       {% for f in form.hidden_fields %}
       {{ f }}
       {% endfor %}
       {% for f in form.visible_fields %}
-      {% if f.name != "DELETE" %}
-      <div class="form-group lgc_col-md-1 justify-content-center d-flex">
-	{% if f.field.widget.input_type == 'select' %}
-	<span style="font-size:11px;">{{ f }}</span>
+      <div
+	{% if f.name == 'DELETE' %}
+	class="d-none">
+	{% elif 'enabled' in f.name %}
+	class="col-xs-1 lgc_aligned_checkbox lgc_small_formset justify-content-center d-flex">
+	{% elif formset.id != 'children_id' %} %}
+	class="col-md-2 justify-content-center d-flex">
 	{% else %}
-	{{ f }}
+	class="lgc_col-md-1 justify-content-center d-flex">
 	{% endif %}
+	{{ f }}
 	{% if f.errors %}
 	<span class="invalid-feedback" style="display:inline;">
 	  <strong>{{ f.errors.0 }}</strong>
 	</span>
 	{% endif %}
       </div>
-      {% endif %}
       {% endfor %}
-      <div class="form-group col-xs-1 justify-content-center d-flex lgc_small_formset">
-	<div class="d-none">{{ form.DELETE }}</div>
+      <div class="form-group col-xs-1 justify-content-center d-flex lgc_small_formset lgc_aligned_checkbox">
 	<i class="far fa-trash-alt" data-formset-delete-button></i>
       </div>
     </div>
@@ -58,26 +66,32 @@
 
   <script type="form-template" data-formset-empty-form>
     {% escapescript %}
-    <div data-formset-form class="form-row">
+    <div data-formset-form class="form-row mt-2">
       {% for f in formset.empty_form.hidden_fields %}
       {{ f }}
       {% endfor %}
       {% for f in formset.empty_form.visible_fields %}
-      {% if f.name != "DELETE" %}
-      <div class="form-group lgc_col-md-1 justify-content-center d-flex">
-	{% if f.field.widget.input_type == 'select' %}
-	<span style="font-size:11px;">{{ f }}</span>
+      <div
+	{% if f.name == 'DELETE' %}
+	class="d-none">
+	{% elif 'enabled' in f.name %}
+	class="col-xs-1 lgc_aligned_checkbox lgc_small_formset justify-content-center d-flex">
+	{% elif formset.id != 'children_id' %} %}
+	class="col-md-2 justify-content-center d-flex">
 	{% else %}
+	class="lgc_col-md-1 justify-content-center d-flex">
+	{% endif %}
 	{{ f }}
+	{% if f.errors %}
+	<span class="invalid-feedback" style="display:inline;">
+	  <strong>{{ f.errors.0 }}</strong>
+	</span>
 	{% endif %}
       </div>
-      {% else %}
-      <div class="d-none">{{ f }}</div>
-      <div class="form-group lgc_col-md-1 justify-content-center d-flex">
-	<i class="fa fa-trash fa-fw" data-formset-delete-button></i>
-      </div>
-      {% endif %}
       {% endfor %}
+      <div class="form-group col-xs-1 justify-content-center d-flex lgc_small_formset lgc_aligned_checkbox">
+	<i class="far fa-trash-alt" data-formset-delete-button></i>
+      </div>
     </div>
   </script>
   {% endescapescript %}
@@ -87,5 +101,7 @@
     });
   </script>
 
-  <input type="button" value="{% trans 'Add' %}" data-formset-add>
+  <div class="form-row mt-2">
+    <input type="button" class="btn-info rounded" value="{% trans 'Add' %}" data-formset-add>
+  </div>
 </div>

@@ -75,14 +75,14 @@ See the changes below:
 <button class="btn btn-outline-info" type="submit">{% trans 'Submit' %}</button>
 <hr>
 {% endif %}
-
 {% crispy form %}
 </form>
 
 {% endblock content %}
+
 {% block javascript %}
 <script src="{% static 'lgc/jquery.formset.min.js' %}"></script>
-<script>
+<script type="text/javascript">
   {% for formset in formsets %}
   jQuery(function($) {
     $("#{{ formset.id }}").formset({

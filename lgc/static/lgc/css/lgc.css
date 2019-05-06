@@ -154,6 +154,11 @@ p {
     font-size: 11px;
 }
 
+.lgc_small_formset_label {
+    width: 9%;
+    font-size: 12px;
+}
+
 .lgc_col-md-1 {
     -ms-flex:0 0 10%;
     flex:0 0 10%;

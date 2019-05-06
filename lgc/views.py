@@ -285,6 +285,8 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
         Div(Div('passport_expiry', css_class='form-group col-md-4'),
             Div('passport_nationality', css_class='form-group col-md-4'),
             css_class='form-row'),
+        Div(Div(HTML('<hr>'), css_class='form-group col-md-8'),
+            css_class='form-row'),
         Div(Div('home_entity', css_class='form-group col-md-4'),
             Div('host_entity', css_class='form-group col-md-4'),
             css_class='form-row'),
@@ -298,6 +300,19 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
             Div('foreign_phone_number', css_class='form-group col-md-4'),
             css_class='form-row'),
         Div(Div('foreign_country', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div(HTML('<hr>'), css_class='form-group col-md-8'),
+            css_class='form-row'),
+        Div(Div('spouse_first_name', css_class='form-group col-md-4'),
+            Div('spouse_last_name', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('spouse_birth_date', css_class='form-group col-md-4'),
+            Div('spouse_citizenship', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('spouse_passport_expiry', css_class='form-group col-md-4'),
+            Div('spouse_passport_nationality', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div(HTML('<hr>'), css_class='form-group col-md-8'),
             css_class='form-row'),
         Div(Div('prefecture', css_class='form-group col-md-4'),
             Div('subprefecture', css_class='form-group col-md-4'),
@@ -394,6 +409,14 @@ def employee_user_get_person_form_layout(form, action, obj, process):
             css_class='form-row'),
         Div(Div('home_entity_address', css_class='form-group col-md-4'),
             Div('host_entity_address', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('local_address', css_class='form-group col-md-4'),
+            Div('local_phone_number', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('foreign_address', css_class='form-group col-md-4'),
+            Div('foreign_phone_number', css_class='form-group col-md-4'),
+            css_class='form-row'),
+        Div(Div('foreign_country', css_class='form-group col-md-4'),
             css_class='form-row'),
     )
 
@@ -663,8 +686,16 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 expiration_queryset = models.Expiration.objects.none()
                 spouse_expiration_queryset = models.Expiration.objects.none()
                 archive_box_queryset = lgc_models.ArchiveBox.objects.none()
-        formsets.append(ChildrenFormSet(queryset=children_queryset,
-                                        prefix='children'))
+        child_formset = ChildrenFormSet(queryset=children_queryset,
+                                        prefix='children')
+        for form in child_formset.forms:
+            if (self.object and type(self.object).__name__ != 'Employee' and
+                hasattr(form.instance, 'dcem_expiration') and
+                form.instance.dcem_expiration):
+                form.fields['dcem_end_date'].initial = form.instance.dcem_expiration.end_date
+                form.fields['dcem_enabled'].initial = form.instance.dcem_expiration.enabled
+        formsets.append(child_formset)
+
         if self.request.user.role in user_models.get_internal_roles():
             formsets.append(ExpirationFormSet(queryset=expiration_queryset,
                                               prefix='expiration'))
@@ -706,23 +737,38 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         context['timeline_stages'] = self.get_timeline_stages(person_process, person_process_stages)
         context['process_name'] = person_process.process.name
 
-    def get_formset_objs(self, queryset):
+    def get_formset_objs(self, queryset, show_dcem=False):
         obj_lists = []
         key_list = []
         first_loop = True
+
         for o in queryset:
             obj_list = []
             for k in o.__dict__.keys():
-                if k == 'id' or k == '_state' or k == 'person_id':
+                if (k == 'id' or k == '_state' or k == 'person_id' or
+                    k == 'person_child_id' or
+                    (show_dcem == False and k == 'dcem_expiration_id')):
                     continue
                 if first_loop:
                     k_verbose_name = o._meta.get_field(k).verbose_name.title()
                     key_list += [k_verbose_name]
+                    if k == 'dcem_expiration_id':
+                        key_list += [_('Enabled')]
                 attr = 'get_' + k + '_display'
                 if hasattr(o, attr):
                     v = getattr(o, attr)
                 else:
                     v = getattr(o, k)
+                if show_dcem and k == 'dcem_expiration_id':
+                    if v:
+                        v = o.dcem_expiration.end_date
+                        obj_list += [v]
+                        v = o.dcem_expiration.enabled
+                    else:
+                        obj_list += ['']
+                        v = False
+                    k = 'enabled'
+
                 if k == 'enabled':
                     if v:
                         v = _('Yes')
@@ -752,8 +798,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         context['formsets'] = self.get_person_formsets()
         model = self.get_model()
         if self.is_children_diff:
+            """Do not show the DCEM expiration in employee view."""
+            if model == employee_models:
+                show_dcem = False
+            else:
+                show_dcem = True
             context['formsets_diff'] += [('children', _('Children'),
-                                          self.get_formset_objs(model.Child.objects.filter(person=self.object)))]
+                                          self.get_formset_objs(model.Child.objects.filter(person=self.object), show_dcem=show_dcem))]
         if self.is_expirations_diff:
             context['formsets_diff'] += [('expiration', _('Expirations'),
                                           self.get_formset_objs(model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list())))]
@@ -784,22 +835,81 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             context['process'] = lgc_models.PersonProcess.objects.filter(person=obj)
 
         self.set_person_process_stages(context)
-
         set_active_tab(self, context)
-        if self.request.POST:
-            context['stage'] = lgc_forms.PersonProcessStageForm(self.request.POST)
-            doc_forms = self.get_doc_forms()
-            context['doc'] = doc_forms[0]
-            context['deleted_docs'] = doc_forms[1]
-        else:
-            context['doc'] = lgc_forms.DocumentForm()
+
+        context['doc'] = lgc_forms.DocumentForm()
 
         return context
 
     def save_formset_instances(self, instances):
         for i in instances:
-            i.person_id = self.object.id
+            if i.person_id and i.person_id != self.object.id:
+                continue
+            i.person = self.object
             i.save()
+
+    def save_expiration(self, form):
+        if type(self.object).__name__ == 'Employee':
+            return
+
+        if form.cleaned_data.get('dcem_end_date') == None:
+            if (hasattr(form.instance, 'employee_child_set') and
+                form.instance.employee_child_set):
+                form.instance.employee_child_set.dcem_expiration = None
+            if form.instance.dcem_expiration:
+                form.instance.dcem_expiration.delete()
+                form.instance.dcem_expiration = None
+            return
+
+        if form.instance.dcem_expiration:
+            expiration = form.instance.dcem_expiration
+        else:
+            expiration = lgc_models.Expiration()
+
+        expiration.end_date = form.cleaned_data['dcem_end_date']
+        expiration.enabled = form.cleaned_data['dcem_enabled']
+        expiration.person = self.object
+        expiration.type = lgc_models.EXPIRATION_TYPE_DCEM
+        expiration.save()
+        form.instance.dcem_expiration = expiration
+
+    def save_formset(self, formset):
+        if formset.id != 'children_id':
+            instances = formset.save(commit=False)
+            self.save_formset_instances(instances)
+            return
+        """
+        Instead of doing:
+          instances = formset.save(commit=False)
+          self.save_formset_instances(instances)
+        Let's walk through all forms and look for child expirations and
+        save them if they are present.
+        """
+
+        for form in formset.forms:
+            if len(form.cleaned_data) == 0 or form.cleaned_data['DELETE']:
+                continue
+
+            self.save_expiration(form)
+            form.instance.person = self.object
+            form.instance.save()
+
+    def delete_formset(self, formset):
+        for obj in formset.deleted_forms:
+            if (obj.instance.id != None and
+                obj.instance.person_id == self.object.id):
+                """
+                Do not delete DCEM expirations when handling Employee Children.
+                These are still referenced by Person Children.
+                """
+                if (type(self.object).__name__ != 'Employee' and
+                    hasattr(obj.instance, 'dcem_expiration') and
+                    obj.instance.dcem_expiration):
+                    obj.instance.dcem_expiration.delete()
+
+                if hasattr(obj.instance, 'employee_child') and obj.instance.employee_child:
+                    obj.instance.employee_child.delete()
+                obj.instance.delete()
 
     def process_form_valid(self, form):
         if self.request.user.role not in user_models.get_internal_roles():
@@ -922,12 +1032,17 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             for k in old_objs[i].__dict__.keys():
                 if k == 'id' or k == '_state' or k == 'person_id':
                     continue
-                if getattr(old_objs[i], k) != getattr(new_objs[i], k):
-                    return True
+                try:
+                    if getattr(old_objs[i], k) != getattr(new_objs[i], k):
+                        return True
+                except:
+                    pass
         return False
 
     def set_employee_data(self, form, formsets):
         if self.request.user.role not in user_models.get_internal_roles():
+            return
+        if type(self.object).__name__ == 'Employee':
             return
 
         if (not hasattr(self.object, 'user') or
@@ -938,34 +1053,34 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         self.copy_related_object(self.object, employee, employee)
         employee.modified_by = self.request.user
+        employee.modification_date = timezone.now()
         employee.version += 1
         employee.save()
-
 
         for formset in formsets:
             if formset.id != 'children_id':
                 continue
-            model_class = employee_models.Child
-            objs = model_class.objects.filter(person=self.object.user.employee_user_set).all()
+            objs = employee_models.Child.objects.filter(person=self.object.user.employee_user_set).all()
             if not self.have_objs_changed(formset, objs):
                 continue
-            self.clear_related_objects(employee.child_set.all())
 
             for form in formset.forms:
-                if form.instance.id == None:
+                if form.instance.id == None or form.cleaned_data['DELETE']:
                     continue
-                if form.cleaned_data['DELETE']:
-                    continue
-                obj = model_class()
-                self.copy_related_object(form.instance, obj, form.instance)
-                obj.person_id = employee.id
-                obj.save()
+                if not hasattr(form.instance, 'employee_child_set'):
+                    form.instance.employee_child_set = employee_models.Child()
+                self.copy_related_object(form.instance,
+                                         form.instance.employee_child_set,
+                                         form.instance)
+                form.instance.employee_child_set.person_id = employee.id
+                form.instance.employee_child_set.dcem_expiration = form.instance.dcem_expiration
+                form.instance.employee_child_set.save()
 
     def __check_form_diff(self, obj, form, cleaned_data):
         form_diff = []
 
         for key in cleaned_data.keys():
-            if key == 'version' or key == 'user' or key == 'DELETE' or key == "updated":
+            if key == 'version' or key == 'user' or key == 'DELETE' or key == 'updated':
                 continue
             try:
                 val = getattr(obj, key)
@@ -1072,8 +1187,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 continue
 
             """
-            A form that we modified has been deleted, treat it as new.
-            Note, that this will not deleted forms added by the other user.
+            If a form that we modified has been deleted, treat it as new.
+            Note, that this will not delete forms added by the other user.
             """
             formsets[i].data = formset.data.copy()
             if formset.prefix != '':
@@ -1100,13 +1215,14 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 return redirect(self.get_success_url())
 
             if (type(self.object).__name__ != 'Employee' and
+                self.object.user and
                 self.object.user.employee_user_set and
                 self.object.user.employee_user_set.updated):
                 msg = (_('There is a pending moderation on this file.') +
                        '<a href="' +
                        str(reverse_lazy('employee-moderation',
                                         kwargs={'pk':self.object.user.employee_user_set.id})) +
-                       '">' + _('Click here to moderate it.</a>'))
+                       '"> ' + _('Click here to moderate it.</a>'))
                 messages.error(self.request, mark_safe(msg))
                 return super().form_invalid(form)
 
@@ -1137,10 +1253,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         with transaction.atomic():
             for formset in formsets:
-                for obj in formset.deleted_forms:
-                    if (obj.instance.id != None and
-                        obj.instance.person_id == self.object.id):
-                        obj.instance.delete()
+                self.delete_formset(formset)
+                self.save_formset(formset)
 
             if self.is_update and self.object.user != None:
                 form.instance.user = self.object.user
@@ -1150,17 +1264,12 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 form.instance.user.first_name = form.instance.first_name
                 form.instance.user.last_name = form.instance.last_name
                 form.instance.user.email = form.instance.email
+
                 if self.request.user.role in user_models.get_internal_roles():
                     form.instance.user.responsible.set(form.instance.responsible.all())
                     form.instance.user.save()
 
-            for formset in formsets:
-                instances = formset.save(commit=False)
-                self.save_formset_instances(instances)
-
-            doc_forms = self.get_doc_forms()
-            doc = doc_forms[0]
-            deleted_docs = doc_forms[1]
+            doc, deleted_docs = self.get_doc_forms()
 
             if not doc.is_valid():
                 messages.error(self.request, _('Invalid document.'))

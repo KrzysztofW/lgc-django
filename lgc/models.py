@@ -379,12 +379,14 @@ EXPIRATION_TYPE_CSP = 'CSP'
 EXPIRATION_TYPE_SCSP = 'SCSP'
 EXPIRATION_TYPE_APS = 'APS'
 EXPIRATION_TYPE_SAPS = 'SAPS'
+EXPIRATION_TYPE_DCEM = 'DCEM'
 
 work_permit = _('Work Permit')
 vls_ts = _('Visa or Residence Permit (VLS-TS)')
 cst = _('Visa or Residence Permit (CST)')
 csp = _('Visa or Residence Permit (CSP)')
 aps = _('Visa or Residence Permit (APS)')
+dcem = 'DCEM/TIR'
 
 s_work_permit = _('Spouse Work Permit')
 s_vls_ts = _('Spouse Visa or Residence Permit (VLS-TS)')
@@ -430,6 +432,9 @@ PERSON_SPOUSE_EXPIRATIONS_CHOICES_COMPACT = (
     (EXPIRATION_TYPE_SAPS, compact_s_aps),
 )
 
+EXPIRATION_CHOICES_DCEM = (
+    (EXPIRATION_TYPE_DCEM, dcem),
+)
 EXPIRATION_CHOICES = PERSON_EXPIRATIONS_CHOICES + PERSON_SPOUSE_EXPIRATIONS_CHOICES
 
 def get_expiration_list():
@@ -481,7 +486,7 @@ class PersonInfo(models.Model):
     spouse_first_name = models.CharField(_('Spouse First Name'),
                                          max_length=50, default='',
                                          blank=True, validators=[alpha])
-    spouse_last_name = models.CharField(_('Spouse First Name'),
+    spouse_last_name = models.CharField(_('Spouse Last Name'),
                                         max_length=50, default='',
                                         blank=True, validators=[alpha])
     spouse_birth_date = models.DateField(_('Spouse Birth Date'), blank=True,
@@ -583,8 +588,8 @@ class Document(models.Model):
 
 class ExpirationCommon(models.Model):
     label = _('Visas / Residence Permits / Work Permits')
-    type = models.CharField(max_length=7, default='', choices=EXPIRATION_CHOICES)
-    start_date = models.DateField()
+    type = models.CharField(max_length=7, default='', choices=EXPIRATION_CHOICES + EXPIRATION_CHOICES_DCEM)
+    start_date = models.DateField(null=True, default=None)
     end_date = models.DateField()
     enabled = models.BooleanField(default=True)
 
@@ -597,7 +602,6 @@ class ExpirationCommon(models.Model):
 
 class Expiration(ExpirationCommon):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    pass
 
 class ArchiveBox(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
@@ -612,16 +616,14 @@ class ChildCommon(models.Model):
     passport_expiry = models.DateField(_('Passport expiry'), blank=True, null=True)
     passport_nationality = CountryField(_('Passport nationality'), blank=True, null=True)
 
-    # DCEM/TIR expiration
-    end_date = models.DateField(_('DCEM/TIR expiry'), blank=True, null=True)
-    enabled = models.BooleanField(_('Enabled'), default=True)
-
     class Meta:
         abstract = True
 
 class Child(ChildCommon):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    pass
+    dcem_expiration = models.ForeignKey(Expiration,
+                                        on_delete=models.SET_NULL,
+                                        default=None, null=True)
 
 class ProcessStage(models.Model):
     name_fr = models.CharField(_('French Name'), max_length=50, unique=True)

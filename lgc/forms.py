@@ -14,13 +14,15 @@ User = get_user_model()
 
 empty_select = (('', '----'),)
 
-def datepicker_set_widget_attrs(obj, field, attrs=None):
+def datepicker_set_widget_attrs(obj, field, attrs=None, tpl=None):
     if translation.get_language() == 'fr':
         obj.fields[field].widget = DatePickerInput(format='%d/%m/%Y',
                                                    attrs=attrs)
     else:
         obj.fields[field].widget = DatePickerInput(format='%m/%d/%Y',
                                                    attrs=attrs)
+    if tpl:
+        obj.fields[field].widget.template_name = tpl
 
 class LgcTab(Tab):
     link_template = 'lgc/lgc_tab.html'
@@ -85,15 +87,18 @@ class PersonCreateForm(forms.ModelForm):
     process_name = forms.ModelChoiceField(required=False,
                                           queryset=lgc_models.Process.objects.all(),
                                           label=_('Create an active process'))
-    foreign_country = CountryField().formfield(required=False,
+    foreign_country = CountryField().formfield(label=_('Foreign country'),
+                                               required=False,
                                                widget=forms.Select(attrs={'onchange':'auto_complete_jurisdiction(this);'}))
     passport_expiry = forms.DateField(required=False,
                                       label=_('Passport Expiry'))
-    version = forms.IntegerField(min_value=0, widget=forms.HiddenInput())
+    version = forms.IntegerField(min_value=0, widget=forms.HiddenInput(),
+                                 initial=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         datepicker_set_widget_attrs(self, 'birth_date')
+        datepicker_set_widget_attrs(self, 'spouse_birth_date')
         if self.fields.get('start_date'):
             datepicker_set_widget_attrs(self, 'start_date')
 
@@ -145,18 +150,23 @@ class ChildCreateForm(forms.ModelForm):
     last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control lgc_small_formset'}))
     birth_date = forms.DateField(label=_('Birth Date'))
     passport_expiry = forms.DateField(label=_('Passport Expiry'))
-    passport_nationality = CountryField().formfield(required=False, widget=forms.Select(attrs={'class':'form-control lgc_small_formset', 'style':'width:90px;'}))
-    end_date = forms.DateField(required=False, label=_('DCEM/TIR Expiry'))
+    passport_nationality = CountryField().formfield(label=_('Passport nationality'), required=False, widget=forms.Select(attrs={'class':'form-control lgc_small_formset', 'style':'width:90px;'}))
+    # DCEM/TIR expiration
+    dcem_end_date = forms.DateField(required=False, label=_('DCEM/TIR Expiry'))
+    dcem_enabled = forms.BooleanField(required=False, label=_('Enabled'),
+                                      initial=True)
 
     class Meta:
         model = lgc_models.Child
-        exclude = ['person']
+        exclude = ['person', 'dcem_expiration']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        datepicker_set_widget_attrs(self, 'birth_date', attrs={'class':'form-control lgc_small_formset'})
-        datepicker_set_widget_attrs(self, 'passport_expiry', attrs={'class':'form-control lgc_small_formset'})
-        datepicker_set_widget_attrs(self, 'dcem_tir_expiry', attrs={'class':'form-control lgc_small_formset'})
+        datepicker_set_widget_attrs(self, 'birth_date', attrs={'class':'form-control lgc_small_formset'}, tpl='lgc/date-picker.html')
+        datepicker_set_widget_attrs(self, 'passport_expiry', attrs={'class':'form-control lgc_small_formset'}, tpl='lgc/date-picker.html')
+        if self.fields.get('dcem_end_date'):
+            datepicker_set_widget_attrs(self, 'dcem_end_date', attrs={'class':'form-control lgc_small_formset'}, tpl='lgc/date-picker.html')
+            self.fields['dcem_enabled'].initial = True
 
 class ExpirationCommon(forms.ModelForm):
     start_date = forms.DateField(label=_('Start Date'))
@@ -164,15 +174,16 @@ class ExpirationCommon(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        datepicker_set_widget_attrs(self, 'start_date')
-        datepicker_set_widget_attrs(self, 'end_date')
+        datepicker_set_widget_attrs(self, 'start_date', attrs={'class':'form-control lgc_small_formset'}, tpl='lgc/date-picker.html')
+        datepicker_set_widget_attrs(self, 'end_date', attrs={'class':'form-control lgc_small_formset'}, tpl='lgc/date-picker.html')
 
     class Meta:
         abstract = True
 
 class ExpirationForm(ExpirationCommon):
     options = empty_select + lgc_models.PERSON_EXPIRATIONS_CHOICES
-    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control'}))
+    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control lgc_small_formset',
+                                                                         'style':'width:195px;'}))
 
     class Meta:
         model = lgc_models.Expiration
@@ -180,7 +191,8 @@ class ExpirationForm(ExpirationCommon):
 
 class SpouseExpirationForm(ExpirationCommon):
     options = empty_select + lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES_SHORT
-    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control'}))
+    type = forms.ChoiceField(choices=options, widget=forms.Select(attrs={'class':'form-control lgc_small_formset',
+                                                                         'style':'width:195px;'}))
 
     class Meta:
         model = lgc_models.Expiration
@@ -293,7 +305,7 @@ class ExpirationSearchForm(forms.Form):
     expiry_type = forms.ChoiceField(label=_('Expiration Type'),
                                     required=False,
                                     choices=empty_select +
-                                    lgc_models.EXPIRATION_CHOICES,
+                                    lgc_models.EXPIRATION_CHOICES + lgc_models.EXPIRATION_CHOICES_DCEM,
                                     widget=forms.Select(attrs={'class':'form-control',
                                                                'onchange':'form.submit();'}))
 

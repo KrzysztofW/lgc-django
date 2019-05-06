@@ -1,0 +1,26 @@
+{% load i18n %}
+<br><br><label>{% trans 'Current entries:' %}</label>
+<table class="table-sm  table-bordered">
+  {% for obj_lists in formset.db_objs %}
+  {% if forloop.first %}
+  <thead>
+    <tr>
+      {% for label in obj_lists %}
+      <th>{{ label }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% else %}
+    {% for objs in obj_lists %}
+    <tr>
+      {% for obj in objs %}
+      <td width="150">{{ obj }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+  {% endif %}
+  {% endfor %}
+</table>
+<br><hr><br>
