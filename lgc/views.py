@@ -925,7 +925,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             process_stages = self.get_process_stages(person_process.process)
 
             if process_stages == None:
-                messages.error(self.request, 'The process has no stages.')
+                messages.error(self.request, _('The process has no stages.'))
                 return -1
 
             first_stage = self.get_next_process_stage(None, person_process.process.id)
@@ -946,23 +946,27 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         # Process handling
         process_stages = self.get_process_stages(person_process.process)
         if process_stages == None:
-            messages.error(self.request, 'The process has no stages.')
+            messages.error(self.request, _('The process has no stages.'))
             return -1
 
         person_process_stages = self.get_person_process_stages(person_process)
         if person_process_stages == None:
-            messages.error(self.request, 'The person process has no stages.')
+            messages.error(self.request, _('The person process has no stages.'))
             return -1
 
         person_process_stage = self.get_last_person_process_stage(person_process_stages)
         if person_process_stage == None:
-            messages.error(self.request, 'Cannot get the person process last stage.')
+            messages.error(self.request, _('Cannot get the person process last stage.'))
             return -1
 
         if self.is_process_complete(person_process.process.stages,
                                     person_process_stages):
             stage_form = lgc_forms.UnboundFinalPersonProcessStageForm(self.request.POST)
         else:
+            if form.cleaned_data['state'] == lgc_models.FILE_STATE_CLOSED:
+                messages.error(self.request,
+                               _('This file cannot be closed as it has a pending process.'))
+                return -1
             stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
         if not stage_form.is_valid():
             return -1
