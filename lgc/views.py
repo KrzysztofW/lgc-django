@@ -1367,10 +1367,26 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = _("%s of %s %s deleted successfully.")%(
-            self.obj_name, self.object.first_name, self.object.last_name
-        )
-        messages.success(self.request, success_message)
+        success_message = _("%(obj_name)s of %(firstname)s %(lastname)s deleted successfully."%{
+            'obj_name':self.obj_name,
+            'firstname':self.object.first_name,
+            'lastname':self.object.last_name,
+        })
+
+        if type(self.object).__name__ == 'User':
+            if hasattr(self.object, 'person_user_set'):
+                person_obj = self.object.person_user_set
+            else:
+                person_obj = None
+        else:
+            person_obj = self.object
+
+        if person_obj and person_obj.document_set:
+            for doc in person_obj.document_set.all():
+                doc.delete()
+                os.remove(os.path.join(settings.MEDIA_ROOT,
+                                       doc.document.name))
+
         if (self.request.method == 'POST' and
             self.request.POST.get('inform_person') and
             self.request.POST['inform_person'] == 'on'):
@@ -1380,6 +1396,8 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
                 messages.error(self.request, _('Cannot send email to') + '`'
                                + self.object.email + '`: ' + str(e))
                 return super().form_invalid(form)
+
+        messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
 @login_required
