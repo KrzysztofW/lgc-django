@@ -1248,16 +1248,43 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             person = form.instance
         else:
             form.instance.updated = True
-            """ self.object is valid as external users can only update the form """
+            """self.object is valid as external users can only update the form."""
             person = self.object.user.person_user_set
+
+        doc, deleted_docs = self.get_doc_forms()
+        docs = lgc_models.Document.objects.filter(person=person)
+
+        if not doc.is_valid():
+            messages.error(self.request, _('Invalid document.'))
+            return super().form_invalid(form)
+
+        if self.is_update and self.object.user != None:
+            form.instance.user = self.object.user
+
+        if self.process_form_valid(form) < 0:
+            return super().form_invalid(form)
+
+        if doc.cleaned_data['document'] != None:
+            if doc.cleaned_data['description'] == '':
+                messages.error(self.request,
+                               _('Invalid document description.'))
+                return super().form_invalid(form)
+            if doc.instance.document.size > settings.MAX_FILE_SIZE << 20:
+                messages.error(self.request,
+                               _('File too big. Maximum file size is %dM.')%
+                               settings.MAX_FILE_SIZE)
+                return super().form_invalid(form)
+            for d in docs.all():
+                if d.document.name != doc.instance.document.name:
+                    continue
+                messages.error(self.request, _("File `%s' already exists.")%
+                               d.document.name)
+                return super().form_invalid(form)
 
         with transaction.atomic():
             for formset in formsets:
                 self.delete_formset(formset)
                 self.save_formset(formset)
-
-            if self.is_update and self.object.user != None:
-                form.instance.user = self.object.user
 
             self.object = form.save()
             if form.instance.user:
@@ -1269,38 +1296,15 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                     form.instance.user.responsible.set(form.instance.responsible.all())
                     form.instance.user.save()
 
-            doc, deleted_docs = self.get_doc_forms()
-
-            if not doc.is_valid():
-                messages.error(self.request, _('Invalid document.'))
-                return super().form_invalid(form)
-
             if doc.cleaned_data['document'] != None:
-                if doc.cleaned_data['description'] == '':
-                    messages.error(self.request,
-                                   _('Invalid document description.'))
-                    return super().form_invalid(form)
                 doc.instance = lgc_models.Document()
                 doc.instance.document = doc.cleaned_data['document']
-
-                if doc.instance.document.size > settings.MAX_FILE_SIZE << 20:
-                    messages.error(self.request,
-                                   _('File too big. Maximum file size is %dM.')%
-                                   settings.MAX_FILE_SIZE)
-                    return super().form_invalid(form)
-
-                docs = lgc_models.Document.objects.filter(person=person)
-                for d in docs.all():
-                    if d.document.name != doc.instance.document.name:
-                        continue
-                    messages.error(self.request, _("File `%s' already exists.")%
-                                   d.document.name)
-                    return super().form_invalid(form)
-
                 doc.instance.description = doc.cleaned_data['description']
                 doc.instance.person = person
                 doc.instance.uploaded_by = self.request.user
                 doc.save()
+
+            self.set_employee_data(form, formsets)
 
             if self.is_update and deleted_docs != '':
                 for d in deleted_docs.deleted_forms:
@@ -1308,11 +1312,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                         d.instance.delete()
                         os.remove(os.path.join(settings.MEDIA_ROOT,
                                                d.instance.document.name))
-
-            if self.process_form_valid(form) < 0:
-                return super().form_invalid(form)
-
-            self.set_employee_data(form, formsets)
 
         return super().form_valid(form)
 
