@@ -13,6 +13,7 @@ from functools import wraps
 from users.models import INTERNAL_ROLE_CHOICES
 from string import Template
 from common import lgc_types
+from pathlib import Path
 
 MSG_TPL_DIR = 'msg_tpls'
 
@@ -151,3 +152,10 @@ def set_bold_search_attrs(objs, term, attrs):
             if val.startswith(term):
                 bold_attr = 'b_' + attr
                 setattr(obj, bold_attr, val)
+
+def get_template(path, name):
+    try:
+        with Path(path, 'templates', name).open() as fh:
+            return fh.read()
+    except FileNotFoundError:
+        raise Http404

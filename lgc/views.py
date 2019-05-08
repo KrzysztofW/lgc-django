@@ -2,7 +2,7 @@ import pdb                # pdb.set_trace()
 from django.db import transaction
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
 from common.utils import (pagination, lgc_send_email, must_be_staff,
-                          set_bold_search_attrs)
+                          set_bold_search_attrs, get_template)
 import common.utils as common_utils
 from django import http
 from django.contrib import messages
@@ -44,11 +44,12 @@ import random
 import datetime
 import os
 
-contact_admin = _('Please contact your administrator.')
+contact_admin_str = _('Please contact your administrator.')
+delete_str = _('Delete')
 
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
-delete_str = _('Delete')
+
 
 def token_generator():
     size = 64
@@ -258,13 +259,6 @@ class PersonListView(PersonCommonListView):
         context['search_form'] = self.get_search_form()
         return context
 
-def get_template(name):
-    try:
-        with Path(CURRENT_DIR, 'templates', 'lgc', name).open() as fh:
-            return fh.read()
-    except FileNotFoundError:
-        raise Http404
-
 def local_user_get_person_form_layout(form, action, obj, process_stages,
                                       archived_processes):
     external_profile = None
@@ -331,7 +325,8 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
             css_class='form-row'),
     )
 
-    info_tab.append(Div(Div(HTML(get_template('formsets_template.html')),
+    info_tab.append(Div(Div(HTML(get_template(CURRENT_DIR,
+                                              'lgc/formsets_template.html')),
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
     info_tab.append(Div(Div('state', css_class='form-group col-md-4'),
@@ -363,7 +358,8 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
                                 str(len(archived_processes)) +
                                 ')</a><br><br>'))
     if process_stages:
-        pcontent = HTML(get_template('process_stages_template.html'))
+        pcontent = HTML(get_template(CURRENT_DIR,
+                                     'lgc/process_stages_template.html'))
     else:
         pcontent = Div(Div('process_name', css_class='form-group col-md-4'),
                        css_class='form-row')
@@ -371,7 +367,8 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
     billing_tab = LgcTab(_('Billing'))
 
     documents_tab = LgcTab(_('Documents'))
-    documents_tab.append(HTML(get_template('document_form.html')))
+    documents_tab.append(HTML(get_template(CURRENT_DIR,
+                                           'lgc/document_form.html')))
 
     tab_holder = TabHolder(info_tab)
 
@@ -427,18 +424,20 @@ def employee_user_get_person_form_layout(form, action, obj, process):
             css_class='form-row'),
     )
 
-    info_tab.append(Div(Div(HTML(get_template('formsets_template.html')),
+    info_tab.append(Div(Div(HTML(get_template(CURRENT_DIR,
+                                              'lgc/formsets_template.html')),
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
 
     tab_holder = TabHolder(info_tab)
     if process:
         process_tab = LgcTab(_('Process'))
-        process_tab.append(HTML(get_template('process_stages_template.html')))
+        process_tab.append(HTML(get_template(CURRENT_DIR,
+                                             'lgc/process_stages_template.html')))
         tab_holder.append(process_tab)
 
     documents_tab = LgcTab(_('Documents'))
-    documents_tab.append(HTML(get_template('document_form.html')))
+    documents_tab.append(HTML(get_template(CURRENT_DIR, 'lgc/document_form.html')))
     tab_holder.append(documents_tab)
 
     layout = Layout(tab_holder)
@@ -511,7 +510,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if process.count() > 1:
             messages.error(self.request,
                            _('PersonProcess consistency error! ') +
-                           contact_admin)
+                           contact_admin_str)
             return None
         if process.count() == 1:
             return process[0]
@@ -524,7 +523,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if stages.count() == 0:
             messages.error(self.request,
                            _('PersonProcessStage consistency error! ') +
-                           contact_admin)
+                           contact_admin_str)
             return None
         return stages
 
@@ -1714,7 +1713,8 @@ class PersonProcessUpdateView(ProcessUpdateView):
     def get_form(self):
         form = super().get_form()
         form.helper = FormHelper()
-        form.helper.layout = Layout(HTML(get_template('process_stages_template.html')))
+        form.helper.layout = Layout(HTML(get_template(CURRENT_DIR,
+                                                      'lgc/process_stages_template.html')))
         return form
 
 class PersonProcessListView(ProcessListView):
@@ -1818,7 +1818,7 @@ def get_hr_account_form(form, action, uid, new_token=False):
             LgcTab(_('Information'), get_account_layout(Layout(), new_token,
                                                         is_hr=True, is_active=True)),
             LgcTab(_('Employees'),
-                Div(Div(HTML(get_template('employee_list.html')),
+                Div(Div(HTML(get_template(CURRENT_DIR, 'lgc/employee_list.html')),
                         css_class="form-group col-md-10"),
                     css_class="form-row")),
         ))

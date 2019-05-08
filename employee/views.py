@@ -2,7 +2,7 @@ import pdb                # pdb.set_trace()
 from django.db import transaction
 from django import forms
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
-from common.utils import pagination, lgc_send_email, must_be_staff
+from common.utils import pagination, lgc_send_email, must_be_staff, get_template
 import common.utils as common_utils
 from django import http
 from django.contrib import messages
@@ -45,6 +45,7 @@ import datetime
 import os
 
 User = get_user_model()
+CURRENT_DIR = Path(__file__).parent
 
 class PersonUpdateView(lgc_views.PersonUpdateView):
     model = employee_models.Employee
@@ -132,14 +133,6 @@ def objs_diff(objs1, objs2):
                 return True
     return False
 
-CURRENT_DIR = Path(__file__).parent
-def get_template(name):
-    try:
-        with Path(CURRENT_DIR, 'templates', 'employee', name).open() as fh:
-            return fh.read()
-    except FileNotFoundError:
-        raise Http404
-
 def set_modifiedby_err_msg(request, first_name, last_name, url):
     msg = _('The form has been modified by %(firstname)s %(lastname)s while you were editing it. <a href="%(url)s">Reload the page</a> to continue (your modifications will be lost).'%{
         'firstname':first_name,
@@ -181,7 +174,8 @@ def set_formsets_form(context):
     formsets_form.helper = FormHelper()
     formsets_form.helper.form_tag = False
     formsets_form.helper.layout = Layout(
-        Div(Div(HTML(get_template('formsets_template.html')),
+        Div(Div(HTML(get_template(CURRENT_DIR,
+                                  'employee/formsets_template.html')),
                 css_class='form-group col-md-10'),
             css_class='form-row'))
     context['formsets_form'] = formsets_form
