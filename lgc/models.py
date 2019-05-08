@@ -563,6 +563,7 @@ class Person(PersonInfo):
                                     blank=True)
     info_process = models.CharField(_('Process'), max_length=3, default='',
                                     choices=PROCESS_CHOICES)
+    work_permit = models.BooleanField(_('Work Permit Required'), default=False)
     responsible = models.ManyToManyField(User, blank=True,
                                          verbose_name=_('Persons in charge'),
                                          related_name='person_resp_set')
