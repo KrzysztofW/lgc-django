@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.contrib.auth import get_user_model
+from django.template.defaultfilters import date, time
 import datetime
 
 User = get_user_model()
@@ -81,10 +82,22 @@ def get_pending_moderations(request):
     }
     return res
 
+def normalize_value(obj, key, val):
+    if val == None or val == False:
+        return ''
+    if val == True:
+        return '<i class="fa fa-fw fa-check lgc-sorting-muted">'
+    if type(val).__name__ == 'datetime':
+        return date(val) + ' ' + time(val, 'H:i:s')
+    if key == 'role':
+        return obj.get_role_display()
+    return val
+
 @register.simple_tag
 def get_table_th(label, value, order_by, order_params):
     label = str(label)
     res = '<th scope="col">' + label
+
     if order_by == value:
         res += '<a href="?' + order_params + '&order_by=-' + value + '"><i class="fa fa-fw fa-sort-up"></i></a>'
     elif order_by == '-' + value:
@@ -105,6 +118,7 @@ def generate_table(header_values, object_list, order_by, order_params, url):
 
     res += '</thead>'
     res += '<tbody>'
+
     for obj in object_list:
         res += '<tr '
         if url:
@@ -112,7 +126,8 @@ def generate_table(header_values, object_list, order_by, order_params, url):
         res += 'class="clickable-row">'
         for th in header_values:
             if th[1] in object_list[0].__dict__.keys():
-                res += '<td>' + str(getattr(obj, th[1])) + '</td>'
+                val = normalize_value(obj, th[1], getattr(obj, th[1]))
+                res += '<td>' + str(val) + '</td>'
         res += '</tr>'
 
     res += '</tbody>'

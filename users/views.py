@@ -27,8 +27,7 @@ User = get_user_model()
 
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = User
-    template_name = 'users/list.html'
-    context_object_name = 'users'
+    template_name = 'lgc/sub_generic_list.html'
 
     def test_func(self):
         return self.request.user.is_staff
@@ -52,8 +51,17 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        order_by = self.get_ordering()
-        context['title'] = _("Users")
+        context['title'] = _('Users')
+        context['create_url'] = reverse_lazy('user-create')
+        context['item_url'] = 'user'
+        context['ajax_search_url'] = reverse_lazy('user-local-user-search-ajax')
+        context['search_url'] = reverse_lazy('user-list')
+        context['header_values'] = [
+            ('E-mail', 'email'), (_('First Name'), 'first_name'),
+            (_('Last Name'), 'last_name'), (_('Active'), 'is_active'),
+            (_('Role'), 'role'), (_('Billing'), 'billing'),
+            (_('Staff'), 'is_staff')
+        ]
 
         return pagination(self.request, context, reverse_lazy('user-list'))
 

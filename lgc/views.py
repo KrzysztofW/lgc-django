@@ -1,7 +1,8 @@
 import pdb                # pdb.set_trace()
 from django.db import transaction
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
-from common.utils import pagination, lgc_send_email, must_be_staff
+from common.utils import (pagination, lgc_send_email, must_be_staff,
+                          set_bold_search_attrs)
 import common.utils as common_utils
 from django import http
 from django.contrib import messages
@@ -148,6 +149,12 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
 
+        context['item_url'] = 'lgc-file'
+        context['header_values'] = [('ID', 'id'), (_('First Name'), 'first_name'),
+                                    (_('Last Name'), 'last_name'), ('E-mail', 'email'),
+                                    (_('Birth Date'), 'birth_date'),
+                                    (_('Created'), 'creation_date')]
+
         if self.request.user.role == user_models.CONSULTANT:
             context['create_url'] = reverse_lazy('lgc-file-create')
         return pagination(self.request, context, reverse_lazy('lgc-files'))
@@ -248,8 +255,6 @@ class PersonListView(PersonCommonListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['show_id'] = True
-        context['show_birth_date'] = True
         context['search_form'] = self.get_search_form()
         return context
 
@@ -1409,9 +1414,7 @@ def ajax_process_search_view(request):
     objs = lgc_models.Process.objects.filter(name__istartswith=term)
     objs = objs[:10]
 
-    for o in objs:
-        if o.name.lower().startswith(term):
-            o.b_name = o.name.lower()
+    set_bold_search_attrs(objs, term, ['name'])
     context = {
         'objects': objs
     }
@@ -1428,9 +1431,7 @@ def ajax_person_process_search_view(request, *args, **kwargs):
     objs = objects.filter(process__name__istartswith=term)
     objs = objs[:10]
 
-    for o in objs:
-        if o.process.name.lower().startswith(term):
-            o.b_name = o.process.name.lower()
+    set_bold_search_attrs(objs, term, ['name'])
     context = {
         'objects': objs
     }
@@ -1553,6 +1554,7 @@ class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
     template_name = 'lgc/process.html'
     title = _('Process')
     delete_url = 'lgc-process-delete'
+    fields = '__all__'
 
     def get_success_url(self):
         self.object = self.get_object()
@@ -2192,14 +2194,8 @@ def ajax_insert_employee_view(request):
     employees = users.filter(first_name__istartswith=term)|users.filter(last_name__istartswith=term)|users.filter(email__istartswith=term)
     employees = employees[:10]
 
-    for f in employees:
-        if f.first_name.lower().startswith(term):
-            f.b_first_name = f.first_name.lower()
-        elif f.last_name.lower().startswith(term):
-            f.b_last_name = f.last_name.lower()
-        elif f.email.lower().startswith(term):
-            f.b_email = f.email.lower()
-
+    set_bold_search_attrs(employees, term,
+                          ['first_name', 'last_name', 'email'])
     context = {
         'employees': employees
     }
@@ -2208,17 +2204,9 @@ def ajax_insert_employee_view(request):
 def ajax_file_search_mark_bold(files, term):
     if files == None:
         return None
-    for f in files:
-        if f.first_name.lower().startswith(term):
-            f.b_first_name = f.first_name.lower()
-        elif f.last_name.lower().startswith(term):
-            f.b_last_name = f.last_name.lower()
-        elif f.email and f.email.lower().startswith(term):
-            f.b_email = f.email.lower()
-        elif f.host_entity and f.host_entity.lower().startswith(term):
-            f.b_host_entity = f.host_entity.lower()
-        elif f.home_entity and f.home_entity.lower().startswith(term):
-            f.b_home_entity = f.home_entity.lower()
+    set_bold_search_attrs(files, term,
+                          ['first_name', 'last_name', 'email', 'host_entity',
+                           'home_entity'])
     return files
 
 def ajax_file_search_find_objs(objs, term):

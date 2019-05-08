@@ -126,8 +126,6 @@ def lgc_send_email(obj, action):
     msg_html = msg_tpl_html.substitute(PERSON_NAME=name, URL=url)
     to = name + '<' + obj.email + '>'
 
-    # XXX don't send emails for now
-    return
     ret = send_mail(subject, msg, 'no-reply <no-reply@example.com>',
                     [to], html_message=msg_html)
     if ret != 1:
@@ -144,3 +142,12 @@ def parse_date(date_str):
             continue
 
     return None
+
+def set_bold_search_attrs(objs, term, attrs):
+    for obj in objs:
+        for attr in attrs:
+            val = getattr(obj, attr).lower()
+
+            if val.startswith(term):
+                bold_attr = 'b_' + attr
+                setattr(obj, bold_attr, val)
