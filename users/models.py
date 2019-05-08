@@ -2,11 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 
-ENGLISH = 'EN'
-FRENCH = 'FR'
+EN = 'EN'
+FR = 'FR'
 LANGUAGE_CHOICES = (
-    (ENGLISH, _('English')),
-    (FRENCH, _('French')),
+    (EN, _('English')),
+    (FR, _('French')),
 )
 
 JURIST    = 'JU'
@@ -134,7 +134,7 @@ class User(AbstractUser):
     hr_employees = models.ManyToManyField("self", blank=True,
                                           related_name='hr_employee_set')
     language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES,
-                                default=ENGLISH)
+                                default=EN)
     company = models.CharField(max_length=50, blank=True)
 
     def __str__(self):

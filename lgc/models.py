@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from datetime import date
 from django_countries.fields import CountryField
+from users import models as user_models
 User = get_user_model()
 
 alpha = RegexValidator(r'^[^0-9`;:_{}()$^~"\%&*#!?.,\\<>|@/]*$',
@@ -461,10 +462,10 @@ def check_dates(start, end, what):
 
 class PersonInfo(models.Model):
     version = models.PositiveIntegerField(default=0)
-    creation_date = models.DateTimeField(_('Creation date'), auto_now_add=True)
+    creation_date = models.DateTimeField(_('Creation Date'), auto_now_add=True)
     first_name = models.CharField(_('First name'), max_length=50, validators=[alpha])
     last_name = models.CharField(_('Last name'), max_length=50, validators=[alpha])
-    email = models.EmailField(_('Email'), max_length=50, null=True, blank=True, unique=True)
+    email = models.EmailField('Email', max_length=50, null=True, blank=True, unique=True)
     foreigner_id = models.PositiveIntegerField(_('Foreigner ID'), blank=True,
                                                null=True)
     birth_date = models.DateField(_('Birth Date'), null=True)
@@ -515,7 +516,7 @@ class PersonInfo(models.Model):
                                             max_length=50, default='',
                                             blank=True)
     modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
-                                    on_delete=models.CASCADE)
+                                    on_delete=models.SET_NULL, null=True)
     modification_date = models.DateTimeField(_('Modification date'), auto_now_add=True)
 
     class Meta:
@@ -584,7 +585,7 @@ class Document(models.Model):
     uploaded_date = models.DateTimeField(_('Uploaded'), auto_now_add=True)
     uploaded_by = models.ForeignKey(User, verbose_name=_('Uploaded by'),
                                     on_delete=models.SET_NULL, null=True)
-    description = models.CharField(_('Description'), max_length=50, default="")
+    description = models.CharField(_('Description'), max_length=50, default='')
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
 class ExpirationCommon(models.Model):
@@ -645,7 +646,7 @@ class Process(models.Model):
 
 class PersonProcess(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    process = models.ForeignKey(Process, on_delete=models.CASCADE)
+    process = models.ForeignKey(Process, null=True, on_delete=models.SET_NULL)
     active = models.BooleanField(_('Active'), default=True)
     consulate = models.CharField(_('Consulate'), max_length=3, default='',
                                  choices=CONSULATE_CHOICES, blank=True)
