@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import billing_views
 
 urlpatterns = [
     path('', views.home, name='lgc-home'),
@@ -62,4 +63,17 @@ urlpatterns = [
     path('download/<int:pk>/', views.download_file, name='lgc-download-file'),
 
     path('expirations/', views.expirations, name='lgc-expirations'),
+
+    path('client-create/', billing_views.ClientCreateView.as_view(),
+         name='lgc-client-create'),
+    path('client/<int:pk>/', billing_views.ClientUpdateView.as_view(),
+         name='lgc-client'),
+    path('clients/', billing_views.ClientListView.as_view(),
+         name='lgc-clients'),
+    path('client-delete/<int:pk>', billing_views.ClientDeleteView.as_view(),
+         name='lgc-client-delete'),
+    path('client-search/ajax/', billing_views.ajax_client_search_view,
+         name='lgc-client-search-ajax'),
+    path('invoice-create/', billing_views.InvoiceCreateView.as_view(),
+         name='lgc-invoice-create'),
 ]

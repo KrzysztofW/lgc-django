@@ -331,3 +331,11 @@ class ChangesDetectedForm(forms.Form):
                                        label=_('Choose an action:'))
     class Meta:
         fields = '__all__'
+
+class ClientCreateForm(forms.ModelForm):
+    address = forms.CharField(required=False,
+                              widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
+
+    class Meta:
+        model = lgc_models.Client
+        exclude = ['id']

@@ -11,6 +11,7 @@ User = get_user_model()
 
 alpha = RegexValidator(r'^[^0-9`;:_{}()$^~"\%&*#!?.,\\<>|@/]*$',
                        _('Numbers and special characters are not allowed.'))
+siret_validator = RegexValidator(r'^[0-9]{14}$')
 
 PROCESS_CHOICES = (
     ('', '---------'),
@@ -666,3 +667,34 @@ class PersonProcessStage(models.Model):
                                blank=True)
     name_en = models.CharField(_('Name'), max_length=50, default='',
                                blank=True)
+
+class AbstractClient(models.Model):
+    first_name = models.CharField(_('First name'), max_length=50,
+                                  validators=[alpha], blank=True)
+    last_name = models.CharField(_('Last name'), max_length=50,
+                                 validators=[alpha], blank=True)
+    company = models.CharField(_('Company'), max_length=50, blank=True)
+    email = models.EmailField('Email', max_length=50, null=True, blank=True,
+                              unique=True)
+    phone_number = models.CharField(_('Local Phone Number'), max_length=50,
+                                    blank=True)
+    cell_phone_number = models.CharField(_('Cell Phone Number'), max_length=50,
+                                         blank=True)
+    siret = models.CharField('SIRET', max_length=14, blank=True, null=True,
+                             validators=[siret_validator],
+                             unique=True)
+    vat = models.CharField(_('VAT Number'), max_length=50, null=True,
+                           blank=True, unique=True)
+    address = models.TextField(_('Address'), max_length=100, blank=True)
+    post_code = models.CharField(_('Post Code'), max_length=10, blank=True)
+    city = models.CharField(_('City'), max_length=50, blank=True)
+    country = CountryField(_('Country'), blank=True)
+
+    class Meta:
+        abstract = True
+
+class Client(AbstractClient):
+    id = models.AutoField(primary_key=True)
+    class Meta:
+        unique_together = ('first_name', 'last_name', 'company')
+
