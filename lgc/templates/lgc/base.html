@@ -2,18 +2,7 @@
 <html lang="{{ LANGUAGE_CODE }}">
   {% include "lgc/header.html" %}
   <body onload="get_lgc_links();">
-    {% if messages %}
-    {% for message in messages %}
-    {% if message.tags == "error" %}
-      <div class="alert alert-danger">
-    {% else %}
-      <div class="alert alert-{{ message.tags }}">
-    {% endif %}
-    {{ message }}
-    </div>
-    {% endfor %}
-    {% endif %}
-
+    {% include 'lgc/messages.html' %}
     <div id="wrapper">
       <!-- Navigation -->
       <header class="align-items-start app-header flex-column flex-md-row navbar navbar-expand-md navbar-light">

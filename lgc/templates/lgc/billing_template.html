@@ -1,0 +1,38 @@
+{% load formset_tags %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+<div class="form-row">
+  <div class="form-group col-md-4">
+    {% if person %}
+    <a href="{% url 'lgc-file' person.id %}">{% trans 'File Id:' %} {{ person.id }}</a>
+    {% if person_process and person_process.process %}
+    ({% trans 'Process name:' %} {{ person_process.process.name }})
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+<div class="form-row">
+  <div class="form-group col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">{% trans 'Client information' %}</div>
+      <div class="panel-body">
+	<div class="form-row">
+	  <a href="#" onclick="window.open('{% url 'lgc-insert-client' %}', 'newwindow',config='height=400,width=950, toolbar=no, menubar=no,scrollbars=yes, resizable=no,location=no,directories=no, status=no');return false;">{% trans 'Insert Client' %}</a>
+	</div>
+	<div class="form-row">&nbsp;</div>
+	<div id="client_info">{{ client_info }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="form-row">
+  <div class="form-group col-md-8">
+    <p>
+      <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#collapsePO" aria-expanded="false" aria-controls="collapsePO">
+        {% trans 'Authorizations' %}
+      </button>
+    </p>
+    <hr>
+  </div>
+</div>

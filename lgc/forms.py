@@ -332,6 +332,38 @@ class ChangesDetectedForm(forms.Form):
     class Meta:
         fields = '__all__'
 
+class InvoiceCreateForm(forms.ModelForm):
+    invoice_date = forms.DateField(label=_('Invoice Date'))
+    modification_date = forms.DateField(required=False, label=_('Modification Date'))
+    po_date = forms.DateField(required=False, label=_('Date'))
+    version = forms.IntegerField(min_value=0, widget=forms.HiddenInput(),
+                                 initial=0)
+    client = forms.ModelChoiceField(queryset=lgc_models.Client.objects,
+                                    widget=forms.HiddenInput())
+    client_update = forms.BooleanField(required=False, widget=forms.HiddenInput(),
+                                       initial=False)
+    various_expenses = forms.BooleanField(label=_('Include Various Expenses'), initial=False,
+                                          help_text="(Phone, mail...) 5% of the services limited to 100.")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_widget_attrs(self, 'invoice_date')
+        datepicker_set_widget_attrs(self, 'modification_date')
+        datepicker_set_widget_attrs(self, 'po_date')
+        self.fields['with_regard_to'].widget.attrs['disabled'] = True
+
+    class Meta:
+        model = lgc_models.Invoice
+        exclude = ['modified_by', 'person', 'process', 'type', 'id', 'number',
+                   'state', 'already_paid', 'total']
+
+class InvoiceUpdateForm(InvoiceCreateForm):
+    number = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
+
+    class Meta:
+        model = lgc_models.Invoice
+        exclude = ['modified_by', 'person', 'process', 'type', 'id', 'total']
+
 class ClientCreateForm(forms.ModelForm):
     address = forms.CharField(required=False,
                               widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
@@ -339,3 +371,45 @@ class ClientCreateForm(forms.ModelForm):
     class Meta:
         model = lgc_models.Client
         exclude = ['id']
+
+class InvoiceCommonForm(forms.ModelForm):
+    quantity = forms.IntegerField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right'}), initial=0)
+    vat = forms.ChoiceField(required=False, choices=lgc_models.VAT_CHOICES,
+                            widget=forms.Select(attrs={'style':'height:30px; width:60px;',
+                                                       'class':'form-control lgc_pull-right'}))
+    rate = forms.IntegerField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right'}), initial=0)
+    description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1,
+                                                               'class':'form-control'}))
+    total = forms.IntegerField(required=False, min_value=0, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'readonly':'yes'}), initial=0)
+
+    class Meta:
+        abstract = True
+
+class InvoiceItemForm(InvoiceCommonForm):
+    item_id = forms.CharField(label='ID', required=False, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control', 'readonly':'yes'}))
+
+    class Meta:
+        model = lgc_models.InvoiceItem
+        exclude = ['invoice']
+
+class ItemForm(forms.ModelForm):
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3,
+                                                               'class':'form-control'}))
+    class Meta:
+        model = lgc_models.Item
+        exclude = ['invoice']
+
+class InvoiceDisbursementForm(InvoiceCommonForm):
+    disbursement_id = forms.CharField(label='ID', required=False, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control', 'readonly':'yes'}))
+    margin = forms.BooleanField(label=_('20% margin'), required=False, initial=False,
+                                widget=forms.CheckboxInput(attrs={'style':'height:30px;',
+                                                                  'class':'form-control lgc_aligned_checkbox'}))
+
+    class Meta:
+        model = lgc_models.InvoiceDisbursement
+        exclude = ['invoice']
+
+class DisbursementForm(ItemForm):
+    class Meta:
+        model = lgc_models.Disbursement
+        exclude = ['invoice']

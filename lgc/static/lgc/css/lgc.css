@@ -149,6 +149,10 @@ p {
     margin: 10px 0 0;
 }
 
+.lgc_aligned_checkbox2 {
+    margin: 6px 0 0;
+}
+
 .lgc_small_formset {
     width: 9%;
     font-size: 11px;
@@ -158,9 +162,17 @@ p {
     width: 9%;
     font-size: 12px;
 }
+.lgc_small_formset_label2 {
+    width: 9%;
+    font-size: 12px;
+    white-space: nowrap;
+}
 
 .lgc_col-md-1 {
     -ms-flex:0 0 10%;
     flex:0 0 10%;
     max-width:10%
+}
+.lgc_pull-right {
+    text-align:right;
 }

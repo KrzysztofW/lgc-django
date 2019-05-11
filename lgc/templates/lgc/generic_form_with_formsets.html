@@ -5,10 +5,10 @@
 {% load i18n %}
 {% block content %}
 
-<form method="post" enctype="multipart/form-data">
-  {% if file_url %}
-  <a href="{{ file_url }}">{% trans "View user's file." %}</a><hr>
-    {% endif %}
+<form method="post" enctype="multipart/form-data" id="person_form_id">
+{% if file_url %}
+<a href="{{ file_url }}">{% trans "View user's file." %}</a><hr>
+{% endif %}
 
 {% if changes_detected_form %}
 {% blocktrans with firstname=object.modified_by.first_name lastname=object.modified_by.last_name %}
@@ -83,14 +83,42 @@ See the changes below:
 {% block javascript %}
 <script src="{% static 'lgc/jquery.formset.min.js' %}"></script>
 <script type="text/javascript">
-  {% for formset in formsets %}
-  jQuery(function($) {
+{% for formset in formsets %}
+jQuery(function($) {
     $("#{{ formset.id }}").formset({
         animateForms: true,
         reorderMode: 'dom',
     });
-  });
-  {% endfor %}
+});
+{% endfor %}
+
+function client_id_check(client_id) {
+    if (!client_id || typeof client_id == 'undefined')
+	return -1;
+    if (client_id.value == '') {
+	$.notify("{% trans 'Client not set' %}",
+		 {
+		     className: 'error',
+		     position: 'top center',
+		 });
+	return -1;
+    }
+    return 0;
+}
+
+function form_checks() {
+    return client_id_check(document.getElementById('id_client')) >= 0;
+}
+
+function insert_item(url, element, index) {
+    var currency = document.getElementById('id_currency');
+    url = url + '?index=' + index + '&currency=' + currency.value;
+    window.open(url, 'newwindow', config='height=400,width=950, toolbar=no, menubar=no,scrollbars=yes, resizable=no,location=no,directories=no, status=no');
+    return false;
+}
+</script>
+<script>
+    autosize(document.querySelectorAll('textarea'));
 </script>
 
 {% endblock javascript %}

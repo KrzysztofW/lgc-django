@@ -85,7 +85,7 @@ def get_pending_moderations(request):
 def normalize_value(obj, key, val):
     if val == None or val == False:
         return ''
-    if val == True:
+    if type(val).__name__ == 'bool' and val == True:
         return '<i class="fa fa-fw fa-check lgc-sorting-muted">'
     if type(val).__name__ == 'datetime':
         return date(val) + ' ' + time(val, 'H:i:s')

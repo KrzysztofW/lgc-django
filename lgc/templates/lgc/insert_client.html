@@ -1,0 +1,80 @@
+{% load i18n %}{% load static %}{% get_current_language as LANGUAGE_CODE %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  {% include "lgc/header.html" %}
+  <body>
+    <div class="panel panel-default">
+      <div class="panel-heading">{% trans 'Insert Client' %}</div>
+      <div class="panel-body">
+	<table id="client_id" class="display table table-striped table-bordered table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>{% trans 'First Name' %}</th>
+              <th>{% trans 'Last Name' %}</th>
+              <th>{% trans 'Company' %}</th>
+              <th>E-mail</th>
+            </tr>
+          </thead>
+          <tbody>
+	    {% for obj in object_list %}
+            <tr onclick="insert('{{ obj.id }}', '{{ obj.first_name }}', '{{ obj.last_name }}', '{{ obj.company }}', '{% if obj.siret %}{{ obj.siret }}{% endif %}', '{{ obj.address }}', '{{ obj.post_code }}', '{{ obj.city }}', '{{ obj.country.name }}');">
+	      <td>{{ obj.id }}</td>
+	      <td>{{ obj.first_name }}</td>
+	      <td>{{ obj.last_name }}</td>
+	      <td>{{ obj.company }}</td>
+	      <td>{{ obj.email }}</td>
+            </tr>
+	    {% endfor %}
+          </tbody>
+	</table>
+      </div>
+    </div>
+  </body>
+  {% include 'lgc/footer.html' %}
+  <script>
+    // https://datatables.net/manual/i18n#Available-translations
+    $(document).ready(function() {
+	$('#client_id').DataTable({
+	    language: {
+		processing:     "{% trans 'Processing' %}",
+		search:         "{% trans 'Search' %}",
+		lengthMenu:     "{% trans 'Show _MENU_ entries' %}",
+		info:           "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+		infoEmpty:      "{% trans 'Showing 0 to 0 of 0 entries' %}",
+		zeroRecords:    "{% trans 'No matching records found' %}",
+		paginate: {
+		    first:      "{% trans 'First' %}",
+		    previous:   "{% trans 'Previous' %}",
+		    next:       "{% trans 'Next' %}",
+		    last:       "{% trans 'Last' %}"
+		},
+	    }});
+    });
+    function insert(id, first_name, last_name, company, siret, address, post_code,
+		    city ,country) {
+	var client_id = parent.window.opener.document.getElementById('id_client');
+	var client_info = parent.window.opener.document.getElementById('client_info');
+	var client_update = parent.window.opener.document.getElementById('id_client_update');
+	var str = '';
+
+	client_id.value = id;
+	if (first_name + last_name != '')
+	    str += first_name + ' ' + last_name + '<br>';
+	if (company != '')
+	    str += company + '<br>';
+	if (address != '')
+	    str += address + '<br>';
+	if (post_code != '')
+	    str += post_code + '<br>';
+	if (city != '')
+	    str += city + '<br>';
+	if (country != '')
+	    str += country + '<br>';
+	if (siret != '')
+	    str += 'SIRET: ' + siret + '<br>';
+	client_info.innerHTML = str;
+	client_update.value = "True";
+	window.close();
+    }
+  </script>
+</html>

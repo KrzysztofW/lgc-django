@@ -700,3 +700,135 @@ class Client(AbstractClient):
     class Meta:
         unique_together = ('first_name', 'last_name', 'company')
 
+INVOICE = 'I'
+QUOTATION = 'Q'
+INVOICE_CHOICES = (
+    (INVOICE, _('Invoice')),
+    (QUOTATION, _('Quotation')),
+)
+CURRENCY_CHOICES = (
+    ('EUR', _('Euro')),
+    ('USD', _('Dollar')),
+    ('GBP', _('Pound')),
+    ('CAD', _('Canadian Dollar')),
+)
+INVOICE_STATE_CANCELED = 'C'
+INVOICE_STATE_TOBEDONE = 'T'
+INVOICE_STATE_DONE = 'D'
+INVOICE_STATE_PENDING = 'P'
+
+INVOICE_STATE_CHOICES = (
+    (INVOICE_STATE_PENDING, _('Pending')),
+    (INVOICE_STATE_TOBEDONE, _('To be done')),
+    (INVOICE_STATE_DONE, _('Done')),
+    (INVOICE_STATE_CANCELED, _('Canceled')),
+)
+INVOICE_PAYMENT_CHOICES = (
+    ('CB', _('Credit card')),
+    ('CH', _('Check')),
+    ('TR', _('Bank transfer')),
+    ('CA', _('Cash')),
+)
+INVOICE_COMPANY_CHOICES = (
+    ('L', _('Home')),
+    ('F', _('Host')),
+)
+VAT_CHOICES = (
+    (0, 0),
+    (20, 20),
+)
+
+class BillingGlobalSettings(models.Model):
+    next_invoice_number = models.PositiveIntegerField(_('Next Invoice Number'))
+    next_quotation_number = models.PositiveIntegerField(_('Next Quotation Number'))
+
+class Invoice(AbstractClient):
+    id = models.AutoField(primary_key=True)
+    version = models.PositiveIntegerField(default=0)
+    client = models.ForeignKey(Client, null=True, on_delete=models.SET_NULL)
+    number = models.PositiveIntegerField()
+    type = models.CharField(max_length=1, default='I', choices=INVOICE_CHOICES)
+    person = models.ForeignKey(Person, null=True, on_delete=models.SET_NULL)
+    process = models.ForeignKey(Process, null=True, on_delete=models.SET_NULL)
+    invoice_date = models.DateField(_('Invoice Date'))
+    modification_date = models.DateField(_('Modification Date'), null=True)
+    modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
+                                    on_delete=models.SET_NULL, null=True)
+    payment_option = models.CharField(max_length=2, default='TR',
+                                      choices=INVOICE_PAYMENT_CHOICES)
+    currency = models.CharField(_('Currency'), max_length=3, default='EUR',
+                                choices=CURRENCY_CHOICES)
+    email = models.EmailField('Email', max_length=50, null=True, blank=True)
+    siret = models.CharField('SIRET', max_length=14, blank=True, null=True,
+                             validators=[siret_validator])
+    vat = models.CharField(_('VAT Number'), max_length=50, null=True,
+                           blank=True)
+
+    """Autorisations"""
+    po = models.CharField('PO', max_length=50, validators=[alpha], blank=True)
+    po_date = models.DateField(_('Date'), auto_now_add=True, null=True, blank=True)
+    po_first_name = models.CharField(_('First name'), max_length=50,
+                                     validators=[alpha], blank=True)
+    po_last_name = models.CharField(_('Last name'), max_length=50,
+                                    validators=[alpha], blank=True)
+    po_email = models.EmailField('Email', max_length=50, null=True, blank=True)
+    po_rate = models.PositiveIntegerField(_('Rate'), null=True, blank=True)
+
+    company_option = models.CharField(_('Company'), max_length=1, default='L',
+                                      choices=INVOICE_COMPANY_CHOICES)
+    language = models.CharField(max_length=2, choices=user_models.LANGUAGE_CHOICES,
+                                default=user_models.EN)
+
+    description = models.TextField(_('Description'), max_length=50, blank=True)
+    various_expenses = models.BooleanField(_('Include Various Expenses'), default=False)
+    state = models.CharField(_('State'), max_length=1, default=INVOICE_STATE_PENDING,
+                             choices=INVOICE_STATE_CHOICES)
+    already_paid = models.PositiveIntegerField(_('Already Paid'), default=0)
+    with_regard_to = models.CharField(_('With regard to'), max_length=50,
+                                      validators=[alpha], blank=True)
+    total = models.PositiveIntegerField(_('Total'), default=0)
+
+    class Meta:
+        unique_together = ('number', 'type')
+
+class DisbursementCommon(models.Model):
+    id = models.AutoField(primary_key=True)
+    disbursement_id = models.CharField(_('ID'), default='', max_length=9)
+    description = models.TextField(_('Description'), max_length=50)
+    rate = models.PositiveIntegerField(_('Rate'), default=0)
+
+    class Meta:
+        abstract = True
+
+class Disbursement(DisbursementCommon):
+    disbursement_id = None
+    title = models.CharField(_('Title'), max_length=50, unique=True)
+    currency = models.CharField(_('Currency'), max_length=3, default='EUR',
+                                choices=CURRENCY_CHOICES)
+
+class InvoiceDisbursement(DisbursementCommon):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(_('Quantity'), default=0)
+    vat = models.PositiveIntegerField(_('VAT'), default=0, choices=VAT_CHOICES)
+    margin = models.BooleanField(_('20% margin'), default=False)
+
+class ItemCommon(models.Model):
+    id = models.AutoField(primary_key=True)
+    item_id = models.CharField(_('ID'), default='', max_length=9)
+    description = models.TextField(_('Description'), max_length=50)
+    class Meta:
+        abstract = True
+
+class Item(ItemCommon):
+    item_id = None
+    title = models.CharField(_('Title'), max_length=50, unique=True)
+    rate_eur = models.PositiveIntegerField(_('EUR'), default=0)
+    rate_usd = models.PositiveIntegerField(_('USD'), default=0)
+    rate_cad = models.PositiveIntegerField(_('CAD'), default=0)
+    rate_gbp = models.PositiveIntegerField(_('GBP'), default=0)
+
+class InvoiceItem(ItemCommon):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    rate = models.PositiveIntegerField(_('Rate'), default=0)
+    quantity = models.PositiveIntegerField(_('Quantity'), default=0)
+    vat = models.PositiveIntegerField(_('VAT'), default=0, choices=VAT_CHOICES)

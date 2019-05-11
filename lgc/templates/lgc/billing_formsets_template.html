@@ -1,0 +1,132 @@
+{% load formset_tags %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% for formset in formsets %}
+<div class="card" style="overflow:visible;">
+  <div class="card-header" id="heading_{{ formset.id }}">
+    <h5 class="mb-0">{{ formset.title }}</h5>
+  </div>
+
+  <div>
+    <div class="card-body">
+      {% if formset.db_objs %}
+      {% include 'lgc/display_current_objects.html' %}
+      {% endif %}
+      <div id="{{ formset.id }}" data-formset-prefix="{{ formset.prefix }}">
+	{{ formset.management_form }}
+
+	<div data-formset-body>
+	  {% for form in formset %}
+	  {% if forloop.first %}
+	  <div class="form-row">
+	    {% for f in form.visible_fields %}
+	    <div
+	      class="form-group justify-content-center d-flex lgc_small_formset_label2
+		     {% if f.name == 'DELETE' or f.name == 'enabled' %}
+		     col-xs-1
+		     {% elif f.name == 'description' %}
+		     col-md-3
+		     {% else %}
+		     col-md-1
+		     {% endif %}
+		     ">
+
+	      {% if f.name != 'DELETE' %}
+	      {{ f.label|capfirst }}
+	      {% endif %}
+	      {% if f.field.required %}<span class="asteriskField">*</span>{% endif %}
+	    </div>
+	    {% endfor %}
+	  </div>
+	  {% endif %}
+
+	  <div data-formset-form class="form-row mt-2">
+	    {% for f in form.hidden_fields %}
+	    {{ f }}
+	    {% endfor %}
+	    {% for f in form.visible_fields %}
+	    <div
+	      {% if f.name == 'DELETE' %}
+	      class="d-none">
+	      {% elif 'enabled' in f.name %}
+	      class="col-xs-1 lgc_aligned_checkbox lgc_small_formset justify-content-center d-flex">
+	      {% elif f.name == 'description' %}
+	      class="col-md-3 lgc_small_formset justify-content-center d-flex">
+	      {% else %}
+	      class="col-md-1 justify-content-center d-flex">
+	      {% endif %}
+	      {{ f }}
+	      {% if f.errors %}
+	      <span class="invalid-feedback" style="display:inline;">
+		<strong>{{ f.errors.0 }}</strong>
+	      </span>
+	      {% endif %}
+	    </div>
+	    {% endfor %}
+	    <div class="form-group col-xs-1 justify-content-center d-flex lgc_aligned_checkbox2">
+	      <a href="#" onclick="return insert_item('{% if formset.id == 'items_id' %}{% url 'lgc-insert-item' %}{% else %}{% url 'lgc-insert-disbursement' %}{% endif %}', this, {{ forloop.counter0 }}, '{{ f.id_for_label }}');"><i class="fas fa-plus-circle"></i></a>
+	    </div>
+	    <div class="form-group col-xs-1 justify-content-center d-flex lgc_aligned_checkbox2">
+	      <i class="far fa-trash-alt" data-formset-delete-button></i>
+	    </div>
+	  </div>
+	  {% endfor %}
+	</div>
+
+	<script type="form-template" data-formset-empty-form>
+	  {% escapescript %}
+	  <div data-formset-form class="form-row mt-2">
+	    {% for f in formset.empty_form.hidden_fields %}
+	    {{ f }}
+	    {% endfor %}
+	    {% for f in formset.empty_form.visible_fields %}
+	    <div
+	      {% if f.name == 'DELETE' %}
+	      class="d-none">
+	      {% elif f.name == 'description' %}
+	      class="col-md-3 lgc_small_formset justify-content-center d-flex">
+	      {% else %}
+	      class="col-md-1 justify-content-center d-flex">
+	      {% endif %}
+	      {{ f }}
+	      {% if f.errors %}
+	      <span class="invalid-feedback" style="display:inline;">
+		<strong>{{ f.errors.0 }}</strong>
+	      </span>
+	      {% endif %}
+	    </div>
+	    {% endfor %}
+	    <div class="form-group col-xs-1 justify-content-center d-flex lgc_aligned_checkbox2">
+	      <a href="#" onclick="return insert_item('{% if formset.id == 'items_id' %}{% url 'lgc-insert-item' %}{% else %}{% url 'lgc-insert-disbursement' %}{% endif %}', this, '__prefix__');"><i class="fas fa-plus-circle"></i></a></div>
+	    <div class="form-group col-xs-1 justify-content-center d-flex lgc_aligned_checkbox2">
+	      <i class="far fa-trash-alt" data-formset-delete-button></i>
+	    </div>
+	  </div>
+	</script>
+	{% endescapescript %}
+	<script>
+	  autosize(document.querySelectorAll('textarea'));
+	  jQuery(function ($) {
+	  lgc_datepicker();
+	  });
+	</script>
+
+	<div class="form-row mt-2">
+	  <input type="button" class="btn btn-info rounded" value="{% trans 'Add' %}" data-formset-add>
+	</div>
+	<div class="form-row mt-2">
+	  {% if formset.id == 'disbursements_id' %}
+	  <span class="form-row lgc_small_formset_label2 lgc_aligned_checkbox" style="display: flex; justify-content: flex-end;margin-right:0;margin-left:auto;">
+	    <div class="form-check"> <label for="id_various_expenses" class="form-check-label">{{ form.various_expenses }} {{ form.various_expenses.label }}</label>
+	      <small class="form-text text-muted">{{ form.various_expenses.help_text }}</small>
+	    </div>
+	    <label> </label>
+	  </span>
+	  {% endif %}
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}

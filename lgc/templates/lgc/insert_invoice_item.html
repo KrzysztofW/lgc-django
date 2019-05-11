@@ -1,0 +1,113 @@
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  {% include "lgc/header.html" %}
+  <body>
+    {% include 'lgc/messages.html' %}
+    {% crispy form %}
+    <div class="panel panel-default">
+      <div class="panel-heading">{% trans 'Items' %}</div>
+      <div class="panel-body">
+	<small><i>{% trans 'Click on the item ID to insert it to the invoice.' %}<br><br></i></small>
+	<table id="item_id" class="display table table-striped table-bordered table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>{% trans 'Title' %}</th>
+              <th>{% trans 'Rate' %}</th>
+              <th>{% trans 'Currency' %}</th>
+              <th>{% trans 'Delete' %}</th>
+	      <th>{% trans 'Modify' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+	    {% for obj in object_list %}
+            <tr>
+	      <td><a href="#" onclick="return insert('{{ type }}', '{{ obj.id }}', '{{ obj.description|urlencode }}', '{{ obj.rate }}', '{{ obj.quantity }}');">{{ obj.id }}</a></td>
+              <td>{{ obj.title }}</td>
+              <td align="right">{{ obj.rate }}</td>
+              <td>{% if obj.currency %}{{ obj.currency }}{% else %}{{ request.GET.currency }}{% endif %}</td>
+	      <td><a href="{% url delete_url obj.id %}?index={{ request.GET.index }}&currency={{ request.GET.currency }}" onclick="return confirm('{% trans 'Are you sure you want to delete this item?' %}');"><i class="far fa-trash-alt"</i></a></td>
+	      <td><a href="{% url update_url obj.id %}?index={{ request.GET.index }}&currency={{ request.GET.currency }}"><i class="fas fa-pencil-alt"</i></a></td>
+            </tr>
+	    {% endfor %}
+          </tbody>
+	</table>
+      </div>
+    </div>
+  </body>
+  {% include 'lgc/footer.html' %}
+  <script>
+    // https://datatables.net/manual/i18n#Available-translations
+    $(document).ready(function() {
+	$('#client_id').DataTable({
+	    language: {
+		processing:     "{% trans 'Processing' %}",
+		search:         "{% trans 'Search' %}",
+		lengthMenu:     "{% trans 'Show _MENU_ entries' %}",
+		info:           "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+		infoEmpty:      "{% trans 'Showing 0 to 0 of 0 entries' %}",
+		zeroRecords:    "{% trans 'No matching records found' %}",
+		paginate: {
+		    first:      "{% trans 'First' %}",
+		    previous:   "{% trans 'Previous' %}",
+		    next:       "{% trans 'Next' %}",
+		    last:       "{% trans 'Last' %}"
+		},
+	    }});
+    });
+    function insert_common(id_el, description_el, rate_el, id, description, rate) {
+	id_el.value = id;
+	description_el.value = decodeURIComponent(description);
+	rate_el.value = rate;
+	parent.window.opener.autosize.update(parent.window.opener.document.querySelectorAll('textarea'));
+	window.close();
+    }
+
+    function insert_item(id, description, rate) {
+	var str = 'id_items-{{ request.GET.index }}-';
+	var id_el = parent.window.opener.document.getElementById(str + 'item_id');
+	var description_el = parent.window.opener.document.getElementById(str + 'description');
+	var rate_el = parent.window.opener.document.getElementById(str + 'rate');
+	return insert_common(id_el, description_el, rate_el, id, description, rate);
+    }
+    function insert_disbursement(id, description, rate) {
+	var str = 'id_disbursements-{{ request.GET.index }}-';
+	var id_el = parent.window.opener.document.getElementById(str + 'disbursement_id');
+	var description_el = parent.window.opener.document.getElementById(str + 'description');
+	var rate_el = parent.window.opener.document.getElementById(str + 'rate');
+	return insert_common(id_el, description_el, rate_el, id, description, rate);
+    }
+    function insert(type, id, description, rate) {
+	if (type == 'item')
+	    return insert_item(id, description, rate);
+	else
+	    return insert_disbursement(id, description, rate);
+    }
+    autosize(document.querySelectorAll('textarea'));
+
+    // https://datatables.net/manual/i18n#Available-translations
+    $(document).ready(function() {
+	$('#item_id').DataTable({
+	    language: {
+		processing:     "{% trans 'Processing' %}",
+		search:         "{% trans 'Search' %}",
+		lengthMenu:     "{% trans 'Show _MENU_ entries' %}",
+		info:           "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+		infoEmpty:      "{% trans 'Showing 0 to 0 of 0 entries' %}",
+		zeroRecords:    "{% trans 'No matching records found' %}",
+		paginate: {
+		    first:      "{% trans 'First' %}",
+		    previous:   "{% trans 'Previous' %}",
+		    next:       "{% trans 'Next' %}",
+		    last:       "{% trans 'Last' %}"
+		},
+	    }});
+    });
+
+  </script>
+</html>
