@@ -574,9 +574,6 @@ class Person(PersonInfo):
                              choices=FILE_STATE_CHOICES)
     comments = models.TextField(_('Comments'), max_length=100, default='',
                                 blank=True)
-    # transform empty to None (not sure to need that)
-    #def clean_bar(self):
-    #    return self.cleaned_data['birth_date'] or None
 
     class Meta:
         unique_together = ('first_name', 'last_name', 'birth_date')
@@ -646,7 +643,8 @@ class Process(models.Model):
         return self.name
 
 class PersonProcess(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE,
+                               related_name='personprocess_set')
     process = models.ForeignKey(Process, null=True, on_delete=models.SET_NULL)
     active = models.BooleanField(_('Active'), default=True)
     consulate = models.CharField(_('Consulate'), max_length=3, default='',

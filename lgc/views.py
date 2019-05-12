@@ -335,6 +335,8 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
     info_tab.append(Div(Div('comments', css_class='form-group col-md-8'),
             css_class='form-row'))
 
+    tab_holder = TabHolder(info_tab)
+
     if obj:
         external_profile = LgcTab(_('Account Profile'))
         if obj.user:
@@ -349,34 +351,39 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
                     '">' + _('create profile') + '</a><br><br>')
         external_profile.append(Div(HTML(html), css_class='form-row'))
 
-    process_tab = LgcTab(_('Process'))
-    if archived_processes:
-        process_tab.append(HTML('<a href="' +
-                                str(reverse_lazy('lgc-person-processes',
-                                                 kwargs={'pk': obj.id})) +
-                                '">Archived processes (' +
-                                str(len(archived_processes)) +
-                                ')</a><br><br>'))
-    if process_stages:
-        pcontent = HTML(get_template(CURRENT_DIR,
-                                     'lgc/process_stages_template.html'))
-    else:
-        pcontent = Div(Div('process_name', css_class='form-group col-md-4'),
-                       css_class='form-row')
-    process_tab.append(pcontent)
-    billing_tab = LgcTab(_('Billing'))
+    if obj:
+        process_tab = LgcTab(_('Process'))
+        if archived_processes:
+            process_tab.append(HTML('<a href="' +
+                                    str(reverse_lazy('lgc-person-processes',
+                                                     kwargs={'pk': obj.id})) +
+                                    '">Archived processes (' +
+                                    str(len(archived_processes)) +
+                                    ')</a><br><br>'))
+        if process_stages:
+            pcontent = HTML(get_template(CURRENT_DIR,
+                                         'lgc/process_stages_template.html'))
+        else:
+            pcontent = Div(Div('process_name', css_class='form-group col-md-4'),
+                           css_class='form-row')
+        process_tab.append(pcontent)
+        tab_holder.append(process_tab)
+
+        billing_tab = LgcTab(_('Billing'))
+        billing_tab.append(HTML('<a href="' +
+                                str(reverse_lazy('lgc-invoice-create')) +
+                                '?pid=' + str(obj.id) +
+                                '">Create a new invoice for the current process</a><br><br>'))
+
+        tab_holder.append(billing_tab)
 
     documents_tab = LgcTab(_('Documents'))
     documents_tab.append(HTML(get_template(CURRENT_DIR,
                                            'lgc/document_form.html')))
 
-    tab_holder = TabHolder(info_tab)
-
     if external_profile != None:
         tab_holder.append(external_profile)
 
-    tab_holder.append(process_tab)
-    tab_holder.append(billing_tab)
     tab_holder.append(documents_tab)
 
     layout = Layout(tab_holder)
@@ -945,8 +952,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                                     first_stage.name_fr,
                                                     first_stage.name_en)
             return 0
-
-        elif person_process == None:
+        if person_process == None:
             return 0
 
         # Process handling
@@ -976,6 +982,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
         if not stage_form.is_valid():
             return -1
+
         if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_DELETE:
             if person_process_stages.count() == 1:
                 person_process_stage.delete()
@@ -1226,6 +1233,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
             if (type(self.object).__name__ != 'Employee' and
                 self.object.user and
+                hasattr(self.object.user, 'employee_user_set') and
                 self.object.user.employee_user_set and
                 self.object.user.employee_user_set.updated):
                 msg = (_('There is a pending moderation on this file.') +
@@ -1576,7 +1584,7 @@ class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
         if self.model != lgc_models.Process:
             return super().form_valid(form)
 
-        """ always save the stages. This will keep their order. """
+        """Always save the stages. This will keep their order."""
         with transaction.atomic():
             form.instance.stages.clear()
             for s in form.data.getlist('stages'):
