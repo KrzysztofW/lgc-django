@@ -947,6 +947,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                _('Cannot find the first stage of the process.'))
                 return -1
 
+            if self.request.POST.get('no_billing') == 'on':
+                person_process.no_billing = True
+            else:
+                person_process.no_billing = False
             person_process.save()
             self.generate_next_person_process_stage(person_process,
                                                     first_stage.name_fr,
@@ -956,6 +960,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             return 0
 
         # Process handling
+        if self.request.POST.get('no_billing') == 'on':
+            person_process.no_billing = True
+        else:
+            person_process.no_billing = False
         process_stages = self.get_process_stages(person_process.process)
         if process_stages == None:
             messages.error(self.request, _('The process has no stages.'))
@@ -1002,6 +1010,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 self.generate_next_person_process_stage(person_process,
                                                         next_process_stage.name_fr,
                                                         next_process_stage.name_en)
+                if next_process_stage.noinvoice_alert:
+                    person_process.alert_on = next_process_stage.noinvoice_alert
         elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
             specific_stage = lgc_forms.PersonProcessSpecificStageForm(self.request.POST)
             if (not specific_stage.is_valid() or
@@ -1014,8 +1024,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                                     specific_stage.cleaned_data['name_en'],
                                                     is_specific=True)
         elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ARCHIVE:
-            person_process.active = False
-        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_GEN_INVOICE_AND_ARCHIVE:
             person_process.active = False
 
         person_process.save()
@@ -1706,6 +1714,7 @@ class PersonProcessUpdateView(ProcessUpdateView):
         person_common = PersonCommonView()
         context = super().get_context_data(**kwargs)
         context['consulate_prefecture'] = lgc_forms.ConsulatePrefectureForm(instance=self.object)
+        context['consulate_prefecture'].fields['no_billing'].widget.attrs['disabled'] = True
         context['person_process'] = self.object
         person_process_stages = person_common.get_person_process_stages(self.object)
         context['timeline_stages'] = person_common.get_timeline_stages(self.object, person_process_stages)

@@ -628,6 +628,7 @@ class Child(ChildCommon):
 class ProcessStage(models.Model):
     name_fr = models.CharField(_('French Name'), max_length=50, unique=True)
     name_en = models.CharField(_('English Name'), max_length=50, unique=True)
+    noinvoice_alert = models.BooleanField(_('Generates an alert'), default=False)
 
     def __str__(self):
         if translation.get_language() == 'fr':
@@ -655,6 +656,7 @@ class PersonProcess(models.Model):
                                   choices=PREFECTURE_CHOICES, blank=True)
     no_billing = models.BooleanField(_('No billing for this process'),
                                      default=False)
+    alert_on = models.BooleanField(default=False)
 
 class PersonProcessStage(models.Model):
     person_process = models.ForeignKey(PersonProcess,

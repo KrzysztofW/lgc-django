@@ -237,7 +237,6 @@ PROCESS_STAGE_NONE = '-'
 PROCESS_STAGE_DELETE = 'D'
 PROCESS_STAGE_ADD_SPECIFIC = 'S'
 PROCESS_STAGE_VALIDATE = 'V'
-PROCESS_STAGE_GEN_INVOICE_AND_ARCHIVE = 'IA'
 PROCESS_STAGE_ARCHIVE = 'A'
 
 PROCESS_STAGE_COMMON_CHOICES = (
@@ -250,9 +249,7 @@ PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
 )
 
 FINAL_PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
-    (PROCESS_STAGE_GEN_INVOICE_AND_ARCHIVE,
-     _('Generate invoice and archive')),
-    (PROCESS_STAGE_ARCHIVE, _('Archive (no invoice)')),
+    (PROCESS_STAGE_ARCHIVE, _('Archive')),
 )
 
 class UnboundPersonProcessStageForm(forms.Form):
@@ -261,6 +258,7 @@ class UnboundPersonProcessStageForm(forms.Form):
                                widget = forms.RadioSelect(attrs = {
                                    'onclick' : "specific_stage_action(this);",
                                }))
+
     class Meta:
         fields = '__all__'
 
@@ -280,7 +278,7 @@ class ConsulatePrefectureForm(forms.ModelForm):
 
     class Meta:
         model = lgc_models.PersonProcess
-        fields = ['consulate', 'prefecture']
+        fields = ['consulate', 'prefecture', 'no_billing']
 
 class DocumentForm(forms.ModelForm):
     document = forms.FileField(required=False, label=_('File*'))
