@@ -340,7 +340,8 @@ class InvoiceCreateForm(forms.ModelForm):
                                     widget=forms.HiddenInput())
     client_update = forms.BooleanField(required=False, widget=forms.HiddenInput(),
                                        initial=False)
-    various_expenses = forms.BooleanField(label=_('Include Various Expenses'), initial=False,
+    various_expenses = forms.BooleanField(label=_('Include Various Expenses'),
+                                          required=False, initial=False,
                                           help_text="(Phone, mail...) 5% of the services limited to 100.")
 
     def __init__(self, *args, **kwargs):

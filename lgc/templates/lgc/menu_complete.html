@@ -59,11 +59,12 @@
 	</ul>
       </li>
 
+      {% if request.user.billing %}
       <li class="list-group-item">
 	<a href="#"><i class="fa fa-calculator fa-fw"></i> {% trans 'Billing' %}<span class="fa arrow"></span></a>
         <ul class="nav-second-level list-group nested">
 	  <li class="list-group-item">
-            <a href="#{# url "lgc-bills" #}">{% trans "Bills" %}</a>
+            <a href="{% url "lgc-invoices" %}">{% trans "Invoices" %}</a>
           </li>
 	  <li class="list-group-item">
             <a href="{% url "lgc-clients" %} ">{% trans "Clients" %}</a>
@@ -71,7 +72,7 @@
         </ul>
         <!-- /.nav-second-level -->
       </li>
-
+      {% endif %}
       <li class="list-group-item">
 	<a href="{% url 'lgc-expirations' %}"><i class="fa fa-bell fa-fw"></i> {% trans "Expirations" %}</a>
       </li>
