@@ -1308,6 +1308,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 return super().form_invalid(form)
 
         with transaction.atomic():
+            self.object = form.save()
+
             for formset in formsets:
                 self.delete_formset(formset)
                 self.save_formset(formset)

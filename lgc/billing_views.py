@@ -379,6 +379,8 @@ class InvoiceCommonView(BillingTest):
                 return super().form_invalid(form)
 
         with transaction.atomic():
+            self.object = form.save()
+
             for formset in formsets:
                 for obj in formset.deleted_forms:
                     if (obj.instance.id != None and
@@ -392,7 +394,6 @@ class InvoiceCommonView(BillingTest):
                         continue
                     i.invoice = self.object
                     i.save()
-            form.save()
 
         return super().form_valid(form)
 
