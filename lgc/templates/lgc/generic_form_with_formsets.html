@@ -5,7 +5,7 @@
 {% load i18n %}
 {% block content %}
 
-<form method="post" enctype="multipart/form-data" id="person_form_id">
+<form method="post" enctype="multipart/form-data" id="form_id">
 {% if file_url %}
 <a href="{{ file_url }}">{% trans "View user's file." %}</a><hr>
 {% endif %}
@@ -91,6 +91,31 @@ jQuery(function($) {
     });
 });
 {% endfor %}
+
+
+function form_changed() {
+  if ($("#form_id").data("changed")) {
+    return confirm('{% trans 'The form has not been saved. Are you sure you want to navigate away from this page?' %}');
+  }
+  return true;
+}
+
+$(document).ready(function () {
+  $(document).on("change", "#form_id :input", function() {
+    $("#form_id").data("changed",true);
+  });
+
+  $('a[href]').each(function() {
+    var a = this;
+
+    if (a.href.match('.*#$'))
+      return;
+    if (a.id.match('^lgc-tab.*'))
+      return;
+
+    $(a).attr('onClick','return form_changed();');
+  });
+});
 
 function client_id_check(client_id) {
     if (!client_id || typeof client_id == 'undefined')
