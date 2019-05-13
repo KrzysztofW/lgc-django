@@ -174,7 +174,6 @@ class InvoiceListView(BillingTest, ListView):
     template_name = 'lgc/sub_generic_list.html'
     model = lgc_models.Invoice
     title = _('Invoices')
-    create_url = reverse_lazy('lgc-invoice-create')
     item_url = 'lgc-invoice'
     this_url = reverse_lazy('lgc-invoices')
     ajax_search_url = reverse_lazy('lgc-invoice-search-ajax')
@@ -202,7 +201,6 @@ class InvoiceListView(BillingTest, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['create_url'] = self.create_url
         context['item_url'] = self.item_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
