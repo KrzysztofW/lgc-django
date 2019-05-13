@@ -147,9 +147,8 @@ class ProcessForm(forms.Form):
 # children:
 class ChildCreateForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control lgc_small_formset'}))
-    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'form-control lgc_small_formset'}))
     birth_date = forms.DateField(label=_('Birth Date'))
-    passport_expiry = forms.DateField(label=_('Passport Expiry'))
+    passport_expiry = forms.DateField(required=False, label=_('Passport Expiry'))
     passport_nationality = CountryField().formfield(label=_('Passport nationality'), required=False, widget=forms.Select(attrs={'class':'form-control lgc_small_formset', 'style':'width:90px;'}))
     # DCEM/TIR expiration
     dcem_end_date = forms.DateField(required=False, label=_('DCEM/TIR Expiry'))
@@ -372,7 +371,7 @@ class ClientCreateForm(forms.ModelForm):
         exclude = ['id']
 
 class InvoiceCommonForm(forms.ModelForm):
-    quantity = forms.IntegerField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right'}), initial=0)
+    quantity = forms.IntegerField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right'}), initial=1)
     vat = forms.ChoiceField(required=False, choices=lgc_models.VAT_CHOICES,
                             widget=forms.Select(attrs={'style':'height:30px; width:60px;',
                                                        'class':'form-control lgc_pull-right'}))
@@ -401,8 +400,7 @@ class ItemForm(forms.ModelForm):
 class InvoiceDisbursementForm(InvoiceCommonForm):
     disbursement_id = forms.CharField(label='ID', required=False, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control', 'readonly':'yes'}))
     margin = forms.BooleanField(label=_('20% margin'), required=False, initial=False,
-                                widget=forms.CheckboxInput(attrs={'style':'height:30px;',
-                                                                  'class':'form-control lgc_aligned_checkbox'}))
+                                widget=forms.CheckboxInput(attrs={'class':'lgc_aligned_checkbox'}))
 
     class Meta:
         model = lgc_models.InvoiceDisbursement

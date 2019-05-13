@@ -608,10 +608,8 @@ class ArchiveBox(models.Model):
     number = models.PositiveIntegerField(_('Number'))
 
 class ChildCommon(models.Model):
-    first_name = models.CharField(verbose_name=_('First name'), max_length=50, null=False,
+    first_name = models.CharField(verbose_name=_('First name'), max_length=50,
                                   validators=[alpha])
-    last_name = models.CharField(_('Last name'), max_length=50, default='', blank=True,
-                                 validators=[alpha])
     birth_date = models.DateField(_('Birth date'), blank=True, null=True)
     passport_expiry = models.DateField(_('Passport expiry'), blank=True, null=True)
     passport_nationality = CountryField(_('Passport nationality'), blank=True, null=True)

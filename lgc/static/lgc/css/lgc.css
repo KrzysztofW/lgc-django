@@ -146,7 +146,7 @@ p {
 }
 
 .lgc_aligned_checkbox {
-    margin: 10px 0 0;
+    margin: 8px 0 0;
 }
 
 .lgc_aligned_checkbox2 {
@@ -169,9 +169,9 @@ p {
 }
 
 .lgc_col-md-1 {
-    -ms-flex:0 0 10%;
-    flex:0 0 10%;
-    max-width:10%
+    -ms-flex:0 0 12%;
+    flex:0 0 12%;
+    max-width:12%
 }
 .lgc_pull-right {
     text-align:right;

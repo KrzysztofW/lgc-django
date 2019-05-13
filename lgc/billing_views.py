@@ -439,7 +439,7 @@ class InvoiceCommonView(BillingTest):
         layout.append(Div(
             Div(HTML(get_template(CURRENT_DIR,
                                   'lgc/billing_formsets_template.html')),
-                css_class='form-group col-md-8'),
+                css_class='form-group col-md-9'),
             css_class='form-row'))
 
         if self.object:

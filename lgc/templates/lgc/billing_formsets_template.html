@@ -23,7 +23,7 @@
 	    {% for f in form.visible_fields %}
 	    <div
 	      class="form-group justify-content-center d-flex lgc_small_formset_label2
-		     {% if f.name == 'DELETE' or f.name == 'enabled' %}
+		     {% if f.name == 'DELETE' or f.name == 'margin' %}
 		     col-xs-1
 		     {% elif f.name == 'description' %}
 		     col-md-3
@@ -49,8 +49,8 @@
 	    <div
 	      {% if f.name == 'DELETE' %}
 	      class="d-none">
-	      {% elif 'enabled' in f.name %}
-	      class="col-xs-1 lgc_aligned_checkbox lgc_small_formset justify-content-center d-flex">
+	      {% elif 'margin' in f.name %}
+	      class="col-xs-1 lgc_small_formset justify-content-center text-center h-100">
 	      {% elif f.name == 'description' %}
 	      class="col-md-3 lgc_small_formset justify-content-center d-flex">
 	      {% else %}
@@ -64,10 +64,10 @@
 	      {% endif %}
 	    </div>
 	    {% endfor %}
-	    <div class="form-group col-xs-1 justify-content-center d-flex lgc_aligned_checkbox2">
+	    <div class="form-group col-xs-1 justify-content-center text-center h-100 lgc_aligned_checkbox2">
 	      <a href="#" onclick="return insert_item('{% if formset.id == 'items_id' %}{% url 'lgc-insert-item' %}{% else %}{% url 'lgc-insert-disbursement' %}{% endif %}', this, {{ forloop.counter0 }}, '{{ f.id_for_label }}');"><i class="fas fa-plus-circle"></i></a>
 	    </div>
-	    <div class="form-group col-xs-1 justify-content-center d-flex lgc_aligned_checkbox2">
+	    <div class="form-group col-xs-1 lgc_aligned_checkbox2">
 	      <i class="far fa-trash-alt" data-formset-delete-button></i>
 	    </div>
 	  </div>
@@ -84,6 +84,8 @@
 	    <div
 	      {% if f.name == 'DELETE' %}
 	      class="d-none">
+	      {% elif 'margin' in f.name %}
+	      class="col-xs-1 lgc_small_formset justify-content-center text-center h-100">
 	      {% elif f.name == 'description' %}
 	      class="col-md-3 lgc_small_formset justify-content-center d-flex">
 	      {% else %}
@@ -97,9 +99,9 @@
 	      {% endif %}
 	    </div>
 	    {% endfor %}
-	    <div class="form-group col-xs-1 justify-content-center d-flex lgc_aligned_checkbox2">
+	    <div class="form-group col-xs-1 justify-content-center d-flex text-center h-100 lgc_aligned_checkbox2">
 	      <a href="#" onclick="return insert_item('{% if formset.id == 'items_id' %}{% url 'lgc-insert-item' %}{% else %}{% url 'lgc-insert-disbursement' %}{% endif %}', this, '__prefix__');"><i class="fas fa-plus-circle"></i></a></div>
-	    <div class="form-group col-xs-1 justify-content-center d-flex lgc_aligned_checkbox2">
+	    <div class="form-group col-xs-1 lgc_aligned_checkbox2">
 	      <i class="far fa-trash-alt" data-formset-delete-button></i>
 	    </div>
 	  </div>

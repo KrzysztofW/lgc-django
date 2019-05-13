@@ -15,9 +15,9 @@
       {% for f in form.visible_fields %}
       <div
 	class="form-group justify-content-center d-flex lgc_small_formset_label
-      {% if f.name == 'DELETE' or f.name == 'enabled' %}
+      {% if f.name == 'DELETE' or 'enabled' in f.name %}
 	col-xs-1
-      {% elif f.name == 'description' %}
+      {% elif f.name == 'description' or f.name == 'type'%}
         col-md-3
       {% elif f.name == 'vat' or f.name == 'margin' %}
         col-md-1
@@ -45,7 +45,7 @@
 	class="d-none">
 	{% elif 'enabled' in f.name %}
 	class="col-xs-1 lgc_aligned_checkbox lgc_small_formset justify-content-center d-flex">
-	{% elif f.name == 'description' %}
+	{% elif f.name == 'description' or f.name == 'type'%}
 	class="col-md-3 lgc_small_formset justify-content-center d-flex">
 	{% elif f.name == 'vat' or f.name == 'margin' %}
 	class="col-md-1 justify-content-center d-flex">
@@ -81,7 +81,7 @@
 	class="d-none">
 	{% elif 'enabled' in f.name %}
 	class="col-xs-1 lgc_aligned_checkbox lgc_small_formset justify-content-center d-flex">
-	{% elif f.name == 'description' %}
+	{% elif f.name == 'description' or f.name == 'type' %}
 	class="col-md-3 lgc_small_formset justify-content-center d-flex">
 	{% elif f.name == 'vat' or f.name == 'margin' %}
 	class="col-md-1 justify-content-center d-flex">
