@@ -90,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'lgc_v5',
         'USER': 'lgc',
-        'PASSWORD':'blah',
+        'PASSWORD':'zqooe872Fjdhe',
         'HOST':'/var/run/mysqld/mysqld.sock',
     }
 }
