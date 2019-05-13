@@ -1047,8 +1047,12 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             if not hasattr(form, 'cleaned_data'):
                 if not form.is_valid():
                     return True
-            if form.instance.id and not form.cleaned_data['DELETE']:
-                new_objs.append(form.instance)
+            if form.cleaned_data.get('DELETE') == None:
+                continue
+            if form.instance.id and form.cleaned_data['DELETE']:
+                continue
+
+            new_objs.append(form.instance)
 
         if len(old_objs) != len(new_objs):
             return True
