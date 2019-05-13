@@ -1,5 +1,5 @@
 {% load i18n %}
-<br><br><label>{% trans 'Current entries:' %}</label>
+<label>{% trans 'Current entries:' %}</label>
 <table class="table-sm  table-bordered">
   {% for obj_lists in formset.db_objs %}
   {% if forloop.first %}
