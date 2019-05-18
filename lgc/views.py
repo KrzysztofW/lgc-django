@@ -1,6 +1,6 @@
 import pdb                # pdb.set_trace()
 from django.db import transaction
-from django.forms import formset_factory, modelformset_factory, inlineformset_factory
+from django.forms import formset_factory, modelformset_factory
 from common.utils import (pagination, lgc_send_email, must_be_staff,
                           set_bold_search_attrs, get_template)
 import common.utils as common_utils
@@ -1429,21 +1429,6 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 @login_required
-def ajax_process_search_view(request):
-    if request.user.role not in user_models.get_internal_roles():
-        return http.HttpResponseForbidden()
-
-    term = request.GET.get('term', '')
-    objs = lgc_models.Process.objects.filter(name__istartswith=term)
-    objs = objs[:10]
-
-    set_bold_search_attrs(objs, term, ['name'])
-    context = {
-        'objects': objs
-    }
-    return render(request, 'lgc/process_search.html', context)
-
-@login_required
 def ajax_person_process_search_view(request, *args, **kwargs):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
@@ -1461,16 +1446,17 @@ def ajax_person_process_search_view(request, *args, **kwargs):
     return render(request, 'lgc/process_search.html', context)
 
 @login_required
-def ajax_process_stage_search_view(request):
+def __ajax_process_stage_search_view(request, model):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
 
     term = request.GET.get('term', '')
-    objs = (lgc_models.ProcessStage.objects.filter(name_fr__istartswith=term)|
-            lgc_models.ProcessStage.objects.filter(name_en__istartswith=term))
+    objs = (model.objects.filter(name_fr__istartswith=term)|
+            model.objects.filter(name_en__istartswith=term))
     objs = objs[:10]
 
     for o in objs:
+        """Note that the French name has a higher priority."""
         if o.name_fr.lower().startswith(term):
             o.b_name = o.name_fr.lower()
         elif o.name_en.lower().startswith(term):
@@ -1480,21 +1466,25 @@ def ajax_process_stage_search_view(request):
     }
     return render(request, 'lgc/process_search.html', context)
 
+def ajax_process_stage_search_view(request):
+    return __ajax_process_stage_search_view(request, lgc_models.ProcessStage)
+def ajax_process_search_view(request):
+    return __ajax_process_stage_search_view(request, lgc_models.Process)
+
 class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         if self.request.user.role not in user_models.get_internal_roles():
             return False
         return True
 
-    def get_ordered_stages(self, process_id):
-        process_stages = lgc_models.Process.objects.filter(id=process_id).all()
-        if process_stages == None or len(process_stages) == 0:
+    def get_ordered_stages(self, process):
+        if process == None or len(process.stages.all()) == 0:
             return None
-        process_stages = process_stages[0].stages
+        process_stages = process.stages
         all_process_stages = lgc_models.ProcessStage.objects
         objects = []
 
-        for s in process_stages.through.objects.filter(process_id=process_id).order_by('id').all():
+        for s in process_stages.through.objects.filter(process_id=process.id).order_by('id').all():
             objects.append(all_process_stages.filter(id=s.processstage_id)[0])
         return objects
 
@@ -1531,11 +1521,22 @@ class ProcessListView(ProcessCommonView, ListView):
         order_by = self.get_ordering()
         if term == '':
             return self.model.objects.order_by(order_by)
-        objs = self.model.objects.filter(name__istartswith=term)
+        objs = (self.model.objects.filter(name_fr__istartswith=term)|
+                self.model.objects.filter(name_en__istartswith=term))
         return objs.order_by(order_by)
 
     def get_ordering(self):
-        return self.request.GET.get('order_by', 'id')
+        order_by = self.request.GET.get('order_by', 'id')
+        if order_by == 'name':
+            if translation.get_language() == 'fr':
+                return 'name_fr'
+            return 'name_en'
+        if order_by == '-name':
+            if translation.get_language() == 'fr':
+                return '-name_fr'
+            return '-name_en'
+
+        return order_by
 
     def get_paginate_by(self, queryset):
         return self.request.GET.get('paginate', '10')
@@ -1548,6 +1549,14 @@ class ProcessListView(ProcessCommonView, ListView):
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
         context['header_values'] = [('ID', 'id'), (_('Name'), 'name')]
+
+        lang = translation.get_language()
+        for obj in context['object_list']:
+            if lang == 'fr':
+                obj.name = obj.name_fr
+            else:
+                obj.name = obj.name_en
+
         return pagination(self.request, context, self.this_url)
 
 class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
@@ -1591,7 +1600,7 @@ class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
                                                  kwargs={'pk':self.object.id})
         if self.model == lgc_models.Process:
             context['available_stages'] = self.get_available_stages(self.object.stages)
-            context['stages'] = self.get_ordered_stages(self.object.id)
+            context['stages'] = self.get_ordered_stages(self.object)
         return context
 
     def form_valid(self, form):
@@ -1643,38 +1652,6 @@ class ProcessStageListView(ProcessListView):
     this_url = reverse_lazy('lgc-process-stages')
     ajax_search_url = reverse_lazy('lgc-process-stage-search-ajax')
     search_url = reverse_lazy('lgc-process-stages')
-
-    def get_queryset(self):
-        term = self.request.GET.get('term', '')
-        order_by = self.get_ordering()
-        if term == '':
-            return self.model.objects.order_by(order_by)
-        objs = (self.model.objects.filter(name_fr__istartswith=term)|
-                self.model.objects.filter(name_en__istartswith=term))
-        return objs.order_by(order_by)
-
-    def get_ordering(self):
-        order_by = self.request.GET.get('order_by', 'id')
-        if order_by == 'name':
-            if translation.get_language() == 'fr':
-                return 'name_fr'
-            return 'name_en'
-        if order_by == '-name':
-            if translation.get_language() == 'fr':
-                return '-name_fr'
-            return '-name_en'
-
-        return order_by
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        lang = translation.get_language()
-        for obj in context['object_list']:
-            if lang == 'fr':
-                obj.name = obj.name_fr
-            else:
-                obj.name = obj.name_en
-        return context
 
 class ProcessStageCreateView(ProcessCreateView):
     model = lgc_models.ProcessStage
