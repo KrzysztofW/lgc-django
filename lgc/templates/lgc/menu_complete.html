@@ -48,9 +48,11 @@
 	  <li class="list-group-item">
             <a href="#">{% trans "Human resources" %} <span class="fa arrow"></span></a>
 	    <ul class="nav-third-level list-group nested">
+	      {% if request.user.role == 'CO' or request.user.is_staff %}
 	      <li class="list-group-item">
 		<a href="{% url "lgc-hr-create" %} ">{% trans "Initiate an HR account" %}</a>
               </li>
+	      {% endif %}
 	      <li class="list-group-item">
 		<a href="{% url "lgc-hr-accounts" %} ">{% trans "HR account list" %}</a>
               </li>

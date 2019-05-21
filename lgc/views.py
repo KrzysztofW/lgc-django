@@ -261,6 +261,7 @@ def local_user_get_person_form_layout(form, action, obj, completed_processes):
 
     info_tab = LgcTab(
         _('Information'),
+        Div(Div('is_private'), css_class='form-row'),
         Div(Div('active_tab'),
             Div('first_name', css_class='form-group col-md-4'),
             Div('last_name', css_class='form-group col-md-4'),
@@ -2085,14 +2086,16 @@ class HRView(LoginRequiredMixin):
         abstract = True
 
     def test_func(self):
-        if self.request.user.role not in user_models.get_hr_roles() + user_models.get_internal_roles():
-            return False
-        return True
+        return self.request.user.role in user_models.get_internal_roles()
 
 class HRCreateView(HRView, InitiateAccount):
     success_message = _('New HR account successfully initiated')
     title = _('New HR account')
     form_name = _('Initiate account')
+
+    def test_func(self):
+        return (self.request.user.role == user_models.CONSULTANT or
+                self.request.user.is_staff)
 
 class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
     success_message = _('HR account successfully updated')
