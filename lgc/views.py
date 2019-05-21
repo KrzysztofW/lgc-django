@@ -1813,7 +1813,7 @@ def get_account_layout(layout, new_token, is_hr=False, is_active=False):
 
     return layout
 
-def get_account_form(form, action, uid, new_token=False):
+def get_account_form(form, action, uid, is_staff=False, new_token=False):
     form.helper = FormHelper()
     form.helper.layout = get_account_layout(Layout(), new_token, is_hr=False,
                                             is_active=uid)
@@ -1821,7 +1821,7 @@ def get_account_form(form, action, uid, new_token=False):
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
              action + '</button>'))
-    if uid:
+    if uid and is_staff:
         form.helper.layout.append(
             HTML(' <a href="{% url "lgc-account-delete" ' + str(uid) +
                  '%}" class="btn btn-outline-danger">' + delete_str + '</a>')
@@ -2023,6 +2023,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             return get_hr_account_form(form, self.form_name, self.object.id,
                                        new_token=True)
         return get_account_form(form, self.form_name, self.object.id,
+                                is_staff=self.request.user.is_staff,
                                 new_token=True)
 
     def form_valid(self, form, relations = None):
@@ -2092,6 +2093,27 @@ class DeleteAccount(AccountView, PersonDeleteView):
     title = _('Delete Account')
     success_url = reverse_lazy('lgc-accounts')
     template_name = 'lgc/person_confirm_delete.html'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if not hasattr(self.object, 'person_user_set'):
+            return super().delete()
+        if not hasattr(self.object.person_user_set, 'document_set'):
+            return super().delete()
+
+        for doc in self.object.person_user_set.document_set.all():
+            try:
+                lgc_models.delete_doc(self.object.person_user_set, doc)
+            except Exception as e:
+                print(e)
+                messages.error(self.request, _('Cannot remove user files.'))
+                return redirect('lgc-account', self.object.id)
+
+        return super().delete()
 
 class HRView(LoginRequiredMixin):
     req_type = lgc_types.ReqType.HR
