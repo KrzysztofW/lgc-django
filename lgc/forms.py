@@ -35,6 +35,12 @@ class LgcTab(Tab):
         self.lgc_active = kwargs.get("lgc_active", False)
         super().__init__(*args, **kwargs)
 
+SEARCH_PROCESS_STATE = (
+    ('', '------'),
+    ('A', _('Active')),
+    ('I', _('Inactive')),
+)
+
 class PersonSearchForm(forms.Form):
     id = forms.CharField(required=False)
     info_process = forms.ChoiceField(required=False,
@@ -67,6 +73,10 @@ class PersonSearchForm(forms.Form):
                                      choices=lgc_models.JURISDICTION_SPECIFIQUE_CHOICES,
                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
     start_date = forms.CharField(required=False, label=_('Start Date'))
+    process_state = forms.ChoiceField(required=False, label=_('Process State'),
+                                     choices=SEARCH_PROCESS_STATE,
+                                     widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         datepicker_set_widget_attrs(self, 'start_date')

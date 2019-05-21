@@ -176,6 +176,12 @@ class PersonListView(PersonCommonListView):
         direccte = self.request.GET.get('direccte', '')
         jurisdiction = self.request.GET.get('jurisdiction', '')
         start_date = self.request.GET.get('start_date', '')
+        process_state = self.request.GET.get('process_state', '')
+
+        if process_state == 'A':
+            objs = objs.filter(personprocess_set__active=True)
+        elif process_state == 'I':
+            objs = objs.filter(personprocess_set__active=False)
 
         if id:
             objs = objs.filter(id=id)
@@ -245,6 +251,7 @@ class PersonListView(PersonCommonListView):
                 Div('direccte', css_class='form-group col-md-3'),
                 Div('jurisdiction', css_class='form-group col-md-3'),
                 Div('start_date', css_class='form-group col-md-3'),
+                Div('process_state', css_class='form-group col-md-3'),
                 css_class='form-row'),
         )
         return form
