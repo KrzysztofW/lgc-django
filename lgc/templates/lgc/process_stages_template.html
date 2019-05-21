@@ -3,62 +3,32 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 
-<div class="lgc_center">
-  {% if person_process %}
-  <h3>{{ person_process.process.name }}</h3>
-  {% endif %}
-</div>
-<div class="row">&nbsp</div>
-{% if person_process %}
+{% if show_detailed_process %}
 <div class="row">
   <div class="form-group col-md-2">
-    {{ consulate_prefecture.consulate|as_crispy_field }}
+    {{ person_process.form.consulate|as_crispy_field }}
   </div>
   <div class="form-group col-md-2">
-    {{ consulate_prefecture.prefecture|as_crispy_field }}
+    {{ person_process.form.prefecture|as_crispy_field }}
   </div>
 </div>
 <div class="row">
   <div class="form-group col-md-2">
-    {{ consulate_prefecture.no_billing|as_crispy_field }}
+    {{ person_process.form.no_billing|as_crispy_field }}
   </div>
 </div>
 {% endif %}
 
 <div class="row">&nbsp<br>&nbsp;</div>
-<ul class="lgc_timeline" id="lgc_timeline">
-  <div style="position:relative;top:31px;color:#3355a8"><i class="fa fa-play-circle"></i></div>
-  {% for s in timeline_stages %}
-  <li class="li{% if s.is_done %} complete{% endif %}">
-    <div class="timestamp">
-      <!--span class="author"></span-->
-      <span class="date" style="white-space: nowrap;">
-	{% if s.is_done %}{{ s.start_date }}{% else %}&nbsp;{% endif %}
-      </span>
-    </div>
-    <div class="status">
-      <h4 class="tl_h">{{ s.name|wordwrap:18|linebreaksbr }}</h4>
-    </div>
-  </li>
-  {% if forloop.counter0|divisibleby:4 and not forloop.last and not forloop.first %}
-  <div style="position:relative;top:30px;color:{% if s.is_done %}#3355a8{% else %}#ddd{% endif %}"><i class="fas fa-arrow-right fa-sm"></i></div>
-</ul>
-<ul class="lgc_timeline" id="lgc_timeline">
-  <div style="position:relative;top:30px;color:{% if s.is_done %}#3355a8{% else %}#ddd{% endif %}"><i class="fas fa-arrow-right fa-sm"></i>
-  </div>
-
-  {% endif %}
-  {% endfor %}
-  {% with timeline_stages|last as last_stage %}
-  <div style="position:relative;top:31px;color:{% if last_stage.is_done %}#3355a8{% else %}#ddd{% endif %}"><i class="fa fa-stop-circle"></i></div>
-  {% endwith %}
-</ul>
+{% with person_process.timeline_stages as timeline_stages %}
+{% include 'lgc/person_process_timeline.html' %}
+{% endwith %}
 <div class="row">&nbsp</div>
 <div class="row">&nbsp</div>
 
 <div class="form-row">
-  <div class="form-group col-md-4">
-    {% if stages|length > 0 %}
+  <div class="form-group col-md-5">
+    {% if person_process.stages.all|length > 0 %}
     <table class="table table-striped table-bordered table-hover">
       <thead>
 	<tr>
@@ -68,17 +38,17 @@
 	</tr>
       </thead>
       <tbody>
-	{% for s in stages %}
+	{% for s in person_process.stages.all %}
 	<tr>
 	  <td>
 	    {% if LANGUAGE_CODE == 'fr' %}
-	    {{ s.name_fr.value }}
+	    {{ s.name_fr }}
 	    {% else %}
-	    {{ s.name_en.value }}
+	    {{ s.name_en }}
 	    {% endif %}
 	  </td>
-	  <td>{{ s.stage_comments.value }}</td>
-	  <td>{{ s.start_date.value }}</td>
+	  <td>{{ s.stage_comments }}</td>
+	  <td>{{ s.validation_date }}</td>
 	</tr>
 	{% endfor %}
       </tbody>
@@ -86,36 +56,6 @@
     {% endif %}
   </div>
 </div>
-{% if stage and person_process %}
-<div class="form-row">
-  <div class="form-group col-md-4">
-    <div class="form-group">
-      {% trans 'Comments for the last validated stage' %}:<b>
-	{% if LANGUAGE_CODE == 'fr' %}
-	{{ stage.name_fr.value }}
-	{% else %}
-	{{ stage.name_en.value }}
-	{% endif %}</b>
-    </div>
-    <div class="form-group">{{ stage.stage_comments }}</div>
-    <div class="form-group">
-      {% trans 'Choose an action:' %}
-      <fieldset class="inlineLabels">
-	{{ stage.action }}
-      </fieldset>
-      <div id="specific_stage" style="display:none;">{{ specific_stage|crispy }}</div>
-    </div>
-  </div>
-  <div class="row">
-    <div id="div_id_comments" class="form-group">
-      <label for="id_comments" class="col-form-label ">
-	{{ stage.label }}
-      </label>
-      <div class="">{{ stage.comment }}</div>
-    </div>
-  </div>
-</div>
-{% endif %}
-{% if go_back %}
-<a href="{{ go_back }}" class="btn btn-outline-info">{% trans "Go back" %}</a>
+{% if person_process.edit_url %}
+<a href="{{ person_process.edit_url }}" class="btn btn-outline-info">{% trans "Edit" %}</a>
 {% endif %}

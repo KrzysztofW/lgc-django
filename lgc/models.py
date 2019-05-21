@@ -562,7 +562,7 @@ class Person(PersonInfo):
                                     default='',
                                     choices=JURISDICTION_SPECIFIQUE_CHOICES,
                                     blank=True)
-    info_process = models.CharField(_('Process'), max_length=3, default='',
+    info_process = models.CharField(_('Immigration Process'), max_length=3, default='',
                                     choices=PROCESS_CHOICES)
     work_permit = models.BooleanField(_('Work Permit Required'), default=False)
     responsible = models.ManyToManyField(User, blank=True,
@@ -636,16 +636,24 @@ class ProcessStage(models.Model):
             return self.name_en
 
 class Process(models.Model):
-    name = models.CharField(max_length=50, validators=[alpha], unique=True)
+    name_fr = models.CharField(_('French Name'), max_length=50, unique=True)
+    name_en = models.CharField(_('English Name'), max_length=50, unique=True)
     stages = models.ManyToManyField(ProcessStage, verbose_name=_('Stages'))
 
     def __str__(self):
-        return self.name
+        if translation.get_language() == 'fr':
+            return self.name_fr
+        else:
+            return self.name_en
 
 class PersonProcess(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE,
                                related_name='personprocess_set')
     process = models.ForeignKey(Process, null=True, on_delete=models.SET_NULL)
+    name_fr = models.CharField(_('Name'), max_length=50, default='',
+                               blank=True)
+    name_en = models.CharField(_('Name'), max_length=50, default='',
+                               blank=True)
     active = models.BooleanField(_('Active'), default=True)
     consulate = models.CharField(_('Consulate'), max_length=3, default='',
                                  choices=CONSULATE_CHOICES, blank=True)
@@ -659,15 +667,15 @@ class PersonProcess(models.Model):
 
 class PersonProcessStage(models.Model):
     person_process = models.ForeignKey(PersonProcess,
+                                       related_name="stages",
                                        on_delete=models.CASCADE)
+    name_fr = models.CharField(_('French Name'), max_length=50, default='',
+                               blank=True)
+    name_en = models.CharField(_('English Name'), max_length=50, default='',
+                               blank=True)
     is_specific = models.BooleanField(default=False)
-    start_date = models.DateField(_('Start Date'), blank=True, null=True)
-    stage_comments = models.TextField(_('Comments'), max_length=100,
-                                      default='', blank=True)
-    name_fr = models.CharField(_('Name'), max_length=50, default='',
-                               blank=True)
-    name_en = models.CharField(_('Name'), max_length=50, default='',
-                               blank=True)
+    validation_date = models.DateField(blank=True, null=True)
+    stage_comments = models.TextField(max_length=100, default='', blank=True)
 
 class AbstractClient(models.Model):
     first_name = models.CharField(_('First name'), max_length=50,

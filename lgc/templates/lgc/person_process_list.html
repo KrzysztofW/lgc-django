@@ -1,0 +1,28 @@
+{% load formset_tags %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<div class="accordion" id="accordion_pp">
+  {% for person_process in active_processes %}
+  <div class="card">
+    <div class="card-header" id="heading_pp_{{ person_process.id }}">
+      <h5 class="mb-0">
+	<button class="btn btn-link" data-toggle="collapse" data-target="#collapse_pp_{{ person_process.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse_pp_{{ person_process.id }}" type="button">
+	  {% if LANGUAGE_CODE == "fr" %}
+	  {{ person_process.name_fr }}
+	  {% else %}
+	  {{ person_process.name_en }}
+	  {% endif %}
+	</button>
+      </h5>
+    </div>
+
+    <div id="collapse_pp_{{ person_process.id }}" class="collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading_pp_{{ person_process.id }}" data-parent="#accordion_pp">
+      <div class="card-body">
+	{% include 'lgc/process_stages_template.html' %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>

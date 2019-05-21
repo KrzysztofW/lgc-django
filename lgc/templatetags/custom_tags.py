@@ -45,32 +45,33 @@ def get_process_progress(request):
 
     for f in files:
         person_common_view.object = f
-        person_process = person_common_view.get_active_person_process()
-        if person_process == None:
+        person_processes = person_common_view.get_active_person_processes()
+        if person_processes == None:
             continue
-        stages = person_common_view.get_process_stages(person_process.process)
-        if stages == None or stages.count() == 0:
-            return
-        person_process_stages = lgc_models.PersonProcessStage.objects.filter(is_specific=False).filter(person_process=person_process)
-        progress = (person_process_stages.count() / stages.count()) * 100
+        for person_process in person_processes:
+            stages = person_process.process.stages.all()
+            if stages.count() == 0:
+                continue
+            person_process_stages = lgc_models.PersonProcessStage.objects.filter(is_specific=False).filter(person_process=person_process)
+            progress = (person_process_stages.count() / stages.count()) * 100
 
-        if f.host_entity:
-            host_entity = ' (' + f.host_entity + ')'
-        else:
-            host_entity = ''
-        progress = int(progress)
+            if f.host_entity:
+                host_entity = ' (' + f.host_entity + ')'
+            else:
+                host_entity = ''
+            progress = int(progress)
 
-        if progress < 50:
-            bg = 'bg-info'
-        elif progress >= 50 and progress < 80:
-            bg = 'bg-warning'
-        else:
-            bg = 'bg-danger'
-        url = reverse_lazy('lgc-file', kwargs={'pk':f.id})
-        res.append((f.first_name, f.last_name, host_entity, int(progress),
-                    bg, url))
-        if len(res) > 10:
-            return res
+            if progress < 50:
+                bg = 'bg-info'
+            elif progress >= 50 and progress < 80:
+                bg = 'bg-warning'
+            else:
+                bg = 'bg-danger'
+            url = reverse_lazy('lgc-file', kwargs={'pk':f.id})
+            res.append((f.first_name, f.last_name, host_entity, int(progress),
+                        bg, url))
+            if len(res) > 10:
+                return res
     return res
 
 @register.simple_tag

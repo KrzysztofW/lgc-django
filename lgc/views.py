@@ -254,8 +254,7 @@ class PersonListView(PersonCommonListView):
         context['search_form'] = self.get_search_form()
         return context
 
-def local_user_get_person_form_layout(form, action, obj, process_stages,
-                                      archived_processes):
+def local_user_get_person_form_layout(form, action, obj, completed_processes):
     external_profile = None
     form.helper = FormHelper()
     form.helper.form_tag = False
@@ -347,21 +346,21 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
         external_profile.append(Div(HTML(html), css_class='form-row'))
 
     if obj:
-        process_tab = LgcTab(_('Process'))
-        if archived_processes:
+        process_tab = LgcTab(_('Processes'))
+        if completed_processes:
             process_tab.append(HTML('<a href="' +
                                     str(reverse_lazy('lgc-person-processes',
                                                      kwargs={'pk': obj.id})) +
-                                    '">Archived processes (' +
-                                    str(len(archived_processes)) +
-                                    ')</a><br><br>'))
-        if process_stages:
-            pcontent = HTML(get_template(CURRENT_DIR,
-                                         'lgc/process_stages_template.html'))
-        else:
-            pcontent = Div(Div('process_name', css_class='form-group col-md-4'),
-                           css_class='form-row')
-        process_tab.append(pcontent)
+                                    '">Completed processes (' +
+                                    str(len(completed_processes)) +
+                                    ')</a><hr><br>'))
+
+        process_tab.append(Div(Div('process_name', css_class='form-group col-md-3'),
+                               HTML('<div class="form-group"><label for="id_process_name" class="col-form-label">&nbsp;</label><div class=""><button class="btn btn-outline-info" type="submit">' + _('Create') + '</button></div></div>'),
+                               css_class='form-row'))
+
+        process_tab.append(
+            HTML(get_template(CURRENT_DIR, 'lgc/person_process_list.html')))
         tab_holder.append(process_tab)
 
         billing_tab = LgcTab(_('Billing'))
@@ -387,7 +386,7 @@ def local_user_get_person_form_layout(form, action, obj, process_stages,
     form.helper.layout = layout
     return form
 
-def employee_user_get_person_form_layout(form, action, obj, process):
+def employee_user_get_person_form_layout(form, action, obj):
     external_profile = None
     form.helper = FormHelper()
     form.helper.form_tag = False
@@ -432,11 +431,9 @@ def employee_user_get_person_form_layout(form, action, obj, process):
                         css_class='form-row'))
 
     tab_holder = TabHolder(info_tab)
-    if process:
-        process_tab = LgcTab(_('Process'))
-        process_tab.append(HTML(get_template(CURRENT_DIR,
-                                             'lgc/process_stages_template.html')))
-        tab_holder.append(process_tab)
+    process_tab = LgcTab(_('Processes'))
+    process_tab.append(HTML(get_template(CURRENT_DIR, 'lgc/person_process_list.html')))
+    tab_holder.append(process_tab)
 
     documents_tab = LgcTab(_('Documents'))
     documents_tab.append(HTML(get_template(CURRENT_DIR, 'lgc/document_form.html')))
@@ -448,18 +445,15 @@ def employee_user_get_person_form_layout(form, action, obj, process):
     form.helper.layout = layout
     return form
 
-def get_person_form_layout(cur_user, form, action, obj, process_stages,
-                           archived_processes=None):
+def get_person_form_layout(cur_user, form, action, obj,
+                           completed_processes=None):
     if cur_user.role in user_models.get_internal_roles():
         return local_user_get_person_form_layout(form, action, obj,
-                                                 process_stages,
-                                                 archived_processes)
+                                                 completed_processes)
     if cur_user.role == user_models.EMPLOYEE:
-        return employee_user_get_person_form_layout(form, action, obj,
-                                                    process_stages)
+        return employee_user_get_person_form_layout(form, action, obj)
     if cur_user.role in user_models.get_hr_roles():
-        return employee_user_get_person_form_layout(form, action, obj,
-                                                    process_stages)
+        return employee_user_get_person_form_layout(form, action, obj)
     return None
 
 def hr_add_employee(form_data, user_object):
@@ -500,119 +494,32 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
 
-    def get_active_person_process(self):
+    def get_active_person_processes(self):
         if self.object == None:
             return
+
         if type(self.object).__name__ == 'Employee':
             object = self.object.user.person_user_set
         else:
             object = self.object
 
-        process = lgc_models.PersonProcess.objects.filter(person=object).filter(active=True)
-        if process.count() > 1:
-            messages.error(self.request,
-                           _('PersonProcess consistency error! ') +
-                           contact_admin_str)
-            return None
-        if process.count() == 1:
-            return process[0]
-        return None
+        return object.personprocess_set.filter(active=True)
 
-    def get_person_process_stages(self, person_process):
-        if person_process == None:
-            return None
-        stages = lgc_models.PersonProcessStage.objects.filter(person_process=person_process)
-        if stages.count() == 0:
-            messages.error(self.request,
-                           _('PersonProcessStage consistency error! ') +
-                           contact_admin_str)
-            return None
-        return stages
-
-    def get_process_stages(self, process):
-        if process == None:
-            return None
-        processes = lgc_models.Process.objects.filter(id=process.id)
-        if processes == None or processes.count() != 1:
-            return None
-        if processes[0].stages == None or processes[0].stages.count() == 0:
-            return None
-        return processes[0].stages
-
-    def get_last_person_process_stage(self, stages):
-        if stages == None or stages.count() == 0:
-            return None
-        return stages.all()[stages.all().count()-1]
-
-    def generate_next_person_process_stage(self, person_process,
-                                           name_fr, name_en,
-                                           is_specific=False):
-        next_stage = lgc_models.PersonProcessStage()
-        next_stage.is_specific = is_specific
-        next_stage.person_process = person_process
-        next_stage.start_date = str(datetime.date.today())
-        next_stage.name_fr = name_fr
-        next_stage.name_en = name_en
-        next_stage.save()
-
-    def get_next_process_stage(self, person_process_stages, process_id):
-        process_common = ProcessCommonView()
-        process_stages = process_common.get_ordered_stages(process_id)
-
-        if person_process_stages == None:
-            if process_stages == None or len(process_stages) == 0:
-                return None
-            return process_stages[0]
-        person_process_stages = person_process_stages.filter(is_specific=False)
-        if (person_process_stages == None or
-            person_process_stages.count() == 0):
-            return process_stages.first()
-
-        last_pos = person_process_stages.count() - 1
-        length = len(process_stages)
-        pos = 0
-        for s in process_stages:
-            if pos < last_pos:
-                pos += 1
-                continue
-            if pos == length:
-                return process_stages[pos]
-            try:
-                return process_stages[pos + 1]
-            except:
-                return None
-        return None
-
-    def get_previous_process_stage(self, process_stages, process_stage):
-        if process_stage == None or len(process_stages.all()) == 1:
-            return process_stages.first()
-        process_stages = process_stages.all()
-
-        length = len(process_stages)
-        pos = 0
-        for s in process_stages:
-            if s.id != process_stage.id:
-                pos += 1
-                continue
-            if pos == length:
-                return process_stages[pos - 1]
-        return None
-
-    def get_timeline_stages(self, person_process, person_process_stages):
+    def get_timeline_stages(self, person_process):
         process_common = ProcessCommonView()
         timeline_stages = []
-        for s in person_process_stages:
+        for s in person_process.stages.all():
             timeline_stage = TemplateTimelineStages()
             timeline_stage.is_done = True
             if translation.get_language() == 'fr':
                 timeline_stage.name = s.name_fr
             else:
                 timeline_stage.name = s.name_en
-            timeline_stage.start_date = s.start_date
+            timeline_stage.validation_date = s.validation_date
             timeline_stages.append(timeline_stage)
 
-        to_skip = person_process_stages.filter(is_specific=False).count()
-        stages = process_common.get_ordered_stages(person_process.process.id)
+        to_skip = person_process.stages.filter(is_specific=False).count()
+        stages = process_common.get_ordered_stages(person_process.process)
         for s in stages:
             if to_skip:
                 to_skip -= 1
@@ -625,10 +532,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             timeline_stages.append(timeline_stage)
 
         return timeline_stages
-
-    def is_process_complete(self, process_stages, person_process_stages):
-        person_process_stages = person_process_stages.filter(is_specific=False)
-        return len(process_stages.all()) == len(person_process_stages.all())
 
     def set_person_formsets_data(self, formsets):
         formsets[0].title = _('Children')
@@ -716,34 +619,21 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         return formsets
 
     def set_person_process_stages(self, context):
-        person_process = self.get_active_person_process()
-        if person_process == None:
+        active_processes = self.get_active_person_processes()
+        context['active_processes'] = []
+        if active_processes == None:
             return
-
-        stages = self.get_process_stages(person_process.process)
-        if stages == None or stages.count() == 0:
-            return
-
-        stagesFormSet = modelformset_factory(lgc_models.PersonProcessStage,
-                                             form=lgc_forms.PersonProcessStageForm,
-                                             can_delete=False,
-                                             extra=0)
-
-        # render all the stages, only the last one should be editable
-        person_process_stages = self.get_person_process_stages(person_process)
-        context['stages'] = stagesFormSet(queryset=person_process_stages)
-        context['specific_stage'] = lgc_forms.PersonProcessSpecificStageForm()
-        if self.request.user.role in user_models.get_internal_roles():
-            context['person_process'] = person_process
-        context['consulate_prefecture'] = lgc_forms.ConsulatePrefectureForm(instance=person_process)
-        if self.is_process_complete(person_process.process.stages,
-                                    person_process_stages):
-            context['stage'] = lgc_forms.UnboundFinalPersonProcessStageForm()
-        else:
-            context['stage'] = lgc_forms.UnboundPersonProcessStageForm()
-        context['stage'].fields['stage_comments'].initial = self.get_last_person_process_stage(person_process_stages).stage_comments
-        context['timeline_stages'] = self.get_timeline_stages(person_process, person_process_stages)
-        context['process_name'] = person_process.process.name
+        for person_process in active_processes.all():
+            form = lgc_forms.PersonProcessForm(instance=person_process)
+            form.fields['no_billing'].widget.attrs['disabled'] = True
+            form.fields['consulate'].widget.attrs['disabled'] = True
+            form.fields['prefecture'].widget.attrs['disabled'] = True
+            person_process.form = form
+            person_process.timeline_stages = self.get_timeline_stages(person_process)
+            if self.request.user.role in user_models.get_internal_roles():
+                person_process.edit_url = reverse_lazy('lgc-person-process',
+                                                       kwargs={'pk':person_process.id})
+            context['active_processes'].append(person_process)
 
     def get_formset_objs(self, queryset, show_dcem=False):
         obj_lists = []
@@ -846,6 +736,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         set_active_tab(self, context)
 
         context['doc'] = lgc_forms.DocumentForm()
+        if self.request.user.role in user_models.get_internal_roles():
+            context['show_detailed_process'] = True
 
         return context
 
@@ -918,112 +810,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 if hasattr(obj.instance, 'employee_child') and obj.instance.employee_child:
                     obj.instance.employee_child.delete()
                 obj.instance.delete()
-
-    def process_form_valid(self, form):
-        if self.request.user.role not in user_models.get_internal_roles():
-            return 0
-
-        person_process = self.get_active_person_process()
-        if form.cleaned_data['process_name'] and person_process == None:
-            person_process = lgc_models.PersonProcess()
-            person_process.person = self.object
-            person_process.process = form.cleaned_data['process_name']
-            person_process.consulate = form.cleaned_data['consulate']
-            person_process.prefecture = form.cleaned_data['prefecture']
-            process_stages = self.get_process_stages(person_process.process)
-
-            if process_stages == None:
-                messages.error(self.request, _('The process has no stages.'))
-                return -1
-
-            first_stage = self.get_next_process_stage(None, person_process.process.id)
-            if first_stage == None:
-                messages.error(self.request,
-                               _('Cannot find the first stage of the process.'))
-                return -1
-
-            if self.request.POST.get('no_billing') == 'on':
-                person_process.no_billing = True
-            else:
-                person_process.no_billing = False
-            person_process.save()
-            self.generate_next_person_process_stage(person_process,
-                                                    first_stage.name_fr,
-                                                    first_stage.name_en)
-            return 0
-        if person_process == None:
-            return 0
-
-        # Process handling
-        if self.request.POST.get('no_billing') == 'on':
-            person_process.no_billing = True
-        else:
-            person_process.no_billing = False
-        process_stages = self.get_process_stages(person_process.process)
-        if process_stages == None:
-            messages.error(self.request, _('The process has no stages.'))
-            return -1
-
-        person_process_stages = self.get_person_process_stages(person_process)
-        if person_process_stages == None:
-            messages.error(self.request, _('The person process has no stages.'))
-            return -1
-
-        person_process_stage = self.get_last_person_process_stage(person_process_stages)
-        if person_process_stage == None:
-            messages.error(self.request, _('Cannot get the person process last stage.'))
-            return -1
-
-        if self.is_process_complete(person_process.process.stages,
-                                    person_process_stages):
-            stage_form = lgc_forms.UnboundFinalPersonProcessStageForm(self.request.POST)
-        else:
-            if form.cleaned_data['state'] == lgc_models.FILE_STATE_CLOSED:
-                messages.error(self.request,
-                               _('This file cannot be closed as it has a pending process.'))
-                return -1
-            stage_form = lgc_forms.UnboundPersonProcessStageForm(self.request.POST)
-        if not stage_form.is_valid():
-            return -1
-
-        if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_DELETE:
-            if person_process_stages.count() == 1:
-                person_process_stage.delete()
-                person_process.delete()
-                return 0
-
-            person_process_stage.delete()
-            messages.success(self.request, _('Last stage deleted'))
-            return 0
-
-        person_process_stage.stage_comments = stage_form.cleaned_data['stage_comments']
-
-        if stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_VALIDATE:
-            next_process_stage = self.get_next_process_stage(person_process_stages,
-                                                             person_process.process.id)
-            if next_process_stage != None:
-                self.generate_next_person_process_stage(person_process,
-                                                        next_process_stage.name_fr,
-                                                        next_process_stage.name_en)
-                if next_process_stage.noinvoice_alert:
-                    person_process.alert_on = next_process_stage.noinvoice_alert
-        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
-            specific_stage = lgc_forms.PersonProcessSpecificStageForm(self.request.POST)
-            if (not specific_stage.is_valid() or
-                specific_stage.cleaned_data['name_fr'] == '' or
-                specific_stage.cleaned_data['name_en'] == ''):
-                messages.error(self.request, _('Invalid specific stage name'))
-                return -1
-            self.generate_next_person_process_stage(person_process,
-                                                    specific_stage.cleaned_data['name_fr'],
-                                                    specific_stage.cleaned_data['name_en'],
-                                                    is_specific=True)
-        elif stage_form.cleaned_data['action'] == lgc_forms.PROCESS_STAGE_ARCHIVE:
-            person_process.active = False
-
-        person_process.save()
-        person_process_stage.save()
-        return 0
 
     def clear_related_objects(self, objs):
         for o in objs:
@@ -1234,6 +1020,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         save_active_tab(self)
 
         if self.object:
+            if (self.object.state != lgc_models.FILE_STATE_CLOSED and
+                form.cleaned_data['state'] == lgc_models.FILE_STATE_CLOSED and
+                self.get_active_person_processes()):
+                messages.error(self.request,
+                               _('This file cannot be closed as it has a pending process.'))
+                return self.form_invalid(form)
+
             changes_action = self.request.POST.get('changes_action', '')
             if changes_action == lgc_forms.CHANGES_DETECTED_DISCARD:
                 return redirect(self.get_success_url())
@@ -1286,9 +1079,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if self.is_update and self.object.user != None:
             form.instance.user = self.object.user
 
-        if self.process_form_valid(form) < 0:
-            return super().form_invalid(form)
-
         if doc.cleaned_data['document'] != None:
             if doc.cleaned_data['description'] == '':
                 messages.error(self.request,
@@ -1308,6 +1098,16 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         with transaction.atomic():
             self.object = form.save()
+
+            if form.cleaned_data['process_name']:
+                person_process = lgc_models.PersonProcess()
+                person_process.person = self.object
+                person_process.process = form.cleaned_data['process_name']
+                person_process.consulate = form.cleaned_data['consulate']
+                person_process.prefecture = form.cleaned_data['prefecture']
+                person_process.name_fr = person_process.process.name_fr
+                person_process.name_en = person_process.process.name_en
+                person_process.save()
 
             for formset in formsets:
                 self.delete_formset(formset)
@@ -1351,10 +1151,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         if not self.is_update:
             return get_person_form_layout(self.request.user, form,
-                                          _('Create'), None, None)
+                                          _('Create'), None)
         return get_person_form_layout(self.request.user, form, _('Update'),
                                       self.object,
-                                      self.get_active_person_process(),
                                       lgc_models.PersonProcess.objects.filter(person=self.object.id).filter(active=False))
 
     class Meta:
@@ -1498,6 +1297,19 @@ class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
                 available_stages.append(s)
         return available_stages
 
+    def form_valid(self, form):
+        if self.model != lgc_models.Process:
+            return super().form_valid(form)
+
+        """Always save the stages. This will keep their order."""
+        with transaction.atomic():
+            if self.object:
+                form.instance.stages.clear()
+            form.instance.save()
+            for s in form.data.getlist('stages'):
+                form.instance.stages.add(s)
+        return super().form_valid(form)
+
     class Meta:
         abstract = True
 
@@ -1598,18 +1410,6 @@ class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
             context['stages'] = self.get_ordered_stages(self.object)
         return context
 
-    def form_valid(self, form):
-        if self.model != lgc_models.Process:
-            return super().form_valid(form)
-
-        """Always save the stages. This will keep their order."""
-        with transaction.atomic():
-            form.instance.stages.clear()
-            for s in form.data.getlist('stages'):
-                form.instance.stages.add(s)
-            form.instance.save()
-        return super().form_valid(form)
-
     def test_func(self):
         return self.request.user.is_staff
 
@@ -1681,36 +1481,229 @@ class ProcessStageDeleteView(ProcessDeleteView):
         context['lang'] = translation.get_language()
         return context
 
-class PersonProcessUpdateView(ProcessUpdateView):
+class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
+                              SuccessMessageMixin, UpdateView):
     model = lgc_models.PersonProcess
     template_name = 'lgc/person_process.html'
-    title = _('Person Process')
+    success_message = _('Process successfully updated.')
+    success_url = 'lgc-person-process'
     delete_url = ''
     fields = '__all__'
 
-    def get_context_data(self, **kwargs):
-        person_common = PersonCommonView()
-        context = super().get_context_data(**kwargs)
-        context['consulate_prefecture'] = lgc_forms.ConsulatePrefectureForm(instance=self.object)
-        context['consulate_prefecture'].fields['no_billing'].widget.attrs['disabled'] = True
-        context['person_process'] = self.object
-        person_process_stages = person_common.get_person_process_stages(self.object)
-        context['timeline_stages'] = person_common.get_timeline_stages(self.object, person_process_stages)
+    def test_func(self):
+        return self.request.user.role in user_models.get_internal_roles()
+
+    def is_process_complete(self):
+        person_process_stages = self.object.stages.filter(is_specific=False)
+        process_stages = self.object.process.stages.all()
+        return len(process_stages) == len(person_process_stages.all())
+
+    def get_stage_forms(self):
+        if self.is_process_complete():
+            stage_form = lgc_forms.UnboundFinalPersonProcessStageForm
+        else:
+            stage_form = lgc_forms.UnboundPersonProcessStageForm
+        if self.request.POST:
+            stage_form = stage_form(self.request.POST)
+            specific_form = lgc_forms.PersonProcessSpecificStageForm(self.request.POST)
+        else:
+            stage_form = stage_form()
+            specific_form = lgc_forms.PersonProcessSpecificStageForm()
+        stage_form.helper = FormHelper()
+        stage_form.helper.form_tag = False
+        stage_form.helper.layout = Layout(
+            Div(Div('action', css_class='form-group col-md-3'),
+                css_class='form-row'),
+        )
+        return specific_form, stage_form
+
+    def get_success_url(self):
+        return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
+
+    def get_formset(self):
         stagesFormSet = modelformset_factory(lgc_models.PersonProcessStage,
                                              form=lgc_forms.PersonProcessStageForm,
                                              can_delete=False,
                                              extra=0)
 
-        context['stages'] = stagesFormSet(queryset=person_process_stages)
-        context['go_back'] = self.request.META.get('HTTP_REFERER')
+        if self.request.POST:
+            formset = stagesFormSet(self.request.POST)
+        else:
+            formset = stagesFormSet(queryset=self.object.stages.order_by('id'))
+        for form in formset:
+            if translation.get_language() == 'fr':
+                name = 'name_fr'
+            else:
+                name = 'name_en'
+            form.helper = FormHelper()
+            form.helper.form_tag = False
+            form.fields[name].label = _('Stage Name')
+            form.fields[name].widget.attrs['disabled'] = True
+            if not self.object.active:
+                form.fields['validation_date'].widget.attrs['disabled'] = True
+                form.fields['stage_comments'].widget.attrs['disabled'] = True
+            form.helper.layout = Layout(
+                Div(
+                    Div('id'), Div(name, css_class='form-group col-md-2'),
+                    Div('validation_date', css_class='form-group col-md-2'),
+                    Div('stage_comments', css_class='form-group col-md-3'),
+                    css_class='form-row'),
+            )
+
+        return formset
+
+    def get_context_data(self, **kwargs):
+        person_common = PersonCommonView()
+        context = super().get_context_data(**kwargs)
+        if translation.get_language() == 'fr':
+            name = self.object.name_fr
+        else:
+            name = self.object.name_en
+        context['title'] = _('Process') + ' ' + name
+
+        self.object.form = lgc_forms.PersonProcessForm(instance=self.object)
+        context['timeline_stages'] = person_common.get_timeline_stages(self.object)
+        specific_stage, stage_form = self.get_stage_forms()
+        if self.object.active:
+            context['specific_stage'] = specific_stage
+            context['stage_form'] = stage_form
+        else:
+            context['go_back'] = self.request.META.get('HTTP_REFERER')
+
+        context['formset'] = self.get_formset()
         return context
 
-    def get_form(self):
-        form = super().get_form()
+    def get_form(self, form_class=lgc_forms.PersonProcessCompleteForm):
+        form = super().get_form(form_class=form_class)
         form.helper = FormHelper()
-        form.helper.layout = Layout(HTML(get_template(CURRENT_DIR,
-                                                      'lgc/process_stages_template.html')))
+        form.helper.form_tag = False
+        form.helper.layout = Layout(
+            Div(
+                Div('consulate', css_class='form-group col-md-2'),
+                Div('prefecture', css_class='form-group col-md-2'),
+                css_class='form-row'),
+            Div(
+                Div('no_billing', css_class='form-group col-md-2'),
+                css_class='form-row'),
+            )
+        if not self.object.active:
+            form.fields['no_billing'].widget.attrs['disabled'] = True
+            form.fields['consulate'].widget.attrs['disabled'] = True
+            form.fields['prefecture'].widget.attrs['disabled'] = True
+
         return form
+
+    def get_last_person_process_stage(self, stages):
+        if stages == None or stages.count() == 0:
+            return None
+        return stages.all()[stages.all().count()-1]
+
+    def generate_next_person_process_stage(self, person_process,
+                                           name_fr, name_en,
+                                           is_specific=False):
+        next_stage = lgc_models.PersonProcessStage()
+        next_stage.is_specific = is_specific
+        next_stage.person_process = person_process
+        next_stage.start_date = str(datetime.date.today())
+        next_stage.name_fr = name_fr
+        next_stage.name_en = name_en
+        next_stage.validation_date = timezone.now()
+        next_stage.save()
+
+    def get_next_process_stage(self, person_process_stages, process):
+        process_common = ProcessCommonView()
+        process_stages = process_common.get_ordered_stages(process)
+
+        if person_process_stages == None:
+            if process_stages == None or len(process_stages) == 0:
+                return None
+            return process_stages[0]
+        person_process_stages = person_process_stages.filter(is_specific=False)
+        if (person_process_stages == None or
+            person_process_stages.count() == 0):
+            return process_stages[0]
+
+        last_pos = person_process_stages.count() - 1
+        length = len(process_stages)
+        pos = 0
+        for s in process_stages:
+            if pos < last_pos:
+                pos += 1
+                continue
+            if pos == length:
+                return process_stages[pos]
+            try:
+                return process_stages[pos + 1]
+            except:
+                return None
+        return None
+
+    def get_previous_process_stage(self, process_stages, process_stage):
+        if process_stage == None or len(process_stages.all()) == 1:
+            return process_stages.first()
+        process_stages = process_stages.all()
+
+        length = len(process_stages)
+        pos = 0
+        for s in process_stages:
+            if s.id != process_stage.id:
+                pos += 1
+                continue
+            if pos == length:
+                return process_stages[pos - 1]
+        return None
+
+    def form_valid(self, form):
+        specific_stage_form, stage_form = self.get_stage_forms()
+        if not specific_stage_form.is_valid() or not stage_form.is_valid():
+            messages.error(self.request, _('Invalid form'))
+            return super().form_invalid(form)
+
+        formset = self.get_formset()
+        if not formset.is_valid():
+            messages.error(self.request, _('Invalid stages form:'))
+            return super().form_invalid(form)
+
+        for sform in formset:
+            sform.save()
+
+        action = stage_form.cleaned_data.get('action')
+        if action == lgc_forms.PROCESS_STAGE_VALIDATE:
+            next_process_stage = self.get_next_process_stage(self.object.stages,
+                                                             self.object.process)
+            if next_process_stage != None:
+                self.generate_next_person_process_stage(self.object,
+                                                        next_process_stage.name_fr,
+                                                        next_process_stage.name_en)
+            else:
+                messages.error(self.request, _('The next stage does not exist.'))
+                return super().form_invalid(form)
+        elif action == lgc_forms.PROCESS_STAGE_DELETE:
+            last_stage = self.get_last_person_process_stage(self.object.stages)
+            if last_stage == None:
+                messages.error(self.request, _('This process has no validated stages.'))
+                return super().form_invalid(form)
+            last_stage.delete()
+        elif action == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
+            if (specific_stage_form.cleaned_data['name_fr'] == '' or
+                specific_stage_form.cleaned_data['name_en'] == ''):
+                messages.error(self.request, _('The specific stage names are invalid.'))
+                return super().form_invalid(form)
+
+            self.generate_next_person_process_stage(self.object,
+                                                    specific_stage_form.cleaned_data['name_fr'],
+                                                    specific_stage_form.cleaned_data['name_en'],
+                                                    is_specific=True)
+
+        elif action == lgc_forms.PROCESS_STAGE_COMPLETED:
+            if not self.is_process_complete():
+                messages.error(self.request, _('The process is not complete.'))
+                return super().form_invalid(form)
+            form.instance.active = False
+            super().form_valid(form)
+            return redirect('lgc-file', self.object.person.id)
+
+        return super().form_valid(form)
 
 class PersonProcessListView(ProcessListView):
     model = lgc_models.PersonProcess
@@ -1728,8 +1721,12 @@ class PersonProcessListView(ProcessListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        if translation.get_language() == 'fr':
+            name = 'name_fr'
+        else:
+            name = 'name_en'
         for obj in context['object_list']:
-            obj.name = obj.process.name
+            obj.name = getattr(obj.process, name)
         return context
 
     def get_queryset(self, *args, **kwargs):
@@ -1742,7 +1739,7 @@ class PersonProcessListView(ProcessListView):
         self.search_url = reverse_lazy('lgc-person-processes',
                                        kwargs={'pk':pk})
         person = object_list[0].person
-        self.title = (_('Archived Processes of %(first_name)s %(last_name)s'%
+        self.title = (_('Completed Processes of %(first_name)s %(last_name)s'%
                       {'first_name': person.first_name,
                        'last_name': person.last_name}))
 

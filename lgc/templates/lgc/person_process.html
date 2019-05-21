@@ -1,5 +1,37 @@
 {% extends "lgc/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
 
 {% block content %}
-{% include 'lgc/process_stages_template.html' %}
+<form method="POST">
+  {% csrf_token %}
+  {% crispy form %}
+
+  <div class="form-row">&nbsp<br>&nbsp;</div>
+  {% include 'lgc/person_process_timeline.html' %}
+  <div class="form-row">&nbsp</div>
+  <div class="form-row">&nbsp</div>
+  {{ formset.management_form }}
+  {% for sform in formset.forms %}
+  {% crispy sform %}
+  {% endfor %}
+  {% for stage in stages %}
+  {% crispy stage %}
+  {% endfor %}
+  {% if stage_form %}
+  {% crispy stage_form %}
+  {% endif %}
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <div id="specific_stage" style="display:none;">{{ specific_stage|crispy }}</div>
+    </div>
+  </div>
+
+  {% if object.active %}
+  <button class="btn btn-outline-info" type="submit">{% trans 'Update' %}</button>
+  {% else %}
+  <a href="{{ go_back }}" class="btn btn-outline-info">{% trans "Go back" %}</a>
+  {% endif %}
+  <a href="{% url 'lgc-file' object.person.id %}" class="btn btn-outline-info">{% trans "Show related file" %}</a>
+</form>
 {% endblock content %}

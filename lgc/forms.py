@@ -218,10 +218,15 @@ class ProcessStageForm(forms.ModelForm):
 
 class PersonProcessStageForm(forms.ModelForm):
     stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+    id = forms.CharField(required=True, widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_widget_attrs(self, 'validation_date')
 
     class Meta:
         model = lgc_models.PersonProcessStage
-        exclude = ['is_specific']
+        exclude = ['person_process', 'is_specific']
 
 class PersonProcessSpecificStageForm(forms.Form):
     name_fr = forms.CharField(required=False,
@@ -236,7 +241,7 @@ PROCESS_STAGE_NONE = '-'
 PROCESS_STAGE_DELETE = 'D'
 PROCESS_STAGE_ADD_SPECIFIC = 'S'
 PROCESS_STAGE_VALIDATE = 'V'
-PROCESS_STAGE_ARCHIVE = 'A'
+PROCESS_STAGE_COMPLETED = 'C'
 
 PROCESS_STAGE_COMMON_CHOICES = (
     (PROCESS_STAGE_NONE, _('No action')),
@@ -248,36 +253,39 @@ PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
 )
 
 FINAL_PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
-    (PROCESS_STAGE_ARCHIVE, _('Archive')),
+    (PROCESS_STAGE_COMPLETED, _('Completed')),
 )
 
 class UnboundPersonProcessStageForm(forms.Form):
-    stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
-    action = forms.ChoiceField(required=False, choices=PROCESS_STAGE_CHOICES,
+    action = forms.ChoiceField(label=_('Action:'),
+                               required=False, choices=PROCESS_STAGE_CHOICES,
                                widget = forms.RadioSelect(attrs = {
                                    'onclick' : "specific_stage_action(this);",
                                }))
-
     class Meta:
         fields = '__all__'
 
 class UnboundFinalPersonProcessStageForm(UnboundPersonProcessStageForm):
-    action = forms.ChoiceField(required=False, choices=FINAL_PROCESS_STAGE_CHOICES,
+    action = forms.ChoiceField(label=_('Action:'),
+                               required=False, choices=FINAL_PROCESS_STAGE_CHOICES,
                                widget = forms.RadioSelect(attrs = {
                                    'onclick' : "specific_stage_action(this);",
                                }))
     class Meta:
         fields = '__all__'
 
-class ConsulatePrefectureForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['consulate'].widget.attrs['disabled'] = True
-        self.fields['prefecture'].widget.attrs['disabled'] = True
+class PersonProcessForm(forms.ModelForm):
+    class Meta:
+        model = lgc_models.PersonProcess
+        exclude = ['name_en', 'name_fr']
+
+class PersonProcessCompleteForm(forms.ModelForm):
+    name_fr = forms.CharField(required=False, label=_('French name'))
+    name_en = forms.CharField(required=False, label=_('English name'))
 
     class Meta:
         model = lgc_models.PersonProcess
-        fields = ['consulate', 'prefecture', 'no_billing']
+        exclude = ['person', 'process', 'active', 'name_en', 'name_fr']
 
 class DocumentForm(forms.ModelForm):
     document = forms.FileField(required=False, label=_('File*'))

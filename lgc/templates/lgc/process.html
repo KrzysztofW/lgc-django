@@ -15,7 +15,8 @@
     <div class="form-row">
       <div class="form-group col-md-4">
 	<fieldset class="form-group">
-	  {{ form.name|as_crispy_field }}
+	  {{ form.name_fr|as_crispy_field }}
+	  {{ form.name_en|as_crispy_field }}
 	  <label for="id_stages" class="col-form-label  requiredField">
 	    {{ form.stages.label }}<span class="asteriskField">*</span>
 	  </label>
