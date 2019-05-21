@@ -72,6 +72,8 @@ class PersonSearchForm(forms.Form):
         datepicker_set_widget_attrs(self, 'start_date')
 
 class PersonCreateForm(forms.ModelForm):
+    is_private = forms.BooleanField(required=False, initial=False,
+                                    help_text=_('Designates whether this file is private (not related to a corporation).'))
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
     birth_date = forms.DateField(label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
