@@ -208,14 +208,9 @@ class PersonListView(PersonCommonListView):
 
     def get_queryset(self):
         term = self.request.GET.get('term', '')
-
         order_by = self.get_ordering()
-        if self.request.user.role == user_models.JURIST:
-            objs = lgc_models.Person.objects.filter(responsible=self.request.user)
-        else:
-            objs = lgc_models.Person.objects
+        objs = self.match_extra_terms(lgc_models.Person.objects)
 
-        objs = self.match_extra_terms(objs)
         if term == '':
             return objs.order_by(order_by)
 
