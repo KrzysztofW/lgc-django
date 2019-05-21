@@ -1015,12 +1015,32 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         return are_valid
 
+    def rename_doc_dir(self, form, old_obj, new_obj):
+        if ('first_name' not in form.changed_data and
+            'last_name' not in form.changed_data and
+            'birth_date' not in form.changed_data and
+            'home_entity' not in form.changed_data and
+            'host_entity' not in form.changed_data and
+            'is_private' not in form.changed_data):
+            return
+        old_path = os.path.join(settings.MEDIA_ROOT,
+                                lgc_models.get_doc_path(old_obj))
+        new_path = os.path.join(settings.MEDIA_ROOT,
+                                lgc_models.get_doc_path(new_obj))
+        try:
+            print('renaming:', old_path, new_path)
+            os.rename(old_path, new_path)
+        except Exception as e:
+            print(e)
+
     def form_valid(self, form):
         formsets = self.get_person_formsets()
         self.object = self.get_current_object()
         save_active_tab(self)
 
         if self.object:
+            self.rename_doc_dir(form, self.object, form.instance)
+
             if (self.object.state != lgc_models.FILE_STATE_CLOSED and
                 form.cleaned_data['state'] == lgc_models.FILE_STATE_CLOSED and
                 self.get_active_person_processes()):
@@ -1136,10 +1156,14 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
             if self.is_update and deleted_docs != '':
                 for d in deleted_docs.deleted_forms:
-                    if d.instance.id != None:
-                        d.instance.delete()
-                        os.remove(os.path.join(settings.MEDIA_ROOT,
-                                               d.instance.document.name))
+                    if d.instance.id == None:
+                        continue
+                    try:
+                        lgc_models.delete_doc(form.instance, d.instance)
+                    except Exception as e:
+                        messages.error(self.request,
+                                       _('Cannot delete the file `%(filename)s`'%{'filename':d.instance.filename}))
+                        print(e)
 
         return super().form_valid(form)
 

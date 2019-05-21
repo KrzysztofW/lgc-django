@@ -6,12 +6,16 @@ from django.utils import translation
 from django.contrib.auth import get_user_model
 from django.db import models
 from datetime import date
+import os, pdb
+from django.conf import settings
 from django_countries.fields import CountryField
 from users import models as user_models
 User = get_user_model()
 
 alpha = RegexValidator(r'^[^0-9`;:_{}()$^~"\%&*#!?.,\\<>|@/]*$',
                        _('Numbers and special characters are not allowed.'))
+alphanum = RegexValidator(r'^[^`;:_{}()$^~"\%&*#!?.,\\<>|@/]*$',
+                          _('Special characters are not allowed.'))
 siret_validator = RegexValidator(r'^[0-9]{14}$')
 
 PROCESS_CHOICES = (
@@ -477,12 +481,12 @@ class PersonInfo(models.Model):
     passport_nationality = CountryField(_('Passport Nationality'), blank=True,
                                         null=True)
     home_entity = models.CharField(_('Home entity'), max_length=50,
-                                   default='', blank=True)
+                                   default='', blank=True, validators=[alphanum])
     home_entity_address = models.TextField(_('Home Entity address'),
                                            max_length=100, default='',
                                            blank=True)
     host_entity = models.CharField(_('Host entity'), max_length=50,
-                                   default='', blank=True)
+                                   default='', blank=True, validators=[alphanum])
     host_entity_address = models.TextField(_('Host Entity address'),
                                            max_length=100, default='',
                                            blank=True)
@@ -581,13 +585,65 @@ class Person(PersonInfo):
         unique_together = ('first_name', 'last_name', 'birth_date',
                            'is_private', 'home_entity', 'host_entity')
 
+def get_doc_path(person):
+    directory = (person.first_name + '_' + person.last_name + '_' +
+           str(person.birth_date))
+    if person.home_entity:
+        directory += '_' + person.home_entity
+    if person.host_entity:
+        directory += '_' + person.host_entity
+    if person.is_private:
+        directory += '_private'
+    return directory
+
+def delete_doc(person, doc):
+    link = os.path.join(settings.MEDIA_ROOT, get_doc_path(person), doc.filename)
+    doc_file = os.path.join(settings.MEDIA_ROOT, doc.document.name)
+    link_dirname = os.path.dirname(link)
+
+    # remove the link
+    try:
+        os.remove(link)
+    except:
+        pass
+
+    os.remove(doc_file)
+    doc.delete()
+
+    # remove the directories if empty
+    try:
+        os.rmdir(os.path.dirname(doc.document.path))
+        os.rmdir(link_dirname)
+    except:
+        pass
+
+def create_doc_directory(instance, filename):
+    person = instance.person
+    src = os.path.join('ids', str(person.id), filename)
+    dst = os.path.join(settings.MEDIA_ROOT, get_doc_path(person), filename)
+
+    try:
+        os.mkdir(os.path.dirname(dst))
+    except:
+        pass
+    try:
+        os.symlink(os.path.join('..', src), dst)
+    except:
+        pass
+    return src
+
 class Document(models.Model):
-    document = models.FileField(_('File'))
+    document = models.FileField(_('File'), upload_to=create_doc_directory)
     uploaded_date = models.DateTimeField(_('Uploaded'), auto_now_add=True)
     uploaded_by = models.ForeignKey(User, verbose_name=_('Uploaded by'),
                                     on_delete=models.SET_NULL, null=True)
     description = models.CharField(_('Description'), max_length=50, default='')
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE,
+                               related_name='document_set')
+
+    @property
+    def filename(self):
+        return os.path.basename(self.document.name)
 
 class ExpirationCommon(models.Model):
     label = _('Visas / Residence Permits / Work Permits')
