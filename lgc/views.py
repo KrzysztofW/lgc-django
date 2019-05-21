@@ -703,10 +703,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                         prefix='children')
         for form in child_formset.forms:
             if (self.object and type(self.object).__name__ != 'Employee' and
-                hasattr(form.instance, 'dcem_expiration') and
-                form.instance.dcem_expiration):
-                form.fields['dcem_end_date'].initial = form.instance.dcem_expiration.end_date
-                form.fields['dcem_enabled'].initial = form.instance.dcem_expiration.enabled
+                hasattr(form.instance, 'expiration') and
+                form.instance.expiration):
+                form.fields['dcem_end_date'].initial = form.instance.expiration.end_date
+                form.fields['dcem_enabled'].initial = form.instance.expiration.enabled
         formsets.append(child_formset)
 
         if self.request.user.role in user_models.get_internal_roles():
@@ -760,23 +760,23 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             for k in o.__dict__.keys():
                 if (k == 'id' or k == '_state' or k == 'person_id' or
                     k == 'person_child_id' or
-                    (show_dcem == False and k == 'dcem_expiration_id')):
+                    (show_dcem == False and k == 'expiration_id')):
                     continue
                 if first_loop:
                     k_verbose_name = o._meta.get_field(k).verbose_name.title()
                     key_list += [k_verbose_name]
-                    if k == 'dcem_expiration_id':
+                    if k == 'expiration_id':
                         key_list += [_('Enabled')]
                 attr = 'get_' + k + '_display'
                 if hasattr(o, attr):
                     v = getattr(o, attr)
                 else:
                     v = getattr(o, k)
-                if show_dcem and k == 'dcem_expiration_id':
+                if show_dcem and k == 'expiration_id':
                     if v:
-                        v = o.dcem_expiration.end_date
+                        v = o.expiration.end_date
                         obj_list += [v]
-                        v = o.dcem_expiration.enabled
+                        v = o.expiration.enabled
                     else:
                         obj_list += ['']
                         v = False
@@ -868,14 +868,14 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if form.cleaned_data.get('dcem_end_date') == None:
             if (hasattr(form.instance, 'employee_child_set') and
                 form.instance.employee_child_set):
-                form.instance.employee_child_set.dcem_expiration = None
-            if form.instance.dcem_expiration:
-                form.instance.dcem_expiration.delete()
-                form.instance.dcem_expiration = None
+                form.instance.employee_child_set.expiration = None
+            if form.instance.expiration:
+                form.instance.expiration.delete()
+                form.instance.expiration = None
             return
 
-        if form.instance.dcem_expiration:
-            expiration = form.instance.dcem_expiration
+        if form.instance.expiration:
+            expiration = form.instance.expiration
         else:
             expiration = lgc_models.Expiration()
 
@@ -884,7 +884,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         expiration.person = self.object
         expiration.type = lgc_models.EXPIRATION_TYPE_DCEM
         expiration.save()
-        form.instance.dcem_expiration = expiration
+        form.instance.expiration = expiration
 
     def save_formset(self, formset):
         if formset.id != 'children_id':
@@ -916,9 +916,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 These are still referenced by Person Children.
                 """
                 if (type(self.object).__name__ != 'Employee' and
-                    hasattr(obj.instance, 'dcem_expiration') and
-                    obj.instance.dcem_expiration):
-                    obj.instance.dcem_expiration.delete()
+                    hasattr(obj.instance, 'expiration') and
+                    obj.instance.expiration):
+                    obj.instance.expiration.delete()
 
                 if hasattr(obj.instance, 'employee_child') and obj.instance.employee_child:
                     obj.instance.employee_child.delete()
@@ -1102,7 +1102,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                          form.instance.employee_child_set,
                                          form.instance)
                 form.instance.employee_child_set.person_id = employee.id
-                form.instance.employee_child_set.dcem_expiration = form.instance.dcem_expiration
+                form.instance.employee_child_set.expiration = form.instance.expiration
                 form.instance.employee_child_set.save()
 
     def __check_form_diff(self, obj, form, cleaned_data):
@@ -2347,6 +2347,11 @@ def expirations(request):
 
     form = get_expirations_form(request)
     objs = expirations_filter_objs(request, lgc_models.Expiration.objects)
+    for obj in objs:
+        if obj.type == lgc_models.EXPIRATION_TYPE_DCEM and len(obj.child_set.all()) == 0:
+            print('id:', obj.id, 'type:', obj.type, 'child_set:', len(obj.child_set.all()), 'employee_child_set:', len(obj.employee_child_set.all()))
+            print('fixed detached child expiration', obj.id)
+            obj.delete()
 
     user = request.GET.get('user', None)
     if user:

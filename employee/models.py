@@ -14,10 +14,10 @@ class Employee(lgc_models.PersonInfo):
 
 class Child(lgc_models.ChildCommon):
     person = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    dcem_expiration = models.ForeignKey(lgc_models.Expiration,
-                                        on_delete=models.SET_NULL,
-                                        related_name='expiration',
-                                        default=None, null=True)
+    expiration = models.ForeignKey(lgc_models.Expiration,
+                                   on_delete=models.SET_NULL,
+                                   related_name='employee_child_set',
+                                   default=None, null=True)
     person_child = models.OneToOneField(lgc_models.Child, on_delete=models.CASCADE,
                                         related_name='employee_child_set',
                                         null=True)

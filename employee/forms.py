@@ -35,13 +35,13 @@ class ChildCreateForm(lgc_forms.ChildCreateForm):
 
     class Meta:
         model = employee_models.Child
-        exclude = ['person', 'dcem_expiration', 'dcem_id',
+        exclude = ['person', 'expiration', 'dcem_id',
                    'dcem_end_date', 'dcem_enabled', 'person_child']
 
 class ChildCreateForm2(lgc_forms.ChildCreateForm):
     class Meta:
         model = employee_models.Child
-        exclude = ['person', 'dcem_expiration', 'person_child']
+        exclude = ['person', 'expiration', 'person_child']
 
 class ExpirationForm(lgc_forms.ExpirationForm):
     class Meta:

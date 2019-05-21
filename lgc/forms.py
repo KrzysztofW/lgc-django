@@ -150,14 +150,14 @@ class ChildCreateForm(forms.ModelForm):
     birth_date = forms.DateField(label=_('Birth Date'))
     passport_expiry = forms.DateField(required=False, label=_('Passport Expiry'))
     passport_nationality = CountryField().formfield(label=_('Passport nationality'), required=False, widget=forms.Select(attrs={'class':'form-control lgc_small_formset', 'style':'width:90px;'}))
-    # DCEM/TIR expiration
-    dcem_end_date = forms.DateField(required=False, label=_('DCEM/TIR Expiry'))
+    # DCEM expiration
+    dcem_end_date = forms.DateField(required=False, label=_('VLTS-TS/DCEM Expiry'))
     dcem_enabled = forms.BooleanField(required=False, label=_('Enabled'),
                                       initial=True)
 
     class Meta:
         model = lgc_models.Child
-        exclude = ['person', 'dcem_expiration']
+        exclude = ['person', 'expiration']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

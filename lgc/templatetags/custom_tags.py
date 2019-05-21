@@ -29,7 +29,7 @@ def get_notification_menu(request):
 
 @register.simple_tag
 def get_expiration_mapping(val):
-    l = lgc_models.PERSON_SPOUSE_EXPIRATIONS_CHOICES_COMPACT
+    l = lgc_models.PERSON_EXPIRATIONS_CHOICES_COMPACT
     for i in l:
         if val == i[0]:
             return i[1]

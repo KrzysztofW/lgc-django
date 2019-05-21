@@ -388,7 +388,7 @@ vls_ts = _('Visa or Residence Permit (VLS-TS)')
 cst = _('Visa or Residence Permit (CST)')
 csp = _('Visa or Residence Permit (CSP)')
 aps = _('Visa or Residence Permit (APS)')
-dcem = 'DCEM/TIR'
+dcem = 'VLS-TS/DCEM'
 
 s_work_permit = _('Spouse Work Permit')
 s_vls_ts = _('Spouse Visa or Residence Permit (VLS-TS)')
@@ -426,12 +426,13 @@ PERSON_SPOUSE_EXPIRATIONS_CHOICES_SHORT = (
     (EXPIRATION_TYPE_SAPS, aps),
 )
 
-PERSON_SPOUSE_EXPIRATIONS_CHOICES_COMPACT = (
+PERSON_EXPIRATIONS_CHOICES_COMPACT = (
     (EXPIRATION_TYPE_SWP, compact_s_work_permit),
     (EXPIRATION_TYPE_SVLS, compact_s_vls_ts),
     (EXPIRATION_TYPE_SCST, compact_s_cst),
     (EXPIRATION_TYPE_SCSP, compact_s_csp),
     (EXPIRATION_TYPE_SAPS, compact_s_aps),
+    (EXPIRATION_TYPE_DCEM, dcem),
 )
 
 EXPIRATION_CHOICES_DCEM = (
@@ -619,9 +620,9 @@ class ChildCommon(models.Model):
 
 class Child(ChildCommon):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
-    dcem_expiration = models.ForeignKey(Expiration,
-                                        on_delete=models.SET_NULL,
-                                        default=None, null=True)
+    expiration = models.ForeignKey(Expiration, related_name='child_set',
+                                   on_delete=models.SET_NULL,
+                                   default=None, null=True)
 
 class ProcessStage(models.Model):
     name_fr = models.CharField(_('French Name'), max_length=50, unique=True)

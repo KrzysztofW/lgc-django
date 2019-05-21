@@ -146,10 +146,10 @@ def set_formset(request, context, form_class, queryset, person_objs, title,
     if queryset:
         formset = form_class(queryset=queryset, prefix=prefix)
         for form in formset.forms:
-            if (hasattr(form.instance, 'dcem_expiration') and
-                form.instance.dcem_expiration):
-                form.fields['dcem_end_date'].initial = form.instance.dcem_expiration.end_date
-                form.fields['dcem_enabled'].initial = form.instance.dcem_expiration.enabled
+            if (hasattr(form.instance, 'expiration') and
+                form.instance.expiration):
+                form.fields['dcem_end_date'].initial = form.instance.expiration.end_date
+                form.fields['dcem_enabled'].initial = form.instance.expiration.enabled
     else:
         formset = form_class(request.POST, prefix=prefix)
 
@@ -231,7 +231,7 @@ def save_formset(employee_obj, formset):
 
             form.instance.person_child.delete()
             form.instance.person_child = None
-            expiration = form.instance.dcem_expiration
+            expiration = form.instance.expiration
             form.instance.delete()
             expiration.delete()
             continue
@@ -248,22 +248,22 @@ def save_formset(employee_obj, formset):
         person_child.person = employee_obj.user.person_user_set
 
         if form.cleaned_data['dcem_end_date']:
-            if form.instance.dcem_expiration == None:
+            if form.instance.expiration == None:
                 expiration = lgc_models.Expiration()
             else:
-                expiration = form.instance.dcem_expiration
+                expiration = form.instance.expiration
             expiration.end_date = form.cleaned_data['dcem_end_date']
             expiration.enabled = form.cleaned_data['dcem_enabled']
             expiration.person = person_child.person
             expiration.save()
-            form.instance.dcem_expiration = expiration
-        elif form.instance.dcem_expiration:
-            expiration = form.instance.dcem_expiration
-            form.instance.dcem_expiration = None
-            form.instance.person_child.dcem_expiration = None
+            form.instance.expiration = expiration
+        elif form.instance.expiration:
+            expiration = form.instance.expiration
+            form.instance.expiration = None
+            form.instance.person_child.expiration = None
             expiration.delete()
 
-        person_child.dcem_expiration = form.instance.dcem_expiration
+        person_child.expiration = form.instance.expiration
         person_child.save()
         form.instance.person_child = person_child
         form.instance.save()
