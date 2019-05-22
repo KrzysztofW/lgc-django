@@ -147,7 +147,10 @@ def parse_date(date_str):
 def set_bold_search_attrs(objs, term, attrs):
     for obj in objs:
         for attr in attrs:
-            val = getattr(obj, attr).lower()
+            try:
+                val = getattr(obj, attr).lower()
+            except:
+                continue
 
             if val.startswith(term):
                 bold_attr = 'b_' + attr
