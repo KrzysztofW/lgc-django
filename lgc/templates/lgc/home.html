@@ -141,6 +141,7 @@
     </div>
   </div>
 
+  {% if request.user.billing %}
   <div class="col-lg-3 col-sm-6">
     <div class="card">
       <div class="content">
@@ -161,12 +162,12 @@
 	<hr class="lgc_hr">
 	<div class="stats">
 	  <i class="fa fa-arrow-circle-right"></i>
-	  <a href="{# url 'lgc-billing' #}"> {% trans 'Go' %}</a>
+	  <a href="{% url 'lgc-invoices' %}"> {% trans 'Go' %}</a>
 	</div>
       </div>
     </div>
   </div>
-
+  {% endif %}
 </div>
 </div></div>
 

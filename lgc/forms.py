@@ -45,7 +45,7 @@ class PersonSearchForm(forms.Form):
     id = forms.CharField(required=False)
     info_process = forms.ChoiceField(required=False,
                                      choices=lgc_models.PROCESS_CHOICES,
-                                     label=_('Process'),
+                                     label=_('Immigration Process'),
                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
     state = forms.ChoiceField(required=False,
                               choices=lgc_models.FILE_STATE_CHOICES,
