@@ -133,6 +133,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
     ajax_search_url = reverse_lazy('lgc-file-search-ajax')
     search_url = reverse_lazy('lgc-files')
     update_url = 'lgc-file'
+    process_col = None
 
     class Meta:
         abstract = True
@@ -159,7 +160,33 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
 
         if self.request.user.role == user_models.CONSULTANT:
             context['create_url'] = reverse_lazy('lgc-file-create')
-        return pagination(self.request, context, reverse_lazy('lgc-files'))
+
+        p = pagination(self.request, context, reverse_lazy('lgc-files'))
+        if self.model == user_models.User or self.process_col == None:
+            return p
+
+        prev_id = None
+        proc_idx = 0
+        for obj in p['object_list']:
+            if obj.id == prev_id:
+                proc_idx += 1
+            else:
+                proc_idx = 0
+                prev_id = obj.id
+                qs = obj.personprocess_set.filter(active=self.process_col)
+
+            if len(qs) == 0:
+                print('cannot get person process')
+                continue
+            proc = qs[proc_idx]
+            if translation.get_language() == 'fr':
+                obj.proc = proc.name_fr
+            else:
+                obj.proc = proc.name_en
+
+        context['header_values'] += [('Process', 'proc')]
+
+        return p
 
     def test_func(self):
         return self.request.user.role in user_models.get_internal_roles()
@@ -181,8 +208,10 @@ class PersonListView(PersonCommonListView):
 
         if process_state == 'A':
             objs = objs.filter(personprocess_set__active=True)
+            self.process_col = True
         elif process_state == 'I':
             objs = objs.filter(personprocess_set__active=False)
+            self.process_col = False
 
         if id:
             objs = objs.filter(id=id)
