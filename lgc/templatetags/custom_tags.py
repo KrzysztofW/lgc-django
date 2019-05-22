@@ -126,9 +126,24 @@ def generate_table(header_values, object_list, order_by, order_params, url):
             res += 'data-href="' + str(reverse_lazy(url, kwargs={'pk':obj.id})) + '"'
         res += 'class="clickable-row">'
         for th in header_values:
+            try:
+                extra_field = th[2]
+                extra_field_label = th[3]
+            except:
+                extra_field = None
+
             if th[1] in object_list[0].__dict__.keys():
                 val = normalize_value(obj, th[1], getattr(obj, th[1]))
-                res += '<td>' + str(val) + '</td>'
+                res += '<td>' + str(val)
+                if extra_field and extra_field in object_list[0].__dict__.keys():
+                    val = getattr(obj, extra_field)
+                    res += ' '
+                    if type(val).__name__ == 'bool':
+                        if val == True:
+                            res += extra_field_label
+                    else:
+                        res += str(val)
+                res += '</td>'
         res += '</tr>'
 
     res += '</tbody>'

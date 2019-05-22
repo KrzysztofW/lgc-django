@@ -151,7 +151,8 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
         context['search_url'] = self.search_url
 
         context['item_url'] = 'lgc-file'
-        context['header_values'] = [('ID', 'id'), (_('First Name'), 'first_name'),
+        context['header_values'] = [('ID', 'id', 'is_private', _('<i>(private)</i>')),
+                                    (_('First Name'), 'first_name'),
                                     (_('Last Name'), 'last_name'), ('E-mail', 'email'),
                                     (_('Birth Date'), 'birth_date'),
                                     (_('Created'), 'creation_date')]
