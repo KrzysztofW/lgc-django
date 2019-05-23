@@ -1,0 +1,69 @@
+{% load i18n %}{% load static %}{% get_current_language as LANGUAGE_CODE %}
+{% for invoice_tuple in invoice_set %}
+{% if invoice_tuple.0|length %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    {% if invoice_tuple.2 == 'closed_id' %}
+    <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#panel_{{ invoice_tuple.2 }}" aria-expanded="false" aria-controls="panel_{{ invoice_tuple.2 }}">
+      {{ invoice_tuple.1 }}
+    </button>
+    {% else %}
+    {{ invoice_tuple.1 }}
+    {% endif %}
+  </div>
+  <div class="panel-body {% if invoice_tuple.2 == 'closed_id' %}collapse{% endif %}" id="panel_{{ invoice_tuple.2 }}">
+    <table id="{{ invoice_tuple.2 }}" class="display table table-striped table-bordered table-hover" style="width:100%">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>{% trans 'Process' %}</th>
+          <th>{% trans 'Date' %}</th>
+          <th>PO</th>
+	  <th>{% trans 'Total' %}</th>
+	  <th>{% trans 'Status' %}</th>
+        </tr>
+      </thead>
+      <tbody>
+	{% for obj in invoice_tuple.0 %}
+        <tr>
+	  <td><a href="{% url 'lgc-invoice' obj.id %}">{{ obj.id }}</a></td>
+	  <td>
+	    {% if LANGUAGE_CODE == 'fr' %}
+	    {{ obj.process.name_fr }}
+	    {% else %}
+	    {{ obj.process.name_en }}
+	    {% endif %}
+	  </td>
+	  <td>{{ obj.invoice_date }}</td>
+	  <td>{{ obj.po }}</td>
+	  <td>{{ obj.total }}</td>
+	  <td>{{ obj.get_state_display }}</td>
+        </tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+// https://datatables.net/manual/i18n#Available-translations
+$(document).ready(function() {
+	$('#{{ invoice_tuple.2 }}').DataTable({
+	    language: {
+		processing:     "{% trans 'Processing' %}",
+		search:         "{% trans 'Search' %}",
+		lengthMenu:     "{% trans 'Show _MENU_ entries' %}",
+		info:           "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries' %}",
+		infoEmpty:      "{% trans 'Showing 0 to 0 of 0 entries' %}",
+		zeroRecords:    "{% trans 'No matching records found' %}",
+		paginate: {
+		    first:      "{% trans 'First' %}",
+		    previous:   "{% trans 'Previous' %}",
+		    next:       "{% trans 'Next' %}",
+		    last:       "{% trans 'Last' %}"
+		},
+	    }});
+});
+</script>
+{% endif %}
+{% endfor %}
+

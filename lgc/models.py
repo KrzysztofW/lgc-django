@@ -831,7 +831,8 @@ class Invoice(AbstractClient):
     client = models.ForeignKey(Client, null=True, on_delete=models.SET_NULL)
     number = models.PositiveIntegerField()
     type = models.CharField(max_length=1, default='I', choices=INVOICE_CHOICES)
-    person = models.ForeignKey(Person, null=True, on_delete=models.SET_NULL)
+    person = models.ForeignKey(Person, null=True, on_delete=models.SET_NULL,
+                               related_name='invoice_set')
     process = models.OneToOneField(PersonProcess, on_delete=models.SET_NULL,
                                 null=True, related_name='invoice')
 

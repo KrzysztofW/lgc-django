@@ -401,13 +401,10 @@ def local_user_get_person_form_layout(form, action, obj, completed_processes):
             HTML(get_template(CURRENT_DIR, 'lgc/person_process_list.html')))
         tab_holder.append(process_tab)
 
-        billing_tab = LgcTab(_('Billing'))
-        billing_tab.append(HTML('<a href="' +
-                                str(reverse_lazy('lgc-invoice-create')) +
-                                '?pid=' + str(obj.id) +
-                                '">Create a new invoice for the current process</a><br><br>'))
-
-        tab_holder.append(billing_tab)
+        if obj.invoice_set.count():
+            billing_tab = LgcTab(_('Billing'))
+            billing_tab.append(HTML(get_template(CURRENT_DIR, 'lgc/file_invoice_list.html')))
+            tab_holder.append(billing_tab)
 
     documents_tab = LgcTab(_('Documents'))
     documents_tab.append(HTML(get_template(CURRENT_DIR,
@@ -792,6 +789,12 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 obj = emp_obj.user.person_user_set
             context['docs'] = DocumentFormSet(prefix='docs', queryset=lgc_models.Document.objects.filter(person=obj))
             context['process'] = lgc_models.PersonProcess.objects.filter(person=obj)
+            pending_invoices = self.object.invoice_set.filter(state=lgc_models.INVOICE_STATE_PENDING)|self.object.invoice_set.filter(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
+            closed_invoices = self.object.invoice_set.exclude(state=lgc_models.INVOICE_STATE_PENDING).exclude(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
+            context['invoice_set'] = [
+                (pending_invoices, _('Pending Invoices'), 'pending_id'),
+                (closed_invoices, _('Closed Invoices'), 'closed_id')
+            ]
 
         self.set_person_process_stages(context)
         set_active_tab(self, context)
