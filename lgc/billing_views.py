@@ -250,19 +250,22 @@ class InvoiceCommonView(BillingTest):
     def get_person_and_process(self):
         if not hasattr(self, 'object') or self.object == None:
             pid = self.request.GET.get('pid')
+            proc_id = self.request.GET.get('proc_id')
             person = lgc_models.Person.objects.filter(id=pid).all()
             if len(person) != 1:
                 return None, None
             person = person[0]
-        elif self.object.person != None:
+            proc = lgc_models.PersonProcess.objects.filter(id=proc_id).all()
+            if len(proc) != 1:
+                return None, None
+            proc = proc[0]
+            return person, proc
+        if self.object.person != None and self.object.process != None:
             person = self.object.person
-        else:
-            return None, None
+            proc = self.object.process
+            return person, proc
 
-        person_process = person.personprocess_set.filter(active=True)
-        if len(person_process) == 1 and person_process[0].process:
-            return person, person_process[0]
-        return person, None
+        return None, None
 
     def set_client_info(self, context):
         if not hasattr(self, 'object') or self.object == None:
@@ -361,7 +364,7 @@ class InvoiceCommonView(BillingTest):
         form.instance.person = person
 
         if person_process and person_process.process:
-            form.instance.process = person_process.process
+            form.instance.process = person_process
 
         if form.instance.id:
             obj = lgc_models.Invoice.objects.filter(id=form.instance.id)

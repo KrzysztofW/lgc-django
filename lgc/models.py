@@ -832,7 +832,9 @@ class Invoice(AbstractClient):
     number = models.PositiveIntegerField()
     type = models.CharField(max_length=1, default='I', choices=INVOICE_CHOICES)
     person = models.ForeignKey(Person, null=True, on_delete=models.SET_NULL)
-    process = models.ForeignKey(Process, null=True, on_delete=models.SET_NULL)
+    process = models.OneToOneField(PersonProcess, on_delete=models.SET_NULL,
+                                null=True, related_name='invoice')
+
     invoice_date = models.DateField(_('Invoice Date'))
     modification_date = models.DateField(_('Modification Date'), null=True)
     modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
