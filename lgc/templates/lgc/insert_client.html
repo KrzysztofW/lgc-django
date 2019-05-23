@@ -17,7 +17,7 @@
           </thead>
           <tbody>
 	    {% for obj in object_list %}
-            <tr onclick="insert('{{ obj.id }}', '{{ obj.first_name }}', '{{ obj.last_name }}', '{{ obj.company }}', '{% if obj.siret %}{{ obj.siret }}{% endif %}', '{{ obj.address }}', '{{ obj.post_code }}', '{{ obj.city }}', '{{ obj.country.name }}');">
+            <tr onclick="insert('{{ obj.id }}', '{{ obj.first_name|urlencode }}', '{{ obj.last_name|urlencode }}', '{{ obj.company|urlencode }}', '{% if obj.siret %}{{ obj.siret }}{% endif %}', '{{ obj.address|urlencode }}', '{{ obj.post_code }}', '{{ obj.city|urlencode }}', '{{ obj.country.name }}');">
 	      <td>{{ obj.id }}</td>
 	      <td>{{ obj.first_name }}</td>
 	      <td>{{ obj.last_name }}</td>
@@ -59,17 +59,24 @@
 
 	client_id.value = id;
 	if (first_name + last_name != '')
-	    str += first_name + ' ' + last_name + '<br>';
+	    str += decodeURIComponent(first_name) + ' ' + decodeURIComponent(last_name) + '<br>';
 	if (company != '')
-	    str += company + '<br>';
-	if (address != '')
+	    str += decodeURIComponent(company) + '<br>';
+	if (str != '')
+	    str += '<br>';
+	if (address != '') {
+	    address = decodeURIComponent(address)
+	    address = address.replace(/(?:\r\n|\r|\n)/g, '<br>');
 	    str += address + '<br>';
+	}
 	if (post_code != '')
 	    str += post_code + '<br>';
 	if (city != '')
-	    str += city + '<br>';
+	    str += decodeURIComponent(city) + '<br>';
 	if (country != '')
 	    str += country + '<br>';
+	if (address + post_code + city + country != '')
+	    str += '<br>';
 	if (siret != '')
 	    str += 'SIRET: ' + siret + '<br>';
 	client_info.innerHTML = str;
