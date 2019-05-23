@@ -2,6 +2,8 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 
+{{ docs.management_form }}
+{% if docs|length %}
 <div class="row">
   <div class="col-xl-12">
     <div class="card">
@@ -16,14 +18,17 @@
       </div>
       <!-- /.card-header -->
       <div class="card-body">
-	{{ docs.management_form }}
 	<table class="table table-striped table-bordered table-hover">
 	  <thead>
 	    <tr>
 	      <th scope="col">{% trans "File name" %}</th>
 	      <th scope="col">{% trans "Description" %}</th>
+	      {% if docs.0.instance.uploaded_by %}
 	      <th scope="col">{% trans "Uploaded by" %}</th>
+	      {% endif %}
+	      {% if docs.0.instance.uploaded_date %}
 	      <th scope="col">{% trans "Date" %}</th>
+	      {% endif %}
 	      <th scope="col">{% trans "File size" %}</th>
 	      <th scope="col">{% trans "Delete" %}
 		<a href=""></a>
@@ -39,6 +44,7 @@
 		</a>
 	      </td>
 	      <td>{{ item.instance.description }}</td>
+	      {% if item.instance.uploaded_by %}
 	      <td>{% if item.instance.uploaded_by.first_name != '' and item.instance.uploaded_by.last_name %}
 		{{ item.instance.uploaded_by.first_name }}
 		{{ item.instance.uploaded_by.last_name }}
@@ -46,7 +52,10 @@
 		{{ item.instance.uploaded_by.email }}
 		{% endif %}
 	      </td>
+	      {% endif %}
+	      {% if item.instance.uploaded_date %}
 	      <td>{{ item.instance.uploaded_date }}</td>
+	      {% endif %}
 	      <td>{{ item.instance.document.size|filesizeformat }}</td>
 	      <td>{{ item.id }}{{ item.DELETE }}</td>
 	    </tr>
@@ -57,7 +66,7 @@
     </div>
   </div>
 </div>
-
+{% endif %}
 <br><strong>{% trans 'Upload a file:' %}</strong>
 <div class="row">
   <div class="form-group col-md-3">

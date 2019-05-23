@@ -580,9 +580,11 @@ class Person(PersonInfo):
         unique_together = ('first_name', 'last_name', 'birth_date',
                            'is_private', 'home_entity', 'host_entity')
 
-def get_doc_path(person):
+PERSON_DOC_LINK_DIR = os.path.join(settings.MEDIA_ROOT, 'files')
+
+def get_person_doc_path(person):
     directory = (person.first_name + '_' + person.last_name + '_' +
-           str(person.birth_date))
+                 str(person.birth_date))
     if person.home_entity:
         directory += '_' + person.home_entity
     if person.host_entity:
@@ -591,8 +593,19 @@ def get_doc_path(person):
         directory += '_private'
     return directory
 
-def delete_doc(person, doc):
-    link = os.path.join(settings.MEDIA_ROOT, get_doc_path(person), doc.filename)
+def rename_person_doc_dir(old_obj, new_obj):
+    old_path = os.path.join(PERSON_DOC_LINK_DIR, get_person_doc_path(old_obj))
+    new_path = os.path.join(PERSON_DOC_LINK_DIR, get_person_doc_path(new_obj))
+
+    try:
+        print('renaming:', old_path, new_path)
+        os.rename(old_path, new_path)
+    except Exception as e:
+        print(e)
+
+def delete_person_doc(person, doc):
+    link = os.path.join(PERSON_DOC_LINK_DIR, get_person_doc_path(person),
+                        doc.filename)
     doc_file = os.path.join(settings.MEDIA_ROOT, doc.document.name)
     link_dirname = os.path.dirname(link)
 
@@ -614,16 +627,26 @@ def delete_doc(person, doc):
 
 def create_doc_directory(instance, filename):
     person = instance.person
-    src = os.path.join('ids', str(person.id), filename)
-    dst = os.path.join(settings.MEDIA_ROOT, get_doc_path(person), filename)
-
+    src = os.path.join('file_ids', str(person.id), filename)
+    link_file_src = os.path.join('..', '..', src)
+    link_dst = os.path.join(PERSON_DOC_LINK_DIR,
+                            get_person_doc_path(person), filename)
     try:
-        os.mkdir(os.path.dirname(dst))
+        os.mkdir(PERSON_DOC_LINK_DIR)
     except:
         pass
     try:
-        os.symlink(os.path.join('..', src), dst)
+        os.mkdir(os.path.dirname(link_dst))
     except:
+        pass
+    try:
+        os.mkdir(os.path.dirname(src))
+    except:
+        pass
+    try:
+        os.symlink(link_file_src, link_dst)
+    except Exception as e:
+        print(e)
         pass
     return src
 
@@ -892,3 +915,24 @@ class InvoiceItem(ItemCommon):
     rate = models.PositiveIntegerField(_('Rate'), default=0)
     quantity = models.PositiveIntegerField(_('Quantity'), default=0)
     vat = models.PositiveIntegerField(_('VAT'), default=0, choices=VAT_CHOICES)
+
+def create_disbursement_directory(instance, filename):
+    invoice = instance.invoice
+    subdir = str((int(invoice.id / 100)) * 100).zfill(3)
+    dst = os.path.join('disbursement_receipts', subdir, str(invoice.id), filename)
+
+    try:
+        os.mkdir(os.path.dirname(dst))
+    except:
+        pass
+    return dst
+
+class DisbursementDocument(models.Model):
+    document = models.FileField(_('File'), upload_to=create_disbursement_directory)
+    description = models.CharField(_('Description'), max_length=50, default='')
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE,
+                                related_name='document_set')
+
+    @property
+    def filename(self):
+        return os.path.basename(self.document.name)

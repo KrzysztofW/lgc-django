@@ -242,6 +242,7 @@ class InvoiceCommonView(BillingTest):
     template_name = 'lgc/generic_form_with_formsets.html'
     success_url = 'lgc-invoice'
     fields = '__all__'
+    disbursement_receipt_btn_id = 'disbursement_receipt_btn_id'
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk':self.object.id})
@@ -316,6 +317,19 @@ class InvoiceCommonView(BillingTest):
         formsets[1].err_msg = _('Invalid Disbursement table')
         return formsets
 
+    def get_doc_forms(self):
+        DocumentFormSet = modelformset_factory(lgc_models.DisbursementDocument,
+                                               form=lgc_forms.DisbursementDocumentFormSet,
+                                               can_delete=True, extra=0)
+        if self.request.POST:
+            docs = DocumentFormSet(self.request.POST, self.request.FILES,
+                                   prefix='docs')
+            doc = lgc_forms.DisbursementDocumentForm(self.request.POST, self.request.FILES)
+        else:
+            docs = DocumentFormSet(prefix='docs', queryset=lgc_models.DisbursementDocument.objects.filter(invoice=self.object))
+            doc = lgc_forms.DisbursementDocumentForm()
+        return doc, docs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         person, process = self.get_person_and_process()
@@ -334,6 +348,9 @@ class InvoiceCommonView(BillingTest):
 
         self.set_client_info(context)
         context['formsets'] = self.get_formsets()
+        context['doc'], context['docs'] = self.get_doc_forms()
+        context['button_collapse_id'] = self.disbursement_receipt_btn_id
+        context['button_label'] = _('Disbursement receipts')
 
         return context
 
@@ -342,6 +359,7 @@ class InvoiceCommonView(BillingTest):
         invoice = None
         person, person_process = self.get_person_and_process()
         form.instance.person = person
+
         if person_process and person_process.process:
             form.instance.process = person_process.process
 
@@ -377,6 +395,11 @@ class InvoiceCommonView(BillingTest):
             if not formset.is_valid():
                 messages.error(self.request, formset.err_msg)
                 return super().form_invalid(form)
+        doc, deleted_docs = self.get_doc_forms()
+        docs = lgc_models.DisbursementDocument.objects.filter(invoice=self.object)
+
+        if lgc_views.check_docs(self, doc, docs) < 0:
+            return super().form_invalid(form)
 
         with transaction.atomic():
             self.object = form.save()
@@ -394,6 +417,19 @@ class InvoiceCommonView(BillingTest):
                         continue
                     i.invoice = self.object
                     i.save()
+            for d in deleted_docs.deleted_forms:
+                if d.instance.id == None:
+                    continue
+                os.remove(os.path.join(settings.MEDIA_ROOT,
+                                       d.instance.document.name))
+                d.instance.delete()
+
+            if doc.cleaned_data['document'] != None:
+                doc.instance = lgc_models.DisbursementDocument()
+                doc.instance.document = doc.cleaned_data['document']
+                doc.instance.description = doc.cleaned_data['description']
+                doc.instance.invoice = self.object
+                doc.save()
 
         return super().form_valid(form)
 
@@ -440,7 +476,20 @@ class InvoiceCommonView(BillingTest):
             Div(HTML(get_template(CURRENT_DIR,
                                   'lgc/billing_formsets_template.html')),
                 css_class='form-group col-md-9'),
-            css_class='form-row'))
+            css_class='form-row')
+        )
+        layout.append(Div(
+            Div(HTML(get_template(CURRENT_DIR, 'lgc/button_collapse.html') + '<hr>'),
+                css_class='form-group col-md-9'),
+            css_class='form-row')
+        )
+        layout.append(Div(
+            Div(HTML(get_template(CURRENT_DIR, 'lgc/document_form.html')),
+                HTML('<hr>'),
+                css_class='form-group col-md-9 collapse',
+                id=self.disbursement_receipt_btn_id),
+            css_class='form-row')
+        )
 
         if self.object:
             layout.append(Div('number'))

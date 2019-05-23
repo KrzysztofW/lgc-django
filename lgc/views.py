@@ -517,6 +517,29 @@ class TemplateTimelineStages():
     name = ''
     start_date = ''
 
+def check_docs(obj, doc, docs):
+    if not doc.is_valid():
+        messages.error(self.request, _('Invalid document.'))
+        return -1
+    if doc.cleaned_data['document'] == None:
+        return 0
+    if doc.cleaned_data['description'] == '':
+        messages.error(obj.request,
+                       _('Invalid document description.'))
+        return -1
+    if doc.instance.document.size > settings.MAX_FILE_SIZE << 20:
+        messages.error(obj.request,
+                       _('File too big. Maximum file size is %dM.')%
+                       settings.MAX_FILE_SIZE)
+        return -1
+    for d in docs.all():
+        if d.document.name != doc.instance.document.name:
+            continue
+        messages.error(obj.request, _("File `%s' already exists.")%
+                       d.document.name)
+        return -1
+    return 0
+
 class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     model = lgc_models.Person
     is_update = False
@@ -1060,15 +1083,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             'host_entity' not in form.changed_data and
             'is_private' not in form.changed_data):
             return
-        old_path = os.path.join(settings.MEDIA_ROOT,
-                                lgc_models.get_doc_path(old_obj))
-        new_path = os.path.join(settings.MEDIA_ROOT,
-                                lgc_models.get_doc_path(new_obj))
-        try:
-            print('renaming:', old_path, new_path)
-            os.rename(old_path, new_path)
-        except Exception as e:
-            print(e)
+        lgc_models.rename_person_doc_dir(old_obj, new_obj)
 
     def form_valid(self, form):
         formsets = self.get_person_formsets()
@@ -1130,29 +1145,11 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         doc, deleted_docs = self.get_doc_forms()
         docs = lgc_models.Document.objects.filter(person=person)
 
-        if not doc.is_valid():
-            messages.error(self.request, _('Invalid document.'))
-            return super().form_invalid(form)
-
         if self.is_update and self.object.user != None:
             form.instance.user = self.object.user
 
-        if doc.cleaned_data['document'] != None:
-            if doc.cleaned_data['description'] == '':
-                messages.error(self.request,
-                               _('Invalid document description.'))
-                return super().form_invalid(form)
-            if doc.instance.document.size > settings.MAX_FILE_SIZE << 20:
-                messages.error(self.request,
-                               _('File too big. Maximum file size is %dM.')%
-                               settings.MAX_FILE_SIZE)
-                return super().form_invalid(form)
-            for d in docs.all():
-                if d.document.name != doc.instance.document.name:
-                    continue
-                messages.error(self.request, _("File `%s' already exists.")%
-                               d.document.name)
-                return super().form_invalid(form)
+        if check_docs(self, doc, docs) < 0:
+            return super().form_invalid(form)
 
         with transaction.atomic():
             self.object = form.save()
@@ -1191,12 +1188,12 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
             self.set_employee_data(form, formsets)
 
-            if self.is_update and deleted_docs != '':
+            if self.is_update and deleted_docs:
                 for d in deleted_docs.deleted_forms:
                     if d.instance.id == None:
                         continue
                     try:
-                        lgc_models.delete_doc(form.instance, d.instance)
+                        lgc_models.delete_person_doc(form.instance, d.instance)
                     except Exception as e:
                         messages.error(self.request,
                                        _('Cannot delete the file `%(filename)s`'%{'filename':d.instance.filename}))

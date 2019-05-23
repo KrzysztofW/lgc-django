@@ -430,3 +430,15 @@ class DisbursementForm(ItemForm):
     class Meta:
         model = lgc_models.Disbursement
         exclude = ['invoice']
+
+class DisbursementDocumentForm(DocumentForm):
+    class Meta:
+        model = lgc_models.DisbursementDocument
+        fields = ['document', 'description']
+
+class DisbursementDocumentFormSet(DocumentFormSet):
+    id = forms.CharField(required=True, widget=forms.HiddenInput())
+
+    class Meta:
+        model = lgc_models.DisbursementDocument
+        fields = ['id']
