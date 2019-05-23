@@ -1,5 +1,4 @@
 from django.utils import timezone
-from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
@@ -10,13 +9,9 @@ import os, pdb
 from django.conf import settings
 from django_countries.fields import CountryField
 from users import models as user_models
-User = get_user_model()
+import common.validators as validators
 
-alpha = RegexValidator(r'^[^0-9`;:_{}()$^~"\%&*#!?.,\\<>|@/]*$',
-                       _('Numbers and special characters are not allowed.'))
-alphanum = RegexValidator(r'^[^`;:_{}()$^~"\%&*#!?.,\\<>|@/]*$',
-                          _('Special characters are not allowed.'))
-siret_validator = RegexValidator(r'^[0-9]{14}$')
+User = get_user_model()
 
 PROCESS_CHOICES = (
     ('', '---------'),
@@ -469,8 +464,8 @@ class PersonInfo(models.Model):
     is_private = models.BooleanField(_('Private File'), default=False)
     version = models.PositiveIntegerField(default=0)
     creation_date = models.DateTimeField(_('Creation Date'), auto_now_add=True)
-    first_name = models.CharField(_('First name'), max_length=50, validators=[alpha])
-    last_name = models.CharField(_('Last name'), max_length=50, validators=[alpha])
+    first_name = models.CharField(_('First name'), max_length=50, validators=[validators.alpha])
+    last_name = models.CharField(_('Last name'), max_length=50, validators=[validators.alpha])
     email = models.EmailField('Email', max_length=50, null=True, blank=True, unique=True)
     foreigner_id = models.PositiveIntegerField(_('Foreigner ID'), blank=True,
                                                null=True)
@@ -481,22 +476,22 @@ class PersonInfo(models.Model):
     passport_nationality = CountryField(_('Passport Nationality'), blank=True,
                                         null=True)
     home_entity = models.CharField(_('Home entity'), max_length=50,
-                                   default='', blank=True, validators=[alphanum])
+                                   default='', blank=True, validators=[validators.alphanum])
     home_entity_address = models.TextField(_('Home Entity address'),
                                            max_length=100, default='',
                                            blank=True)
     host_entity = models.CharField(_('Host entity'), max_length=50,
-                                   default='', blank=True, validators=[alphanum])
+                                   default='', blank=True, validators=[validators.alphanum])
     host_entity_address = models.TextField(_('Host Entity address'),
                                            max_length=100, default='',
                                            blank=True)
 
     spouse_first_name = models.CharField(_('Spouse First Name'),
                                          max_length=50, default='',
-                                         blank=True, validators=[alpha])
+                                         blank=True, validators=[validators.alpha])
     spouse_last_name = models.CharField(_('Spouse Last Name'),
                                         max_length=50, default='',
-                                        blank=True, validators=[alpha])
+                                        blank=True, validators=[validators.alpha])
     spouse_birth_date = models.DateField(_('Spouse Birth Date'), blank=True,
                                          null=True)
     spouse_citizenship = CountryField(_('Spouse Citizenship'), blank=True,
@@ -668,7 +663,7 @@ class ArchiveBox(models.Model):
 
 class ChildCommon(models.Model):
     first_name = models.CharField(verbose_name=_('First name'), max_length=50,
-                                  validators=[alpha])
+                                  validators=[validators.alpha])
     birth_date = models.DateField(_('Birth date'), blank=True, null=True)
     passport_expiry = models.DateField(_('Passport expiry'), blank=True, null=True)
     passport_nationality = CountryField(_('Passport nationality'), blank=True, null=True)
@@ -737,9 +732,9 @@ class PersonProcessStage(models.Model):
 
 class AbstractClient(models.Model):
     first_name = models.CharField(_('First name'), max_length=50,
-                                  validators=[alpha], blank=True)
+                                  validators=[validators.alpha], blank=True)
     last_name = models.CharField(_('Last name'), max_length=50,
-                                 validators=[alpha], blank=True)
+                                 validators=[validators.alpha], blank=True)
     company = models.CharField(_('Company'), max_length=50, blank=True)
     email = models.EmailField('Email', max_length=50, null=True, blank=True,
                               unique=True)
@@ -748,7 +743,7 @@ class AbstractClient(models.Model):
     cell_phone_number = models.CharField(_('Cell Phone Number'), max_length=50,
                                          blank=True)
     siret = models.CharField('SIRET', max_length=14, blank=True, null=True,
-                             validators=[siret_validator],
+                             validators=[validators.siret],
                              unique=True)
     vat = models.CharField(_('VAT Number'), max_length=50, null=True,
                            blank=True, unique=True)
@@ -825,17 +820,17 @@ class Invoice(AbstractClient):
                                 choices=CURRENCY_CHOICES)
     email = models.EmailField('Email', max_length=50, null=True, blank=True)
     siret = models.CharField('SIRET', max_length=14, blank=True, null=True,
-                             validators=[siret_validator])
+                             validators=[validators.siret])
     vat = models.CharField(_('VAT Number'), max_length=50, null=True,
                            blank=True)
 
     """Autorisations"""
-    po = models.CharField('PO', max_length=50, validators=[alpha], blank=True)
+    po = models.CharField('PO', max_length=50, validators=[validators.alpha], blank=True)
     po_date = models.DateField(_('Date'), auto_now_add=True, null=True, blank=True)
     po_first_name = models.CharField(_('First name'), max_length=50,
-                                     validators=[alpha], blank=True)
+                                     validators=[validators.alpha], blank=True)
     po_last_name = models.CharField(_('Last name'), max_length=50,
-                                    validators=[alpha], blank=True)
+                                    validators=[validators.alpha], blank=True)
     po_email = models.EmailField('Email', max_length=50, null=True, blank=True)
     po_rate = models.PositiveIntegerField(_('Rate'), null=True, blank=True)
 
@@ -850,7 +845,7 @@ class Invoice(AbstractClient):
                              choices=INVOICE_STATE_CHOICES)
     already_paid = models.PositiveIntegerField(_('Already Paid'), default=0)
     with_regard_to = models.CharField(_('With regard to'), max_length=50,
-                                      validators=[alpha], blank=True)
+                                      validators=[validators.alpha], blank=True)
     total = models.PositiveIntegerField(_('Total'), default=0)
 
     class Meta:

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
+import common.validators as validators
 
 EN = 'EN'
 FR = 'FR'
@@ -120,6 +121,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
     username = models.CharField(max_length=1, blank=True, null=True,
                                 default=None)
+    first_name = models.CharField(_('First name'), max_length=50, validators=[validators.alpha])
+    last_name = models.CharField(_('Last name'), max_length=50, validators=[validators.alpha])
 
     role = models.CharField(max_length=2, choices=ALL_ROLE_CHOICES,
                             default=JURIST)

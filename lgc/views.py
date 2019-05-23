@@ -3,7 +3,7 @@ from django.db import transaction
 from django.forms import formset_factory, modelformset_factory
 from common.utils import (pagination, lgc_send_email, must_be_staff,
                           set_bold_search_attrs, get_template)
-import common.utils as common_utils
+import common.utils as utils
 from django import http
 from django.contrib import messages
 from django.shortcuts import render
@@ -239,7 +239,7 @@ class PersonListView(PersonCommonListView):
         if jurisdiction:
             objs = objs.filter(jurisdiction__exact=jurisdiction)
         if start_date:
-            objs = objs.filter(start_date=common_utils.parse_date(start_date))
+            objs = objs.filter(start_date=utils.parse_date(start_date))
         return objs
 
     def get_queryset(self):
