@@ -1649,6 +1649,8 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
             form.fields['no_billing'].widget.attrs['disabled'] = True
             form.fields['consulate'].widget.attrs['disabled'] = True
             form.fields['prefecture'].widget.attrs['disabled'] = True
+        elif self.object.invoice:
+            form.fields['no_billing'].widget.attrs['disabled'] = True
 
         return form
 
@@ -1713,6 +1715,10 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         return None
 
     def form_valid(self, form):
+        if form.cleaned_data['no_billing'] and self.object.invoice:
+            messages.error(self.request, _('This process has already an invoice'))
+            return super().form_invalid(form)
+
         specific_stage_form, stage_form = self.get_stage_forms()
         if not specific_stage_form.is_valid() or not stage_form.is_valid():
             messages.error(self.request, _('Invalid form'))
