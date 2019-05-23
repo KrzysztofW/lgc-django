@@ -56,6 +56,14 @@
     {% endif %}
   </div>
 </div>
+
 {% if person_process.edit_url %}
 <a href="{{ person_process.edit_url }}" class="btn btn-outline-info">{% trans "Edit" %}</a>
+
+{% if person_process.invoice %}
+<a href="{% url 'lgc-invoice' person_process.invoice.id %}" class="btn btn-outline-info">{% trans "Show invoice" %}</a>
+{% elif not person_process.no_billing %}
+<a href="{% url 'lgc-invoice-create' %}?pid={{ person_process.person.id }}&proc_id={{ person_process.id }}" class="btn btn-outline-info">{% trans "Generate invoice" %}</a>
+{% endif %}
+
 {% endif %}

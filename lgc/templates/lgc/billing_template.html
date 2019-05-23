@@ -1,13 +1,22 @@
 {% load formset_tags %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 
 <div class="form-row">
   <div class="form-group col-md-4">
     {% if person %}
     <a href="{% url 'lgc-file' person.id %}">{% trans 'File Id:' %} {{ person.id }}</a>
-    {% if person_process and person_process.process %}
-    ({% trans 'Process name:' %} {{ person_process.process.name }})
+    {% if person_process %}
+    ({% trans 'Process:' %}
+    <a href="{% url 'lgc-person-process' person_process.id %}">
+    {% if LANGUAGE_CODE == 'fr' %}
+    {{ person_process.name_fr }}
+    {% else %}
+    {{ person_process.name_en }}
+    {% endif %}
+    </a>
+    )
     {% endif %}
     {% endif %}
   </div>

@@ -33,5 +33,8 @@
   <a href="{{ go_back }}" class="btn btn-outline-info">{% trans "Go back" %}</a>
   {% endif %}
   <a href="{% url 'lgc-file' object.person.id %}" class="btn btn-outline-info">{% trans "Show related file" %}</a>
+  {% if object.invoice %}
+  <a href="{% url 'lgc-invoice' object.invoice.id %}" class="btn btn-outline-info">{% trans "Show invoice" %}</a>
+  {% endif %}
 </form>
 {% endblock content %}
