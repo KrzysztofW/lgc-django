@@ -1645,14 +1645,14 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 Div('prefecture', css_class='form-group col-md-2'),
                 css_class='form-row'),
             Div(
-                Div('no_billing', css_class='form-group col-md-2'),
+                Div('no_billing', css_class='form-group col-md-4'),
                 css_class='form-row'),
             )
         if not self.object.active:
             form.fields['no_billing'].widget.attrs['disabled'] = True
             form.fields['consulate'].widget.attrs['disabled'] = True
             form.fields['prefecture'].widget.attrs['disabled'] = True
-        elif self.object.invoice:
+        elif hasattr(self.object, 'invoice') and self.object.invoice:
             form.fields['no_billing'].widget.attrs['disabled'] = True
 
         return form
