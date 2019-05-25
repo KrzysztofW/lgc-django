@@ -645,7 +645,16 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
             invoice_number = max_number['number__max'] + 1
 
         form.instance.number = invoice_number
-        return super().form_valid(form)
+        try:
+            return super().form_valid(form)
+        except Exception as e:
+            """Handle mysql duplicate error."""
+            if e.args[0] == 1062:
+                messages.error(self.request,
+                               _('An invoice for this process already exists.'))
+            else:
+                messages.error(self.request, e.args[1])
+            return super().form_invalid(form)
 
     def form_invalid(self, form):
         return super().form_invalid(form)
