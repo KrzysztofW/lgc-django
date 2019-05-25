@@ -63,6 +63,7 @@ urlpatterns = [
     path('download/<int:pk>/', views.download_file, name='lgc-download-file'),
 
     path('expirations/', views.expirations, name='lgc-expirations'),
+    path('settings/', views.settings_view, name='lgc-settings'),
 
     path('client-create/', billing_views.ClientCreateView.as_view(),
          name='lgc-client-create'),

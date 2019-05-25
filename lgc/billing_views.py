@@ -359,6 +359,10 @@ class InvoiceCommonView(BillingTest):
 
     def form_valid(self, form):
         formsets = self.get_formsets()
+
+        form.instance.modified_by = self.request.user
+        form.instance.modification_date = timezone.now()
+
         invoice = None
         person, person_process = self.get_person_and_process()
         form.instance.person = person
@@ -467,14 +471,22 @@ class InvoiceCommonView(BillingTest):
                 Div('language', css_class='form-group col-md-2'),
                 Div('company_option', css_class='form-group col-md-2'),
                 Div('with_regard_to', css_class='form-group col-md-2'),
+                Div('state', css_class='form-group col-md-2'),
                 css_class='form-row')
         )
         if self.object:
-            layout.append(Div(
-                Div('already_paid', css_class='form-group col-md-2'),
-                Div('state', css_class='form-group col-md-2'),
-                css_class='form-row'),
+            layout.append(
+                Div(
+                    Div('already_paid',
+                        css_class='form-group col-md-2 border-left border-top border-bottom'),
+                    Div('already_paid_desc',
+                        css_class='form-group col-md-2 border-right border-top border-bottom'),
+                    css_class='form-row')
             )
+        layout.append(Div(
+            Div(HTML('&nbsp;'), css_class='form-group col-md-2'),
+            css_class='form-row'),
+        )
         layout.append(Div(
             Div(HTML(get_template(CURRENT_DIR,
                                   'lgc/billing_formsets_template.html')),
@@ -492,6 +504,9 @@ class InvoiceCommonView(BillingTest):
                 css_class='form-group col-md-9 collapse',
                 id=self.disbursement_receipt_btn_id),
             css_class='form-row')
+        )
+        layout.append(
+            HTML(get_template(CURRENT_DIR, 'lgc/billing_total_template.html')),
         )
 
         if self.object:
@@ -682,7 +697,9 @@ class InvoiceItemCommonView(BillingTest):
         currency = self.request.GET.get('currency', 'EUR')
         if self.model == lgc_models.Disbursement:
             context['type'] = 'disbursement'
+            context['settings'] = lgc_models.Settings.objects.all()[0]
             return context
+
         for obj in context['object_list']:
             attr = 'rate_' + currency.lower()
             if hasattr(obj, attr):

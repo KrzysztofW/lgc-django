@@ -2273,6 +2273,55 @@ class HRDeleteView(HRView, DeleteAccount):
     template_name = 'lgc/person_confirm_delete.html'
 
 @login_required
+def settings_view(request):
+    if not request.user.billing:
+        raise Http404
+
+    if request.method == 'POST':
+        form = lgc_forms.SettingsForm(request.POST)
+        if form.is_valid():
+            settings = form.save(commit=False)
+            settings.rate_eur = 1
+            settings.id = 1
+            settings.save()
+            messages.success(request, _('Settings successfully updated'))
+        else:
+            messages.error(request, _('Cannot save'))
+    else:
+        slen = lgc_models.Settings.objects.count()
+        print('slen:', slen)
+        if slen == 0:
+            settings = lgc_models.Settings()
+            settings.rate_eur = 1
+            settings.save()
+        elif slen == 1:
+            settings = lgc_models.Settings.objects.all()[0]
+        else:
+            return HttpResponse(status=500)
+        form = lgc_forms.SettingsForm(instance=settings)
+    form.helper = FormHelper()
+    form.helper.layout = Layout(
+        Div(
+            Div(HTML('<label>' + _('Currencies') + '</label>'),
+                css_class='form-group col-md-1'),
+            css_class='form-row'),
+        Div(
+            Div('rate_eur', css_class='form-group col-md-1 bg-info'),
+            Div('rate_usd', css_class='form-group col-md-1'),
+            Div('rate_cad', css_class='form-group col-md-1'),
+            Div('rate_gbp', css_class='form-group col-md-1'),
+            css_class='form-row'),
+        HTML('<button class="btn btn-outline-info" type="submit">' +
+        _('Update') + '</button>'))
+    form.fields['rate_eur'].widget.attrs['readonly'] = True
+
+    context = {
+        'title': _('Settings'),
+        'form': form,
+    }
+    return render(request, 'lgc/generic_form_with_formsets.html', context)
+
+@login_required
 @must_be_staff
 def ajax_insert_employee_view(request):
     term = request.GET.get('term', '')

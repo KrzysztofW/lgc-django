@@ -361,7 +361,8 @@ class InvoiceCreateForm(forms.ModelForm):
                                        initial=False)
     various_expenses = forms.BooleanField(label=_('Include Various Expenses'),
                                           required=False, initial=False,
-                                          help_text="(Phone, mail...) 5% of the services limited to 100.")
+                                          help_text="(Phone, mail...) 5% of the services limited to 100.",
+                                          widget=forms.CheckboxInput(attrs={'onchange':'return compute_invoice();'}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -377,7 +378,7 @@ class InvoiceCreateForm(forms.ModelForm):
 
 class InvoiceUpdateForm(InvoiceCreateForm):
     number = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
-
+    already_paid = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
     class Meta:
         model = lgc_models.Invoice
         exclude = ['modified_by', 'person', 'process', 'type', 'id', 'total']
@@ -391,14 +392,15 @@ class ClientCreateForm(forms.ModelForm):
         exclude = ['id']
 
 class InvoiceCommonForm(forms.ModelForm):
-    quantity = forms.IntegerField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right'}), initial=1)
+    quantity = forms.IntegerField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();'}), initial=1)
     vat = forms.ChoiceField(required=False, choices=lgc_models.VAT_CHOICES,
                             widget=forms.Select(attrs={'style':'height:30px; width:60px;',
-                                                       'class':'form-control lgc_pull-right'}))
-    rate = forms.IntegerField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right'}), initial=0)
+                                                       'class':'form-control lgc_pull-right',
+                                                       'onchange':'return compute_invoice();'}))
+    rate = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
     description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1,
                                                                'class':'form-control'}))
-    total = forms.IntegerField(required=False, min_value=0, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'readonly':'yes'}), initial=0)
+    total = forms.FloatField(required=False, min_value=0, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'readonly':'yes', 'step': "0.01"}), initial=0)
 
     class Meta:
         abstract = True
@@ -413,6 +415,7 @@ class InvoiceItemForm(InvoiceCommonForm):
 class ItemForm(forms.ModelForm):
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3,
                                                                'class':'form-control'}))
+
     class Meta:
         model = lgc_models.Item
         exclude = ['invoice']
@@ -420,7 +423,7 @@ class ItemForm(forms.ModelForm):
 class InvoiceDisbursementForm(InvoiceCommonForm):
     disbursement_id = forms.CharField(label='ID', required=False, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control', 'readonly':'yes'}))
     margin = forms.BooleanField(label=_('20% margin'), required=False, initial=False,
-                                widget=forms.CheckboxInput(attrs={'class':'lgc_aligned_checkbox'}))
+                                widget=forms.CheckboxInput(attrs={'class':'lgc_aligned_checkbox', 'onchange':'return compute_invoice();'}))
 
     class Meta:
         model = lgc_models.InvoiceDisbursement
@@ -442,3 +445,8 @@ class DisbursementDocumentFormSet(DocumentFormSet):
     class Meta:
         model = lgc_models.DisbursementDocument
         fields = ['id']
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        model = lgc_models.Settings
+        fields = '__all__'

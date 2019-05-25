@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% for formset in formsets %}
-<div class="card" style="overflow:visible;">
+<div class="card lgc_formset_width" style="overflow:visible;">
   <div class="card-header" id="heading_{{ formset.id }}">
     <h5 class="mb-0">{{ formset.title }}</h5>
   </div>
@@ -23,12 +23,14 @@
 	    {% for f in form.visible_fields %}
 	    <div
 	      class="form-group justify-content-center d-flex lgc_small_formset_label2
-		     {% if f.name == 'DELETE' or f.name == 'margin' %}
-		     col-xs-1
+		     {% if f.name == 'DELETE' or f.name == 'margin' or '_id' in f.name %}
+		     lgc_small-fixed-col
 		     {% elif f.name == 'description' %}
-		     col-md-3
+		     lgc_big-fixed-col
+		     {% elif f.name == 'quantity' %}
+		     lgc_small-fixed-col
 		     {% else %}
-		     col-md-1
+		     lgc_medium-fixed-col
 		     {% endif %}
 		     ">
 
@@ -49,12 +51,14 @@
 	    <div
 	      {% if f.name == 'DELETE' %}
 	      class="d-none">
-	      {% elif 'margin' in f.name %}
-	      class="col-xs-1 lgc_small_formset justify-content-center text-center h-100">
+	      {% elif 'margin' in f.name  or '_id' in f.name or '_id' in f.name%}
+	      class="lgc_small-fixed-col lgc_small_formset justify-content-center text-center h-100">
 	      {% elif f.name == 'description' %}
-	      class="col-md-3 lgc_small_formset justify-content-center d-flex">
+	      class="lgc_big-fixed-col lgc_small_formset justify-content-center d-flex">
+	      {% elif f.name == 'quantity' %}
+	      class="lgc_small-fixed-col justify-content-center d-flex">
 	      {% else %}
-	      class="col-md-1 justify-content-center d-flex">
+	      class="lgc_medium-fixed-col justify-content-center d-flex">
 	      {% endif %}
 	      {{ f }}
 	      {% if f.errors %}
@@ -64,11 +68,11 @@
 	      {% endif %}
 	    </div>
 	    {% endfor %}
-	    <div class="form-group col-xs-1 justify-content-center text-center h-100 lgc_aligned_checkbox2">
+	    <div class="form-group lgc_small-fixed-col justify-content-center text-center h-100 lgc_aligned_checkbox2">
 	      <a href="#" onclick="return insert_item('{% if formset.id == 'items_id' %}{% url 'lgc-insert-item' %}{% else %}{% url 'lgc-insert-disbursement' %}{% endif %}', this, {{ forloop.counter0 }}, '{{ f.id_for_label }}');"><i class="fas fa-plus-circle"></i></a>
 	    </div>
-	    <div class="form-group col-xs-1 lgc_aligned_checkbox2">
-	      <i class="far fa-trash-alt" data-formset-delete-button></i>
+	    <div class="form-group lgc_small-fixed-col lgc_aligned_checkbox2">
+	      <i class="far fa-trash-alt" data-formset-delete-button onclick="remove_item({{ forloop.counter0 }}, '{{ formset.id }}'); "></i>
 	    </div>
 	  </div>
 	  {% endfor %}
@@ -84,12 +88,14 @@
 	    <div
 	      {% if f.name == 'DELETE' %}
 	      class="d-none">
-	      {% elif 'margin' in f.name %}
-	      class="col-xs-1 lgc_small_formset justify-content-center text-center h-100">
+	      {% elif 'margin' in f.name  or '_id' in f.name%}
+	      class="lgc_small-fixed-col lgc_small_formset justify-content-center text-center h-100">
 	      {% elif f.name == 'description' %}
-	      class="col-md-3 lgc_small_formset justify-content-center d-flex">
+	      class="lgc_big-fixed-col lgc_small_formset justify-content-center d-flex">
+	      {% elif f.name == 'quantity' %}
+	      class="lgc_small-fixed-col justify-content-center d-flex">
 	      {% else %}
-	      class="col-md-1 justify-content-center d-flex">
+	      class="lgc_medium-fixed-col justify-content-center d-flex">
 	      {% endif %}
 	      {{ f }}
 	      {% if f.errors %}
@@ -99,10 +105,10 @@
 	      {% endif %}
 	    </div>
 	    {% endfor %}
-	    <div class="form-group col-xs-1 justify-content-center d-flex text-center h-100 lgc_aligned_checkbox2">
+	    <div class="form-group lgc_small-fixed-col justify-content-center d-flex text-center h-100 lgc_aligned_checkbox2">
 	      <a href="#" onclick="return insert_item('{% if formset.id == 'items_id' %}{% url 'lgc-insert-item' %}{% else %}{% url 'lgc-insert-disbursement' %}{% endif %}', this, '__prefix__');"><i class="fas fa-plus-circle"></i></a></div>
-	    <div class="form-group col-xs-1 lgc_aligned_checkbox2">
-	      <i class="far fa-trash-alt" data-formset-delete-button></i>
+	    <div class="form-group lgc_small-fixed-col lgc_aligned_checkbox2">
+	      <i class="far fa-trash-alt" data-formset-delete-button onclick="remove_item(__prefix__, '{{ formset.id }}');"></i>
 	    </div>
 	  </div>
 	</script>
@@ -131,4 +137,9 @@
     </div>
   </div>
 </div>
+<script>
+  $(document).ready(function() {
+  compute_invoice();
+  });
+</script>
 {% endfor %}

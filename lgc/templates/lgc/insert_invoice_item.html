@@ -27,7 +27,7 @@
           <tbody>
 	    {% for obj in object_list %}
             <tr>
-	      <td><a href="#" onclick="return insert('{{ type }}', '{{ obj.id }}', '{{ obj.description|urlencode }}', '{{ obj.rate }}', '{{ obj.quantity }}');">{{ obj.id }}</a></td>
+	      <td><a href="#" onclick="return insert('{{ type }}', '{{ obj.id }}', '{{ obj.description|urlencode }}', '{{ obj.rate }}', '{{ obj.currency }}');">{{ obj.id }}</a></td>
               <td>{{ obj.title }}</td>
               <td align="right">{{ obj.rate }}</td>
               <td>{% if obj.currency %}{{ obj.currency }}{% else %}{{ request.GET.currency }}{% endif %}</td>
@@ -40,7 +40,7 @@
       </div>
     </div>
   </body>
-  {% include 'lgc/footer.html' %}
+{% include 'lgc/footer.html' %}
   <script>
     // https://datatables.net/manual/i18n#Available-translations
     $(document).ready(function() {
@@ -60,11 +60,21 @@
 		},
 	    }});
     });
+
+{% if settings %}
+    var devises = {"CAD": {{ settings.rate_cad }},
+		   "EUR": {{ settings.rate_eur }},
+		   "GBP": {{ settings.rate_gbp }},
+		   "USD": {{ settings.rate_usd }},
+		  };
+{% endif %}
+
     function insert_common(id_el, description_el, rate_el, id, description, rate) {
 	id_el.value = id;
 	description_el.value = decodeURIComponent(description);
 	rate_el.value = rate;
 	parent.window.opener.autosize.update(parent.window.opener.document.querySelectorAll('textarea'));
+	parent.window.opener.compute_invoice();
 	window.close();
     }
 
@@ -75,18 +85,24 @@
 	var rate_el = parent.window.opener.document.getElementById(str + 'rate');
 	return insert_common(id_el, description_el, rate_el, id, description, rate);
     }
-    function insert_disbursement(id, description, rate) {
+    function insert_disbursement(id, description, rate, currency) {
 	var str = 'id_disbursements-{{ request.GET.index }}-';
 	var id_el = parent.window.opener.document.getElementById(str + 'disbursement_id');
 	var description_el = parent.window.opener.document.getElementById(str + 'description');
 	var rate_el = parent.window.opener.document.getElementById(str + 'rate');
+	var invoice_currency = '{{ request.GET.currency }}';
+
+	if (currency != invoice_currency) {
+	    alert('{% trans "The rate will be converted to " %}' + invoice_currency);
+	    rate = (rate / devises[currency] * devises[invoice_currency]).toFixed(2);
+	}
 	return insert_common(id_el, description_el, rate_el, id, description, rate);
     }
-    function insert(type, id, description, rate) {
+    function insert(type, id, description, rate, currency) {
 	if (type == 'item')
 	    return insert_item(id, description, rate);
 	else
-	    return insert_disbursement(id, description, rate);
+	    return insert_disbursement(id, description, rate, currency);
     }
     autosize(document.querySelectorAll('textarea'));
 

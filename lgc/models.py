@@ -13,6 +13,18 @@ import common.validators as validators
 
 User = get_user_model()
 
+class Currencies(models.Model):
+    rate_eur = models.FloatField(_('EUR'), default=0)
+    rate_usd = models.FloatField(_('USD'), default=0)
+    rate_cad = models.FloatField(_('CAD'), default=0)
+    rate_gbp = models.FloatField(_('GBP'), default=0)
+
+    class Meta:
+        abstract = True
+
+class Settings(Currencies):
+    pass
+
 PROCESS_CHOICES = (
     ('', '---------'),
     ('OD', 'Obtention de docs/légalisation'),
@@ -817,8 +829,8 @@ INVOICE_COMPANY_CHOICES = (
     ('F', _('Host')),
 )
 VAT_CHOICES = (
-    (0, 0),
-    (20, 20),
+    (0.0, 0),
+    (20.0, 20),
 )
 
 class BillingGlobalSettings(models.Model):
@@ -858,7 +870,7 @@ class Invoice(AbstractClient):
     po_last_name = models.CharField(_('Last name'), max_length=50,
                                     validators=[validators.alpha], blank=True)
     po_email = models.EmailField('Email', max_length=50, null=True, blank=True)
-    po_rate = models.PositiveIntegerField(_('Rate'), null=True, blank=True)
+    po_rate = models.FloatField(_('Rate'), null=True, blank=True)
 
     company_option = models.CharField(_('Company'), max_length=1, default='L',
                                       choices=INVOICE_COMPANY_CHOICES)
@@ -869,10 +881,11 @@ class Invoice(AbstractClient):
     various_expenses = models.BooleanField(_('Include Various Expenses'), default=False)
     state = models.CharField(_('State'), max_length=1, default=INVOICE_STATE_PENDING,
                              choices=INVOICE_STATE_CHOICES)
-    already_paid = models.PositiveIntegerField(_('Already Paid'), default=0)
+    already_paid = models.FloatField(_('Already Paid'), default=0)
+    already_paid_desc = models.CharField(_('Description'), max_length=50, blank=True)
     with_regard_to = models.CharField(_('With regard to'), max_length=50,
                                       validators=[validators.alpha], blank=True)
-    total = models.PositiveIntegerField(_('Total'), default=0)
+    total = models.FloatField(_('Total'), default=0)
 
     class Meta:
         unique_together = ('number', 'type')
@@ -881,7 +894,7 @@ class DisbursementCommon(models.Model):
     id = models.AutoField(primary_key=True)
     disbursement_id = models.CharField(_('ID'), default='', max_length=9)
     description = models.TextField(_('Description'), max_length=50)
-    rate = models.PositiveIntegerField(_('Rate'), default=0)
+    rate = models.FloatField(_('Rate'), default=0)
 
     class Meta:
         abstract = True
@@ -895,7 +908,7 @@ class Disbursement(DisbursementCommon):
 class InvoiceDisbursement(DisbursementCommon):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(_('Quantity'), default=0)
-    vat = models.PositiveIntegerField(_('VAT'), default=0, choices=VAT_CHOICES)
+    vat = models.FloatField(_('VAT'), default=0, choices=VAT_CHOICES)
     margin = models.BooleanField(_('20% margin'), default=False)
 
 class ItemCommon(models.Model):
@@ -905,19 +918,15 @@ class ItemCommon(models.Model):
     class Meta:
         abstract = True
 
-class Item(ItemCommon):
+class Item(Currencies, ItemCommon):
     item_id = None
     title = models.CharField(_('Title'), max_length=50, unique=True)
-    rate_eur = models.PositiveIntegerField(_('EUR'), default=0)
-    rate_usd = models.PositiveIntegerField(_('USD'), default=0)
-    rate_cad = models.PositiveIntegerField(_('CAD'), default=0)
-    rate_gbp = models.PositiveIntegerField(_('GBP'), default=0)
 
 class InvoiceItem(ItemCommon):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
-    rate = models.PositiveIntegerField(_('Rate'), default=0)
+    rate = models.FloatField(_('Rate'), default=0)
     quantity = models.PositiveIntegerField(_('Quantity'), default=0)
-    vat = models.PositiveIntegerField(_('VAT'), default=0, choices=VAT_CHOICES)
+    vat = models.FloatField(_('VAT'), default=0, choices=VAT_CHOICES)
 
 def create_disbursement_directory(instance, filename):
     invoice = instance.invoice

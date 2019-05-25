@@ -324,3 +324,127 @@ function auto_complete_jurisdiction(elem) {
 	    consulate.appendChild(consulate_select[i]);
     }
 }
+
+function compute_invoice() {
+  var various_expenses_input = document.getElementById('id_various_expenses');
+
+  var items_total_div = document.getElementById('id_items_total_div');
+  var items_total_vat_div = document.getElementById('id_items_total_vat_div');
+
+  var already_paid_div = document.getElementById('id_already_paid_div');
+  var already_paid_input = document.getElementById('id_already_paid');
+  var already_paid = 0;
+
+  var disbursements_total_div = document.getElementById('id_disbursements_total_div');
+  var disbursements_total_vat_div = document.getElementById('id_disbursements_total_vat_div');
+
+  var total_div = document.getElementById('id_total_div');
+  var total_vat_div = document.getElementById('id_total_vat_div');
+  var invoice_total_div = document.getElementById('id_invoice_total_div');
+
+  var items_total = 0;
+  var items_total_vat = 0;
+  var disbursements_total = 0;
+  var disbursements_total_vat = 0;
+
+  var subtotal = 0;
+  var subtotal_vat = 0;
+  var invoice_total = 0;
+
+  var various_expenses = 0;
+  var various_expenses_vat = 0;
+  var first_item_vat = 0;
+  var i = 0;
+
+  while (document.getElementById('id_items-'+i+'-description') !== null) {
+    var rate_input = document.getElementById('id_items-'+i+'-rate');
+    var quantity_input = document.getElementById('id_items-'+i+'-quantity');
+    var vat_input = document.getElementById('id_items-'+i+'-vat');
+    var total_input = document.getElementById('id_items-'+i+'-total');
+    var total = 0;
+    var rate_quantity = 0;
+
+    rate = parseFloat(rate_input.value);
+    quantity = parseFloat(quantity_input.value);
+    rate_quantity = rate * quantity;
+    vat = parseFloat(vat_input.value) / 100;
+
+    /* this will be used to compute various expenses */
+    if (i == 0)
+      first_item_vat = vat;
+
+    total = rate_quantity * (1 + vat);
+    total_input.value = total.toFixed(2);
+
+    items_total += rate_quantity
+    items_total_vat += rate_quantity * vat;
+
+    i++;
+  }
+
+  i = 0;
+  while (document.getElementById('id_disbursements-'+i+'-description') !== null) {
+    var rate_input = document.getElementById('id_disbursements-'+i+'-rate');
+    var quantity_input = document.getElementById('id_disbursements-'+i+'-quantity');
+    var vat_input = document.getElementById('id_disbursements-'+i+'-vat');
+    var margin_input = document.getElementById('id_disbursements-'+i+'-margin');
+    var total_input = document.getElementById('id_disbursements-'+i+'-total');
+    var margin = 20 / 100; // 20%
+
+    var rate_quantity = 0;
+    var total = 0;
+
+    rate = parseFloat(rate_input.value);
+    quantity = parseFloat(quantity_input.value);
+    rate_quantity = rate * quantity;
+    vat = parseFloat(vat_input.value) / 100.;
+
+    total = rate_quantity * (1 + vat);
+
+    if (margin_input.checked)
+      total = total * (1 + margin);
+
+    total_input.value = total.toFixed(2);
+
+    disbursements_total += rate_quantity;
+    disbursements_total_vat += rate_quantity * vat;
+
+    if (margin_input.checked) {
+      disbursements_total *= (1 + margin);
+      disbursements_total_vat *= (1 + margin);
+    }
+    i++;
+  }
+
+  items_total_div.innerHTML = items_total.toFixed(2);
+  items_total_vat_div.innerHTML = items_total_vat.toFixed(2);
+
+  if (various_expenses_input.checked) {
+    various_expenses = items_total *  5/100.;
+
+    if (various_expenses > 100)
+      various_expenses = 100;
+    various_expenses_vat = various_expenses * first_item_vat;
+  }
+
+  disbursements_total += various_expenses;
+  disbursements_total_vat += various_expenses_vat;
+  disbursements_total_div.innerHTML = disbursements_total.toFixed(2);
+  disbursements_total_vat_div.innerHTML = disbursements_total_vat.toFixed(2);
+
+  if (already_paid_input !== null)
+    already_paid = parseFloat(already_paid_input.value);
+  already_paid_div.innerHTML = already_paid.toFixed(2);
+
+  subtotal = items_total + disbursements_total;
+  subtotal_vat =items_total_vat + disbursements_total_vat;
+
+  total_div.innerHTML = '<b>' + subtotal.toFixed(2) + '</b>';
+  total_vat_div.innerHTML = '<b>' + subtotal_vat.toFixed(2) + '</b>';
+
+  invoice_total = items_total + items_total_vat + disbursements_total + disbursements_total_vat;
+  if (already_paid)
+    invoice_total -= already_paid;
+
+  invoice_total_div.innerHTML = '<b>' + invoice_total.toFixed(2) + '</b>';
+}

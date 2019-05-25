@@ -135,6 +135,18 @@ function form_checks() {
     return client_id_check(document.getElementById('id_client')) >= 0;
 }
 
+function remove_item(index, formset_id) {
+    var description_input;
+
+    if (formset_id == 'items_id')
+	description_input = document.getElementById('id_items-' + index + '-rate');
+    else if (formset_id == 'disbursements_id')
+	description_input = document.getElementById('id_disbursements-' + index + '-rate');
+
+    description_input.value = 0;
+    compute_invoice();
+}
+
 function insert_item(url, element, index) {
     var currency = document.getElementById('id_currency');
     url = url + '?index=' + index + '&currency=' + currency.value;
