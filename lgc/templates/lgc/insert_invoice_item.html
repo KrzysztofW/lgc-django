@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load l10n %}
 {% load static %}
 {% load crispy_forms_tags %}
 {% get_current_language as LANGUAGE_CODE %}
@@ -27,7 +28,7 @@
           <tbody>
 	    {% for obj in object_list %}
             <tr>
-	      <td><a href="#" onclick="return insert('{{ type }}', '{{ obj.id }}', '{{ obj.description|urlencode }}', '{{ obj.rate }}', '{{ obj.currency }}');">{{ obj.id }}</a></td>
+	      <td><a href="#" onclick="return insert('{{ type }}', '{{ obj.id }}', '{{ obj.description|urlencode }}', '{{ obj.rate|unlocalize }}', '{{ obj.currency }}');">{{ obj.id }}</a></td>
               <td>{{ obj.title }}</td>
               <td align="right">{{ obj.rate }}</td>
               <td>{% if obj.currency %}{{ obj.currency }}{% else %}{{ request.GET.currency }}{% endif %}</td>
@@ -62,10 +63,10 @@
     });
 
 {% if settings %}
-    var devises = {"CAD": {{ settings.rate_cad }},
-		   "EUR": {{ settings.rate_eur }},
-		   "GBP": {{ settings.rate_gbp }},
-		   "USD": {{ settings.rate_usd }},
+    var devises = {"CAD": {{ settings.rate_cad|unlocalize }},
+		   "EUR": {{ settings.rate_eur|unlocalize }},
+		   "GBP": {{ settings.rate_gbp|unlocalize }},
+		   "USD": {{ settings.rate_usd|unlocalize }},
 		  };
 {% endif %}
 
