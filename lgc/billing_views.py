@@ -243,6 +243,9 @@ class InvoiceCommonView(BillingTest):
     success_url = 'lgc-invoice'
     fields = '__all__'
     disbursement_receipt_btn_id = 'disbursement_receipt_btn_id'
+    form_diff = []
+    is_items_diff = False
+    is_disbursements_diff = False
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk':self.object.id})
@@ -336,6 +339,7 @@ class InvoiceCommonView(BillingTest):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         person, process = self.get_person_and_process()
+        pcv = lgc_views.PersonCommonView()
 
         if person:
             context['form'].fields['with_regard_to'].initial = (
@@ -355,13 +359,55 @@ class InvoiceCommonView(BillingTest):
         context['button_collapse_id'] = self.disbursement_receipt_btn_id
         context['button_label'] = _('Disbursement receipts')
 
+        context['form_diff'] = self.form_diff
+        context['formsets_diff'] = []
+        if self.is_items_diff:
+            context['formsets_diff'] += [('items', _('Items'),
+                                          pcv.get_formset_objs(lgc_models.InvoiceItem.objects.filter(invoice=self.object)))]
+        if self.is_disbursements_diff:
+            context['formsets_diff'] += [('disbursements', _('Disbursements'),
+                                          pcv.get_formset_objs(lgc_models.InvoiceDisbursement.objects.filter(invoice=self.object)))]
+
+        if self.form_diff or len(context['formsets_diff']):
+            changes_form = lgc_forms.ChangesDetectedForm()
+            changes_form.helper = FormHelper()
+            changes_form.helper.form_tag = False
+            context['changes_detected_form'] = changes_form
+
         return context
 
-    def form_valid(self, form):
-        formsets = self.get_formsets()
+    def check_formsets_diff(self, pcv, formsets):
+        for formset in formsets:
+            if formset.id == 'items_id':
+                self.is_items_diff = pcv.have_objs_changed(formset,
+                                                           lgc_models.InvoiceItem.objects.filter(invoice=self.object))
+            elif formset.id == 'disbursements_id':
+                self.is_disbursements_diff = pcv.have_objs_changed(formset,
+                                                                   lgc_models.InvoiceDisbursement.objects.filter(invoice=self.object))
+        return self.is_items_diff or self.is_disbursements_diff
 
-        form.instance.modified_by = self.request.user
-        form.instance.modification_date = timezone.now()
+    def check_form_diff(self, pcv, obj, form, formsets):
+        if obj == None:
+            return []
+
+        if form.cleaned_data['version'] == obj.version:
+            return False
+
+        if not form.cleaned_data['client_update']:
+            ignore_list = ['first_name', 'last_name', 'company', 'email',
+                           'phone_number', 'cell_phone_number', 'siret',
+                           'vat', 'address', 'post_code', 'city', 'country',
+                           'with_regard_to']
+        else:
+            ignore_list = []
+
+        self.form_diff = pcv.check_form_diff2(obj, form, form.cleaned_data, ignore_list)
+        formsets_diff = self.check_formsets_diff(pcv, formsets)
+        return len(self.form_diff) or formsets_diff
+
+    def form_valid(self, form):
+        pcv = lgc_views.PersonCommonView()
+        formsets = self.get_formsets()
 
         invoice = None
         person, person_process = self.get_person_and_process()
@@ -378,7 +424,6 @@ class InvoiceCommonView(BillingTest):
             if len(obj) == 1:
                 invoice = obj[0]
 
-        pcv = lgc_views.PersonCommonView()
         err_msg = _('Client not set.')
 
         if not form.cleaned_data['client_update']:
@@ -386,11 +431,10 @@ class InvoiceCommonView(BillingTest):
                 messages.error(self.request, err_msg)
                 return super().form_invalid(form)
 
-            dummy_client = lgc_models.Client()
-            pcv.copy_related_object(invoice, form.instance, dummy_client)
+            client = lgc_models.Client()
         elif form.cleaned_data['client_update'] and form.cleaned_data['client']:
             client = form.cleaned_data['client']
-            pcv.copy_related_object(client, form.instance, client)
+        pcv.copy_related_object(client, form.instance, client)
 
         if invoice:
             form.instance.with_regard_to = invoice.with_regard_to
@@ -398,6 +442,30 @@ class InvoiceCommonView(BillingTest):
             form.instance.with_regard_to = (
                 person.first_name + ' ' + person.last_name
             )
+
+        if self.object:
+            self.object = self.get_object()
+            changes_action = self.request.POST.get('changes_action', '')
+            if changes_action == lgc_forms.CHANGES_DETECTED_DISCARD:
+                return redirect(self.get_success_url())
+
+            if not pcv.are_formsets_valid(self, formsets):
+                return super().form_invalid(form)
+
+            if changes_action != lgc_forms.CHANGES_DETECTED_FORCE:
+                if self.check_form_diff(pcv, self.object, form, formsets):
+                    return super().form_invalid(form)
+
+            form.instance.version = self.object.version + 1
+        else:
+            if not pcv.are_formsets_valid(self, formsets):
+                return super().form_invalid(form)
+            changes_action = None
+
+        form.instance.modified_by = self.request.user
+        form.instance.modification_date = timezone.now()
+
+
         for formset in formsets:
             if not formset.is_valid():
                 messages.error(self.request, formset.err_msg)

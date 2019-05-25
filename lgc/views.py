@@ -547,7 +547,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     is_expirations_diff = False
     is_spouse_expirations_diff = False
     is_archive_box_diff = False
-    is_form_diff = False
 
     def get_success_url(self):
         return reverse_lazy(self.success_url, kwargs={'pk': self.object.id})
@@ -633,7 +632,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         ChildrenFormSet = modelformset_factory(models.Child,
                                                form=forms.ChildCreateForm,
                                                can_delete=True)
-
         if self.request.POST:
             formsets.append(ChildrenFormSet(self.request.POST, prefix='children'))
             if self.request.user.role in user_models.get_internal_roles():
@@ -752,7 +750,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         context['formsets_diff'] = []
 
         context['formsets'] = self.get_person_formsets()
-        model = self.get_model()
+        model = self.get_model(self.object)
         if self.is_children_diff:
             """Do not show the DCEM expiration in employee view."""
             if model == employee_models:
@@ -888,7 +886,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
     def have_objs_changed(self, formset, old_objs):
         new_objs = []
+
         for form in formset.forms:
+            if form.empty_permitted:
+                continue
             if not hasattr(form, 'cleaned_data'):
                 if not form.is_valid():
                     return True
@@ -950,10 +951,12 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 form.instance.employee_child_set.expiration = form.instance.expiration
                 form.instance.employee_child_set.save()
 
-    def __check_form_diff(self, obj, form, cleaned_data):
+    def check_form_diff2(self, obj, form, cleaned_data, ignore_list=[]):
         form_diff = []
 
         for key in cleaned_data.keys():
+            if key in ignore_list:
+                continue
             if key == 'version' or key == 'user' or key == 'DELETE' or key == 'updated':
                 continue
             try:
@@ -993,32 +996,32 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             if formset.id == 'children_id':
                 self.is_children_diff = self.have_objs_changed(formset,
                                                                model.Child.objects.filter(person=self.object))
-            if formset.id == 'expiration_id':
+            elif formset.id == 'expiration_id':
                 self.is_expirations_diff = self.have_objs_changed(formset,
                                                                   model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list()))
-            if formset.id == 'spouse_expiration_id':
+            elif formset.id == 'spouse_expiration_id':
                 self.is_spouse_expirations_diff = self.have_objs_changed(formset,
                                                                          model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list()))
-            if formset.id == 'ab_id':
+            elif formset.id == 'ab_id':
                 self.is_archive_box_diff = self.have_objs_changed(formset,
                                                                   model.ArchiveBox.objects.filter(person=self.object))
         return (self.is_children_diff or self.is_archive_box_diff or
                 self.is_expirations_diff or self.is_spouse_expirations_diff)
 
-    def get_model(self):
+    def get_model(self, obj):
         if self.object and type(self.object).__name__ == 'Employee':
             return employee_models
         return lgc_models
 
-    def check_form_diff(self, obj, form, formsets):
+    def check_form_diff(self, obj, form, formsets, ignore_list=[]):
         if obj == None:
             return []
 
         if form.cleaned_data['version'] == obj.version:
             return False
 
-        self.form_diff = self.__check_form_diff(obj, form, form.cleaned_data)
-        formsets_diff = self.check_formsets_diff(formsets, self.get_model())
+        self.form_diff = self.check_form_diff2(obj, form, form.cleaned_data, ignore_list)
+        formsets_diff = self.check_formsets_diff(formsets, self.get_model(obj))
         return len(self.form_diff) or formsets_diff
 
     def get_current_object(self):
@@ -1037,7 +1040,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         elif formset.id == 'ab_id':
             self.is_archive_box_diff = True
 
-    def are_formsets_valid(self, formsets):
+    def are_formsets_valid(self, obj, formsets):
         are_valid = True
 
         for i in range(len(formsets)):
@@ -1056,7 +1059,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 form.is_valid()
 
             if not formset.is_valid():
-                messages.error(self.request, formset.err_msg)
+                messages.error(obj.request, formset.err_msg)
                 are_valid = False
                 continue
 
@@ -1094,8 +1097,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         save_active_tab(self)
 
         if self.object:
-            self.rename_doc_dir(form, self.object, form.instance)
-
             if (self.object.state != lgc_models.FILE_STATE_CLOSED and
                 form.cleaned_data['state'] == lgc_models.FILE_STATE_CLOSED and
                 self.get_active_person_processes()):
@@ -1120,7 +1121,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 messages.error(self.request, mark_safe(msg))
                 return super().form_invalid(form)
 
-            if not self.are_formsets_valid(formsets):
+            if not self.are_formsets_valid(self, formsets):
                 return super().form_invalid(form)
 
             if changes_action != lgc_forms.CHANGES_DETECTED_FORCE:
@@ -1128,8 +1129,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                     return super().form_invalid(form)
 
             form.instance.version = self.object.version + 1
+            self.rename_doc_dir(form, self.object, form.instance)
         else:
-            if not self.are_formsets_valid(formsets):
+            if not self.are_formsets_valid(self, formsets):
                 return super().form_invalid(form)
             changes_action = None
 
@@ -1585,8 +1587,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
     def get_formset(self):
         stagesFormSet = modelformset_factory(lgc_models.PersonProcessStage,
                                              form=lgc_forms.PersonProcessStageForm,
-                                             can_delete=False,
-                                             extra=0)
+                                             can_delete=False, extra=0)
 
         if self.request.POST:
             formset = stagesFormSet(self.request.POST)

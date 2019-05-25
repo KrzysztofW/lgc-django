@@ -399,7 +399,7 @@ class InvoiceCommonForm(forms.ModelForm):
                                                        'onchange':'return compute_invoice();'}))
     rate = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
     description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1,
-                                                               'class':'form-control'}))
+                                                                               'class':'form-control'}))
     total = forms.FloatField(required=False, min_value=0, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'readonly':'yes', 'step': "0.01"}), initial=0)
 
     class Meta:
