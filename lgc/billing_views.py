@@ -451,11 +451,11 @@ class InvoiceCommonView(BillingTest):
             if self.object == None:
                 messages.error(self.request, err_msg)
                 return super().form_invalid(form)
-
-            client = lgc_models.Client()
+            dummy_client = lgc_models.Client()
+            pcv.copy_related_object(invoice, form.instance, dummy_client)
         elif form.cleaned_data['client_update'] and form.cleaned_data['client']:
             client = form.cleaned_data['client']
-        pcv.copy_related_object(client, form.instance, client)
+            pcv.copy_related_object(client, form.instance, client)
 
         if invoice:
             form.instance.with_regard_to = invoice.with_regard_to
