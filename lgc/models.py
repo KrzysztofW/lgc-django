@@ -846,7 +846,7 @@ class Invoice(AbstractClient):
     person = models.ForeignKey(Person, null=True, on_delete=models.SET_NULL,
                                related_name='invoice_set')
     process = models.OneToOneField(PersonProcess, on_delete=models.SET_NULL,
-                                null=True, related_name='invoice')
+                                   null=True, related_name='invoice')
 
     invoice_date = models.DateField(_('Invoice Date'))
     modification_date = models.DateField(_('Modification Date'), null=True)

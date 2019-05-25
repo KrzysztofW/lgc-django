@@ -1719,7 +1719,8 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         return None
 
     def form_valid(self, form):
-        if form.cleaned_data['no_billing'] and self.object.invoice:
+        if (form.cleaned_data['no_billing'] and
+            hasattr(self.object, 'invoice') and self.object.invoice):
             messages.error(self.request, _('This process has already an invoice'))
             return super().form_invalid(form)
 

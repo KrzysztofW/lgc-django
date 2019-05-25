@@ -180,11 +180,12 @@ class InvoiceListView(BillingTest, ListView):
     search_url = reverse_lazy('lgc-invoices')
 
     def get_queryset(self):
+        objs = self.model.objects.filter(type=lgc_models.INVOICE)
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
+
         if term == '':
-            return self.model.objects.order_by(order_by)
-        objs = lgc_models.Invoice.objects
+            return objs.order_by(order_by)
         objs = (objs.filter(email__istartswith=term)|
                 objs.filter(first_name__istartswith=term)|
                 objs.filter(last_name__istartswith=term)|
@@ -205,10 +206,27 @@ class InvoiceListView(BillingTest, ListView):
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
         context['header_values'] = [
-            ('ID', 'id'), (_('First Name'), 'first_name'), ('Email', 'email'),
+            ('ID', 'number'), (_('First Name'), 'first_name'), ('Email', 'email'),
             (_('Company'), 'company'), (_('Date'), 'invoice_date'),
         ]
         return pagination(self.request, context, self.this_url)
+
+class QuotationListView(InvoiceListView):
+    title = _('Quotations')
+
+    def get_queryset(self):
+        objs = self.model.objects.filter(type=lgc_models.QUOTATION)
+        term = self.request.GET.get('term', '')
+        order_by = self.get_ordering()
+
+        if term == '':
+            return objs.order_by(order_by)
+        objs = (objs.filter(email__istartswith=term)|
+                objs.filter(first_name__istartswith=term)|
+                objs.filter(last_name__istartswith=term)|
+                objs.filter(company__istartswith=term))
+
+        return objs.order_by(order_by)
 
 class InvoiceDeleteView(BillingTest, DeleteView):
     model = lgc_models.Invoice
@@ -348,7 +366,7 @@ class InvoiceCommonView(BillingTest):
         context['title'] = self.title
 
         if self.object and self.object.id:
-            context['title'] += ' Id ' + str(self.object.id)
+            context['title'] += ' ID ' + str(self.object.number)
 
         context['person'] = person
         context['person_process'] = process
@@ -413,6 +431,9 @@ class InvoiceCommonView(BillingTest):
         person, person_process = self.get_person_and_process()
         form.instance.person = person
 
+        if self.request.GET.get('quote') == '1':
+            form.instance.type = lgc_models.QUOTATION
+
         if person_process and person_process.process:
             form.instance.process = person_process
 
@@ -470,11 +491,12 @@ class InvoiceCommonView(BillingTest):
             if not formset.is_valid():
                 messages.error(self.request, formset.err_msg)
                 return super().form_invalid(form)
-        doc, deleted_docs = self.get_doc_forms()
-        docs = lgc_models.DisbursementDocument.objects.filter(invoice=self.object)
+        if self.object and self.object.type != lgc_models.QUOTATION:
+            doc, deleted_docs = self.get_doc_forms()
+            docs = lgc_models.DisbursementDocument.objects.filter(invoice=self.object)
 
-        if lgc_views.check_docs(self, doc, docs) < 0:
-            return super().form_invalid(form)
+            if lgc_views.check_docs(self, doc, docs) < 0:
+                return super().form_invalid(form)
 
         with transaction.atomic():
             self.object = form.save()
@@ -492,28 +514,36 @@ class InvoiceCommonView(BillingTest):
                         continue
                     i.invoice = self.object
                     i.save()
-            for d in deleted_docs.deleted_forms:
-                if d.instance.id == None:
-                    continue
-                os.remove(os.path.join(settings.MEDIA_ROOT,
-                                       d.instance.document.name))
-                d.instance.delete()
+            if self.object and self.object.type != lgc_models.QUOTATION:
+                for d in deleted_docs.deleted_forms:
+                    if d.instance.id == None:
+                        continue
+                    os.remove(os.path.join(settings.MEDIA_ROOT,
+                                           d.instance.document.name))
+                    d.instance.delete()
 
-            if doc.cleaned_data['document'] != None:
-                doc.instance = lgc_models.DisbursementDocument()
-                doc.instance.document = doc.cleaned_data['document']
-                doc.instance.description = doc.cleaned_data['description']
-                doc.instance.invoice = self.object
-                doc.save()
-
-        return super().form_valid(form)
+                if doc.cleaned_data['document'] != None:
+                    doc.instance = lgc_models.DisbursementDocument()
+                    doc.instance.document = doc.cleaned_data['document']
+                    doc.instance.description = doc.cleaned_data['description']
+                    doc.instance.invoice = self.object
+                    doc.save()
+            return super().form_valid(form)
 
     def get_form(self, form_class=lgc_forms.InvoiceCreateForm):
         form = super().get_form(form_class=form_class)
         form.helper = FormHelper()
         form.helper.form_tag = False
+        gen_invoice_html = None
+
         if self.object:
             state_div = Div('state', css_class='form-group col-md-2')
+            if self.object.type == lgc_models.QUOTATION and self.object.process:
+                gen_invoice_html = HTML(('&nbsp;<a href="' +
+                                         str(reverse_lazy('lgc-gen-invoice',
+                                                          kwargs={'pk':self.object.id})) +
+                                         '" class="btn btn-outline-info">' +
+                                         _('Generate invoice') + '</a>'))
         else:
             state_div = None
         layout = Layout(
@@ -565,18 +595,19 @@ class InvoiceCommonView(BillingTest):
                 css_class='form-group col-md-9'),
             css_class='form-row')
         )
-        layout.append(Div(
-            Div(HTML(get_template(CURRENT_DIR, 'lgc/button_collapse.html') + '<hr>'),
-                css_class='form-group col-md-9'),
-            css_class='form-row')
-        )
-        layout.append(Div(
-            Div(HTML(get_template(CURRENT_DIR, 'lgc/document_form.html')),
-                HTML('<hr>'),
-                css_class='form-group col-md-9 collapse',
-                id=self.disbursement_receipt_btn_id),
-            css_class='form-row')
-        )
+        if self.object and self.object.type != lgc_models.QUOTATION:
+            layout.append(Div(
+                Div(HTML(get_template(CURRENT_DIR, 'lgc/button_collapse.html') + '<hr>'),
+                    css_class='form-group col-md-9'),
+                css_class='form-row')
+            )
+            layout.append(Div(
+                Div(HTML(get_template(CURRENT_DIR, 'lgc/document_form.html')),
+                    HTML('<hr>'),
+                    css_class='form-group col-md-9 collapse',
+                    id=self.disbursement_receipt_btn_id),
+                css_class='form-row')
+            )
         layout.append(
             HTML(get_template(CURRENT_DIR, 'lgc/billing_total_template.html')),
         )
@@ -588,6 +619,7 @@ class InvoiceCommonView(BillingTest):
             action = _('Create')
         layout.append(HTML('<button class="btn btn-outline-info" type="submit" ' +
                            'onclick="return form_checks();">' + action + '</button>'))
+        layout.append(gen_invoice_html)
 
         form.helper.layout = layout
         return form
@@ -596,8 +628,17 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
     title = _('New Invoice')
     success_message = _('Invoice successfully created.')
 
+    def get_context_data(self, **kwargs):
+        if self.request.GET.get('quote') == '1':
+            self.title = _('New quotation')
+        return super().get_context_data(**kwargs)
+
     def form_valid(self, form):
-        max_number = lgc_models.Invoice.objects.all().aggregate(Max('number'))
+        if self.request.GET.get('quote') == '1':
+            objs = lgc_models.Invoice.objects.filter(type=lgc_models.QUOTATION)
+        else:
+            objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
+        max_number = objs.all().aggregate(Max('number'))
         if max_number['number__max'] == None:
             invoice_number = 1
         else:
@@ -612,6 +653,11 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
 class InvoiceUpdateView(InvoiceCommonView, SuccessMessageMixin, UpdateView):
     title = _('Update Invoice')
     success_message = _('Invoice successfully updated.')
+
+    def get_context_data(self, **kwargs):
+        if self.object.type == lgc_models.QUOTATION:
+            self.title = _('Update quotation')
+        return super().get_context_data(**kwargs)
 
     def get_form(self, form_class=lgc_forms.InvoiceUpdateForm):
         return super().get_form(form_class=form_class)
@@ -717,6 +763,7 @@ class InvoiceItemCommonView(BillingTest):
         else:
             action = _('Update')
             title += ' Id: ' + str(self.object.id)
+
         if self.edit_expanded:
             body_class = "collapse show"
             aria_expanded = "true"
@@ -826,3 +873,37 @@ def invoice_item_delete_view(request, pk=None):
 def invoice_disbursement_delete_view(request, pk=None):
     url = reverse_lazy('lgc-insert-disbursement')
     return __invoice_item_delete_view(request, lgc_models.Disbursement, url, pk)
+
+@login_required
+def generate_invoice_from_quote(request, pk):
+    if not request.user.billing:
+        return http.HttpResponseForbidden()
+
+    invoice_objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
+    quote = lgc_models.Invoice.objects.filter(type=lgc_models.QUOTATION).filter(id=pk)
+    if len(quote) != 1:
+        raise Http404
+    quote = quote[0]
+    max_number = invoice_objs.all().aggregate(Max('number'))
+    if max_number['number__max'] == None:
+        max_number = 1
+    else:
+        max_number = max_number['number__max'] + 1
+    quote.process = None
+    quote.save()
+
+    quote.id = None
+    quote.number = max_number
+    quote.type = lgc_models.INVOICE
+    quote.save()
+
+    for items in [lgc_models.InvoiceItem.objects.filter(invoice=pk),
+                  lgc_models.InvoiceDisbursement.objects.filter(invoice=pk)]:
+        if len(items) == 0:
+            continue
+        for item in items.all():
+            item.id = None
+            item.invoice = quote
+            item.save()
+
+    return redirect('lgc-invoice', quote.id)
