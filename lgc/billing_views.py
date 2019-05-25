@@ -512,6 +512,10 @@ class InvoiceCommonView(BillingTest):
         form = super().get_form(form_class=form_class)
         form.helper = FormHelper()
         form.helper.form_tag = False
+        if self.object:
+            state_div = Div('state', css_class='form-group col-md-2')
+        else:
+            state_div = None
         layout = Layout(
             Div('version'), Div('client_update'), Div('client'),
             HTML(get_template(CURRENT_DIR, 'lgc/billing_template.html')),
@@ -539,7 +543,7 @@ class InvoiceCommonView(BillingTest):
                 Div('language', css_class='form-group col-md-2'),
                 Div('company_option', css_class='form-group col-md-2'),
                 Div('with_regard_to', css_class='form-group col-md-2'),
-                Div('state', css_class='form-group col-md-2'),
+                state_div,
                 css_class='form-row')
         )
         if self.object:
