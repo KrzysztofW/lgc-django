@@ -190,6 +190,11 @@ class InvoiceListView(BillingTest, ListView):
                 objs.filter(first_name__istartswith=term)|
                 objs.filter(last_name__istartswith=term)|
                 objs.filter(company__istartswith=term))
+        try:
+            term_int = int(term)
+            objs = lgc_models.Invoice.objects.filter(number__istartswith=term_int)
+        except:
+            pass
 
         return objs.order_by(order_by)
 
@@ -206,13 +211,16 @@ class InvoiceListView(BillingTest, ListView):
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
         context['header_values'] = [
-            ('ID', 'number'), (_('First Name'), 'first_name'), ('Email', 'email'),
-            (_('Company'), 'company'), (_('Date'), 'invoice_date'),
+            ('ID', 'number'), (_('First Name'), 'first_name'),
+            (_('First Name'), 'first_name'), (_('Company'), 'company'),
+            ('Email', 'email'), (_('Date'), 'invoice_date'),
         ]
         return pagination(self.request, context, self.this_url)
 
 class QuotationListView(InvoiceListView):
     title = _('Quotations')
+    this_url = reverse_lazy('lgc-quotations')
+    search_url = reverse_lazy('lgc-quotations')
 
     def get_queryset(self):
         objs = self.model.objects.filter(type=lgc_models.QUOTATION)
@@ -225,6 +233,11 @@ class QuotationListView(InvoiceListView):
                 objs.filter(first_name__istartswith=term)|
                 objs.filter(last_name__istartswith=term)|
                 objs.filter(company__istartswith=term))
+        try:
+            term_int = int(term)
+            objs = lgc_models.Invoice.objects.filter(number__istartswith=term_int)
+        except:
+            pass
 
         return objs.order_by(order_by)
 
@@ -699,12 +712,21 @@ def ajax_invoice_search_view(request):
         return http.HttpResponseForbidden()
 
     term = request.GET.get('term', '')
+    term_int = None
     objs = lgc_models.Invoice.objects
+
     objs = (objs.filter(email__istartswith=term)|
             objs.filter(first_name__istartswith=term)|
             objs.filter(last_name__istartswith=term)|
             objs.filter(company__istartswith=term))
-    set_bold_search_attrs(objs, term, ['first_name', 'last_name', 'company'])
+
+    try:
+        term_int = int(term)
+        objs = lgc_models.Invoice.objects.filter(number__istartswith=term_int)
+    except:
+        pass
+    set_bold_search_attrs(objs, term, term_int,
+                          ['first_name', 'last_name', 'company', 'email', 'number'])
     objs = objs[:10]
     context = {
         'objects': objs

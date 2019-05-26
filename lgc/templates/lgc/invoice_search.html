@@ -1,0 +1,1 @@
+{% for o in objects %}{% autoescape off %}{% if o.b_number %}{{ o.b_number }},{% endif %}{% if o.b_email %}{{ o.b_email }},{% endif %}{% if o.b_first_name %}{{ o.b_first_name }},{% endif %}{% if o.b_last_name %}{{ o.b_last_name }},{% endif %}{% if o.b_company %}{{ o.b_company }},{% endif %}{% endautoescape %}{% endfor %}
