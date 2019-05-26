@@ -162,6 +162,9 @@ p {
     width: 9%;
     font-size: 12px;
 }
+.lgc_no-wrap {
+    white-space: nowrap;
+}
 .lgc_small_formset_label2 {
     width: 9%;
     font-size: 12px;

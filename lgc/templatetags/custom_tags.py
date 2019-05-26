@@ -98,7 +98,7 @@ def normalize_value(obj, key, val):
 @register.simple_tag
 def get_table_th(label, value, order_by, order_params):
     label = str(label)
-    res = '<th scope="col">' + label
+    res = '<th scope="col" class="lgc_no-wrap">' + label
 
     if order_by == value:
         res += '<a href="?' + order_params + '&order_by=-' + value + '"><i class="fa fa-fw fa-sort-up"></i></a>'
@@ -133,14 +133,14 @@ def generate_table(header_values, object_list, order_by, order_params, url):
             except:
                 extra_field = None
 
-            if th[1] in object_list[0].__dict__.keys():
+            if hasattr(obj, th[1]):
                 val = normalize_value(obj, th[1], getattr(obj, th[1]))
                 if type(val).__name__ == 'int':
-                    res += '<td class="lgc_pull-right">' + str(val)
+                    res += '<td class="lgc_pull-right lgc_no-wrap">' + str(val)
                 elif type(val).__name__ == 'float':
-                    res += '<td class="lgc_pull-right">' + str("%.2f"%val)
+                    res += '<td class="lgc_pull-right lgc_no-wrap">' + str("%.2f"%val)
                 else:
-                    res += '<td>' + str(val)
+                    res += '<td class="lgc_no-wrap">' + str(val)
 
                 if extra_field and extra_field in object_list[0].__dict__.keys():
                     val = getattr(obj, extra_field)
