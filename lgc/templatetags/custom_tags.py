@@ -84,8 +84,9 @@ def get_pending_moderations(request):
     return res
 
 def normalize_value(obj, key, val):
-    if val == None or val == False:
+    if val == None or (val == False and type(val).__name__ == 'bool'):
         return ''
+
     if type(val).__name__ == 'bool' and val == True:
         return '<i class="fa fa-fw fa-check lgc-sorting-muted">'
     if type(val).__name__ == 'datetime':
@@ -134,7 +135,13 @@ def generate_table(header_values, object_list, order_by, order_params, url):
 
             if th[1] in object_list[0].__dict__.keys():
                 val = normalize_value(obj, th[1], getattr(obj, th[1]))
-                res += '<td>' + str(val)
+                if type(val).__name__ == 'int':
+                    res += '<td class="lgc_pull-right">' + str(val)
+                elif type(val).__name__ == 'float':
+                    res += '<td class="lgc_pull-right">' + str("%.2f"%val)
+                else:
+                    res += '<td>' + str(val)
+
                 if extra_field and extra_field in object_list[0].__dict__.keys():
                     val = getattr(obj, extra_field)
                     res += ' '
