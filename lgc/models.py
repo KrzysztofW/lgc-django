@@ -852,6 +852,8 @@ class Invoice(AbstractClient):
     modification_date = models.DateField(_('Modification Date'), null=True)
     modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
                                     on_delete=models.SET_NULL, null=True)
+    validation_date = models.DateField(_('Validation Date'), null=True,
+                                       default=None)
     payment_option = models.CharField(max_length=2, default='TR',
                                       choices=INVOICE_PAYMENT_CHOICES)
     currency = models.CharField(_('Currency'), max_length=3, default='EUR',
@@ -863,7 +865,8 @@ class Invoice(AbstractClient):
                            blank=True)
 
     """Autorisations"""
-    po = models.CharField('PO', max_length=50, validators=[validators.alpha], blank=True)
+    po = models.CharField('PO', max_length=50, validators=[validators.alphanum],
+                          blank=True)
     po_date = models.DateField(_('Date'), null=True, blank=True)
     po_first_name = models.CharField(_('First name'), max_length=50,
                                      validators=[validators.alpha], blank=True)
@@ -887,6 +890,54 @@ class Invoice(AbstractClient):
                                       validators=[validators.alpha], blank=True)
     total = models.FloatField(_('Total'), default=0)
 
+    @property
+    def get_process(self):
+        if not self.process:
+            return None
+        if translation.get_language() == 'fr':
+            return self.process.name_fr
+        return self.process.name_en
+
+    @property
+    def entity_info(self):
+        if self.person == None:
+            return None
+        if self.person.home_entity:
+            return self.person.home_entity
+        return self.person.host_entity
+
+    @property
+    def client_info(self):
+        if self.company:
+            return self.company
+        return self.first_name + ' ' + self.last_name
+
+    @property
+    def person_info(self):
+        if self.person == None:
+            return None
+        if self.person.first_name and self.person.last_name:
+            return self.person.first_name + ' ' + self.person.last_name
+        return ''
+
+    def get_obj_total(self, objs):
+        total = 0
+        for obj in objs:
+            total += obj.rate * obj.quantity
+        return total
+
+    @property
+    def remaining_balance(self):
+        return self.total - self.already_paid
+
+    @property
+    def total_items(self):
+        return self.get_obj_total(self.item_set.all())
+
+    @property
+    def total_disbursements(self):
+        return self.get_obj_total(self.disbursement_set.all())
+
     class Meta:
         unique_together = ('number', 'type')
 
@@ -906,7 +957,8 @@ class Disbursement(DisbursementCommon):
                                 choices=CURRENCY_CHOICES)
 
 class InvoiceDisbursement(DisbursementCommon):
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE,
+                                related_name='disbursement_set')
     quantity = models.PositiveIntegerField(_('Quantity'), default=0)
     vat = models.FloatField(_('VAT'), default=0, choices=VAT_CHOICES)
     margin = models.BooleanField(_('20% margin'), default=False)
@@ -923,7 +975,8 @@ class Item(Currencies, ItemCommon):
     title = models.CharField(_('Title'), max_length=50, unique=True)
 
 class InvoiceItem(ItemCommon):
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE,
+                                related_name='item_set')
     rate = models.FloatField(_('Rate'), default=0)
     quantity = models.PositiveIntegerField(_('Quantity'), default=0)
     vat = models.FloatField(_('VAT'), default=0, choices=VAT_CHOICES)

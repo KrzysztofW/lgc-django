@@ -211,9 +211,15 @@ class InvoiceListView(BillingTest, ListView):
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
         context['header_values'] = [
-            ('ID', 'number'), (_('First Name'), 'first_name'),
-            (_('First Name'), 'first_name'), (_('Company'), 'company'),
-            ('Email', 'email'), (_('Date'), 'invoice_date'),
+            ('ID', 'number'), (_('Employee Name'), 'person_info'),
+            (_('Company / Client'), 'client_info'),
+            (_('Home / Host Entity'), 'entity_info'),
+            (_('Process'), 'get_process'), ('PO', 'po'),
+            (_('Date'), 'invoice_date'),
+            ('Items', 'total_items'), ('Disbursements', 'total_disbursements'),
+            ('Total', 'total'),
+            (_('Remaining Balance'), 'remaining_balance'),
+            (_('Validation Date'), 'validation_date'),
         ]
         return pagination(self.request, context, self.this_url)
 
@@ -437,6 +443,9 @@ class InvoiceCommonView(BillingTest):
         return len(self.form_diff) or formsets_diff
 
     def form_valid(self, form):
+        # XXX instance.total is not set...
+        form.instance.total = self.request.POST.get('total')
+
         pcv = lgc_views.PersonCommonView()
         formsets = self.get_formsets()
 
@@ -560,7 +569,7 @@ class InvoiceCommonView(BillingTest):
         else:
             state_div = None
         layout = Layout(
-            Div('version'), Div('client_update'), Div('client'),
+            Div('version'), Div('client_update'), Div('client'), Div('total'),
             HTML(get_template(CURRENT_DIR, 'lgc/billing_template.html')),
             Div(
                 Div(

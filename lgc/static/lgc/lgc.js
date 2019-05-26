@@ -341,6 +341,7 @@ function compute_invoice() {
   var total_div = document.getElementById('id_total_div');
   var total_vat_div = document.getElementById('id_total_vat_div');
   var invoice_total_div = document.getElementById('id_invoice_total_div');
+  var invoice_total_input = document.getElementById('id_total');
 
   var items_total = 0;
   var items_total_vat = 0;
@@ -447,4 +448,5 @@ function compute_invoice() {
     invoice_total -= already_paid;
 
   invoice_total_div.innerHTML = '<b>' + invoice_total.toFixed(2) + '</b>';
+  invoice_total_input.value = invoice_total.toFixed(2);
 }

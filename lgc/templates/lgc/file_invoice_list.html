@@ -26,7 +26,7 @@
       <tbody>
 	{% for obj in invoice_tuple.0 %}
         <tr>
-	  <td><a href="{% url 'lgc-invoice' obj.id %}">{{ obj.id }}</a></td>
+	  <td><a href="{% url 'lgc-invoice' obj.id %}">{{ obj.number }}</a></td>
 	  <td>
 	    {% if LANGUAGE_CODE == 'fr' %}
 	    {{ obj.process.name_fr }}

@@ -363,6 +363,7 @@ class InvoiceCreateForm(forms.ModelForm):
                                           required=False, initial=False,
                                           help_text="(Phone, mail...) 5% of the services limited to 100.",
                                           widget=forms.CheckboxInput(attrs={'onchange':'return compute_invoice();'}))
+    total = forms.FloatField(min_value=0, widget=forms.HiddenInput(), initial=0)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -374,14 +375,14 @@ class InvoiceCreateForm(forms.ModelForm):
     class Meta:
         model = lgc_models.Invoice
         exclude = ['modified_by', 'person', 'process', 'type', 'id', 'number',
-                   'state', 'already_paid', 'total']
+                   'state', 'already_paid', 'validation_date']
 
 class InvoiceUpdateForm(InvoiceCreateForm):
     number = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
     already_paid = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
     class Meta:
         model = lgc_models.Invoice
-        exclude = ['modified_by', 'person', 'process', 'type', 'id', 'total']
+        exclude = ['modified_by', 'person', 'process', 'type', 'id', 'total', 'validation_date']
 
 class ClientCreateForm(forms.ModelForm):
     address = forms.CharField(required=False,
