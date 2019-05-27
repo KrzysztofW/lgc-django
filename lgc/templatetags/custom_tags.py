@@ -91,8 +91,12 @@ def normalize_value(obj, key, val):
         return '<i class="fa fa-fw fa-check lgc-sorting-muted">'
     if type(val).__name__ == 'datetime':
         return date(val) + ' ' + time(val, 'H:i:s')
-    if key == 'role':
-        return obj.get_role_display()
+
+    """Get display value from choice fields."""
+    display_attr = 'get_' + key + '_display'
+    if hasattr(obj, display_attr):
+        return getattr(obj, display_attr)()
+
     return val
 
 @register.simple_tag
