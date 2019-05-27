@@ -862,6 +862,11 @@ class InvoiceItemCommonView(BillingTest):
         currency = self.request.GET.get('currency', 'EUR')
         if self.model == lgc_models.Disbursement:
             context['type'] = 'disbursement'
+            if lgc_models.Settings.objects.count() == 0:
+                settings = lgc_models.Settings()
+                settings.rate_eur = 1
+                settings.save()
+
             context['settings'] = lgc_models.Settings.objects.all()[0]
             return context
 
