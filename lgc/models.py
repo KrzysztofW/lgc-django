@@ -675,6 +675,10 @@ class Document(models.Model):
     def filename(self):
         return os.path.basename(self.document.name)
 
+    @property
+    def file_exists(self):
+        return os.path.isfile(self.document.path)
+
 class ExpirationCommon(models.Model):
     label = _('Visas / Residence Permits / Work Permits')
     type = models.CharField(max_length=7, default='', choices=EXPIRATION_CHOICES + EXPIRATION_CHOICES_DCEM)

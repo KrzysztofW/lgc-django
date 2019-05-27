@@ -56,7 +56,15 @@
 	      {% if item.instance.uploaded_date %}
 	      <td>{{ item.instance.uploaded_date }}</td>
 	      {% endif %}
-	      <td>{{ item.instance.document.size|filesizeformat }}</td>
+	      <td>
+		{% if item.instance.file_exists %}
+		{{ item.instance.document.size|filesizeformat }}
+		{% else %}
+		<div class="alert alert-danger" role="alert">
+		{% trans 'File does not exist!' %}
+		</div>
+		{% endif %}
+	      </td>
 	      <td>{{ item.id }}{{ item.DELETE }}</td>
 	    </tr>
 	    {% endfor %}
