@@ -505,6 +505,9 @@ class InvoiceCommonView(BillingTest):
 
             if lgc_views.check_docs(self, doc, docs) < 0:
                 return super().form_invalid(form)
+        else:
+            doc = None
+            deleted_docs = None
 
         with transaction.atomic():
             self.object = form.save()
@@ -522,7 +525,7 @@ class InvoiceCommonView(BillingTest):
                         continue
                     i.invoice = self.object
                     i.save()
-            if self.object and self.object.type != lgc_models.QUOTATION:
+            if deleted_docs:
                 for d in deleted_docs.deleted_forms:
                     if d.instance.id == None:
                         continue
@@ -661,7 +664,10 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
                 messages.error(self.request,
                                _('An invoice for this process already exists.'))
             else:
-                messages.error(self.request, e.args[1])
+                if len(e.args) == 2:
+                    messages.error(self.request, e.args[1])
+                else:
+                    messages.error(self.request, e.args[0])
             return super().form_invalid(form)
 
     def form_invalid(self, form):
