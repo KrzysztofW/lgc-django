@@ -1,0 +1,1 @@
+{% load custom_tags %}{% for o in objects %}{% autoescape off %}{% for col in col_list %}{% if o|tpl_hasattr:col %}{{ o|getattr:col }},{% endif %}{% endfor %}{% endautoescape %}{% endfor %}

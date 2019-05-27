@@ -144,7 +144,9 @@ def parse_date(date_str):
 
     return None
 
-def set_bold_search_attrs(objs, term, term_int, attrs):
+def set_bold_search_attrs(objs, attrs, term, term_int=None):
+    new_attrs = []
+
     for obj in objs:
         for attr in attrs:
             try:
@@ -158,9 +160,12 @@ def set_bold_search_attrs(objs, term, term_int, attrs):
                     bold_attr = 'b_' + attr
                     setattr(obj, bold_attr, val)
             except:
-                if val == term_int:
+                if term_int and val == term_int:
                     bold_attr = 'b_' + attr
                     setattr(obj, bold_attr, val)
+    for attr in attrs:
+        new_attrs.append('b_' + attr)
+    return new_attrs
 
 def get_template(path, name):
     try:

@@ -1297,11 +1297,13 @@ def ajax_person_process_search_view(request, *args, **kwargs):
     objs = objects.filter(process__name__istartswith=term)
     objs = objs[:10]
 
-    set_bold_search_attrs(objs, term, ['name'])
+    col_list = ['name']
+    col_list = set_bold_search_attrs(objs, col_list, term)
     context = {
-        'objects': objs
+        'objects': objs,
+        'col_list': col_list,
     }
-    return render(request, 'lgc/process_search.html', context)
+    return render(request, 'lgc/generic_search.html', context)
 
 @login_required
 def __ajax_process_stage_search_view(request, model):
@@ -1309,20 +1311,19 @@ def __ajax_process_stage_search_view(request, model):
         return http.HttpResponseForbidden()
 
     term = request.GET.get('term', '')
-    objs = (model.objects.filter(name_fr__istartswith=term)|
-            model.objects.filter(name_en__istartswith=term))
+    if translation.get_language() == 'fr':
+        objs = model.objects.filter(name_fr__istartswith=term)
+        col_list = ['name_fr']
+    else:
+        objs = model.objects.filter(name_en__istartswith=term)
+        col_list = ['name_en']
     objs = objs[:10]
 
-    for o in objs:
-        """Note that the French name has a higher priority."""
-        if o.name_fr.lower().startswith(term):
-            o.b_name = o.name_fr.lower()
-        elif o.name_en.lower().startswith(term):
-            o.b_name = o.name_en.lower()
     context = {
-        'objects': objs
+        'objects': objs,
+        'col_list': col_list,
     }
-    return render(request, 'lgc/process_search.html', context)
+    return render(request, 'lgc/generic_search.html', context)
 
 def ajax_process_stage_search_view(request):
     return __ajax_process_stage_search_view(request, lgc_models.ProcessStage)
@@ -2331,20 +2332,11 @@ def ajax_insert_employee_view(request):
     employees = users.filter(first_name__istartswith=term)|users.filter(last_name__istartswith=term)|users.filter(email__istartswith=term)
     employees = employees[:10]
 
-    set_bold_search_attrs(employees, term,
-                          ['first_name', 'last_name', 'email'])
+    set_bold_search_attrs(employees, ['first_name', 'last_name', 'email'], term)
     context = {
         'employees': employees
     }
     return render(request, 'lgc/insert_employee.html', context)
-
-def ajax_file_search_mark_bold(files, term):
-    if files == None:
-        return None
-    set_bold_search_attrs(files, term,
-                          ['first_name', 'last_name', 'email', 'host_entity',
-                           'home_entity'])
-    return files
 
 def ajax_file_search_find_objs(objs, term):
     return (objs.filter(first_name__istartswith=term)|
@@ -2363,6 +2355,7 @@ def ajax_file_search_view(request):
     else:
         objs = lgc_models.Person.objects
 
+    all_objs = []
     term = request.GET.get('term', '')
 
     """ ignore empty requests """
@@ -2381,11 +2374,20 @@ def ajax_file_search_view(request):
         efiles = None
         files = ajax_file_search_find_objs(objs, term)[:10]
 
+    if efiles:
+        for obj in efiles:
+            all_objs.append(obj)
+    for obj in files:
+        all_objs.append(obj)
+
+    col_list = ['first_name', 'last_name', 'email', 'host_entity', 'home_entity']
+    col_list = set_bold_search_attrs(all_objs, col_list, term)
+
     context = {
-        'persons': ajax_file_search_mark_bold(files, term),
-        'extra_persons': ajax_file_search_mark_bold(efiles, term),
+        'objects': all_objs,
+        'col_list': col_list,
     }
-    return render(request, 'lgc/file_search.html', context)
+    return render(request, 'lgc/generic_search.html', context)
 
 @login_required
 def download_file(request, *args, **kwargs):

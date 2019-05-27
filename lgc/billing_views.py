@@ -656,6 +656,7 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
             invoice_number = max_number['number__max'] + 1
 
         form.instance.number = invoice_number
+
         try:
             return super().form_valid(form)
         except Exception as e:
@@ -698,12 +699,16 @@ def ajax_client_search_view(request):
             objs.filter(first_name__istartswith=term)|
             objs.filter(last_name__istartswith=term)|
             objs.filter(company__istartswith=term))
-    set_bold_search_attrs(objs, term, ['first_name', 'last_name', 'company'])
+
+    col_list = ['first_name', 'last_name', 'company']
+    col_list = set_bold_search_attrs(objs, col_list, term)
     objs = objs[:10]
+
     context = {
-        'objects': objs
+        'objects': objs,
+        'col_list': col_list,
     }
-    return render(request, 'lgc/client_search.html', context)
+    return render(request, 'lgc/generic_search.html', context)
 
 def ajax_invoice_common_search_view(request, objs):
     if request.user.role not in user_models.get_internal_roles():
@@ -727,16 +732,18 @@ def ajax_invoice_common_search_view(request, objs):
         objs = lgc_models.Invoice.objects.filter(number__istartswith=term_int)
     except:
         pass
-    set_bold_search_attrs(objs, term, term_int,
-                          ['person_first_name', 'person_last_name',
-                           'person_home_entity', 'person_host_entity',
-                           'first_name', 'last_name', 'company', 'email',
-                           'number'])
+
+    col_list = ['person_first_name', 'person_last_name', 'person_home_entity',
+                'person_host_entity', 'company', 'first_name',
+                'last_name', 'number']
+    col_list = set_bold_search_attrs(objs, col_list, term, term_int)
     objs = objs[:10]
+
     context = {
-        'objects': objs
+        'objects': objs,
+        'col_list': col_list,
     }
-    return render(request, 'lgc/invoice_search.html', context)
+    return render(request, 'lgc/generic_search.html', context)
 
 @login_required
 def ajax_quotation_search_view(request):

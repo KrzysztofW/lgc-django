@@ -156,3 +156,41 @@ def generate_table(header_values, object_list, order_by, order_params, url):
     res += '</tbody>'
     res += '</table>'
     return mark_safe(res)
+
+@register.filter
+def getdefattr (obj, args):
+    """ Try to get an attribute from an object.
+
+    Example: {% if block|getattr:"editable,True" %}
+
+    Beware that the default is always a string, if you want this
+    to return False, pass an empty second argument:
+    {% if block|getattr:"editable," %}
+    """
+    (attribute, default) = args.split(',')
+    try:
+        return obj.__getattribute__(attribute)
+    except AttributeError:
+         return  obj.__dict__.get(attribute, default)
+    except:
+        return default
+
+@register.filter
+def getattr(obj, arg):
+    """ Try to get an attribute from an object.
+
+    Example: {% if block|getattr:"editable,True" %}
+
+    Beware that the default is always a string, if you want this
+    to return False, pass an empty second argument:
+    {% if block|getattr:'editable' %}
+    """
+
+    try:
+        return obj.__getattribute__(arg)
+    except:
+        return ''
+
+@register.filter
+def tpl_hasattr(obj, arg):
+    return hasattr(obj, arg)
