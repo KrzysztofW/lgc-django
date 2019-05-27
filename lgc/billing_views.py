@@ -178,21 +178,24 @@ class InvoiceListView(BillingTest, ListView):
     this_url = reverse_lazy('lgc-invoices')
     ajax_search_url = reverse_lazy('lgc-invoice-search-ajax')
     search_url = reverse_lazy('lgc-invoices')
+    objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
 
     def get_queryset(self):
-        objs = self.model.objects.filter(type=lgc_models.INVOICE)
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
 
         if term == '':
-            return objs.order_by(order_by)
-        objs = (objs.filter(email__istartswith=term)|
-                objs.filter(first_name__istartswith=term)|
-                objs.filter(last_name__istartswith=term)|
-                objs.filter(company__istartswith=term))
+            return self.objs.order_by(order_by)
+        objs = (self.objs.filter(person__first_name__istartswith=term)|
+                self.objs.filter(person__last_name__istartswith=term)|
+                self.objs.filter(person__home_entity__istartswith=term)|
+                self.objs.filter(person__host_entity__istartswith=term)|
+                self.objs.filter(first_name__istartswith=term)|
+                self.objs.filter(last_name__istartswith=term)|
+                self.objs.filter(company__istartswith=term))
         try:
             term_int = int(term)
-            objs = lgc_models.Invoice.objects.filter(number__istartswith=term_int)
+            objs = self.objs.filter(number__istartswith=term_int)
         except:
             pass
 
@@ -227,25 +230,8 @@ class QuotationListView(InvoiceListView):
     title = _('Quotations')
     this_url = reverse_lazy('lgc-quotations')
     search_url = reverse_lazy('lgc-quotations')
-
-    def get_queryset(self):
-        objs = self.model.objects.filter(type=lgc_models.QUOTATION)
-        term = self.request.GET.get('term', '')
-        order_by = self.get_ordering()
-
-        if term == '':
-            return objs.order_by(order_by)
-        objs = (objs.filter(email__istartswith=term)|
-                objs.filter(first_name__istartswith=term)|
-                objs.filter(last_name__istartswith=term)|
-                objs.filter(company__istartswith=term))
-        try:
-            term_int = int(term)
-            objs = lgc_models.Invoice.objects.filter(number__istartswith=term_int)
-        except:
-            pass
-
-        return objs.order_by(order_by)
+    ajax_search_url = reverse_lazy('lgc-quotation-search-ajax')
+    objs = lgc_models.Invoice.objects.filter(type=lgc_models.QUOTATION)
 
 class InvoiceDeleteView(BillingTest, DeleteView):
     model = lgc_models.Invoice
@@ -713,8 +699,7 @@ def ajax_client_search_view(request):
     }
     return render(request, 'lgc/client_search.html', context)
 
-@login_required
-def ajax_invoice_search_view(request):
+def ajax_invoice_common_search_view(request, objs):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
     if not request.user.billing:
@@ -722,9 +707,11 @@ def ajax_invoice_search_view(request):
 
     term = request.GET.get('term', '')
     term_int = None
-    objs = lgc_models.Invoice.objects
 
-    objs = (objs.filter(email__istartswith=term)|
+    objs = (objs.filter(person__first_name__istartswith=term)|
+            objs.filter(person__last_name__istartswith=term)|
+            objs.filter(person__home_entity__istartswith=term)|
+            objs.filter(person__host_entity__istartswith=term)|
             objs.filter(first_name__istartswith=term)|
             objs.filter(last_name__istartswith=term)|
             objs.filter(company__istartswith=term))
@@ -735,12 +722,25 @@ def ajax_invoice_search_view(request):
     except:
         pass
     set_bold_search_attrs(objs, term, term_int,
-                          ['first_name', 'last_name', 'company', 'email', 'number'])
+                          ['person_first_name', 'person_last_name',
+                           'person_home_entity', 'person_host_entity',
+                           'first_name', 'last_name', 'company', 'email',
+                           'number'])
     objs = objs[:10]
     context = {
         'objects': objs
     }
     return render(request, 'lgc/invoice_search.html', context)
+
+@login_required
+def ajax_quotation_search_view(request):
+    objs = lgc_models.Invoice.objects.filter(type=lgc_models.QUOTATION)
+    return ajax_invoice_common_search_view(request, objs)
+
+@login_required
+def ajax_invoice_search_view(request):
+    objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
+    return ajax_invoice_common_search_view(request, objs)
 
 @login_required
 def invoice_insert_client(request):

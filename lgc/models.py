@@ -891,6 +891,30 @@ class Invoice(AbstractClient):
     total = models.FloatField(_('Total'), default=0)
 
     @property
+    def person_first_name(self):
+        if self.person == None:
+            return None
+        return self.person.first_name
+
+    @property
+    def person_last_name(self):
+        if self.person == None:
+            return None
+        return self.person.last_name
+
+    @property
+    def person_home_entity(self):
+        if self.person == None:
+            return None
+        return self.person.home_entity
+
+    @property
+    def person_host_entity(self):
+        if self.person == None:
+            return None
+        return self.person.host_entity
+
+    @property
     def get_process(self):
         if not self.process:
             return None

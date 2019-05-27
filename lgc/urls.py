@@ -90,6 +90,8 @@ urlpatterns = [
          name='lgc-invoice-delete'),
     path('invoice-search/ajax/', billing_views.ajax_invoice_search_view,
          name='lgc-invoice-search-ajax'),
+    path('quotation-search/ajax/', billing_views.ajax_quotation_search_view,
+         name='lgc-quotation-search-ajax'),
     path('invoice-create/', billing_views.InvoiceCreateView.as_view(),
          name='lgc-invoice-create'),
     path('insert-client/', billing_views.invoice_insert_client,
