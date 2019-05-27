@@ -45,6 +45,8 @@ import string
 import random
 import datetime
 import os
+
+User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
 
 class BillingTest(LoginRequiredMixin, UserPassesTestMixin):
@@ -171,7 +173,7 @@ class ClientDeleteView(BillingTest, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 class InvoiceListView(BillingTest, ListView):
-    template_name = 'lgc/sub_generic_list.html'
+    template_name = 'lgc/sub_generic_list_with_search_form.html'
     model = lgc_models.Invoice
     title = _('Invoices')
     item_url = 'lgc-invoice'
@@ -180,19 +182,77 @@ class InvoiceListView(BillingTest, ListView):
     search_url = reverse_lazy('lgc-invoices')
     objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
 
+    def get_search_form(self):
+        if len(self.request.GET):
+            form = lgc_forms.InvoiceSearchForm(self.request.GET)
+        else:
+            form = lgc_forms.InvoiceSearchForm()
+
+        form.helper = FormHelper()
+        form.helper.form_tag = False
+        form.helper.form_method = 'get'
+        form.helper.layout = Layout(
+            Div(
+                Div('number', css_class='form-group col-md-3'),
+                Div('state', css_class='form-group col-md-3'),
+                Div('responsible', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('dates', css_class='form-group col-md-3'),
+                Div('start_date', css_class='form-group col-md-3'),
+                Div('end_date', css_class='form-group col-md-3'),
+                css_class='form-row'),
+        )
+        return form
+
+    def match_extra_terms(self, objs):
+        number = self.request.GET.get('number')
+        state = self.request.GET.get('state')
+        responsible = self.request.GET.get('responsible')
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        dates = self.request.GET.get('dates')
+
+        if number:
+            objs = objs.filter(number=number)
+        if state:
+            objs = objs.filter(state=state)
+        if responsible:
+            o = User.objects.filter(id=responsible)
+            if len(o):
+                objs = objs.filter(person__responsible__in=o)
+        if dates == lgc_forms.INVOICE_SEARCH_DATE_INVOICE:
+            if start_date and end_date:
+                objs = objs.filter(invoice_date__range=[common_utils.parse_date(start_date),
+                                                        common_utils.parse_date(end_date)])
+            elif start_date:
+                objs = objs.filter(invoice_date__gt=common_utils.parse_date(start_date))
+            elif end_date:
+                objs = objs.filter(invoice_date__lt=common_utils.parse_date(end_date))
+        else:
+            if start_date and end_date:
+                objs = objs.filter(validation_date__range=[common_utils.parse_date(start_date),
+                                                        common_utils.parse_date(end_date)])
+            elif start_date:
+                objs = objs.filter(validation_date__gt=common_utils.parse_date(start_date))
+            elif end_date:
+                objs = objs.filter(validation_date__lt=common_utils.parse_date(end_date))
+        return objs
+
     def get_queryset(self):
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
+        objs = self.match_extra_terms(self.objs)
 
         if term == '':
-            return self.objs.order_by(order_by)
-        objs = (self.objs.filter(person__first_name__istartswith=term)|
-                self.objs.filter(person__last_name__istartswith=term)|
-                self.objs.filter(person__home_entity__istartswith=term)|
-                self.objs.filter(person__host_entity__istartswith=term)|
-                self.objs.filter(first_name__istartswith=term)|
-                self.objs.filter(last_name__istartswith=term)|
-                self.objs.filter(company__istartswith=term))
+            return objs.order_by(order_by)
+        objs = (objs.filter(person__first_name__istartswith=term)|
+                objs.filter(person__last_name__istartswith=term)|
+                objs.filter(person__home_entity__istartswith=term)|
+                objs.filter(person__host_entity__istartswith=term)|
+                objs.filter(first_name__istartswith=term)|
+                objs.filter(last_name__istartswith=term)|
+                objs.filter(company__istartswith=term))
         try:
             term_int = int(term)
             objs = self.objs.filter(number__istartswith=term_int)
@@ -223,7 +283,9 @@ class InvoiceListView(BillingTest, ListView):
             ('Total', 'total'),
             (_('Remaining Balance'), 'remaining_balance'),
             (_('Validation Date'), 'validation_date'),
+            (_('Status'), 'state'),
         ]
+        context['search_form'] = self.get_search_form()
         return pagination(self.request, context, self.this_url)
 
 class QuotationListView(InvoiceListView):

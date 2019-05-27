@@ -377,6 +377,36 @@ class InvoiceCreateForm(forms.ModelForm):
         exclude = ['modified_by', 'person', 'process', 'type', 'id', 'number',
                    'state', 'already_paid', 'validation_date']
 
+INVOICE_SEARCH_DATE_INVOICE = 'I'
+INVOICE_SEARCH_DATE_PAY = 'P'
+INVOICE_SEARCH_DATE_CHOICES = (
+    (INVOICE_SEARCH_DATE_INVOICE, _('Validation Date')),
+    (INVOICE_SEARCH_DATE_PAY, _('Payment Date')),
+)
+
+class InvoiceSearchForm(forms.Form):
+    number = forms.CharField(required=False, label='ID')
+    dates = forms.ChoiceField(label='&nbsp;', required=False,
+                              choices=INVOICE_SEARCH_DATE_CHOICES,
+                              widget = forms.RadioSelect(attrs = {
+                                  'onchange':'form.submit();',
+                              }),
+                              initial=INVOICE_SEARCH_DATE_INVOICE)
+    start_date = forms.CharField(required=False, label=_('Start Date'))
+    end_date = forms.CharField(required=False, label=_('End Date'))
+    state = forms.ChoiceField(required=False,
+                              choices=(('', '---------'),) + lgc_models.INVOICE_STATE_CHOICES,
+                              label=_('State'),
+                              widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    responsible = forms.ModelChoiceField(required=False, label=_('Responsible'),
+                                         widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}),
+                                         queryset=user_models.get_local_user_queryset())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        datepicker_set_widget_attrs(self, 'start_date')
+        datepicker_set_widget_attrs(self, 'end_date')
+
 class InvoiceUpdateForm(InvoiceCreateForm):
     number = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
     already_paid = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)

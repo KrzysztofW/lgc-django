@@ -128,7 +128,7 @@ class UserTest(UserPassesTestMixin):
         return True
 
 class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
-    template_name = 'lgc/files.html'
+    template_name = 'lgc/sub_generic_list_with_search_form.html'
     model = lgc_models.Person
     ajax_search_url = reverse_lazy('lgc-file-search-ajax')
     search_url = reverse_lazy('lgc-files')
