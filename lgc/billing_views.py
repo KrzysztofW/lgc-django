@@ -45,6 +45,7 @@ import string
 import random
 import datetime
 import os
+import subprocess
 
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
@@ -617,6 +618,7 @@ class InvoiceCommonView(BillingTest):
         form.helper = FormHelper()
         form.helper.form_tag = False
         gen_invoice_html = None
+        gen_pdf_html = None
 
         if self.object:
             state_div = Div('state', css_class='form-group col-md-2')
@@ -626,6 +628,10 @@ class InvoiceCommonView(BillingTest):
                                                           kwargs={'pk':self.object.id})) +
                                          '" class="btn btn-outline-info">' +
                                          _('Generate invoice') + '</a>'))
+            gen_pdf_html = HTML(('&nbsp;<a href="' +
+                                 str(reverse_lazy('lgc-billing-pdf',
+                                                  kwargs={'pk':self.object.id})) +
+                                 '" class="btn btn-outline-info">PDF</a>'))
         else:
             state_div = None
         layout = Layout(
@@ -714,7 +720,7 @@ class InvoiceCommonView(BillingTest):
                                '" class="btn btn-outline-info">' +
                                action + '</a>'))
         layout.append(gen_invoice_html)
-
+        layout.append(gen_pdf_html)
         form.helper.layout = layout
         return form
 
@@ -988,11 +994,14 @@ class InvoiceDisbursementUpdateView(InvoiceDisbursementCommon,
                                     InvoiceItemUpdateView):
     title = _('Update Disbursement')
 
+
+def user_checks(request):
+    return (request.user.role in user_models.get_internal_roles() and
+            request.user.billing)
+
 @login_required
 def __invoice_item_delete_view(request, model, url, pk=None):
-    if request.user.role not in user_models.get_internal_roles():
-        return http.HttpResponseForbidden()
-    if not request.user.billing:
+    if not user_checks:
         return http.HttpResponseForbidden()
 
     if not pk:
@@ -1017,7 +1026,7 @@ def invoice_disbursement_delete_view(request, pk=None):
 
 @login_required
 def generate_invoice_from_quote(request, pk):
-    if not request.user.billing:
+    if not user_checks:
         return http.HttpResponseForbidden()
 
     invoice_objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
@@ -1048,3 +1057,25 @@ def generate_invoice_from_quote(request, pk):
             item.save()
 
     return redirect('lgc-invoice', quote.id)
+
+@login_required
+def billing_pdf_view(request, pk):
+    if not user_checks:
+        return http.HttpResponseForbidden()
+
+    invoice = lgc_models.Invoice.objects.filter(id=pk)
+    if len(invoice) != 1:
+        raise Http404
+    invoice = invoice[0]
+
+    response = http.HttpResponse(content_type='application/pdf')
+    if invoice.type == lgc_models.INVOICE:
+        filename = 'FA'
+    else:
+        filename = 'DE'
+    filename += str(invoice.number).zfill(5) + '.pdf'
+    response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+    pdf = subprocess.Popen('php_pdf/print.php ' + str(invoice.id),
+                           shell=True, stdout=subprocess.PIPE).stdout.read()
+    response.write(pdf)
+    return response

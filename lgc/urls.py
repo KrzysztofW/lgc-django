@@ -113,4 +113,7 @@ urlpatterns = [
     path('disbursement-delete/<int:pk>/',
          billing_views.invoice_disbursement_delete_view,
          name='lgc-delete-disbursement'),
+
+    path('billing-pdf/<int:pk>/',
+         billing_views.billing_pdf_view, name='lgc-billing-pdf'),
 ]
