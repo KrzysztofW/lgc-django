@@ -59,19 +59,20 @@ class ModerationPersonCreateForm(lgc_forms.PersonCreateForm):
     comments = None
     process_name = None
     start_date = None
+    is_private = None
 
     class Meta:
         model = lgc_models.Person
         exclude = ['modified_by', 'modification_date', 'creation_date', 'id', 'user',
                    'prefecture', 'subprefecture', 'consulate', 'direccte', 'jurisdiction',
-                   'info_process', 'responsible', 'start_date', 'state', 'comments']
+                   'info_process', 'responsible', 'start_date', 'state', 'comments',
+                   'is_private', 'work_permit']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for key in self.fields.keys():
             if key == 'version':
                 continue
-            self.fields[key].widget.attrs['readonly'] = True
             self.fields[key].widget.attrs['disabled'] = True
 
 class ModerationEmployeeUpdateForm(EmployeeUpdateForm):

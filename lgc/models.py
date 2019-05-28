@@ -473,7 +473,6 @@ def check_dates(start, end, what):
         raise ValidationError(_("End date of %s cannot be earlier than start date"%(what)))
 
 class PersonInfo(models.Model):
-    is_private = models.BooleanField(_('Private File'), default=False)
     version = models.PositiveIntegerField(default=0)
     creation_date = models.DateTimeField(_('Creation Date'), auto_now_add=True)
     first_name = models.CharField(_('First name'), max_length=50, validators=[validators.alpha])
@@ -550,6 +549,7 @@ class PersonInfo(models.Model):
 
 class Person(PersonInfo):
     id = models.AutoField(primary_key=True)
+    is_private = models.BooleanField(_('Private File'), default=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 null=True, blank=True,
                                 related_name='person_user_set')
