@@ -17,7 +17,7 @@
           </thead>
           <tbody>
 	    {% for obj in object_list %}
-            <tr onclick="insert('{{ obj.id }}', '{{ obj.first_name|urlencode }}', '{{ obj.last_name|urlencode }}', '{{ obj.company|urlencode }}', '{% if obj.siret %}{{ obj.siret }}{% endif %}', '{{ obj.address|urlencode }}', '{{ obj.post_code }}', '{{ obj.city|urlencode }}', '{{ obj.country.name }}');">
+            <tr onclick="insert('{{ obj.id }}', '{{ obj.first_name|urlencode }}', '{{ obj.last_name|urlencode }}', '{{ obj.company|urlencode }}', '{% if obj.siret %}{{ obj.siret }}{% endif %}', '{{ obj.address|urlencode }}', '{{ obj.post_code }}', '{{ obj.city|urlencode }}', '{{ obj.country.name|urlencode }}');">
 	      <td>{{ obj.id }}</td>
 	      <td>{{ obj.first_name }}</td>
 	      <td>{{ obj.last_name }}</td>
@@ -74,7 +74,7 @@
 	if (city != '')
 	    str += decodeURIComponent(city) + '<br>';
 	if (country != '')
-	    str += country + '<br>';
+	    str += decodeURIComponent(country) + '<br>';
 	if (address + post_code + city + country != '')
 	    str += '<br>';
 	if (siret != '')
