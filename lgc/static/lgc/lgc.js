@@ -390,7 +390,7 @@ function compute_invoice() {
     var vat_input = document.getElementById('id_disbursements-'+i+'-vat');
     var margin_input = document.getElementById('id_disbursements-'+i+'-margin');
     var total_input = document.getElementById('id_disbursements-'+i+'-total');
-    var margin = 20 / 100; // 20%
+    var margin = 20 / 100.; // 20%
 
     var rate_quantity = 0;
     var total = 0;
@@ -411,8 +411,8 @@ function compute_invoice() {
     disbursements_total_vat += rate_quantity * vat;
 
     if (margin_input.checked) {
-      disbursements_total *= (1 + margin);
-      disbursements_total_vat *= (1 + margin);
+      disbursements_total += rate_quantity * margin;
+      disbursements_total_vat += (rate_quantity * vat) * margin;
     }
     i++;
   }
