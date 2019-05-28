@@ -380,7 +380,7 @@ class InvoiceCreateForm(forms.ModelForm):
 INVOICE_SEARCH_DATE_INVOICE = 'I'
 INVOICE_SEARCH_DATE_PAY = 'P'
 INVOICE_SEARCH_DATE_CHOICES = (
-    (INVOICE_SEARCH_DATE_INVOICE, _('Validation Date')),
+    (INVOICE_SEARCH_DATE_INVOICE, _('Invoice Date')),
     (INVOICE_SEARCH_DATE_PAY, _('Payment Date')),
 )
 
@@ -392,8 +392,8 @@ class InvoiceSearchForm(forms.Form):
                                   'onchange':'form.submit();',
                               }),
                               initial=INVOICE_SEARCH_DATE_INVOICE)
-    start_date = forms.CharField(required=False, label=_('Start Date'))
-    end_date = forms.CharField(required=False, label=_('End Date'))
+    start_date = forms.CharField(required=False, label=_('From Date'))
+    end_date = forms.CharField(required=False, label=_('To Date'))
     state = forms.ChoiceField(required=False,
                               choices=(('', '---------'),) + lgc_models.INVOICE_STATE_CHOICES,
                               label=_('State'),

@@ -966,6 +966,12 @@ class Invoice(AbstractClient):
     def total_disbursements(self):
         return self.get_obj_total(self.disbursement_set.all())
 
+    @property
+    def validation_date(self):
+        if self.state == INVOICE_STATE_PAID:
+            return self.modification_date
+        return None
+
     class Meta:
         unique_together = ('number', 'type')
 

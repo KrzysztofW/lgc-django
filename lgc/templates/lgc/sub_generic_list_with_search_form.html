@@ -24,14 +24,20 @@
 {% endblock %}
 {% block javascript %}
   <script type="text/javascript">
-    var started = 0;
+    var s_started = 0;
+    var e_started = 0;
     var form = document.getElementById('search');
 
     $('#id_start_date').on('dp.change', function(e){
     /* do not submit the form after the page has been loaded */
-    if (started)
+    if (s_started)
       form.submit();
-    started++;
+    s_started++;
+    })
+    $('#id_end_date').on('dp.change', function(e){
+    if (e_started)
+      form.submit();
+    e_started++;
     })
   </script>
 {% endblock %}

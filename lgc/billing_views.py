@@ -181,6 +181,7 @@ class InvoiceListView(BillingTest, ListView):
     ajax_search_url = reverse_lazy('lgc-invoice-search-ajax')
     search_url = reverse_lazy('lgc-invoices')
     objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
+    invoice_type = lgc_models.INVOICE
 
     def get_search_form(self):
         if len(self.request.GET):
@@ -198,7 +199,7 @@ class InvoiceListView(BillingTest, ListView):
                 Div('responsible', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
-                Div('dates', css_class='form-group col-md-3'),
+                Div('dates', css_class='form-group col-md-3') if self.invoice_type == lgc_models.INVOICE else None,
                 Div('start_date', css_class='form-group col-md-3'),
                 Div('end_date', css_class='form-group col-md-3'),
                 css_class='form-row'),
@@ -226,17 +227,18 @@ class InvoiceListView(BillingTest, ListView):
                 objs = objs.filter(invoice_date__range=[common_utils.parse_date(start_date),
                                                         common_utils.parse_date(end_date)])
             elif start_date:
-                objs = objs.filter(invoice_date__gt=common_utils.parse_date(start_date))
+                objs = objs.filter(invoice_date__gte=common_utils.parse_date(start_date))
             elif end_date:
-                objs = objs.filter(invoice_date__lt=common_utils.parse_date(end_date))
-        else:
+                objs = objs.filter(invoice_date__lte=common_utils.parse_date(end_date))
+        elif self.invoice_type == lgc_models.INVOICE and (start_date or end_date):
+            objs = objs.filter(state=lgc_models.INVOICE_STATE_PAID)
             if start_date and end_date:
                 objs = objs.filter(modification_date__range=[common_utils.parse_date(start_date),
                                                         common_utils.parse_date(end_date)])
             elif start_date:
-                objs = objs.filter(modification_date__gt=common_utils.parse_date(start_date))
+                objs = objs.filter(modification_date__gte=common_utils.parse_date(start_date))
             elif end_date:
-                objs = objs.filter(modification_date__lt=common_utils.parse_date(end_date))
+                objs = objs.filter(modification_date__lte=common_utils.parse_date(end_date))
         return objs
 
     def get_queryset(self):
@@ -282,9 +284,13 @@ class InvoiceListView(BillingTest, ListView):
             ('Items', 'total_items'), ('Disbursements', 'total_disbursements'),
             ('Total', 'total'),
             (_('Remaining Balance'), 'remaining_balance'),
-            (_('Validation Date'), 'modification_date'),
-            (_('Status'), 'state'),
         ]
+        if self.invoice_type == lgc_models.INVOICE:
+            context['header_values'] += [
+                (_('Validation Date'), 'validation_date'),
+                (_('Status'), 'state'),
+            ]
+
         context['search_form'] = self.get_search_form()
         return pagination(self.request, context, self.this_url)
 
@@ -294,6 +300,7 @@ class QuotationListView(InvoiceListView):
     search_url = reverse_lazy('lgc-quotations')
     ajax_search_url = reverse_lazy('lgc-quotation-search-ajax')
     objs = lgc_models.Invoice.objects.filter(type=lgc_models.QUOTATION)
+    invoice_type = lgc_models.QUOTATION
 
 class InvoiceDeleteView(BillingTest, DeleteView):
     model = lgc_models.Invoice
