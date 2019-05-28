@@ -358,21 +358,22 @@ class InvoiceCommonView(BillingTest):
     def set_client_info(self, context):
         if not hasattr(self, 'object') or self.object == None:
             return
+        obj = self.get_object()
         content = ''
-        if self.object.first_name + self.object.last_name != '':
-            content += self.object.first_name + ' ' + self.object.last_name + '<br>'
-        if self.object.company != '':
-            content += self.object.company + '<br>'
-        if self.object.address != '':
-            content += self.object.address + '<br>'
-        if self.object.post_code != '':
-            content += self.object.post_code + '<br>'
-        if self.object.city != '':
-            content += self.object.city + '<br>'
-        if self.object.country != '':
-            content += self.object.country.name + '<br>'
-        if self.object.siret:
-            content += 'SIRET: ' + self.object.siret + '<br>'
+        if obj.first_name + obj.last_name != '':
+            content += obj.first_name + ' ' + obj.last_name + '<br>'
+        if obj.company != '':
+            content += obj.company + '<br>'
+        if obj.address != '':
+            content += obj.address + '<br>'
+        if obj.post_code != '':
+            content += obj.post_code + '<br>'
+        if obj.city != '':
+            content += obj.city + '<br>'
+        if obj.country != '':
+            content += obj.country.name + '<br>'
+        if obj.siret:
+            content += 'SIRET: ' + obj.siret + '<br>'
 
         context['client_info'] = mark_safe(content)
 
@@ -486,18 +487,27 @@ class InvoiceCommonView(BillingTest):
         else:
             ignore_list = []
 
-        self.form_diff = pcv.check_form_diff2(obj, form, form.cleaned_data, ignore_list)
+        self.form_diff = pcv.check_form_diff2(obj, form, form.cleaned_data,
+                                              ignore_list)
         formsets_diff = self.check_formsets_diff(pcv, formsets)
         return len(self.form_diff) or formsets_diff
 
     def form_valid(self, form):
+        if self.object:
+            invoice = self.get_object()
+            if invoice.state == lgc_models.INVOICE_STATE_PAID:
+                messages.error(self.request,
+                               _('Cannot update a validated invoice.'));
+                return super().form_invalid(form)
+        else:
+            invoice = None
+
         # XXX instance.total is not set...
         form.instance.total = self.request.POST.get('total')
 
         pcv = lgc_views.PersonCommonView()
         formsets = self.get_formsets()
 
-        invoice = None
         person, person_process = self.get_person_and_process()
         form.instance.person = person
 
@@ -506,14 +516,6 @@ class InvoiceCommonView(BillingTest):
 
         if person_process and person_process.process:
             form.instance.process = person_process
-
-        if form.instance.id:
-            obj = lgc_models.Invoice.objects.filter(id=form.instance.id)
-            if len(obj) != 1 and self.object:
-                messages.error(self.request, err_msg)
-                return super().form_invalid(form)
-            if len(obj) == 1:
-                invoice = obj[0]
 
         err_msg = _('Client not set.')
 
@@ -685,13 +687,25 @@ class InvoiceCommonView(BillingTest):
             HTML(get_template(CURRENT_DIR, 'lgc/billing_total_template.html')),
         )
 
+        action_url = None
         if self.object:
             layout.append(Div('number'))
-            action = _('Update')
+            if self.object.state == lgc_models.INVOICE_STATE_PAID:
+                action_url = str(reverse_lazy('lgc-invoices'))
+                action = _('Invoice list')
+            else:
+                action = _('Update')
         else:
             action = _('Create')
-        layout.append(HTML('<button class="btn btn-outline-info" type="submit" ' +
-                           'onclick="return form_checks();">' + action + '</button>'))
+        if action_url == None:
+            layout.append(HTML('<button class="btn btn-outline-info" type="submit" ' +
+                               'onclick="return invoice_form_checks(\'' +
+                               _('If the state PAID is set, the invoice will not be editable anymore.') +
+                               '\');">' + action + '</button>'))
+        else:
+            layout.append(HTML('<a href="' + action_url +
+                               '" class="btn btn-outline-info">' +
+                               action + '</a>'))
         layout.append(gen_invoice_html)
 
         form.helper.layout = layout

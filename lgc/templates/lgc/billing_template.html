@@ -5,6 +5,14 @@
 
 <div class="form-row">
   <div class="form-group col-md-4">
+    {% if form.instance.state == 'V' %}
+    <div class="alert alert-warning" role="alert">
+      {% blocktrans with val_date=form.instance.modification_date firstname=form.instance.modified_by.first_name lastname=form.instance.modified_by.last_name %}
+      Invoice validated on {{ val_date }} by {{ firstname }} {{ lastname }}
+      {% endblocktrans %}
+    </div>
+    {% endif %}
+
     {% if person %}
     <a href="{% url 'lgc-file' person.id %}">{% trans 'File Id:' %} {{ person.id }}</a>
     {% if person_process %}

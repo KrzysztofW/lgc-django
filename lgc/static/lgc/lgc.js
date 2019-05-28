@@ -450,3 +450,56 @@ function compute_invoice() {
   invoice_total_div.innerHTML = '<b>' + invoice_total.toFixed(2) + '</b>';
   invoice_total_input.value = invoice_total.toFixed(2);
 }
+
+function client_id_check(client_id) {
+  if (!client_id || typeof client_id == 'undefined')
+    return false;
+
+  if (client_id.value == '') {
+    $.notify("{% trans 'Client not set' %}",
+	     {
+	       className: 'error',
+	       position: 'top center',
+	     });
+    return false;
+  }
+  return true;
+}
+
+function invoice_form_checks(msg) {
+  var state_elem = document.getElementById('id_state');
+
+  if (state_elem && state_elem.value == 'V') {
+    if (!confirm(msg))
+      return false;
+  }
+  return client_id_check(document.getElementById('id_client'));
+}
+
+function remove_item(index, formset_id) {
+  var description_input;
+
+  if (formset_id == 'items_id')
+    description_input = document.getElementById('id_items-' + index + '-rate');
+  else if (formset_id == 'disbursements_id')
+    description_input = document.getElementById('id_disbursements-' + index + '-rate');
+
+  description_input.value = 0;
+  compute_invoice();
+}
+
+function insert_item(url, element, index) {
+    var currency = document.getElementById('id_currency');
+    url = url + '?index=' + index + '&currency=' + currency.value;
+    window.open(url, 'newwindow', config='height=400,width=950, toolbar=no, menubar=no,scrollbars=yes, resizable=no,location=no,directories=no, status=no');
+    return false;
+}
+
+function invoice_validated_state_alert(elem, msg) {
+  if (elem.value == "V")
+    alert(msg);
+}
+
+function invoice_confirm_validated_state(elem, msg) {
+  return confirm(msg);
+}
