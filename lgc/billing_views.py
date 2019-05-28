@@ -231,12 +231,12 @@ class InvoiceListView(BillingTest, ListView):
                 objs = objs.filter(invoice_date__lt=common_utils.parse_date(end_date))
         else:
             if start_date and end_date:
-                objs = objs.filter(validation_date__range=[common_utils.parse_date(start_date),
+                objs = objs.filter(modification_date__range=[common_utils.parse_date(start_date),
                                                         common_utils.parse_date(end_date)])
             elif start_date:
-                objs = objs.filter(validation_date__gt=common_utils.parse_date(start_date))
+                objs = objs.filter(modification_date__gt=common_utils.parse_date(start_date))
             elif end_date:
-                objs = objs.filter(validation_date__lt=common_utils.parse_date(end_date))
+                objs = objs.filter(modification_date__lt=common_utils.parse_date(end_date))
         return objs
 
     def get_queryset(self):
@@ -282,7 +282,7 @@ class InvoiceListView(BillingTest, ListView):
             ('Items', 'total_items'), ('Disbursements', 'total_disbursements'),
             ('Total', 'total'),
             (_('Remaining Balance'), 'remaining_balance'),
-            (_('Validation Date'), 'validation_date'),
+            (_('Validation Date'), 'modification_date'),
             (_('Status'), 'state'),
         ]
         context['search_form'] = self.get_search_form()

@@ -375,7 +375,7 @@ class InvoiceCreateForm(forms.ModelForm):
     class Meta:
         model = lgc_models.Invoice
         exclude = ['modified_by', 'person', 'process', 'type', 'id', 'number',
-                   'state', 'already_paid', 'validation_date']
+                   'state', 'already_paid']
 
 INVOICE_SEARCH_DATE_INVOICE = 'I'
 INVOICE_SEARCH_DATE_PAY = 'P'
@@ -412,7 +412,7 @@ class InvoiceUpdateForm(InvoiceCreateForm):
     already_paid = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
     class Meta:
         model = lgc_models.Invoice
-        exclude = ['modified_by', 'person', 'process', 'type', 'id', 'total', 'validation_date']
+        exclude = ['modified_by', 'person', 'process', 'type', 'id', 'total']
 
 class ClientCreateForm(forms.ModelForm):
     address = forms.CharField(required=False,
