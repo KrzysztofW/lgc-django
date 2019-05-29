@@ -419,8 +419,10 @@ class InvoiceUpdateForm(InvoiceCreateForm):
         exclude = ['modified_by', 'person', 'process', 'type', 'id', 'total']
 
 class ClientCreateForm(forms.ModelForm):
-    address = forms.CharField(required=False,
+    address = forms.CharField(label=_('Address'), required=False,
                               widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
+    billing_address = forms.CharField(label=_('Address'), required=False,
+                                      widget=forms.Textarea(attrs={'rows': 3, 'cols': 33}))
 
     class Meta:
         model = lgc_models.Client

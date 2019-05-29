@@ -93,17 +93,15 @@ class ClientListView(BillingTest, ListView):
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
         context['header_values'] = [
-            ('ID', 'id'), (_('First Name'), 'first_name'), ('Email', 'email'),
-            (_('Company'), 'company')
+            ('ID', 'id'), (_('First Name'), 'first_name'),
+            (_('Last Name'), 'last_name'),
+            (_('Company'), 'company'), ('Email', 'email'),
         ]
         return pagination(self.request, context, self.this_url)
 
-class ClientCreateView(BillingTest, SuccessMessageMixin, CreateView):
-    model = lgc_models.Invoice
-    title = _('New Client')
-    success_message = _('Client successfully created.')
-    template_name = 'lgc/generic_form.html'
-    success_url = reverse_lazy('lgc-client-create')
+class ClientCommonView(BillingTest, SuccessMessageMixin):
+    model = lgc_models.Client
+    template_name = 'lgc/generic_form_with_formsets.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -112,6 +110,51 @@ class ClientCreateView(BillingTest, SuccessMessageMixin, CreateView):
 
     def get_form(self, form_class=lgc_forms.ClientCreateForm):
         form = super().get_form(form_class=form_class)
+        form.helper = FormHelper()
+        form.helper.layout = Layout(
+            Div(
+                Div('first_name', css_class='form-group col-md-3'),
+                Div('last_name', css_class='form-group col-md-3'),
+                Div('company', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('email', css_class='form-group col-md-3'),
+                Div('phone_number', css_class='form-group col-md-3'),
+                Div('cell_phone_number', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('siret', css_class='form-group col-md-3'),
+                Div('vat', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('address', css_class='form-group col-md-3'),
+                Div('post_code', css_class='form-group col-md-3'),
+                Div('city', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('country', css_class='form-group col-md-3'),
+                css_class='form-row'),
+
+            Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
+                css_class='form-row'),
+            Div(Div(HTML('<h4>'+ _('Billing Address') +'</h4>'),
+                    css_class='form-group col-md-9'),
+                css_class='form-row'),
+            Div(
+                Div('billing_address', css_class='form-group col-md-3'),
+                Div('billing_post_code', css_class='form-group col-md-3'),
+                Div('billing_city', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('billing_country', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
+                css_class='form-row'),
+        )
+        action = _('Update') if self.object else _('Create')
+        form.helper.layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
+                                        action + '</button>'))
+
         return form
 
     def form_valid(self, form):
@@ -123,13 +166,16 @@ class ClientCreateView(BillingTest, SuccessMessageMixin, CreateView):
             return self.form_invalid(form)
         return super().form_valid(form)
 
-class ClientUpdateView(BillingTest, SuccessMessageMixin, UpdateView):
-    model = lgc_models.Client
+class ClientCreateView(ClientCommonView, CreateView):
+    title = _('New Client')
+    success_message = _('Client successfully created.')
+    success_url = reverse_lazy('lgc-client-create')
+
+class ClientUpdateView(ClientCommonView, UpdateView):
+    title = _('Client')
     success_message = _('Client successfully updated')
     success_url = 'lgc-client'
-    title = _('Client')
     delete_url = 'lgc-client-delete'
-    template_name = 'lgc/generic_form.html'
 
     def get_success_url(self):
         self.object = self.get_object()
@@ -500,6 +546,13 @@ class InvoiceCommonView(BillingTest):
         formsets_diff = self.check_formsets_diff(pcv, formsets)
         return len(self.form_diff) or formsets_diff
 
+    def set_client_billing_addr(self, client, invoice):
+        if client.billing_address:
+            invoice.address = client.billing_address
+            invoice.post_code = client.billing_post_code
+            invoice.city = client.billing_city
+            invoice.country = client.billing_country
+
     def form_valid(self, form):
         if self.object:
             invoice = self.get_object()
@@ -533,9 +586,10 @@ class InvoiceCommonView(BillingTest):
                 return super().form_invalid(form)
             dummy_client = lgc_models.Client()
             pcv.copy_related_object(invoice, form.instance, dummy_client)
-        elif form.cleaned_data['client_update'] and form.cleaned_data['client']:
+        elif form.cleaned_data['client']:
             client = form.cleaned_data['client']
             pcv.copy_related_object(client, form.instance, client)
+            self.set_client_billing_addr(client, form.instance)
 
         if invoice:
             form.instance.with_regard_to = invoice.with_regard_to
@@ -851,9 +905,17 @@ def invoice_insert_client(request):
     if not request.user.billing:
         return http.HttpResponseForbidden()
 
+    object_list = []
+    for obj in lgc_models.Client.objects.all():
+        if obj.billing_address:
+            obj.address = obj.billing_address
+            obj.post_code = obj.billing_post_code
+            obj.city = obj.billing_city
+            obj.country = obj.billing_country
+        object_list.append(obj)
     context = {
         'title': _('Insert Client'),
-        'object_list': lgc_models.Client.objects.all(),
+        'object_list': object_list,
     }
     return render(request, 'lgc/insert_client.html', context)
 

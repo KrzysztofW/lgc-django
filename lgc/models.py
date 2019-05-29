@@ -796,6 +796,11 @@ class AbstractClient(models.Model):
 
 class Client(AbstractClient):
     id = models.AutoField(primary_key=True)
+    billing_address = models.TextField(_('Address'), max_length=100, blank=True)
+    billing_post_code = models.CharField(_('Post Code'), max_length=10, blank=True)
+    billing_city = models.CharField(_('City'), max_length=50, blank=True)
+    billing_country = CountryField(_('Country'), blank=True)
+
     class Meta:
         unique_together = ('first_name', 'last_name', 'company')
 
