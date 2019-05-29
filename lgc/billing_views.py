@@ -141,11 +141,12 @@ class ClientCommonView(BillingTest, SuccessMessageMixin):
                     css_class='form-group col-md-9'),
                 css_class='form-row'),
             Div(
+                Div('billing_company', css_class='form-group col-md-3'),
                 Div('billing_address', css_class='form-group col-md-3'),
-                Div('billing_post_code', css_class='form-group col-md-3'),
-                Div('billing_city', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
+                Div('billing_post_code', css_class='form-group col-md-3'),
+                Div('billing_city', css_class='form-group col-md-3'),
                 Div('billing_country', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
@@ -548,6 +549,7 @@ class InvoiceCommonView(BillingTest):
 
     def set_client_billing_addr(self, client, invoice):
         if client.billing_address:
+            invoice.company = client.billing_company
             invoice.address = client.billing_address
             invoice.post_code = client.billing_post_code
             invoice.city = client.billing_city
@@ -908,6 +910,7 @@ def invoice_insert_client(request):
     object_list = []
     for obj in lgc_models.Client.objects.all():
         if obj.billing_address:
+            obj.company = obj.billing_company
             obj.address = obj.billing_address
             obj.post_code = obj.billing_post_code
             obj.city = obj.billing_city
