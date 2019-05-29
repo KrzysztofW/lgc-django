@@ -787,12 +787,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 obj = emp_obj.user.person_user_set
             context['docs'] = DocumentFormSet(prefix='docs', queryset=lgc_models.Document.objects.filter(person=obj))
             context['process'] = lgc_models.PersonProcess.objects.filter(person=obj)
-            pending_invoices = self.object.invoice_set.filter(state=lgc_models.INVOICE_STATE_PENDING)|self.object.invoice_set.filter(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
-            closed_invoices = self.object.invoice_set.exclude(state=lgc_models.INVOICE_STATE_PENDING).exclude(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
-            context['invoice_set'] = [
-                (pending_invoices, _('Pending Invoices'), 'pending_id'),
-                (closed_invoices, _('Closed Invoices'), 'closed_id')
-            ]
+            if self.request.user.role in user_models.get_internal_roles():
+                pending_invoices = self.object.invoice_set.filter(state=lgc_models.INVOICE_STATE_PENDING)|self.object.invoice_set.filter(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
+                closed_invoices = self.object.invoice_set.exclude(state=lgc_models.INVOICE_STATE_PENDING).exclude(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
+                context['invoice_set'] = [
+                    (pending_invoices, _('Pending Invoices'), 'pending_id'),
+                    (closed_invoices, _('Closed Invoices'), 'closed_id')
+                ]
 
         self.set_person_process_stages(context)
         set_active_tab(self, context)
@@ -1097,7 +1098,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         save_active_tab(self)
 
         if self.object:
-            if (self.object.state != lgc_models.FILE_STATE_CLOSED and
+            if (self.request.user.role in user_models.get_internal_roles() and
+                self.object.state != lgc_models.FILE_STATE_CLOSED and
                 form.cleaned_data['state'] == lgc_models.FILE_STATE_CLOSED and
                 self.get_active_person_processes()):
                 messages.error(self.request,
@@ -1159,7 +1161,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         with transaction.atomic():
             self.object = form.save()
 
-            if form.cleaned_data['process_name']:
+            if (self.request.user.role in user_models.get_internal_roles() and
+                form.cleaned_data['process_name']):
                 person_process = lgc_models.PersonProcess()
                 person_process.person = self.object
                 person_process.process = form.cleaned_data['process_name']
