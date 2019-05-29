@@ -152,10 +152,19 @@ class ClientCommonView(BillingTest, SuccessMessageMixin):
             Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
                 css_class='form-row'),
         )
-        action = _('Update') if self.object else _('Create')
+        if self.object:
+            action = _('Update')
+            delete_btn = HTML('&nbsp;<a href="' +
+                              str(reverse_lazy('lgc-client-delete',
+                                               kwargs={'pk':self.object.id})) +
+                              '" class="btn btn-outline-info">' +
+                              _('Delete') + '</a>')
+        else:
+            action = _('Create')
+            delete_btn = None
         form.helper.layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
                                         action + '</button>'))
-
+        form.helper.layout.append(delete_btn)
         return form
 
     def form_valid(self, form):
