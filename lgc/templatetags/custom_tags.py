@@ -17,7 +17,7 @@ register = template.Library()
 @register.simple_tag
 def get_notification_menu(request):
     res = {}
-    expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user).filter(enabled=True).order_by('end_date')
+    expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user).filter(enabled=True).order_by('end_date').exclude(end_date__lte=timezone.now().date())
     compare_date = timezone.now().date() + datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS)
     expirations = expirations.filter(end_date__lte=compare_date)
     deletion_requests = User.objects.filter(status__in=user_models.get_user_deleted_statuses())
