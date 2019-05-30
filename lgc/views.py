@@ -291,7 +291,8 @@ class PersonListView(PersonCommonListView):
         context['search_form'] = self.get_search_form()
         return context
 
-def local_user_get_person_form_layout(form, action, obj, completed_processes):
+def local_user_get_person_form_layout(user, form, action, obj,
+                                      completed_processes):
     external_profile = None
     form.helper = FormHelper()
     form.helper.form_tag = False
@@ -418,6 +419,11 @@ def local_user_get_person_form_layout(form, action, obj, completed_processes):
     layout = Layout(tab_holder)
     layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
                        action + '</button>'))
+    if obj and user.is_staff:
+        layout.append(HTML('&nbsp;<a href="' +
+                           str(reverse_lazy('lgc-file-delete', kwargs={'pk': obj.id})) +
+                           '"class="btn btn-outline-info">' +
+                           _('Delete') + '</a>'))
     form.helper.layout = layout
     return form
 
@@ -483,7 +489,7 @@ def employee_user_get_person_form_layout(form, action, obj):
 def get_person_form_layout(cur_user, form, action, obj,
                            completed_processes=None):
     if cur_user.role in user_models.get_internal_roles():
-        return local_user_get_person_form_layout(form, action, obj,
+        return local_user_get_person_form_layout(cur_user, form, action, obj,
                                                  completed_processes)
     if cur_user.role == user_models.EMPLOYEE:
         return employee_user_get_person_form_layout(form, action, obj)
@@ -1249,6 +1255,8 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         context['title'] = self.title
         context['cancel_url'] = reverse_lazy(self.cancel_url,
                                              kwargs={'pk':self.object.id})
+        if self.object and self.object.user == None:
+            context['dont_inform'] = True
         return context
 
     def test_func(self):
@@ -1276,15 +1284,15 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
                 os.remove(os.path.join(settings.MEDIA_ROOT,
                                        doc.document.name))
 
-        if (self.request.method == 'POST' and
+        if (self.object.user and self.request.method == 'POST' and
             self.request.POST.get('inform_person') and
             self.request.POST['inform_person'] == 'on'):
             try:
-                lgc_send_email(self.object, lgc_types.MsgType.DEL)
+                lgc_send_email(self.object.user, lgc_types.MsgType.DEL)
             except Exception as e:
                 messages.error(self.request, _('Cannot send email to') + '`'
-                               + self.object.email + '`: ' + str(e))
-                return super().form_invalid(form)
+                               + self.object.user.email + '`: ' + str(e))
+                return redirect('lgc-file', self.object.id)
 
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)

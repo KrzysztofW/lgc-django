@@ -48,7 +48,7 @@ class PersonSearchForm(forms.Form):
                                      label=_('Immigration Process'),
                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
     state = forms.ChoiceField(required=False,
-                              choices=lgc_models.FILE_STATE_CHOICES,
+                              choices=(('', '---------'),) + lgc_models.FILE_STATE_CHOICES,
                               label=_('State'),
                               widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
     jurist = forms.ModelChoiceField(required=False, label=_('Jurist'),

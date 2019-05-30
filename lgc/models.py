@@ -1,5 +1,6 @@
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
 from django.contrib.auth import get_user_model
@@ -462,7 +463,6 @@ FILE_STATE_PENDING = 'P'
 FILE_STATE_CLOSED  = 'C'
 
 FILE_STATE_CHOICES = (
-    ('', '---------'),
     (FILE_STATE_ACTIVE, _('Active')),
     (FILE_STATE_PENDING, _('Pending')),
     (FILE_STATE_CLOSED, _('Closed')),
@@ -477,9 +477,9 @@ class PersonInfo(models.Model):
     creation_date = models.DateTimeField(_('Creation Date'), auto_now_add=True)
     first_name = models.CharField(_('First name'), max_length=50, validators=[validators.alpha])
     last_name = models.CharField(_('Last name'), max_length=50, validators=[validators.alpha])
-    email = models.EmailField('Email', max_length=50, null=True, blank=True, unique=True)
-    foreigner_id = models.PositiveIntegerField(_('Foreigner ID'), blank=True,
-                                               null=True)
+    email = models.EmailField('Email', max_length=50, null=True)
+    foreigner_id = models.BigIntegerField(_('Foreigner ID'), blank=True, null=True,
+                                          validators=[MinValueValidator(0)])
     birth_date = models.DateField(_('Birth Date'), null=True)
     citizenship = CountryField(_('Citizenship'), blank=True, null=True)
     passport_expiry = models.DateField(_('Passport Expiry'), blank=True,
@@ -775,8 +775,7 @@ class AbstractClient(models.Model):
     last_name = models.CharField(_('Last name'), max_length=50,
                                  validators=[validators.alpha], blank=True)
     company = models.CharField(_('Company'), max_length=50, blank=True)
-    email = models.EmailField('Email', max_length=50, null=True, blank=True,
-                              unique=True)
+    email = models.EmailField('Email', max_length=50, null=True, blank=True)
     phone_number = models.CharField(_('Local Phone Number'), max_length=50,
                                     blank=True)
     cell_phone_number = models.CharField(_('Cell Phone Number'), max_length=50,
