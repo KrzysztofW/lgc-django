@@ -889,7 +889,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             if (k == '_state' or k == 'id' or k == 'person_id' or k == 'updated' or
                 k == 'version'):
                 continue
-            setattr(dst, k, getattr(src, k))
+            try:
+                setattr(dst, k, getattr(src, k))
+            except:
+                pass
 
     def have_objs_changed(self, formset, old_objs):
         new_objs = []
