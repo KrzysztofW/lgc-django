@@ -574,9 +574,6 @@ class InvoiceCommonView(BillingTest):
         else:
             invoice = None
 
-        # XXX instance.total is not set...
-        form.instance.total = self.request.POST.get('total')
-
         pcv = lgc_views.PersonCommonView()
         formsets = self.get_formsets()
 
@@ -677,6 +674,9 @@ class InvoiceCommonView(BillingTest):
                     doc.instance.invoice = self.object
                     doc.save()
             return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
 
     def get_form(self, form_class=lgc_forms.InvoiceCreateForm):
         form = super().get_form(form_class=form_class)
@@ -824,9 +824,6 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
                 else:
                     messages.error(self.request, e.args[0])
             return super().form_invalid(form)
-
-    def form_invalid(self, form):
-        return super().form_invalid(form)
 
 class InvoiceUpdateView(InvoiceCommonView, SuccessMessageMixin, UpdateView):
     title = _('Update Invoice')

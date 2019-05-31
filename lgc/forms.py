@@ -418,9 +418,11 @@ class InvoiceUpdateForm(InvoiceCreateForm):
                               label=_('State'),
                               widget=forms.Select(attrs={'class':'form-control', 'onchange':'invoice_validated_state_alert(this, "'+str(_('If this state is set, the invoice will not be editable anymore'))+'");'}))
     already_paid = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
+    total = forms.DecimalField(initial=0, max_digits=8, decimal_places=2,
+                               widget=forms.HiddenInput())
     class Meta:
         model = lgc_models.Invoice
-        exclude = ['modified_by', 'person', 'process', 'type', 'id', 'total']
+        exclude = ['modified_by', 'person', 'process', 'type', 'id']
 
 class ClientCreateForm(forms.ModelForm):
     address = forms.CharField(label=_('Address'), required=False,
