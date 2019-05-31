@@ -84,8 +84,9 @@ class PersonSearchForm(forms.Form):
 class PersonCreateForm(forms.ModelForm):
     is_private = forms.BooleanField(required=False, initial=False,
                                     help_text=_('Designates whether this file is private (not related to a corporation).'))
+    email = forms.EmailField(required=False)
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
-    birth_date = forms.DateField(label=_('Birth Date'))
+    birth_date = forms.DateField(label=_('Birth Date'), required=False)
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
 

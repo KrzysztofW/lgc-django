@@ -830,9 +830,10 @@ INVOICE_STATE_CHOICES = (
     (INVOICE_STATE_PAID, _('Paid')),
 )
 INVOICE_PAYMENT_CHOICES = (
+    ('', '---------'),
     ('CB', _('Credit card')),
     ('CH', _('Check')),
-    ('TR', _('Bank transfer')),
+    ('BT', _('Bank transfer')),
     ('CA', _('Cash')),
 )
 INVOICE_COMPANY_CHOICES = (
@@ -863,7 +864,7 @@ class Invoice(AbstractClient):
     modification_date = models.DateField(_('Modification Date'), null=True)
     modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
                                     on_delete=models.SET_NULL, null=True)
-    payment_option = models.CharField(max_length=2, default='TR',
+    payment_option = models.CharField(max_length=2, default='TR', blank=True,
                                       choices=INVOICE_PAYMENT_CHOICES)
     currency = models.CharField(_('Currency'), max_length=3, default='EUR',
                                 choices=CURRENCY_CHOICES)
@@ -893,11 +894,12 @@ class Invoice(AbstractClient):
     various_expenses = models.BooleanField(_('Include Various Expenses'), default=False)
     state = models.CharField(_('State'), max_length=1, default=INVOICE_STATE_PENDING,
                              choices=INVOICE_STATE_CHOICES)
-    already_paid = models.FloatField(_('Already Paid'), default=0)
+    already_paid = models.DecimalField(_('Already Paid'), default=0, max_digits=8,
+                                       decimal_places=2)
     already_paid_desc = models.CharField(_('Description'), max_length=50, blank=True)
-    with_regard_to = models.CharField(_('With regard to'), max_length=50,
+    with_regard_to = models.CharField(_('With regard to'), max_length=100,
                                       validators=[validators.alpha], blank=True)
-    total = models.FloatField(_('Total'), default=0)
+    total = models.DecimalField(_('Total'), default=0, max_digits=8, decimal_places=2)
 
     @property
     def person_first_name(self):
