@@ -283,11 +283,11 @@ function compute_invoice() {
   total_vat_div.innerHTML = '<b>' + subtotal_vat.toFixed(2) + '</b>';
 
   invoice_total = items_total + items_total_vat + disbursements_total + disbursements_total_vat;
+  invoice_total_input.value = invoice_total.toFixed(2);
   if (already_paid)
     invoice_total -= already_paid;
 
   invoice_total_div.innerHTML = '<b>' + invoice_total.toFixed(2) + '</b>';
-  invoice_total_input.value = invoice_total.toFixed(2);
 }
 
 function remove_item(index, formset_id) {

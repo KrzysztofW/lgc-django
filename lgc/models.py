@@ -850,6 +850,11 @@ class BillingGlobalSettings(models.Model):
     next_quotation_number = models.PositiveIntegerField(_('Next Quotation Number'))
 
 class Invoice(AbstractClient):
+    total_items = 0.
+    total_items_vat = 0.
+    total_disbursements = 0.
+    total_disbursements_vat = 0.
+
     id = models.AutoField(primary_key=True)
     version = models.PositiveIntegerField(default=0)
     client = models.ForeignKey(Client, null=True, on_delete=models.SET_NULL)
@@ -955,23 +960,103 @@ class Invoice(AbstractClient):
             return self.person.first_name + ' ' + self.person.last_name
         return ''
 
-    def get_obj_total(self, objs):
-        total = 0
-        for obj in objs:
-            total += obj.rate * obj.quantity
-        return total
+
+    def get_item_total(self, obj):
+        total = obj.quantity * obj.rate
+        obj_vat = float(obj.vat) / 100.
+        vat = total * obj_vat
+
+        """Save the first item's VAT to compute various expenses."""
+        if not hasattr(self, 'item_vat'):
+            self.item_vat = obj_vat
+        return total, vat
+
+    def get_disbursement_total(self, obj):
+        quantity_rate = obj.quantity * obj.rate
+        obj_vat = float(obj.vat) / 100.
+        total = quantity_rate
+        if obj.margin:
+            total *= 1 + 0.2
+        vat = total * obj_vat
+        return total, vat
+
+    def get_various_expenses(self):
+        self.set_total_items()
+        ve = self.total_items * 0.05
+        if ve > 100:
+            ve = 100
+        vat = ve * self.item_vat
+        return ve, vat
 
     @property
     def remaining_balance(self):
         return self.total - self.already_paid
 
-    @property
-    def total_items(self):
-        return self.get_obj_total(self.item_set.all())
+    def set_total_items(self):
+        if self.total_items:
+            return
+        total = 0.
+        total_vat = 0.
+        for i in self.item_set.all():
+            total, total_vat = self.get_item_total(i)
+            self.total_items += total
+            self.total_items_vat += total_vat
+
+    def set_total_disbursements(self):
+        if self.total_disbursements:
+            return
+        total = 0.
+        total_vat = 0.
+        for i in self.disbursement_set.all():
+            total, total_vat = self.get_disbursement_total(i)
+            self.total_disbursements += total
+            self.total_disbursements_vat += total_vat
+        if self.various_expenses:
+            ve, ve_vat = self.get_various_expenses()
+            self.total_disbursements += ve
+            self.total_disbursements_vat += ve_vat
 
     @property
-    def total_disbursements(self):
-        return self.get_obj_total(self.disbursement_set.all())
+    def get_total_items(self):
+        self.set_total_items()
+        return round(self.total_items, 2)
+
+    @property
+    def get_total_items_vat(self):
+        self.set_total_items()
+        return round(self.total_items_vat, 2)
+
+    @property
+    def get_total_disbursements(self):
+        self.set_total_disbursements()
+        return round(self.total_disbursements, 2)
+
+    @property
+    def get_total_disbursements_vat(self):
+        self.set_total_disbursements()
+        return round(self.total_disbursements_vat, 2)
+
+    @property
+    def get_total(self):
+        self.set_total_items()
+        self.set_total_disbursements()
+        ret = (self.total_items + self.total_items_vat +
+                self.total_disbursements + self.total_disbursements_vat)
+        return round(ret, 2)
+
+    @property
+    def get_total_novat(self):
+        self.set_total_items()
+        self.set_total_disbursements()
+        ret = self.total_items + self.total_disbursements
+        return round(ret, 2)
+
+    @property
+    def get_total_vat(self):
+        self.set_total_items()
+        self.set_total_disbursements()
+        ret = self.total_items_vat + self.total_disbursements_vat
+        return round(ret, 2)
 
     @property
     def validation_date(self):

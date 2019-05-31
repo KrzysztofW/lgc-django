@@ -659,6 +659,10 @@ class InvoiceCommonView(BillingTest):
                         continue
                     i.invoice = self.object
                     i.save()
+
+            if form.instance.get_total != float(form.instance.total):
+                messages.error(self.request, _('Total does not match. Contact your administrator'))
+
             if deleted_docs:
                 for d in deleted_docs.deleted_forms:
                     if d.instance.id == None:
