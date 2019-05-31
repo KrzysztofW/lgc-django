@@ -240,6 +240,34 @@ class InvoiceListView(BillingTest, ListView):
     objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
     invoice_type = lgc_models.INVOICE
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        """Range totals"""
+        self.eur = {
+            'items': 0.,
+            'items_vat': 0.,
+            'disbursements': 0.,
+            'disbursements_vat': 0.,
+        }
+        self.usd = {
+            'items': 0.,
+            'items_vat': 0.,
+            'disbursements': 0.,
+            'disbursements_vat': 0.,
+        }
+        self.cad = {
+            'items': 0.,
+            'items_vat': 0.,
+            'disbursements': 0.,
+            'disbursements_vat': 0.,
+        }
+        self.gbp = {
+            'items': 0.,
+            'items_vat': 0.,
+            'disbursements': 0.,
+            'disbursements_vat': 0.,
+        }
+
     def get_search_form(self):
         if len(self.request.GET):
             form = lgc_forms.InvoiceSearchForm(self.request.GET)
@@ -254,6 +282,7 @@ class InvoiceListView(BillingTest, ListView):
                 Div('number', css_class='form-group col-md-3'),
                 Div('state', css_class='form-group col-md-3'),
                 Div('responsible', css_class='form-group col-md-3'),
+                Div('currency', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
                 Div('dates', css_class='form-group col-md-3') if self.invoice_type == lgc_models.INVOICE else None,
@@ -266,21 +295,26 @@ class InvoiceListView(BillingTest, ListView):
     def match_extra_terms(self, objs):
         number = self.request.GET.get('number')
         state = self.request.GET.get('state')
+        currency = self.request.GET.get('currency')
         responsible = self.request.GET.get('responsible')
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
         dates = self.request.GET.get('dates')
+        do_range_total = False
 
         if number:
             objs = objs.filter(number=number)
         if state:
             objs = objs.filter(state=state)
+        if currency:
+            objs = objs.filter(currency=currency)
         if responsible:
             o = User.objects.filter(id=responsible)
             if len(o):
                 objs = objs.filter(person__responsible__in=o)
         if dates == lgc_forms.INVOICE_SEARCH_DATE_INVOICE:
             if start_date and end_date:
+                do_range_total = True
                 objs = objs.filter(invoice_date__range=[common_utils.parse_date(start_date),
                                                         common_utils.parse_date(end_date)])
             elif start_date:
@@ -290,12 +324,36 @@ class InvoiceListView(BillingTest, ListView):
         elif self.invoice_type == lgc_models.INVOICE and (start_date or end_date):
             objs = objs.filter(state=lgc_models.INVOICE_STATE_PAID)
             if start_date and end_date:
+                do_range_total = True
                 objs = objs.filter(modification_date__range=[common_utils.parse_date(start_date),
                                                         common_utils.parse_date(end_date)])
             elif start_date:
                 objs = objs.filter(modification_date__gte=common_utils.parse_date(start_date))
             elif end_date:
                 objs = objs.filter(modification_date__lte=common_utils.parse_date(end_date))
+        if do_range_total:
+            for o in objs:
+                if o.currency == 'EUR':
+                    self.eur['items'] += o.get_total_items
+                    self.eur['items_vat'] += o.get_total_items_vat
+                    self.eur['disbursements'] += o.get_total_disbursements
+                    self.eur['disbursements_vat'] += o.get_total_disbursements_vat
+                elif o.currency == 'USD':
+                    self.usd['items'] += o.get_total_items
+                    self.usd['items_vat'] += o.get_total_items_vat
+                    self.usd['disbursements'] += o.get_total_disbursements
+                    self.usd['disbursements_vat'] += o.get_total_disbursements_vat
+                if o.currency == 'CAD':
+                    self.cad['items'] += o.get_total_items
+                    self.cad['items_vat'] += o.get_total_items_vat
+                    self.cad['disbursements'] += o.get_total_disbursements
+                    self.cad['disbursements_vat'] += o.get_total_disbursements_vat
+                if o.currency == 'GBP':
+                    self.gbp['items'] += o.get_total_items
+                    self.gbp['items_vat'] += o.get_total_items_vat
+                    self.gbp['disbursements'] += o.get_total_disbursements
+                    self.gbp['disbursements_vat'] += o.get_total_disbursements_vat
+
         return objs
 
     def get_queryset(self):
@@ -347,6 +405,15 @@ class InvoiceListView(BillingTest, ListView):
                 (_('Validation Date'), 'validation_date'),
                 (_('Status'), 'state'),
             ]
+            context['totals'] = []
+            if self.eur['items']:
+                context['totals'].append(('EUR', self.eur))
+            if self.usd['items']:
+                context['totals'].append(('USD', self.usd))
+            if self.cad['items']:
+                context['totals'].append(('CAD', self.cad))
+            if self.gbp['items']:
+                context['totals'].append(('GBP', self.gbp))
 
         context['search_form'] = self.get_search_form()
         return pagination(self.request, context, self.this_url)

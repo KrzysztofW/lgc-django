@@ -198,3 +198,9 @@ def getattr(obj, arg):
 @register.filter
 def tpl_hasattr(obj, arg):
     return hasattr(obj, arg)
+
+def addf(value, arg):
+    """Adds the arg to the value."""
+    return round(float(value) + float(arg), 2)
+addf.is_safe = False
+register.filter(addf)

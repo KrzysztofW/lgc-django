@@ -405,6 +405,9 @@ class InvoiceSearchForm(forms.Form):
     responsible = forms.ModelChoiceField(required=False, label=_('Responsible'),
                                          widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}),
                                          queryset=user_models.get_local_user_queryset())
+    currency = forms.ChoiceField(required=False, label=_('Currency'),
+                                 choices=(('', '---------'),) + lgc_models.CURRENCY_CHOICES,
+                                 widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

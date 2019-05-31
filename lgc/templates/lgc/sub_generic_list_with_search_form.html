@@ -22,6 +22,13 @@
 {% load custom_tags %}
 {% generate_table header_values object_list order_by order_params item_url %}
 {% endblock %}
+
+{% block billing %}
+{% if totals %}
+{% include 'lgc/billing_totals.html' %}
+{% endif %}
+{% endblock %}
+
 {% block javascript %}
   <script type="text/javascript">
     var s_started = 0;
