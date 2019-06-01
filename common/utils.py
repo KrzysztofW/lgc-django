@@ -8,7 +8,6 @@ import json
 from django.conf import settings
 from django.core.serializers import serialize
 from django.core.mail import send_mail
-from urllib.parse import urlencode
 from functools import wraps
 from users.models import INTERNAL_ROLE_CHOICES
 from string import Template
@@ -28,21 +27,21 @@ def must_be_staff(view_func):
     return func_wrapper
 
 def pagination(request, context, url, default_order_by='id'):
-    context['params'] = urlencode(request.GET)
+    context['params'] = request.GET.urlencode()
     context['url'] = url
     order_by = request.GET.get('order_by', default_order_by)
     get_order = request.GET.copy()
 
     get_order.pop('order_by', '')
-    context['order_params'] = urlencode(get_order)
+    context['order_params'] = get_order.urlencode()
 
     get_page = request.GET.copy()
     get_page.pop('page', '')
-    context['page_params'] = urlencode(get_page)
+    context['page_params'] = get_page.urlencode()
 
     get_paginate = get_page.copy()
     get_paginate.pop('paginate', '')
-    context['paginate_params'] = urlencode(get_paginate)
+    context['paginate_params'] = get_paginate.urlencode()
 
     context['order_by'] = order_by
     paginate = request.GET.get('paginate')
