@@ -276,6 +276,14 @@ class InvoiceListView(BillingTest, ListView):
 
         if self.invoice_type == lgc_models.QUOTATION:
             form.fields['cols'].choices = lgc_forms.QUOTATION_SEARCH_COLS_CHOICES
+            csv_div = None
+            csv_html = None
+        else:
+            csv_div = Div('csv', css_class='form-group col-md-3')
+            csv_html = Div(Div(HTML('<label class="col-form-label">&nbsp;</label>'),
+                               Div(HTML('<a href="#" onclick="submit_csv();">' +
+                                        _('Export') + '</a>')),
+                               css_class="form-group"), css_class='form-group col-md-3')
 
         form.helper = FormHelper()
         form.helper.form_tag = False
@@ -291,6 +299,10 @@ class InvoiceListView(BillingTest, ListView):
                 Div('dates', css_class='form-group col-md-3') if self.invoice_type == lgc_models.INVOICE else None,
                 Div('start_date', css_class='form-group col-md-3'),
                 Div('end_date', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('cols', css_class='form-group col-md-3'),
+                csv_div, csv_html,
                 css_class='form-row'),
         )
         return form
@@ -335,6 +347,10 @@ class InvoiceListView(BillingTest, ListView):
             elif end_date:
                 objs = objs.filter(modification_date__lte=common_utils.parse_date(end_date))
         if do_range_total:
+            if len(objs) > 4000:
+                messages.error(self.request,
+                               _('The number of selected invoices is greater than 4000.'))
+                return objs
             for o in objs:
                 if o.currency == 'EUR':
                     self.eur['items'] += o.get_total_items
@@ -1224,4 +1240,46 @@ def billing_pdf_view(request, pk):
     pdf = subprocess.Popen('php_pdf/print.php ' + str(invoice.id),
                            shell=True, stdout=subprocess.PIPE).stdout.read()
     response.write(pdf)
+    return response
+
+@login_required
+def billing_csv_view(request):
+    if not user_checks:
+        return http.HttpResponseForbidden()
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if not start_date or not end_date:
+        raise Http404
+    objs = lgc_models.Invoice.objects
+    objs = objs.filter(invoice_date__range=[common_utils.parse_date(start_date),
+                                            common_utils.parse_date(end_date)])
+    if len(objs) > 4000:
+        raise Http404('Too many objects')
+
+    csv = ''
+    param_list = []
+    dummy_invoice = lgc_models.Invoice()
+    for param in request.GET.getlist('cols'):
+        for c in lgc_forms.INVOICE_SEARCH_CSV_CHOICES:
+            if param == c[0] and hasattr(dummy_invoice, param):
+                csv += c[1] + ';'
+                param_list.append(c[0])
+                break
+    csv += '\n'
+    for o in objs:
+        for param in param_list:
+            val = getattr(o, param)
+            if val == None:
+                val = ''
+            elif type(val).__name__ == 'str':
+                val = '"' + val + '"'
+            else:
+                val = str(val)
+            csv += val + ';'
+        csv += '\n'
+
+    response = http.HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename="export.csv"'
+    response.write(csv)
     return response
