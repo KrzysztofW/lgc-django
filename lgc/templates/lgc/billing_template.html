@@ -7,9 +7,15 @@
   <div class="form-group col-md-4">
     {% if form.instance.state == 'V' %}
     <div class="alert alert-warning" role="alert">
+      {% if form.instance.modified_by.first_name or form.instance.modified_by.last_name %}
       {% blocktrans with val_date=form.instance.modification_date firstname=form.instance.modified_by.first_name lastname=form.instance.modified_by.last_name %}
       Invoice validated on {{ val_date }} by {{ firstname }} {{ lastname }}
       {% endblocktrans %}
+      {% else %}
+      {% blocktrans with val_date=form.instance.modification_date %}
+      Invoice validated on {{ val_date }}
+      {% endblocktrans %}
+      {% endif %}
     </div>
     {% endif %}
 
