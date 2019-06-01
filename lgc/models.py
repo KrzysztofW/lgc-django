@@ -477,7 +477,7 @@ class PersonInfo(models.Model):
     creation_date = models.DateTimeField(_('Creation Date'), auto_now_add=True)
     first_name = models.CharField(_('First name'), max_length=50, validators=[validators.alpha])
     last_name = models.CharField(_('Last name'), max_length=50, validators=[validators.alpha])
-    email = models.EmailField('Email', max_length=50, null=True)
+    email = models.EmailField('Email', max_length=60, null=True)
     foreigner_id = models.BigIntegerField(_('Foreigner ID'), blank=True, null=True,
                                           validators=[MinValueValidator(0)])
     birth_date = models.DateField(_('Birth Date'), null=True)
@@ -775,7 +775,7 @@ class AbstractClient(models.Model):
     last_name = models.CharField(_('Last name'), max_length=50,
                                  validators=[validators.alpha], blank=True)
     company = models.CharField(_('Company'), max_length=50, blank=True)
-    email = models.EmailField('Email', max_length=50, null=True, blank=True)
+    email = models.EmailField('Email', max_length=60, null=True, blank=True)
     phone_number = models.CharField(_('Local Phone Number'), max_length=50,
                                     blank=True)
     cell_phone_number = models.CharField(_('Cell Phone Number'), max_length=50,
@@ -873,7 +873,7 @@ class Invoice(AbstractClient):
                                       choices=INVOICE_PAYMENT_CHOICES)
     currency = models.CharField(_('Currency'), max_length=3, default='EUR',
                                 choices=CURRENCY_CHOICES)
-    email = models.EmailField('Email', max_length=50, null=True, blank=True)
+    email = models.EmailField('Email', max_length=60, null=True, blank=True)
     siret = models.CharField('SIRET', max_length=14, blank=True, null=True,
                              validators=[validators.siret])
     vat = models.CharField(_('VAT Number'), max_length=50, null=True,
@@ -887,7 +887,7 @@ class Invoice(AbstractClient):
                                      validators=[validators.alpha], blank=True)
     po_last_name = models.CharField(_('Last name'), max_length=50,
                                     validators=[validators.alpha], blank=True)
-    po_email = models.EmailField('Email', max_length=50, null=True, blank=True)
+    po_email = models.EmailField('Email', max_length=60, null=True, blank=True)
     po_rate = models.FloatField(_('Rate'), null=True, blank=True)
 
     company_option = models.CharField(_('Company'), max_length=1, default='L',
