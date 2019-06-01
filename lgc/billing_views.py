@@ -499,12 +499,15 @@ class InvoiceCommonView(BillingTest):
                 return None, None
             proc = proc[0]
             return person, proc
-        if self.object.person != None and self.object.process != None:
-            person = self.object.person
-            proc = self.object.process
-            return person, proc
 
-        return None, None
+        person = None
+        proc = None
+        if self.object.person != None:
+            person = self.object.person
+        if self.object.process != None:
+            proc = self.object.process
+
+        return person, proc
 
     def set_client_info(self, context):
         if not hasattr(self, 'object') or self.object == None:
