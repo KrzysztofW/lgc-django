@@ -106,10 +106,10 @@ def moderations(request):
         context['is_paginated'] = True
     else:
         context['is_paginated'] = False
-    context['header_values'] = [('ID', 'id'), (_('First name'), 'first_name'),
-                                (_('Last name'), 'last_name'),
-                                (_('E-mail'), 'email'),
-                                (_('Host entity'), 'host_entity'),]
+    context['header_values'] = [('id', 'ID'), ('first_name', _('First name')),
+                                ('last_name', _('Last name')),
+                                ('email', _('E-mail')),
+                                ('host_entity', _('Host entity'))]
     context['object_list'] = context['page_obj'].object_list
     context['dont_show_search_bar'] = True
     context['item_url'] = 'employee-moderation'

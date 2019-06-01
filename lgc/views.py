@@ -152,11 +152,11 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
         context['search_url'] = self.search_url
 
         context['item_url'] = 'lgc-file'
-        context['header_values'] = [('ID', 'id', 'is_private', _('<i>(private)</i>')),
-                                    (_('First Name'), 'first_name'),
-                                    (_('Last Name'), 'last_name'), ('E-mail', 'email'),
-                                    (_('Birth Date'), 'birth_date'),
-                                    (_('Created'), 'creation_date')]
+        context['header_values'] = [('id', 'ID', 'is_private', _('<i>(private)</i>')),
+                                    ('first_name', _('First Name')),
+                                    ('last_name', _('Last Name')), ('email', 'E-mail'),
+                                    ('birth_date', _('Birth Date')),
+                                    ('creation_date', _('Created'))]
 
         if self.request.user.role == user_models.CONSULTANT:
             context['create_url'] = reverse_lazy('lgc-file-create')
@@ -184,7 +184,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
             else:
                 obj.proc = proc.name_en
 
-        context['header_values'] += [('Process', 'proc')]
+        context['header_values'] += [('proc', 'Process')]
 
         return p
 
@@ -1434,7 +1434,7 @@ class ProcessListView(ProcessCommonView, ListView):
         context['item_url'] = self.item_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
-        context['header_values'] = [('ID', 'id'), (_('Name'), 'name')]
+        context['header_values'] = [('id', 'ID'), ('name', _('Name'))]
 
         lang = translation.get_language()
         for obj in context['object_list']:

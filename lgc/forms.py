@@ -387,6 +387,23 @@ INVOICE_SEARCH_DATE_CHOICES = (
     (INVOICE_SEARCH_DATE_INVOICE, _('Invoice Date')),
     (INVOICE_SEARCH_DATE_PAY, _('Payment Date')),
 )
+QUOTATION_SEARCH_COLS_CHOICES = (
+    ('number', 'ID'),
+    ('person_info', _('Employee Name')),
+    ('client_info', _('Company / Client')),
+    ('entity_info', _('Home / Host Entity')),
+    ('get_process', _('Process')),
+    ('po', 'PO'),
+    ('invoice_date', 'Date'),
+    ('get_total_items', _('Items')),
+    ('get_total_disbursements', _('Disbursements')),
+    ('get_total', 'Total'),
+)
+INVOICE_SEARCH_COLS_CHOICES = QUOTATION_SEARCH_COLS_CHOICES + (
+    ('remaining_balance', _('Remaining Balance')),
+    ('validation_date', _('Validation Date')),
+    ('state', _('Status')),
+)
 
 class InvoiceSearchForm(forms.Form):
     number = forms.CharField(required=False, label='ID')
@@ -408,6 +425,11 @@ class InvoiceSearchForm(forms.Form):
     currency = forms.ChoiceField(required=False, label=_('Currency'),
                                  choices=(('', '---------'),) + lgc_models.CURRENCY_CHOICES,
                                  widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    cols = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control', 'size': 13}),
+                                     required=False,
+                                     label=_('Displayed Columns'),
+                                     choices=INVOICE_SEARCH_COLS_CHOICES,
+                                     initial=['number', 'client_info', 'person_info'])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

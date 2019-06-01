@@ -93,9 +93,9 @@ class ClientListView(BillingTest, ListView):
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
         context['header_values'] = [
-            ('ID', 'id'), (_('First Name'), 'first_name'),
-            (_('Last Name'), 'last_name'),
-            (_('Company'), 'company'), ('Email', 'email'),
+            ('id', 'ID'), ('first_name', _('First Name')),
+            ('last_name', _('Last Name')),
+            ('company', _('Company')), ('email', 'Email'),
         ]
         return pagination(self.request, context, self.this_url)
 
@@ -274,6 +274,9 @@ class InvoiceListView(BillingTest, ListView):
         else:
             form = lgc_forms.InvoiceSearchForm()
 
+        if self.invoice_type == lgc_models.QUOTATION:
+            form.fields['cols'].choices = lgc_forms.QUOTATION_SEARCH_COLS_CHOICES
+
         form.helper = FormHelper()
         form.helper.form_tag = False
         form.helper.form_method = 'get'
@@ -390,21 +393,17 @@ class InvoiceListView(BillingTest, ListView):
         context['item_url'] = self.item_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
-        context['header_values'] = [
-            ('ID', 'number'), (_('Employee Name'), 'person_info'),
-            (_('Company / Client'), 'client_info'),
-            (_('Home / Host Entity'), 'entity_info'),
-            (_('Process'), 'get_process'), ('PO', 'po'),
-            (_('Date'), 'invoice_date'),
-            ('Items', 'total_items'), ('Disbursements', 'total_disbursements'),
-            ('Total', 'total'),
-            (_('Remaining Balance'), 'remaining_balance'),
-        ]
-        if self.invoice_type == lgc_models.INVOICE:
-            context['header_values'] += [
-                (_('Validation Date'), 'validation_date'),
-                (_('Status'), 'state'),
+
+        cols = self.request.GET.getlist('cols')
+        context['header_values'] = []
+        if len(cols) == 0:
+            context['header_values'] = [
+                ('number', 'ID'), ('person_info', _('Employee Name')),
+                ('client_info', _('Company / Client')),
+                ('entity_info', _('Home / Host Entity')),
             ]
+
+        if self.invoice_type == lgc_models.INVOICE:
             context['totals'] = []
             if self.eur['items']:
                 context['totals'].append(('EUR', self.eur))
@@ -414,6 +413,11 @@ class InvoiceListView(BillingTest, ListView):
                 context['totals'].append(('CAD', self.cad))
             if self.gbp['items']:
                 context['totals'].append(('GBP', self.gbp))
+
+        for c in cols:
+            for ac in lgc_forms.INVOICE_SEARCH_COLS_CHOICES:
+                if ac[0] == c:
+                    context['header_values'].append(ac)
 
         context['search_form'] = self.get_search_form()
         return pagination(self.request, context, self.this_url)

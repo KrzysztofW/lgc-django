@@ -119,7 +119,7 @@ def generate_table(header_values, object_list, order_by, order_params, url):
     res += '<thead>'
     res += '<tr>'
     for th in header_values:
-        res += get_table_th(th[0], th[1], order_by, order_params)
+        res += get_table_th(th[1], th[0], order_by, order_params)
     res += '</tr>'
 
     res += '</thead>'
@@ -137,8 +137,8 @@ def generate_table(header_values, object_list, order_by, order_params, url):
             except:
                 extra_field = None
 
-            if hasattr(obj, th[1]):
-                val = normalize_value(obj, th[1], getattr(obj, th[1]))
+            if hasattr(obj, th[0]):
+                val = normalize_value(obj, th[0], getattr(obj, th[0]))
                 if type(val).__name__ == 'int':
                     res += '<td class="lgc_pull-right lgc_no-wrap">' + str(val)
                 elif type(val).__name__ == 'float':

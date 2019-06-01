@@ -57,10 +57,10 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['ajax_search_url'] = reverse_lazy('user-local-user-search-ajax')
         context['search_url'] = reverse_lazy('user-list')
         context['header_values'] = [
-            ('E-mail', 'email'), (_('First Name'), 'first_name'),
-            (_('Last Name'), 'last_name'), (_('Active'), 'is_active'),
-            (_('Role'), 'role'), (_('Billing'), 'billing'),
-            (_('Staff'), 'is_staff')
+            ('email', 'E-mail'), ('first_name', _('First Name')),
+            ('last_name', _('Last Name')), ('is_active', _('Active')),
+            ('role', _('Role')), ('billing', _('Billing')),
+            ('is_staff', _('Staff'))
         ]
 
         return pagination(self.request, context, reverse_lazy('user-list'))
