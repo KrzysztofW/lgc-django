@@ -266,8 +266,18 @@ if (! $resultat) {
 $row = mysqli_fetch_assoc($resultat);
 $id_facture = $row['number'];
 $file_id = $row['person_id'];
-$with_regard_to_last_name = $row['last_name'];
-$with_regard_to_first_name = $row['first_name'];
+
+$sql = "select * from lgc_person where id=$file_id;";
+$res_person = mysqli_query($c, $sql);
+
+if (! $res_person) {
+	fwrite($fh, "impossible de s&eacute;lectionner fiche: ligne=".__LINE__."\n");
+	fwrite($fh, "$sql\n");
+	exit;
+}
+$row_person = mysqli_fetch_assoc($res_person);
+$with_regard_to_last_name = $row_person['last_name'];
+$with_regard_to_first_name = $row_person['first_name'];
 
 $pdf = new PDF();
 $pdf->set_date($row['invoice_date']);
@@ -311,9 +321,9 @@ if ($lang == "FR") {
 $pdf->Ln(5);
 
 $pdf->SetFont('Times','B', 11);
-$pdf->Cell(0,0,$row['company'],0,0,'L');
+$pdf->Cell(0,0, utf8_decode($row['company']),0,0,'L');
 $pdf->Ln(5);
-$pdf->Cell(0,0,$row['first_name'] . " " . $row['last_name'],0,0,'L');
+$pdf->Cell(0,0, utf8_decode($row['first_name']) . " " . utf8_decode($row['last_name']) ,0,0,'L');
 $pdf->Ln(5);
 
 
