@@ -1225,8 +1225,6 @@ def generate_invoice_from_quote(request, pk):
         max_number = 1
     else:
         max_number = max_number['number__max'] + 1
-    quote.process = None
-    quote.save()
 
     quote.id = None
     quote.number = max_number
@@ -1275,6 +1273,7 @@ def billing_csv_view(request):
     end_date = request.GET.get('end_date')
     if not start_date or not end_date:
         raise Http404
+
     objs = lgc_models.Invoice.objects
     objs = objs.filter(invoice_date__range=[common_utils.parse_date(start_date),
                                             common_utils.parse_date(end_date)])

@@ -772,6 +772,37 @@ class PersonProcess(models.Model):
                                      default=False)
     alert_on = models.BooleanField(default=False)
 
+    invoice = None
+    quotation = None
+
+    @property
+    def get_quotation(self):
+        if self.quotation:
+            return self.quotation
+        quotes = Invoice.objects.filter(process=self).filter(type=QUOTATION).all()
+        length = len(quotes)
+
+        if length:
+            if length > 1:
+                log.error('process %d has more than one quotation', self.id)
+            self.quotation = quotes[0]
+            return quotes[0]
+        return None
+
+    @property
+    def get_invoice(self):
+        if self.invoice:
+            return self.invoice
+        invoices = Invoice.objects.filter(process=self).filter(type=INVOICE).all()
+        length = len(invoices)
+
+        if length:
+            if length > 1:
+                log.error('process %d has more than one invoice', self.id)
+            self.invoice_id = invoices[0]
+            return invoices[0]
+        return None
+
 class PersonProcessStage(models.Model):
     person_process = models.ForeignKey(PersonProcess,
                                        related_name="stages",
@@ -877,8 +908,8 @@ class Invoice(AbstractClient):
     type = models.CharField(max_length=1, default='I', choices=INVOICE_CHOICES)
     person = models.ForeignKey(Person, null=True, on_delete=models.SET_NULL,
                                related_name='invoice_set')
-    process = models.OneToOneField(PersonProcess, on_delete=models.SET_NULL,
-                                   null=True, related_name='invoice')
+    process = models.ForeignKey(PersonProcess, on_delete=models.SET_NULL,
+                                null=True, related_name='invoice_set')
 
     invoice_date = models.DateField(_('Invoice Date'))
     modification_date = models.DateField(_('Modification Date'), null=True)
@@ -920,6 +951,20 @@ class Invoice(AbstractClient):
     with_regard_to = models.CharField(_('With regard to'), max_length=100,
                                       validators=[validators.alpha], blank=True)
     total = models.DecimalField(_('Total'), default=0, max_digits=8, decimal_places=2)
+
+    def validate_unique(self, exclude=None):
+        super().validate_unique()
+        if self.process_id == None:
+            return
+        if self.type == INVOICE:
+            objs = Invoice.objects.filter(type=INVOICE).filter(process_id=self.process_id)
+            if len(objs) > 1:
+                raise ValidationError(_('The process has already an invoice.'))
+
+        else:
+           objs = Invoice.objects.filter(type=QUOTATION).filter(process_id=self.process_id)
+           if len(objs) > 1:
+               raise ValidationError(_('The process has already a quotation.'))
 
     @property
     def person_first_name(self):
