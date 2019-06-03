@@ -43,13 +43,15 @@ import string
 import random
 import datetime
 import os
+import logging
+
+log = logging.getLogger('lgc')
 
 contact_admin_str = _('Please contact your administrator.')
 delete_str = _('Delete')
 
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
-
 
 def token_generator():
     size = 64
@@ -176,7 +178,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
                 qs = obj.personprocess_set.filter(active=self.process_col)
 
             if len(qs) == 0:
-                print('cannot get person process')
+                log.error('cannot get person process')
                 continue
             proc = qs[proc_idx]
             if translation.get_language() == 'fr':
@@ -1187,7 +1189,6 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 self.delete_formset(formset)
                 self.save_formset(formset)
 
-            self.object = form.save()
             if form.instance.user:
                 form.instance.user.first_name = form.instance.first_name
                 form.instance.user.last_name = form.instance.last_name
@@ -1216,9 +1217,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                     except Exception as e:
                         messages.error(self.request,
                                        _('Cannot delete the file `%(filename)s`'%{'filename':d.instance.filename}))
-                        print(e)
+                        log.error(e)
 
-        return super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return http.HttpResponseRedirect(self.get_success_url())
 
     def get_form(self, form_class=lgc_forms.PersonCreateForm):
         if self.request.user.role in user_models.get_internal_roles():
@@ -2315,7 +2317,6 @@ def settings_view(request):
             messages.error(request, _('Cannot save'))
     else:
         slen = lgc_models.Settings.objects.count()
-        print('slen:', slen)
         if slen == 0:
             settings = lgc_models.Settings()
             settings.rate_eur = 1
@@ -2513,8 +2514,10 @@ def expirations(request):
     objs = expirations_filter_objs(request, lgc_models.Expiration.objects)
     for obj in objs:
         if obj.type == lgc_models.EXPIRATION_TYPE_DCEM and len(obj.child_set.all()) == 0:
-            print('id:', obj.id, 'type:', obj.type, 'child_set:', len(obj.child_set.all()), 'employee_child_set:', len(obj.employee_child_set.all()))
-            print('fixed detached child expiration', obj.id)
+            log.info('expirations: obj.id:%d type:%s child-set-len:%d employee-child-set-len:%d',
+                     obj.id, obj.type, len(obj.child_set.all()),
+                     len(obj.employee_child_set.all()))
+            log.info('fixed detached child %d expiration', obj.id)
             obj.delete()
 
     user = request.GET.get('user', None)

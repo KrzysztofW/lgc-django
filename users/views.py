@@ -23,6 +23,10 @@ from django.utils import timezone
 from django.conf import settings
 from datetime import datetime, timedelta
 from . import models as user_models
+import os
+import logging
+
+log = logging.getLogger('user')
 User = get_user_model()
 
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):

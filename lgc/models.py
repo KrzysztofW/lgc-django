@@ -11,7 +11,9 @@ from django.conf import settings
 from django_countries.fields import CountryField
 from users import models as user_models
 import common.validators as validators
+import logging
 
+log = logging.getLogger('lgc')
 User = get_user_model()
 
 class Currencies(models.Model):
@@ -622,10 +624,11 @@ def rename_person_doc_dir(old_obj, new_obj):
         return
 
     try:
-        print('renaming:', old_path, new_path)
+        log.debug("renaming: `%s' into `%s'", old_path, new_path)
         os.rename(old_path, new_path)
     except Exception as e:
-        print(e)
+        log.error("renaming failed: `%s' into `%s' (%s)", old_path, new_path,
+                  e)
 
 def delete_person_doc(person, doc):
     link = os.path.join(PERSON_DOC_LINK_DIR, get_person_doc_path(person),
@@ -670,8 +673,8 @@ def create_doc_directory(instance, filename):
     try:
         os.symlink(link_file_src, link_dst)
     except Exception as e:
-        print(e)
-        pass
+        log.error(e)
+
     return src
 
 class Document(models.Model):
@@ -1107,7 +1110,11 @@ class Invoice(AbstractClient):
         self.set_total_items()
         self.set_total_disbursements()
         ret = self.total_items + self.total_disbursements
-        return round(ret, 2)
+        ret = round(ret, 2)
+        if ret != self.total:
+            log.error('invalid total: stored:%f, computed:%f', self.total,
+                      ret)
+        return ret
 
     @property
     def get_vat(self):

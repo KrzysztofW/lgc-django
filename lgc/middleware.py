@@ -1,7 +1,10 @@
 from django.utils.deprecation import MiddlewareMixin
 from users import models as user_models
 from django.core.exceptions import PermissionDenied
-import re
+import re, os, logging
+from django.db import connection
+
+log = logging.getLogger('sql')
 
 allowed_urls = [
     '/', '/favicon.ico', '/user/login',  '/user/auth/', '/user/logout/',
@@ -18,7 +21,8 @@ class UserRolesCheck(MiddlewareMixin):
             return
 
         for i in allowed_urls:
-            if request.path == i or request.path == '/en' + i or request.path == '/fr' + i:
+            if (request.path == i or request.path == '/en' + i or
+                request.path == '/fr' + i):
                 return
 
         if request.user.role == user_models.EMPLOYEE:
@@ -33,3 +37,18 @@ class UserRolesCheck(MiddlewareMixin):
             return
 
         raise PermissionDenied
+
+class SqlLogger(MiddlewareMixin):
+    def process_response(self, request, response):
+        if not hasattr(request.user, 'first_name'):
+            return response
+
+        for q in connection.queries:
+            if q['sql'] == None:
+                continue
+
+            if ('UPDATE ' in q['sql'] or 'INSERT ' in q['sql'] or
+                'DELETE ' in q['sql']):
+                log.info('%s %s (%d): %s', request.user.first_name,
+                         request.user.last_name, request.user.id, q['sql'])
+        return response

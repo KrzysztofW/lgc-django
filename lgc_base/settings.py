@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'lgc.middleware.UserRolesCheck',
+    'lgc.middleware.SqlLogger',
 ]
 
 ROOT_URLCONF = 'lgc_base.urls'
@@ -115,6 +116,110 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+EMAIL_HOST = 'kw-net.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'autotestkw@example.com'
+EMAIL_HOST_PASSWORD = 'udis82udD'
+EMAIL_USE_TLS = True
+ADMINS = [('John Doe', 'admin@example.com')]
+
+LOGFILE_NAME = r'/var/log/lgc5.log'
+LOGFILE_SIZE = 1 << 20
+LOGFILE_COUNT = 4
+
+SQL_LOGFILE_NAME = r'/var/log/lgc5_sql.log'
+SQL_LOGFILE_SIZE = 100 << 20
+SQL_LOGFILE_COUNT = 10
+
+LOGFILE_LGC = 'lgc'
+LOGFILE_USER = 'user'
+LOGFILE_HR = 'hr'
+LOGFILE_EMPLOYEE = 'employee'
+LOGFILE_SQL = 'sql'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s] %(filename)s:%(lineno)s %(message)s",
+            'datefmt' : "%Y-%m-%d %H:%M:%S"
+        },
+        'minimal': {
+            'format' : "[%(asctime)s] [%(name)s] %(message)s",
+            'datefmt' : "%Y-%m-%d %H:%M:%S"
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'filters': ['require_debug_true'],
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'sqllogfile': {
+            'level':'INFO',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': SQL_LOGFILE_NAME,
+            'maxBytes': SQL_LOGFILE_SIZE,
+            'backupCount': SQL_LOGFILE_COUNT,
+            'formatter': 'minimal',
+        },
+        'logfile': {
+            'level':'INFO',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': LOGFILE_NAME,
+            'maxBytes': LOGFILE_SIZE,
+            'backupCount': LOGFILE_COUNT,
+            'formatter': 'standard',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        LOGFILE_LGC: {
+            'handlers': ['logfile', 'console', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        LOGFILE_USER: {
+            'handlers': ['logfile', 'console', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        LOGFILE_HR: {
+            'handlers': ['logfile', 'console', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        LOGFILE_EMPLOYEE: {
+            'handlers': ['logfile', 'console', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        LOGFILE_SQL: {
+            'handlers': ['sqllogfile'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -132,12 +237,6 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = 'lgc-home'
 LOGIN_URL = 'user-login'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
-EMAIL_HOST = 'kw-net.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'autotestkw@example.com'
-EMAIL_HOST_PASSWORD = 'udis82udD'
-EMAIL_USE_TLS = True
 
 SITE_URL = 'http://localhost:8000'
 AUTH_TOKEN_EXPIRY = 48

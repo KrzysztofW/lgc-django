@@ -43,6 +43,9 @@ import string
 import random
 import datetime
 import os
+import logging
+
+log = logging.getLogger('employee')
 
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent

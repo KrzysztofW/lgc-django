@@ -40,6 +40,9 @@ import string
 import random
 import datetime
 import os
+import logging
+
+log = logging.getLogger('hr')
 
 User = get_user_model()
 

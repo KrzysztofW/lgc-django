@@ -44,8 +44,11 @@ from common import lgc_types
 import string
 import random
 import datetime
-import os
 import subprocess
+import os
+import logging
+
+log = logging.getLogger('lgc')
 
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
@@ -756,9 +759,18 @@ class InvoiceCommonView(BillingTest):
                         continue
                     i.invoice = self.object
                     i.save()
+            log.debug('total: %d items: %d items_vat: %d disbursements: %d disbursements_vat:%d'%(
+                form.instance.get_total, form.instance.get_total_items,
+                form.instance.get_total_items_vat,
+                form.instance.get_total_disbursements,
+                form.instance.get_total_disbursements_vat))
 
-            if form.instance.get_total != float(form.instance.total):
-                messages.error(self.request, _('Total does not match. Contact your administrator'))
+            total = round(form.instance.get_total + form.instance.get_vat, 2)
+            if total != float(form.instance.total):
+                log.error('invoice total does not match. Computed total: %d form total: %d',
+                          total, float(form.instance.total))
+                messages.error(self.request,
+                               _('Total does not match. Contact your administrator'))
 
             if deleted_docs:
                 for d in deleted_docs.deleted_forms:
@@ -774,7 +786,9 @@ class InvoiceCommonView(BillingTest):
                     doc.instance.description = doc.cleaned_data['description']
                     doc.instance.invoice = self.object
                     doc.save()
-            return super().form_valid(form)
+
+            messages.success(self.request, self.success_message)
+            return http.HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
         return super().form_invalid(form)
