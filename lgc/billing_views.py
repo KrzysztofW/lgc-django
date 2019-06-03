@@ -405,7 +405,7 @@ class InvoiceListView(BillingTest, ListView):
         return objs.order_by(order_by)
 
     def get_ordering(self):
-        return self.request.GET.get('order_by', 'id')
+        return self.request.GET.get('order_by', '-id')
 
     def get_paginate_by(self, queryset):
         return self.request.GET.get('paginate', '10')

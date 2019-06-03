@@ -185,12 +185,13 @@ class HRPersonListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         term = self.request.GET.get('term', '')
 
         order_by = self.get_ordering()
-        objs = self.request.user.hr_employees.all().exclude(status__in=user_models.get_user_deleted_statuses())
+        objs = self.request.user.hr_employees.exclude(status__in=user_models.get_user_deleted_statuses())
 
         if term:
             objs = (objs.filter(email__istartswith=term)|
                     objs.filter(first_name__istartswith=term)|
                     objs.filter(last_name__istartswith=term))
+
         return objs.order_by(order_by)
 
 class HRDeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
