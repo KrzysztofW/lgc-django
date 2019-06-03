@@ -473,6 +473,7 @@ def check_dates(start, end, what):
         raise ValidationError(_("End date of %s cannot be earlier than start date"%(what)))
 
 class PersonInfo(models.Model):
+    is_private = models.BooleanField(_('Private File'), default=False)
     version = models.PositiveIntegerField(default=0)
     creation_date = models.DateTimeField(_('Creation Date'), auto_now_add=True)
     first_name = models.CharField(_('First name'), max_length=50, validators=[validators.alpha])
@@ -549,7 +550,6 @@ class PersonInfo(models.Model):
 
 class Person(PersonInfo):
     id = models.AutoField(primary_key=True)
-    is_private = models.BooleanField(_('Private File'), default=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 null=True, blank=True,
                                 related_name='person_user_set')
@@ -594,9 +594,18 @@ class Person(PersonInfo):
 
 PERSON_DOC_LINK_DIR = os.path.join(settings.MEDIA_ROOT, 'files')
 
+def copy_doc_path_attributes(src, dst):
+    dst.birth_date = src.birth_date
+    dst.first_name = src.first_name
+    dst.last_name = src.last_name
+    dst.home_entity = src.home_entity
+    dst.host_entity = src.host_entity
+    dst.is_private = src.is_private
+
 def get_person_doc_path(person):
-    directory = (person.first_name + '_' + person.last_name + '_' +
-                 str(person.birth_date))
+    directory = person.first_name + '_' + person.last_name
+    if person.birth_date:
+        directory += '_' + str(person.birth_date)
     if person.home_entity:
         directory += '_' + person.home_entity
     if person.host_entity:
@@ -608,6 +617,9 @@ def get_person_doc_path(person):
 def rename_person_doc_dir(old_obj, new_obj):
     old_path = os.path.join(PERSON_DOC_LINK_DIR, get_person_doc_path(old_obj))
     new_path = os.path.join(PERSON_DOC_LINK_DIR, get_person_doc_path(new_obj))
+
+    if old_path == new_path:
+        return
 
     try:
         print('renaming:', old_path, new_path)

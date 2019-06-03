@@ -1092,6 +1092,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         return are_valid
 
     def rename_doc_dir(self, form, old_obj, new_obj):
+        if type(self.object) == employee_models.Employee:
+            return
         if ('first_name' not in form.changed_data and
             'last_name' not in form.changed_data and
             'birth_date' not in form.changed_data and

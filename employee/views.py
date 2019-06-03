@@ -309,6 +309,10 @@ def moderation(request, *args, **kwargs):
         if not check_form(request, context, employee_obj, employee_form, this_url):
             return render(request, 'employee/moderation.html', context)
 
+        old_person = lgc_models.Person()
+        lgc_models.copy_doc_path_attributes(employee_obj.user.person_user_set,
+                                            old_person)
+
         person_common_view = lgc_views.PersonCommonView()
         person_common_view.copy_related_object(employee_form.instance,
                                                employee_obj.user.person_user_set,
@@ -322,6 +326,8 @@ def moderation(request, *args, **kwargs):
 
         with transaction.atomic():
             save_employee_form(request, employee_form)
+            lgc_models.rename_person_doc_dir(old_person,
+                                             employee_obj.user.person_user_set)
             employee_obj.user.person_user_set.save()
             save_formset(employee_obj, formset)
 

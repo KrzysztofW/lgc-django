@@ -80,4 +80,4 @@ class ModerationEmployeeUpdateForm(EmployeeUpdateForm):
 
     class Meta:
         model = employee_models.Employee
-        exclude = ['modified_by', 'updated', 'user']
+        exclude = ['modified_by', 'updated', 'user', 'is_private']
