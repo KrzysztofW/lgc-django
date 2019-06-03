@@ -5,7 +5,7 @@ from datetime import datetime
 from migration_common import client_country_mapping, em
 import pdb, os, sys, django
 
-sys.path.append("/home/witek/lgc-django")
+sys.path.append("../lgc-django")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lgc_base.settings")
 django.setup()
 
@@ -254,11 +254,9 @@ while row is not None:
         exit()
     row = cursor4.fetchone()
 
-# fill total column
+print('fill total column of all invoices...')
 for invoice in Invoice.objects.all():
-    #print('id:', invoice.id, 'first_name:', invoice.first_name)
-    invoice.total = 0
     if invoice.total == 0:
         invoice.total = round(invoice.get_total + invoice.get_vat, 2)
-        invoice.save
-        print('set invoice id:%d total:%f'%(invoice.id, invoice.total))
+        invoice.save()
+        #print('set invoice id:%d total:%f'%(invoice.id, invoice.total))
