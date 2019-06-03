@@ -1064,6 +1064,11 @@ class Invoice(AbstractClient):
         return round(self.total_items_vat, 2)
 
     @property
+    def get_total_items_plus_vat(self):
+        self.set_total_items()
+        return round(self.total_items_vat + self.total_items, 2)
+
+    @property
     def get_total_disbursements(self):
         self.set_total_disbursements()
         return round(self.total_disbursements, 2)

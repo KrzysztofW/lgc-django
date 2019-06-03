@@ -367,7 +367,8 @@ class InvoiceCreateForm(forms.ModelForm):
                                           required=False, initial=False,
                                           help_text="(Phone, mail...) 5% of the services limited to 100.",
                                           widget=forms.CheckboxInput(attrs={'onchange':'return compute_invoice();'}))
-    total = forms.FloatField(min_value=0, widget=forms.HiddenInput(), initial=0)
+    total = forms.DecimalField(initial=0, max_digits=8, decimal_places=2,
+                               widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -438,9 +439,9 @@ QUOTATION_SEARCH_COLS_CHOICES = (
     ('get_process', _('Process')),
     ('po', 'PO'),
     ('invoice_date', 'Date'),
-    ('get_total_items', _('Items')),
-    ('get_total_disbursements', _('Disbursements')),
-    ('get_total', 'Total'),
+    ('get_total_items_plus_vat', _('Items')),
+    ('get_total_disbursements_plus_vat', _('Disbursements')),
+    ('total', 'Total'),
 )
 INVOICE_SEARCH_COLS_CHOICES = QUOTATION_SEARCH_COLS_CHOICES + (
     ('remaining_balance', _('Remaining Balance')),
@@ -453,6 +454,7 @@ class InvoiceSearchForm(forms.Form):
     dates = forms.ChoiceField(label='&nbsp;', required=False,
                               choices=INVOICE_SEARCH_DATE_CHOICES,
                               widget = forms.RadioSelect(attrs = {
+                                  'class':'form-control',
                                   'onchange':'form.submit();',
                               }),
                               initial=INVOICE_SEARCH_DATE_INVOICE)
@@ -476,7 +478,12 @@ class InvoiceSearchForm(forms.Form):
                                      required=False,
                                      label=_('Displayed Columns'),
                                      choices=INVOICE_SEARCH_COLS_CHOICES,
-                                     initial=['number', 'client_info', 'person_info'])
+                                     initial=['number', 'client_info',
+                                              'person_info', 'total',
+                                              'invoice_date', 'state'])
+    total = forms.DecimalField(required=False, max_digits=8,
+                               min_value=0, decimal_places=2,
+                               widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'form.submit();', 'step': "0.01"}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

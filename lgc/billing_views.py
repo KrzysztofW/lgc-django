@@ -299,6 +299,7 @@ class InvoiceListView(BillingTest, ListView):
                 Div('dates', css_class='form-group col-md-3') if self.invoice_type == lgc_models.INVOICE else None,
                 Div('start_date', css_class='form-group col-md-3'),
                 Div('end_date', css_class='form-group col-md-3'),
+                Div('total', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
                 Div('cols', css_class='form-group col-md-3'),
@@ -315,6 +316,7 @@ class InvoiceListView(BillingTest, ListView):
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
         dates = self.request.GET.get('dates')
+        total = self.request.GET.get('total')
         do_range_total = False
 
         if number:
@@ -323,6 +325,8 @@ class InvoiceListView(BillingTest, ListView):
             objs = objs.filter(state=state)
         if currency:
             objs = objs.filter(currency=currency)
+        if total:
+            objs = objs.filter(total=total)
         if responsible:
             o = User.objects.filter(id=responsible)
             if len(o):
@@ -413,10 +417,13 @@ class InvoiceListView(BillingTest, ListView):
         cols = self.request.GET.getlist('cols')
         context['header_values'] = []
         if len(cols) == 0:
+            # set 'cols' in InvoiceSearchform to have these fields selected
             context['header_values'] = [
                 ('number', 'ID'), ('person_info', _('Employee Name')),
                 ('client_info', _('Company / Client')),
-                ('entity_info', _('Home / Host Entity')),
+                ('invoice_date', 'Date'),
+                ('total', _('Total (+VAT)')),
+                ('state', _('Status')),
             ]
 
         if self.invoice_type == lgc_models.INVOICE:
