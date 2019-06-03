@@ -2,7 +2,7 @@
 # https://pynative.com/python-mysql-tutorial/
 import mysql.connector
 import pdb
-from common import client_country_mapping as country_mapping
+from migration_common import client_country_mapping as country_mapping
 
 try:
     lgc_4_1 = mysql.connector.connect(
