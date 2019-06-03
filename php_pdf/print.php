@@ -414,7 +414,7 @@ if (! empty($file_id)) {
 $pdf->Ln(10);
 
 /* description */
-$description = str_replace("&quot", '"', $$row['description']); //"
+$description = str_replace("&quot", '"', $row['description']);
 $pieces = explode("\n", $description);
 
 foreach ($pieces as $val => $key) {
