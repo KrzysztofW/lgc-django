@@ -2150,11 +2150,18 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         messages.error(self.request, _('There are errors on the page'))
         return super().form_invalid(form)
 
-class DeleteAccount(AccountView, PersonDeleteView):
+class DeleteAccount(AccountView, DeleteView):
     obj_name = _('Account')
     title = _('Delete Account')
     success_url = reverse_lazy('lgc-accounts')
     template_name = 'lgc/person_confirm_delete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        context['cancel_url'] = reverse_lazy(self.cancel_url,
+                                             kwargs={'pk':self.object.id})
+        return context
 
     def test_func(self):
         return self.request.user.is_staff
@@ -2163,19 +2170,19 @@ class DeleteAccount(AccountView, PersonDeleteView):
         self.object = self.get_object()
 
         if not hasattr(self.object, 'person_user_set'):
-            return super().delete()
+            return super().delete(request, args, kwargs)
         if not hasattr(self.object.person_user_set, 'document_set'):
-            return super().delete()
+            return super().delete(request, args, kwargs)
 
         for doc in self.object.person_user_set.document_set.all():
             try:
-                lgc_models.delete_doc(self.object.person_user_set, doc)
+                lgc_models.delete_person_doc(self.object.person_user_set, doc)
             except Exception as e:
-                print(e)
+                log.error(e)
                 messages.error(self.request, _('Cannot remove user files.'))
                 return redirect('lgc-account', self.object.id)
 
-        return super().delete()
+        return super().delete(request, args, kwargs)
 
 class HRView(LoginRequiredMixin):
     req_type = lgc_types.ReqType.HR
