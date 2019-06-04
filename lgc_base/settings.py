@@ -123,19 +123,19 @@ EMAIL_HOST_PASSWORD = 'udis82udD'
 EMAIL_USE_TLS = True
 ADMINS = [('John Doe', 'admin@example.com')]
 
-LOGFILE_NAME = 'log/lgc.log'
+LOGFILE_NAME = '/tmp/lgc.log'
 LOGFILE_SIZE = 1 << 20
 LOGFILE_COUNT = 4
 
-SQL_LOGFILE_NAME = 'log/sql.log'
+SQL_LOGFILE_NAME = '/tmp/sql.log'
 SQL_LOGFILE_SIZE = 100 << 20
 SQL_LOGFILE_COUNT = 10
 
-LOGFILE_LGC = 'lgc'
-LOGFILE_USER = 'user'
-LOGFILE_HR = 'hr'
-LOGFILE_EMPLOYEE = 'employee'
-LOGFILE_SQL = 'sql'
+LOGGER_LGC = 'lgc'
+LOGGER_USER = 'user'
+LOGGER_HR = 'hr'
+LOGGER_EMPLOYEE = 'employee'
+LOGGER_SQL = 'sql'
 
 LOGGING = {
     'version': 1,
@@ -193,27 +193,27 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        LOGFILE_LGC: {
+        LOGGER_LGC: {
             'handlers': ['logfile', 'console', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         },
-        LOGFILE_USER: {
+        LOGGER_USER: {
             'handlers': ['logfile', 'console', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         },
-        LOGFILE_HR: {
+        LOGGER_HR: {
             'handlers': ['logfile', 'console', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         },
-        LOGFILE_EMPLOYEE: {
+        LOGGER_EMPLOYEE: {
             'handlers': ['logfile', 'console', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         },
-        LOGFILE_SQL: {
+        LOGGER_SQL: {
             'handlers': ['sqllogfile'],
             'level': 'INFO',
             'propagate': True,
