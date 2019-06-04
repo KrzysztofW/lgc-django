@@ -114,7 +114,7 @@ a {
         min-height: 0; }
   .navbar-nav.navbar-top-links .dropdown-toggle {
     color: #337ab7;
-    padding: 15px; }
+ }
     .navbar-nav.navbar-top-links .dropdown-toggle:hover, .navbar-nav.navbar-top-links .dropdown-toggle:focus {
       color: #23527c; }
   .navbar-nav.navbar-top-links .show .dropdown-toggle {

@@ -3,7 +3,7 @@
 <li class="nav-item dropdown">
   <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
      aria-haspopup="true" aria-expanded="false">
-    <i class="fa fa-user fa-fw"></i>
+    <i class="fa fa-user fa-fw"></i><small>{{ request.user.first_name }} {{ request.user.last_name }}</small>
   </a>
   <div class="dropdown-menu dropdown-menu-right dropdown-user">
     <a class="dropdown-item" href="{% url 'user-profile' %}"><i class="fa fa-user fa-fw"></i> {% trans 'User Profile' %}</a>
