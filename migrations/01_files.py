@@ -2,9 +2,10 @@
 # https://pynative.com/python-mysql-tutorial/
 import mysql.connector
 from datetime import datetime
-from common import em
+from migration_common import em, lgc_5_connect, lgc_4_1_connect
 import pdb
 
+print('importing files...')
 """
    | Field            | Type         | Null | Key | Default | Extra          |
    +------------------+--------------+------+-----+---------+----------------+
@@ -458,19 +459,9 @@ citizenship_mapping = {
 }
 
 try:
-    lgc_4_1 = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_4_1'
-    )
+    lgc_4_1 = lgc_4_1_connect()
+    lgc_v5 = lgc_5_connect()
 
-    lgc_v5 = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_v5'
-    )
 except Exception as e:
     print(e)
     exit()

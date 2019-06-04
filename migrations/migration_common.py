@@ -1,8 +1,39 @@
+import mysql.connector
 
 def em(val):
     if val == None:
         return ''
     return val
+
+lgc_5_mysql_settings = {
+    'host':'localhost',
+    'user':'lgc',
+    'passwd':'zqooe872Fjdhe',
+    'database':'lgc_v5',
+}
+
+lgc_4_1_mysql_settings = {
+    'host':'localhost',
+    'user':'',
+    'passwd':'',
+    'database':'lgc_4_1',
+}
+
+def lgc_4_1_connect():
+    return mysql.connector.connect(
+        host=lgc_4_1_mysql_settings['host'],
+        user=lgc_4_1_mysql_settings['user'],
+        passwd=lgc_4_1_mysql_settings['passwd'],
+        database=lgc_4_1_mysql_settings['database'],
+    )
+
+def lgc_5_connect():
+    return mysql.connector.connect(
+        host=lgc_5_mysql_settings['host'],
+        user=lgc_5_mysql_settings['user'],
+        passwd=lgc_5_mysql_settings['passwd'],
+        database=lgc_5_mysql_settings['database'],
+    )
 
 client_country_mapping = {
     'united states of america':'US',

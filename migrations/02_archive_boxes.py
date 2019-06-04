@@ -2,22 +2,14 @@
 
 import mysql.connector
 from datetime import datetime
+from migration_common import lgc_5_connect, lgc_4_1_connect
 import pdb
 
-try:
-    lgc_4_1 = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_4_1'
-    )
+print('importing archive boxes...')
 
-    lgc_v5 = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_v5'
-    )
+try:
+    lgc_4_1 = lgc_4_1_connect()
+    lgc_v5 = lgc_5_connect()
 except Exception as e:
     print(e)
     exit()

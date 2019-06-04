@@ -2,22 +2,13 @@
 # https://pynative.com/python-mysql-tutorial/
 import mysql.connector
 import pdb
-from migration_common import client_country_mapping as country_mapping
+from migration_common import client_country_mapping as country_mapping, lgc_5_connect, lgc_4_1_connect
+
+print('importing clients...')
 
 try:
-    lgc_4_1 = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_4_1'
-    )
-
-    lgc_v5 = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_v5'
-    )
+    lgc_4_1 = lgc_4_1_connect()
+    lgc_v5 = lgc_5_connect()
 except Exception as e:
     print(e)
     exit()

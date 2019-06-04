@@ -2,47 +2,24 @@
 
 import mysql.connector
 from datetime import datetime
-from migration_common import client_country_mapping, em
+from migration_common import client_country_mapping, em, lgc_5_connect, lgc_4_1_connect
 import pdb, os, sys, django
 
-sys.path.append("../lgc-django")
+print('importing invoices...')
+
+sys.path.append("..")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lgc_base.settings")
 django.setup()
 
 from lgc.models import Invoice
 
 try:
-    lgc_4_1 = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_4_1'
-    )
-    lgc_4_1_fp = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_4_1'
-    )
-    lgc_4_1_p = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_4_1'
-    )
-    lgc_4_1_c = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_4_1'
-    )
-
-    lgc_v5 = mysql.connector.connect(
-        host="localhost",
-        user="lgc",
-        passwd="zqooe872Fjdhe",
-        database='lgc_v5'
-    )
+    lgc_4_1 = lgc_4_1_connect()
+    lgc_v5 = lgc_5_connect()
+    lgc_4_1_fp = lgc_4_1_connect()
+    lgc_4_1_p = lgc_4_1_connect()
+    lgc_4_1_c = lgc_4_1_connect()
+    lgc_v5 = lgc_5_connect()
 except Exception as e:
     print(e)
     exit()
@@ -52,7 +29,6 @@ cursor_fp = lgc_4_1_fp.cursor()
 cursor_p = lgc_4_1_p.cursor()
 cursor_c = lgc_4_1_c.cursor()
 cursor5 = lgc_v5.cursor()
-
 
 """
 mysql> desc facture;
