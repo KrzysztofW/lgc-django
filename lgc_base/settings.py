@@ -123,11 +123,11 @@ EMAIL_HOST_PASSWORD = 'udis82udD'
 EMAIL_USE_TLS = True
 ADMINS = [('John Doe', 'admin@example.com')]
 
-LOGFILE_NAME = r'/var/log/lgc5.log'
+LOGFILE_NAME = 'log/lgc.log'
 LOGFILE_SIZE = 1 << 20
 LOGFILE_COUNT = 4
 
-SQL_LOGFILE_NAME = r'/var/log/lgc5_sql.log'
+SQL_LOGFILE_NAME = 'log/sql.log'
 SQL_LOGFILE_SIZE = 100 << 20
 SQL_LOGFILE_COUNT = 10
 
