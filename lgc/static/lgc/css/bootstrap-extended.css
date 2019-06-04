@@ -61,9 +61,10 @@ a:focus {
 .text-highlight {
   padding: 4px 6px; }
 
+/*
 ol li, ul li, dl li {
   line-height: 1.8; }
-
+*/
 code {
   padding: .2rem .4rem;
   font-size: 90%;
@@ -500,16 +501,6 @@ button, html [type='button'], [type='reset'], [type='submit'] {
   opacity: 1;
   display: block; }
 
-.dropdown-toggle::after {
-  font-family: 'FontAwesome';
-  content: "\f107" !important;
-  border: none !important;
-  position: relative;
-  top: 1px;
-  right: 0px;
-  padding: 0 2px 0 6px;
-  margin: 0 0.3em 0 0;
-  vertical-align: 0; }
 
 .dropdown-toggle.nav-hide-arrow::after {
   display: none; }
@@ -837,6 +828,7 @@ button, html [type='button'], [type='reset'], [type='submit'] {
   [data-menu="vertical-menu-modern"] .navbar-light .navbar-header .navbar-nav .nav-link {
     color: #404E67; } }
 
+/*
 .navbar-light {
   background: #FFFFFF; }
   .navbar-light.navbar-horizontal {
@@ -847,7 +839,7 @@ button, html [type='button'], [type='reset'], [type='submit'] {
     background-color: rgba(0, 0, 0, 0.03); }
   .navbar-light .navbar-nav .disabled.nav-link {
     color: #404e67; }
-
+*/
 .navbar-dark {
   background: #404E67; }
   .navbar-dark .navbar-brand {
