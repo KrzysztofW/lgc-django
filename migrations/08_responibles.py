@@ -30,8 +30,12 @@ while row is not None:
     cursor5_user.execute("SELECT id FROM users_user where last_name like '%%%s%%'"%(last_name))
     row_user = cursor5_user.fetchone()
     if row_user == None or len(row_user) != 1:
-        print('user:', row[1], 'cannot find the corresponding user')
-        exit()
+            cursor5_user.execute("SELECT id FROM users_user where first_name like '%%%s%%'"%(first_name))
+            row_user = cursor5_user.fetchone()
+            if row_user == None or len(row_user) != 1:
+                print('user:', row[1], 'cannot find the corresponding user')
+                exit()
+
     user_id = row_user[0]
 
     sql_insert_query = """INSERT INTO `lgc_person_responsible`
