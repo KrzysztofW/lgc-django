@@ -100,7 +100,7 @@ mysql> desc lgc_invoice;
 | po_rate           | double           | YES  |     | NULL    |                |
 | company_option    | varchar(1)       | NO   |     | NULL    |                |
 | language          | varchar(2)       | NO   |     | NULL    |                |
-| description       | longtext         | NO   |     | NULL    |                |
+| invoice_description| longtext        | NO   |     | NULL    |                |
 | various_expenses  | tinyint(1)       | NO   |     | NULL    |                |
 | state             | varchar(1)       | NO   |     | NULL    |                |
 | already_paid      | double           | NO   |     | NULL    |                |
@@ -190,7 +190,7 @@ while row is not None:
     `version`, `number`, `type`, `invoice_date`, `modification_date`,
     `payment_option`, `currency`, `po`, `po_date`, `po_first_name`,
     `po_last_name`, `po_email`, `po_rate`, `company_option`, `language`,
-    `description`, `various_expenses`, `state`, `already_paid`, `with_regard_to`,
+    `invoice_description`, `various_expenses`, `state`, `already_paid`, `with_regard_to`,
     `total`, `client_id`, `person_id`, `already_paid_desc`
     )
     values (

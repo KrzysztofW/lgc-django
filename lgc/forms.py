@@ -442,8 +442,10 @@ QUOTATION_SEARCH_COLS_CHOICES = (
     ('get_process', _('Process')),
     ('po', 'PO'),
     ('invoice_date', 'Date'),
-    ('get_total_items_plus_vat', _('Items')),
-    ('get_total_disbursements_plus_vat', _('Disbursements')),
+    ('get_total_items', _('Items')),
+    ('get_total_items_plus_vat', _('Items (+VAT)')),
+    ('get_total_disbursements', _('Disbursements')),
+    ('get_total_disbursements_plus_vat', _('Disbursements (+VAT)')),
     ('total', 'Total'),
 )
 INVOICE_SEARCH_COLS_CHOICES = QUOTATION_SEARCH_COLS_CHOICES + (
@@ -481,9 +483,9 @@ class InvoiceSearchForm(forms.Form):
                                      required=False,
                                      label=_('Displayed Columns'),
                                      choices=INVOICE_SEARCH_COLS_CHOICES,
-                                     initial=['number', 'client_info',
-                                              'person_info', 'total',
-                                              'invoice_date', 'state'])
+                                     initial=['number', 'person_info',
+                                              'client_info', 'invoice_date',
+                                              'get_total_items', 'total'])
     total = forms.DecimalField(required=False, max_digits=8,
                                min_value=0, decimal_places=2,
                                widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'form.submit();', 'step': "0.01"}))

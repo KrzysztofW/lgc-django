@@ -424,9 +424,9 @@ class InvoiceListView(BillingTest, ListView):
             context['header_values'] = [
                 ('number', 'ID'), ('person_info', _('Employee Name')),
                 ('client_info', _('Company / Client')),
-                ('invoice_date', 'Date'),
+                ('invoice_date', _('Date')),
+                ('get_total_items', _('Items')),
                 ('total', _('Total (+VAT)')),
-                ('state', _('Status')),
             ]
 
         if self.invoice_type == lgc_models.INVOICE:
