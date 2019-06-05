@@ -118,4 +118,6 @@ urlpatterns = [
          billing_views.billing_pdf_view, name='lgc-billing-pdf'),
     path('billing-csv/',
          billing_views.billing_csv_view, name='lgc-billing-csv'),
+    path('receipt-download/<int:pk>/', billing_views.download_receipt_file,
+         name='lgc-receipt-download'),
 ]

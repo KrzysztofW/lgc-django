@@ -1306,3 +1306,23 @@ def billing_csv_view(request):
     response['Content-Disposition'] = 'attachment; filename="export.csv"'
     response.write(csv)
     return response
+
+@login_required
+def download_receipt_file(request, *args, **kwargs):
+    pk = kwargs.get('pk', '')
+    doc = lgc_models.DisbursementDocument.objects.filter(id=pk).all()
+    if doc == None or len(doc) != 1:
+        raise Http404
+
+    if (request.user.role not in user_models.get_internal_roles() or
+        not request.user.billing):
+        return http.HttpResponseForbidden()
+
+    file_path = os.path.join(settings.MEDIA_ROOT, doc[0].document.name)
+    if not os.path.exists(file_path):
+        raise Http404
+    with open(file_path, 'rb') as fh:
+        res = http.HttpResponse(fh.read(), content_type='application/octet-stream')
+        res['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+        return res
+    raise Http404

@@ -39,7 +39,7 @@
 	    {% for item in docs %}
 	    <tr>
 	      <td>
-		<a href={% url 'lgc-download-file' item.instance.id %}>
+		<a href={% url 'lgc-receipt-download' item.instance.id %}>
 		  {{ item.instance.filename }}
 		</a>
 	      </td>
