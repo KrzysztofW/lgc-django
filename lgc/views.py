@@ -107,8 +107,8 @@ def tables(request):
 
 class UserTest(UserPassesTestMixin):
     def test_func(self):
-        if not self.is_update:
-            return self.request.user.role in user_models.get_internal_roles()
+        if self.request.user.role in user_models.get_internal_roles():
+            return True
 
         self.object = self.get_object()
         """ Employee check """
@@ -121,13 +121,7 @@ class UserTest(UserPassesTestMixin):
             self.object.user in self.request.user.hr_employees.all()):
             return True
 
-        """ Internal user check """
-        if self.request.user.role not in user_models.get_internal_roles():
-            return False
-        if (self.request.user.role == user_models.JURIST and
-            (not self.request.user in self.object.responsible.all())):
-            return False
-        return True
+        return False
 
 class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
     template_name = 'lgc/sub_generic_list_with_search_form.html'
