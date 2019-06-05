@@ -941,7 +941,8 @@ class Invoice(AbstractClient):
     language = models.CharField(max_length=2, choices=user_models.LANGUAGE_CHOICES,
                                 default=user_models.EN)
 
-    description = models.TextField(_('Description'), max_length=50, blank=True)
+    invoice_description = models.TextField(_('Description'), max_length=50,
+                                           blank=True)
     various_expenses = models.BooleanField(_('Include Various Expenses'), default=False)
     state = models.CharField(_('State'), max_length=1, default=INVOICE_STATE_PENDING,
                              choices=INVOICE_STATE_CHOICES)
@@ -1237,3 +1238,7 @@ class DisbursementDocument(models.Model):
     @property
     def filename(self):
         return os.path.basename(self.document.name)
+
+    @property
+    def file_exists(self):
+        return os.path.isfile(self.document.path)

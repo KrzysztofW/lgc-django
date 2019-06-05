@@ -518,7 +518,7 @@ class TemplateTimelineStages():
 
 def check_docs(obj, doc, docs):
     if not doc.is_valid():
-        messages.error(self.request, _('Invalid document.'))
+        messages.error(obj.request, _('Invalid document.'))
         return -1
     if doc.cleaned_data['document'] == None:
         return 0
@@ -1281,9 +1281,12 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
         if person_obj and person_obj.document_set:
             for doc in person_obj.document_set.all():
-                doc.delete()
-                os.remove(os.path.join(settings.MEDIA_ROOT,
-                                       doc.document.name))
+                try:
+                    lgc_models.delete_person_doc(self.object.person_user_set, doc)
+                except Exception as e:
+                    log.error(e)
+                    messages.error(self.request, _('Cannot remove user files.'))
+                    return redirect('lgc-account', self.object.id)
 
         if (self.object.user and self.request.method == 'POST' and
             self.request.POST.get('inform_person') and

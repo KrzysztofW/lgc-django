@@ -854,6 +854,7 @@ class InvoiceCommonView(BillingTest):
                     css_class='form-row')
             )
         layout.append(Div(
+            Div('invoice_description', css_class='form-group col-md-4'),
             Div(HTML('&nbsp;'), css_class='form-group col-md-2'),
             css_class='form-row'),
         )

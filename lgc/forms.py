@@ -369,6 +369,9 @@ class InvoiceCreateForm(forms.ModelForm):
                                           widget=forms.CheckboxInput(attrs={'onchange':'return compute_invoice();'}))
     total = forms.DecimalField(initial=0, max_digits=8, decimal_places=2,
                                widget=forms.HiddenInput())
+    invoice_description = forms.CharField(label=_('Description'),
+                                          required=False,
+                                          widget=forms.Textarea(attrs={'rows': 3}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -418,7 +421,7 @@ INVOICE_SEARCH_CSV_CHOICES = (
     ('get_various_expenses', _('Various Expenses No VAT')),
     ('get_various_expenses_plus_vat', _('Various_expenses Plus VAT')),
     ('validated', _('Validated')),
-    ('description', _('Description')),
+    ('invoice_description', _('Description')),
     ('to_be_done', _('To Be Done')), # a facturer
     ('get_total_disbursements', _('Total Disbursements No VAT')),
     ('get_total_disbursements_plus_vat', _('Total Disbursements Plus VAT')),
