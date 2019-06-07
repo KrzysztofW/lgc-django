@@ -3,9 +3,14 @@
 import mysql.connector
 from datetime import datetime
 from migration_common import lgc_5_connect, lgc_4_1_connect
-import pdb
+import pdb, os, sys, django
 
-print('importing items and disbursements...')
+sys.path.append("..")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lgc_base.settings")
+django.setup()
+from lgc.models import Invoice
+
+print('importing items...')
 
 try:
     lgc_4_1 = lgc_4_1_connect()
@@ -47,6 +52,7 @@ while row is not None:
         exit()
     row = cursor4.fetchone()
 
+print('importing disbursements...')
 cursor4.execute("SELECT * FROM debours")
 row = cursor4.fetchone()
 while row is not None:
@@ -68,7 +74,7 @@ while row is not None:
         exit()
     row = cursor4.fetchone()
 
-
+print('importing invoice items...')
 cursor4.execute("SELECT * FROM operation_facture where type=0")
 row = cursor4.fetchone()
 while row is not None:
@@ -97,6 +103,7 @@ while row is not None:
         exit()
     row = cursor4.fetchone()
 
+print('importing invoice disbursements...')
 cursor4.execute("SELECT * FROM operation_facture where type=1")
 row = cursor4.fetchone()
 while row is not None:
@@ -129,3 +136,10 @@ while row is not None:
         print("{}".format(error))
         exit()
     row = cursor4.fetchone()
+
+print('fill total column of all invoices...')
+for invoice in Invoice.objects.all():
+    if invoice.total == 0:
+        invoice.total = round(invoice.get_total + invoice.get_vat, 2)
+        invoice.save()
+        #print('set invoice id:%d total:%f'%(invoice.id, invoice.total))

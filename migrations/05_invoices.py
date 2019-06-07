@@ -3,15 +3,9 @@
 import mysql.connector
 from datetime import datetime
 from migration_common import client_country_mapping, em, lgc_5_connect, lgc_4_1_connect
-import pdb, os, sys, django
+import pdb
 
 print('importing invoices...')
-
-sys.path.append("..")
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lgc_base.settings")
-django.setup()
-
-from lgc.models import Invoice
 
 try:
     lgc_4_1 = lgc_4_1_connect()
@@ -120,7 +114,7 @@ row = cursor4.fetchone()
 while row is not None:
     cursor_fp.execute("SELECT * FROM facture_personne where id_facture=%d"%(row[0]))
     row_fp = cursor_fp.fetchone()
-    if row_fp == None or len(row_fp) != 2:
+    if row_fp == None or len(row_fp) == 0:
         print('id fact:', row[0], 'cannot find the corresponding facture_personne')
         exit()
     id_personne = row_fp[1]
@@ -229,10 +223,3 @@ while row is not None:
         print("{}".format(error))
         exit()
     row = cursor4.fetchone()
-
-print('fill total column of all invoices...')
-for invoice in Invoice.objects.all():
-    if invoice.total == 0:
-        invoice.total = round(invoice.get_total + invoice.get_vat, 2)
-        invoice.save()
-        #print('set invoice id:%d total:%f'%(invoice.id, invoice.total))
