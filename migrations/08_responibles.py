@@ -28,14 +28,15 @@ while row is not None:
         first_name = last_name = row[1]
 
     cursor5_user.execute("SELECT id FROM users_user where last_name like '%%%s%%'"%(last_name))
-    row_user = cursor5_user.fetchone()
+    row_user = cursor5_user.fetchall()
     if row_user == None or len(row_user) != 1:
-            cursor5_user.execute("SELECT id FROM users_user where first_name like '%%%s%%'"%(first_name))
-            row_user = cursor5_user.fetchone()
-            if row_user == None or len(row_user) != 1:
-                print('user:', row[1], 'cannot find the corresponding user')
-                exit()
+        cursor5_user.execute("SELECT id FROM users_user where first_name like '%%%s%%'"%(first_name))
+        row_user = cursor5_user.fetchall()
+        if row_user == None or len(row_user) != 1:
+            print('user:', row[1], 'cannot find the corresponding user')
+            exit()
 
+    row_user = row_user[0]
     user_id = row_user[0]
 
     sql_insert_query = """INSERT INTO `lgc_person_responsible`
@@ -51,7 +52,7 @@ while row is not None:
             print('duplicated responsible:', row[1], 'for the same file:', row[0])
         else:
             print('Failed inserting record into lgc_person_responsible table, nom:', row[1])
+            print(sql_insert_query%(insert_tuple))
             print("{}".format(error))
             exit()
     row = cursor4.fetchone()
-
