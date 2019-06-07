@@ -419,19 +419,19 @@ INVOICE_SEARCH_CSV_CHOICES = (
     ('already_paid', _('Already Paid')),
     ('various_expenses', _('Various Expenses')),
     ('get_various_expenses', _('Various Expenses No VAT')),
-    ('get_various_expenses_plus_vat', _('Various_expenses Plus VAT')),
+    ('get_various_expenses_plus_vat', _('Various_expenses (+VAT)')),
     ('validated', _('Validated')),
     ('invoice_description', _('Description')),
     ('to_be_done', _('To Be Done')), # a facturer
-    ('get_total_disbursements', _('Total Disbursements No VAT')),
-    ('get_total_disbursements_plus_vat', _('Total Disbursements Plus VAT')),
+    ('get_total_disbursements', _('Disbursements No VAT')),
+    ('get_total_disbursements_plus_vat', _('Disbursements (+VAT)')),
     ('get_total_disbursements_no_various_expenses',
-     _('Total Disbursements No Vat No Various Expenses')),
+     _('Disbursements No Vat No Various Expenses')),
     ('get_total_disbursements_plus_vat_no_various_expenses',
-     _('Total Disbursements Plus VAT No Various Expenses')),
+     _('Disbursements (+VAT) No Various Expenses')),
     ('get_total', _('Total No VAT')),
     ('get_vat', _('VAT')),
-    ('get_total_plus_vat', _('Total Plus VAT')),
+    ('get_total_plus_vat', _('Total (+VAT)')),
 )
 
 QUOTATION_SEARCH_COLS_CHOICES = (
@@ -478,7 +478,10 @@ class InvoiceSearchForm(forms.Form):
     csv = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control', 'size': 13}),
                                     required=False,
                                     label=_('CSV Export'),
-                                    choices=INVOICE_SEARCH_CSV_CHOICES)
+                                    choices=INVOICE_SEARCH_CSV_CHOICES,
+                                    initial=['number', 'invoice_date', 'last_name', 'company',
+                                             'get_disbursements', 'get_items', 'get_vat',
+                                             'get_total_plus_vat'])
     cols = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control', 'size': 13}),
                                      required=False,
                                      label=_('Displayed Columns'),

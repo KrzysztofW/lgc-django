@@ -282,7 +282,7 @@ class InvoiceListView(BillingTest, ListView):
             csv_div = None
             csv_html = None
         else:
-            csv_div = Div('csv', css_class='form-group col-md-3')
+            csv_div = Div('csv', css_class='form-group col-md-4')
             csv_html = Div(Div(HTML('<label class="col-form-label">&nbsp;</label>'),
                                Div(HTML('<a href="#" onclick="submit_csv();">' +
                                         _('Export') + '</a>')),
