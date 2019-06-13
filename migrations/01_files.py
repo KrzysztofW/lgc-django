@@ -506,11 +506,15 @@ while row is not None:
         state = ''
 
     no_etr = None
+    comments = em(row[45])
     if row[3]:
         try:
             no_etr = int(row[3])
         except:
             print("failed to convert no_etr `%s' id:%d"%(row[3], row[0]))
+            if comments:
+                comments += '\n'
+            comments += 'No étranger: ' + row[3]
 
     if row[6]:
         citizenship = row[6].lower()
@@ -550,7 +554,7 @@ while row is not None:
                     em(row[9]), em(row[10]), em(row[15]), em(row[14]), row[17],
                     '', row[18], em(row[30]), phone, em(row[24]),
                     '', f_phone, formatted_date, '', 0,
-                    row[43], state, em(row[45]), 0, creation_date,
+                    row[43], state, comments, 0, creation_date,
                     '', '', '', '', '',
                     0
     )
