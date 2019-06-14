@@ -105,6 +105,7 @@ mysql> desc lgc_invoice;
 | person_id         | int(11)          | YES  | MUL | NULL    |                |
 | process_id        | int(11)          | YES  | UNI | NULL    |                |
 | already_paid_desc | varchar(50)      | NO   |     | NULL    |                |
+| last_modified_date| date             | NO   |     | NULL    |                |
 +-------------------+------------------+------+-----+---------+----------------+
 """
 
@@ -180,7 +181,7 @@ while row is not None:
     sql_insert_query = """INSERT INTO `lgc_invoice`
     (`first_name`, `last_name`, `company`, `email`, `phone_number`,
     `cell_phone_number`, `siret`, `vat`, `address`, `post_code`,
-    `city`, `country`,
+    `city`, `country`, `last_modified_date`,
     `version`, `number`, `type`, `invoice_date`, `modification_date`,
     `payment_option`, `currency`, `po`, `po_date`, `po_first_name`,
     `po_last_name`, `po_email`, `po_rate`, `company_option`, `language`,
@@ -190,7 +191,7 @@ while row is not None:
     values (
     %s, %s, %s, %s, %s,
     %s, %s, %s, %s, %s,
-    %s, %s,
+    %s, %s, %s,
     %s, %s, %s, %s, %s,
     %s, %s, %s, %s, %s,
     %s, %s, %s, %s, %s,
@@ -202,9 +203,14 @@ while row is not None:
         siret = ''
     else:
         siret = str(row[8])
+    if row[3] == None:
+        last_modified_date = datetime.now()
+    else:
+        last_modified_date = row[3]
+
     insert_tuple = (row[6], row[5], row[10], row[7], '',
                     '', siret, row[9], row[11], row[12],
-                    row[13], country,
+                    row[13], country, last_modified_date,
                     0, row[0], 'I', row[1], row[2],
                     payment_option, row[22], em(row[16]), row[17], row[19],
                     row[18], row[20], row[21], 'L' if row[24] == 0 else 'F', row[23].upper(),

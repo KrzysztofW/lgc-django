@@ -505,6 +505,87 @@ while row is not None:
     else:
         state = ''
 
+    if row[11] == "carte_bleue_europeenne":
+        proc = 'PT2'
+    elif row[11] == "casier_judiciaire":
+        proc = 'OD'
+    elif row[11] == "commercant":
+        proc = 'AUT'
+    elif row[11] == "competences_et_talents":
+        proc = 'AUT'
+    elif row[11] == "detachement":
+        proc = 'AUT'
+    elif row[11] == "intro_salarie_hn":
+        proc = 'SAL'
+    elif row[11] == "prestataire_service":
+        proc = 'PSI'
+    elif row[11] == "salarie_mission-detache":
+        proc = 'DI'
+    elif row[11] == "salarie_mission-salarie":
+        proc = 'PT3'
+    elif row[11] == "stage_information":
+        proc = 'STA'
+    elif row[11] == "stage_professionnel":
+        proc = 'STA'
+    elif row[11] == "tir":
+        proc = 'DCE'
+    elif row[11] == 'apostille_legalisation':
+        proc = 'OD'
+    elif row[11] == 'apprenti':
+        proc = 'AP'
+    elif row[11] == 'carte_resident':
+        proc = 'CR'
+    elif row[11] == 'changement_de_status':
+        proc = 'CDS'
+    elif row[11] == 'changement_employeur':
+        proc = 'CDE'
+    elif row[11] == 'conjoint_europeen':
+        proc = 'CEU'
+    elif row[11] == 'conjoint_francais':
+        proc = 'CFR'
+    elif row[11] == 'consultation':
+        proc = 'CON'
+    elif row[11] == 'dcem':
+        proc = 'DCE'
+    elif row[11] == 'declaration_detachement_europeen':
+        proc = 'DDD'
+    elif row[11] == 'detache_ICT':
+        proc = 'DI'
+    elif row[11] == 'detache_ICT_mobile':
+        proc = 'DIM'
+    elif row[11] == 'dispense_AT_90j':
+        proc = 'DAT'
+    elif row[11] == 'nationalite':
+        proc = 'NAT'
+    elif row[11] == 'intro_salarie':
+        proc = 'SAL'
+    elif row[11] == 'passeport_talent_L313_20_1':
+        proc = 'PT1'
+    elif row[11] == 'passeport_talent_L313_20_2':
+        proc = 'PT2'
+    elif row[11] == 'passeport_talent_L313_20_3':
+        proc = 'PT3'
+    elif row[11] == 'passeport_talent_L313_20_4':
+        proc = 'PT4'
+    elif row[11] == 'passeport_talent_L313_20_8':
+        proc = 'PT8'
+    elif row[11] == 'passeport_talent_autre':
+        proc = 'PTA'
+    elif row[11] == 'stagiaire':
+        proc = 'STA'
+    elif row[11] == 'stagiaire_ICT':
+        proc = 'SI'
+    elif row[11] == 'stagiaire_ICT_mobile':
+        proc = 'SIM'
+    elif row[11] == 'URSSAF_CPAM':
+        proc = 'URS'
+    elif row[11] == 'visiteur':
+        proc = 'VIR'
+    elif row[11] == 'visa':
+        proc = 'VIS'
+    else:
+        proc = 'AUT'
+
     no_etr = None
     comments = em(row[45])
     if row[3]:
@@ -553,7 +634,7 @@ while row is not None:
                     row[5], citizenship, row[13], em(row[7]), em(row[8]),
                     em(row[9]), em(row[10]), em(row[15]), em(row[14]), row[17],
                     '', row[18], em(row[30]), phone, em(row[24]),
-                    '', f_phone, formatted_date, '', 0,
+                    '', f_phone, formatted_date, proc, 0,
                     row[43], state, comments, 0, creation_date,
                     '', '', '', '', '',
                     0
