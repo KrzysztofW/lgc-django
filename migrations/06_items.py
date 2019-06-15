@@ -9,6 +9,10 @@ sys.path.append("..")
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lgc_base.settings")
 django.setup()
 from lgc.models import Invoice
+from django.conf import settings
+
+# do not log invoice total=0 errors
+settings.LOGGING['loggers']['lgc']['level'] = 'CRITICAL'
 
 print('importing items...')
 
