@@ -223,3 +223,15 @@ p {
       width:1150px;
   }
 }
+
+.lgc_stat_table td {
+    padding: 0.55rem 0.5rem;
+}
+#area-chart,
+#line-chart,
+#bar-chart,
+#stacked,
+#current-year-revenue,
+#pie-chart{
+  min-height: 250px;
+}

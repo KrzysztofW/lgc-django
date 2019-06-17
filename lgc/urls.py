@@ -120,4 +120,6 @@ urlpatterns = [
          billing_views.billing_csv_view, name='lgc-billing-csv'),
     path('receipt-download/<int:pk>/', billing_views.download_receipt_file,
          name='lgc-receipt-download'),
+
+    path('stats/', views.stats_view, name='lgc-stats'),
 ]

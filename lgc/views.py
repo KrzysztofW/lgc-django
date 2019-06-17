@@ -2525,3 +2525,76 @@ def expirations(request):
         objs = objs.filter(person__responsible__in=user)
 
     return __expirations(request, form, objs)
+
+def get_revenue(start_date, end_date, currency):
+    start_date = start_date.strftime('%Y-%m-%d')
+    end_date = end_date.strftime('%Y-%m-%d')
+
+    invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_PAID, currency=currency, last_modified_date__range=[start_date, end_date])
+    month_total = 0.
+
+    for invoice in invoices:
+        month_total += float(invoice.total)
+
+    return month_total
+
+def get_this_year_revenue():
+    end_date = datetime.date.today()
+    start_date = end_date.replace(day=1)
+    currencies = { 'eur', 'usd', 'cad', 'gbp' }
+    year_revenue = []
+
+    for i in range(start_date.month, 0, -1):
+        month_name = start_date.strftime("%b")
+        month = start_date.month
+        rev = {}
+        year_revenue.append((month_name, month, rev))
+
+        for currency in currencies:
+            rev[currency] = round(get_revenue(start_date, end_date, currency),
+                                  2)
+        end_date = start_date - datetime.timedelta(days=1)
+        start_date = end_date.replace(day=1)
+
+    return year_revenue
+
+@login_required
+def stats_view(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
+    user_stats = []
+    users = user_models.get_local_user_queryset().filter(is_superuser=False, is_active=True).order_by('first_name')
+    for u in users:
+        user_stats.append((u, u.person_resp_set.count()))
+
+    crossed_list = []
+    consultants = users.filter(role__exact=user_models.CONSULTANT)
+    for j in users.filter(role__exact=user_models.JURIST):
+        persons = j.person_resp_set.get_queryset().filter(state=lgc_models.FILE_STATE_ACTIVE)
+        cons_juri_list = []
+
+        for c in consultants:
+            person = persons.filter(responsible__id=c.id)
+            element = {
+                'cons': c,
+                'juri': j,
+                'count': person.count(),
+            }
+            cons_juri_list.append(element)
+        crossed_list.append(cons_juri_list)
+
+    context = {
+        'title': _('Statistics'),
+        'nb_files': lgc_models.Person.objects.count(),
+        'nb_active_files': lgc_models.Person.objects.filter(state=lgc_models.FILE_STATE_ACTIVE).count(),
+        'nb_internal_users': user_models.get_local_user_queryset().count(),
+        'nb_external_users': user_models.get_external_user_queryset().count(),
+        'nb_hr': user_models.get_hr_user_queryset().count(),
+        'user_stats': user_stats,
+        'crossed_list': crossed_list,
+        'expirations': expirations_filter_objs(request, lgc_models.Expiration.objects).count(),
+        'year_revenue': get_this_year_revenue() if request.user.billing else None,
+        'nb_processes': lgc_models.Process.objects.count(),
+    }
+    return render(request, 'lgc/statistics.html', context)
