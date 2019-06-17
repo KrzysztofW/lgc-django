@@ -54,7 +54,7 @@ function get_total($id_facture, $pdf, $file_log, $type, $frais_divers) {
 
 			if ($pdf and $type == "dil") {
 				$pdf->Cell(20, 4, '-', 0, 0, 'R');
-				$pdf->MultiCell(0, 4, utf8_decode($row_op['description']), '','L');
+				$pdf->MultiCell(0, 4, $row_op['description'], '','L');
 				$pdf->Ln(1);
 			} elseif ($pdf and $type == "deb") {
 				$pdf->Cell(60);
@@ -66,7 +66,7 @@ function get_total($id_facture, $pdf, $file_log, $type, $frais_divers) {
 				$pdf->Cell(30, 4, number_format($prix_ht_all, 2, ',', ' '), 0, 0, 'R');
 
 				$pdf->SetX($Xabs, $Yord);
-				$pdf->MultiCell(70, 4, utf8_decode($row_op['description']), '','L');
+				$pdf->MultiCell(70, 4, $row_op['description'], '','L');
 
 				$pdf->Ln(1);
 			}
