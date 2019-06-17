@@ -92,7 +92,7 @@ def home(request):
         context['nb_pending_employees'] = employees
         context['nb_pending_hrs'] = hrs
         context['nb_files'] = files
-        expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user).filter(enabled=True).order_by('end_date')
+        expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user, enabled=True).order_by('end_date')
         compare_date = (timezone.now().date() +
                         datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
         context['nb_expirations'] = len(expirations.filter(end_date__lte=compare_date))
@@ -646,8 +646,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if self.is_update:
             children_queryset = models.Child.objects.filter(person=self.object)
             if self.request.user.role in user_models.get_internal_roles():
-                expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list())
-                spouse_expiration_queryset = models.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list())
+                expiration_queryset = models.Expiration.objects.filter(person=self.object, type__in=lgc_models.get_expiration_list())
+                spouse_expiration_queryset = models.Expiration.objects.filter(person=self.object, type__in=lgc_models.get_spouse_expiration_list())
                 archive_box_queryset = lgc_models.ArchiveBox.objects.filter(person=self.object.id)
         else:
             children_queryset = models.Child.objects.none()
@@ -763,10 +763,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                           self.get_formset_objs(model.Child.objects.filter(person=self.object), show_dcem=show_dcem))]
         if self.is_expirations_diff:
             context['formsets_diff'] += [('expiration', _('Expirations'),
-                                          self.get_formset_objs(model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list())))]
+                                          self.get_formset_objs(model.Expiration.objects.filter(person=self.object, type__in=lgc_models.get_expiration_list())))]
         if self.is_spouse_expirations_diff:
             context['formsets_diff'] += [('spouse_expiration', _('Spouse Expirations'),
-                                          self.get_formset_objs(model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list())))]
+                                          self.get_formset_objs(model.Expiration.objects.filter(person=self.object, type__in=lgc_models.get_spouse_expiration_list())))]
         if self.is_archive_box_diff:
             context['formsets_diff'] += [('ab', _('Archive boxes'),
                                           self.get_formset_objs(lgc_models.ArchiveBox.objects.filter(person=self.object)))]
@@ -1004,10 +1004,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                                                model.Child.objects.filter(person=self.object))
             elif formset.id == 'expiration_id':
                 self.is_expirations_diff = self.have_objs_changed(formset,
-                                                                  model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_expiration_list()))
+                                                                  model.Expiration.objects.filter(person=self.object, type__in=lgc_models.get_expiration_list()))
             elif formset.id == 'spouse_expiration_id':
                 self.is_spouse_expirations_diff = self.have_objs_changed(formset,
-                                                                         model.Expiration.objects.filter(person=self.object).filter(type__in=lgc_models.get_spouse_expiration_list()))
+                                                                         model.Expiration.objects.filter(person=self.object, type__in=lgc_models.get_spouse_expiration_list()))
             elif formset.id == 'ab_id':
                 self.is_archive_box_diff = self.have_objs_changed(formset,
                                                                   model.ArchiveBox.objects.filter(person=self.object))
@@ -1228,7 +1228,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                                           _('Create'), None)
         return get_person_form_layout(self.request.user, form, _('Update'),
                                       self.object,
-                                      lgc_models.PersonProcess.objects.filter(person=self.object.id).filter(active=False))
+                                      lgc_models.PersonProcess.objects.filter(person=self.object.id, active=False))
 
     class Meta:
         abstract = True
@@ -1307,7 +1307,7 @@ def ajax_person_process_search_view(request, *args, **kwargs):
         return http.HttpResponseForbidden()
 
     pk = kwargs.get('pk', '')
-    objects = lgc_models.PersonProcess.objects.filter(person=pk).filter(active=False)
+    objects = lgc_models.PersonProcess.objects.filter(person=pk, active=False)
     term = request.GET.get('term', '')
     objs = objects.filter(process__name__istartswith=term)
     objs = objs[:10]
@@ -1817,7 +1817,7 @@ class PersonProcessListView(ProcessListView):
 
     def get_queryset(self, *args, **kwargs):
         pk = self.kwargs.get('pk', '')
-        object_list = lgc_models.PersonProcess.objects.filter(person=pk).filter(active=False)
+        object_list = lgc_models.PersonProcess.objects.filter(person=pk, active=False)
         if object_list == None or object_list.count() == 0:
             raise Http404
         self.ajax_search_url = reverse_lazy('lgc-person-process-search-ajax',
