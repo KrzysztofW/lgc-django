@@ -347,12 +347,12 @@ class InvoiceListView(BillingTest, ListView):
             objs = objs.filter(state=lgc_models.INVOICE_STATE_PAID)
             if start_date and end_date:
                 do_range_total = True
-                objs = objs.filter(modification_date__range=[common_utils.parse_date(start_date),
+                objs = objs.filter(last_modified_date__range=[common_utils.parse_date(start_date),
                                                         common_utils.parse_date(end_date)])
             elif start_date:
-                objs = objs.filter(modification_date__gte=common_utils.parse_date(start_date))
+                objs = objs.filter(last_modified_date__gte=common_utils.parse_date(start_date))
             elif end_date:
-                objs = objs.filter(modification_date__lte=common_utils.parse_date(end_date))
+                objs = objs.filter(last_modified_date__lte=common_utils.parse_date(end_date))
         if do_range_total:
             if len(objs) > 4000:
                 messages.error(self.request,
@@ -679,6 +679,7 @@ class InvoiceCommonView(BillingTest):
 
         person, person_process = self.get_person_and_process()
         form.instance.person = person
+        form.instance.last_modified_date = timezone.now()
 
         if self.request.GET.get('quote') == '1':
             form.instance.type = lgc_models.QUOTATION

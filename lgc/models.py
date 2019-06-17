@@ -915,6 +915,7 @@ class Invoice(AbstractClient):
     modification_date = models.DateField(_('Modification Date'), null=True)
     modified_by = models.ForeignKey(User, verbose_name=_('Modified by'),
                                     on_delete=models.SET_NULL, null=True)
+    last_modified_date = models.DateField(auto_now_add=True)
     payment_option = models.CharField(max_length=2, default='TR', blank=True,
                                       choices=INVOICE_PAYMENT_CHOICES)
     currency = models.CharField(_('Currency'), max_length=3, default='EUR',
