@@ -927,8 +927,7 @@ class Invoice(AbstractClient):
                            blank=True)
 
     """Autorisations"""
-    po = models.CharField('PO', max_length=50, validators=[validators.alphanum],
-                          blank=True)
+    po = models.CharField('PO', max_length=50, blank=True)
     po_date = models.DateField(_('Date'), null=True, blank=True)
     po_first_name = models.CharField(_('First name'), max_length=50,
                                      validators=[validators.alpha], blank=True)
