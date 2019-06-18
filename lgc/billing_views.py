@@ -1300,7 +1300,7 @@ def billing_csv_view(request):
             elif type(val).__name__ == 'str':
                 val = '"' + val + '"'
             else:
-                val = str(val)
+                val = str(val).replace('.', ',')
             csv += val + ';'
         csv += '\n'
 
