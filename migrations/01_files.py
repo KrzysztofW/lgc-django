@@ -653,4 +653,24 @@ while row is not None:
         else:
             print("{}".format(error))
             exit()
+
+    # import VLS-TS expiration
+    if row[35] == None:
+        # end date cannot be null
+        row = cursor4.fetchone()
+        continue
+    sql_insert_query = """INSERT INTO `lgc_expiration`
+    (`type`, `start_date`, `end_date`, `enabled`, `person_id`)
+    values (%s, %s, %s, %s, %s)"""
+    insert_tuple = ('VLS-TS', row[34], row[35], not row[36], row[0])
+    try:
+        result  = cursor5.execute(sql_insert_query, insert_tuple)
+        lgc_v5.commit()
+    except mysql.connector.Error as error :
+        #lgc_v5.rollback() #rollback if any exception occured
+        #print(sql_insert_query%insert_tuple)
+        print('Failed inserting VLS-TS record into expiration table, id:', row[0])
+        print("{}".format(error))
+        exit()
+
     row = cursor4.fetchone()
