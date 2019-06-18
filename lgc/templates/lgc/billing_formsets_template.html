@@ -140,11 +140,11 @@
 <script>
 
 function client_id_check() {
-  client_id = document.getElementById('id_client')
-  if (!client_id || typeof client_id == 'undefined')
+  client_info = document.getElementById('client_info')
+  if (!client_info || typeof client_info == 'undefined')
     return false;
 
-  if (client_id.value == '') {
+  if (client_info.innerHTML == '') {
     $.notify("{% trans 'Client not set' %}",
 	     {
 	       className: 'error',

@@ -360,7 +360,8 @@ class InvoiceCreateForm(forms.ModelForm):
     version = forms.IntegerField(min_value=0, widget=forms.HiddenInput(),
                                  initial=0)
     client = forms.ModelChoiceField(queryset=lgc_models.Client.objects,
-                                    widget=forms.HiddenInput())
+                                    widget=forms.HiddenInput(),
+                                    required=False)
     client_update = forms.BooleanField(required=False, widget=forms.HiddenInput(),
                                        initial=False)
     various_expenses = forms.BooleanField(label=_('Include Various Expenses'),
