@@ -1,4 +1,7 @@
-{% load i18n %}{% load static %}{% get_current_language as LANGUAGE_CODE %}<!DOCTYPE html>
+{% load i18n %}{% load static %}{% get_current_language as LANGUAGE_CODE %}
+{% load custom_tags %}
+{% is_local_user request.user as is_local %}
+<!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
   {% include "lgc/header.html" %}
   <body onload="get_lgc_links();">
@@ -15,7 +18,7 @@
             <span class="navbar-toggler-icon"></span>
           </button>
         </div>
-	{% if request.user.role == 'JU' or request.user.role == 'CO' %}
+	{% if is_local %}
 	{% include 'lgc/dropdown_menu_complete.html' %}
 	{% else %}
 	{% include 'lgc/dropdown_menu_limited.html' %}
@@ -26,7 +29,7 @@
       	<img id="kw-logo" align="right" src="{% static 'lgc/images/kw-logo-right.png' %}">
       </div>
       <div class="d-md-flex">
-	{% if request.user.role == 'JU' or request.user.role == 'CO' %}
+	{% if is_local %}
 	{% include 'lgc/menu_complete.html' %}
 	{% elif request.user.role == 'EM' %}
 	{% include 'employee/menu.html' %}

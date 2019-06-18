@@ -10,60 +10,56 @@ LANGUAGE_CHOICES = (
     (FR, _('French')),
 )
 
-JURIST    = 'JU'
-CONSULTANT = 'CO'
-HR_ADMIN   = 'HA'
-HR         = 'HR'
-EMPLOYEE   = 'EM'
+ROLE_NONE      = ''
+ROLE_JURIST    = 'JU'
+ROLE_CONSULTANT = 'CO'
+ROLE_HR_ADMIN   = 'HA'
+ROLE_HR         = 'HR'
+ROLE_EMPLOYEE   = 'EM'
 
 EXTERNAL_ROLE_CHOICES = (
-    (HR_ADMIN,   _('HR Admin')),
-    (HR,         _('HR')),
-    (EMPLOYEE,   _('Employee')),
+    (ROLE_HR_ADMIN,   _('HR Admin')),
+    (ROLE_HR,         _('HR')),
+    (ROLE_EMPLOYEE,   _('Employee')),
 )
 
 INTERNAL_ROLE_CHOICES = (
-    (JURIST,     _('Jurist')),
-    (CONSULTANT, _('Consultant')),
+    (ROLE_NONE,         '------'),
+    (ROLE_JURIST,     _('Jurist')),
+    (ROLE_CONSULTANT, _('Consultant')),
 )
 
-ALL_ROLE_CHOICES = (
-    (JURIST,     _('Jurist')),
-    (CONSULTANT, _('Consultant')),
-    (HR_ADMIN,   _('HR Admin')),
-    (HR,         _('HR')),
-    (EMPLOYEE,   _('Employee')),
-)
+ALL_ROLE_CHOICES = INTERNAL_ROLE_CHOICES + EXTERNAL_ROLE_CHOICES
 
 def get_internal_roles():
-    roles = []
-    for r in INTERNAL_ROLE_CHOICES:
-        roles.append(r[0])
-    return roles
+    return [ROLE_NONE, ROLE_JURIST, ROLE_CONSULTANT]
 
 def get_external_roles():
-    roles = []
-    for r in EXTERNAL_ROLE_CHOICES:
-        roles.append(r[0])
-    return roles
+    return [ROLE_HR_ADMIN, ROLE_HR, ROLE_EMPLOYEE]
 
 def get_hr_roles():
-    return [HR, HR_ADMIN]
+    return [ROLE_HR, ROLE_HR_ADMIN]
 
 def get_jurist_queryset():
-    return User.objects.filter(role__exact=JURIST)
+    return User.objects.filter(role__exact=ROLE_JURIST)
 
 def get_consultant_queryset():
-    return User.objects.filter(role__exact=CONSULTANT)
+    return User.objects.filter(role__exact=ROLE_CONSULTANT)
 
 def get_local_user_queryset():
     return get_jurist_queryset()|get_consultant_queryset()
 
+def get_all_local_user_queryset():
+    return get_jurist_queryset()|get_consultant_queryset()|User.objects.filter(role__exact=ROLE_NONE)
+
 def get_employee_user_queryset():
-    return User.objects.filter(role__exact=EMPLOYEE)
+    return User.objects.filter(role__exact=ROLE_EMPLOYEE)
 
 def get_hr_user_queryset():
-    return User.objects.filter(role__exact=HR)|User.objects.filter(role__exact=HR_ADMIN)
+    return User.objects.filter(role__exact=ROLE_HR)|User.objects.filter(role__exact=ROLE_HR_ADMIN)
+
+def get_external_user_queryset():
+    return get_employee_user_queryset()|get_hr_user_queryset()
 
 class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
@@ -125,7 +121,7 @@ class User(AbstractUser):
     last_name = models.CharField(_('Last name'), max_length=50, validators=[validators.alpha])
 
     role = models.CharField(max_length=2, choices=ALL_ROLE_CHOICES,
-                            default=JURIST)
+                            default=ROLE_JURIST, blank=True)
     billing = models.BooleanField(default=False)
     objects = UserManager()
     token = models.CharField(max_length=64, default="", blank=True)

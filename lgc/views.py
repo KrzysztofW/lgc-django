@@ -79,7 +79,7 @@ def home(request):
                    'last_name':request.user.last_name}),
     }
 
-    if request.user.role == user_models.EMPLOYEE:
+    if request.user.role == user_models.ROLE_EMPLOYEE:
         return render(request, 'employee/home.html', context)
 
     if request.user.role in user_models.get_hr_roles():
@@ -112,7 +112,7 @@ class UserTest(UserPassesTestMixin):
 
         self.object = self.get_object()
         """ Employee check """
-        if (self.request.user.role == user_models.EMPLOYEE and
+        if (self.request.user.role == user_models.ROLE_EMPLOYEE and
             self.object.user == self.request.user):
             return True
 
@@ -154,7 +154,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
                                     ('birth_date', _('Birth Date')),
                                     ('creation_date', _('Created'))]
 
-        if self.request.user.role == user_models.CONSULTANT:
+        if self.request.user.role == user_models.ROLE_CONSULTANT:
             context['create_url'] = reverse_lazy('lgc-file-create')
 
         p = pagination(self.request, context, reverse_lazy('lgc-files'))
@@ -2371,11 +2371,7 @@ def ajax_file_search_view(request):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
 
-    if request.user.role == user_models.JURIST:
-        objs = lgc_models.Person.objects.filter(responsible=request.user)
-    else:
-        objs = lgc_models.Person.objects
-
+    objs = lgc_models.Person.objects
     all_objs = []
     term = request.GET.get('term', '')
 
@@ -2569,8 +2565,8 @@ def stats_view(request):
         user_stats.append((u, u.person_resp_set.count()))
 
     crossed_list = []
-    consultants = users.filter(role__exact=user_models.CONSULTANT)
-    for j in users.filter(role__exact=user_models.JURIST):
+    consultants = users.filter(role__exact=user_models.ROLE_CONSULTANT)
+    for j in users.filter(role__exact=user_models.ROLE_JURIST):
         persons = j.person_resp_set.get_queryset().filter(state=lgc_models.FILE_STATE_ACTIVE)
         cons_juri_list = []
 
@@ -2588,7 +2584,7 @@ def stats_view(request):
         'title': _('Statistics'),
         'nb_files': lgc_models.Person.objects.count(),
         'nb_active_files': lgc_models.Person.objects.filter(state=lgc_models.FILE_STATE_ACTIVE).count(),
-        'nb_internal_users': user_models.get_local_user_queryset().count(),
+        'nb_internal_users': user_models.get_all_local_user_queryset().count(),
         'nb_external_users': user_models.get_external_user_queryset().count(),
         'nb_hr': user_models.get_hr_user_queryset().count(),
         'user_stats': user_stats,

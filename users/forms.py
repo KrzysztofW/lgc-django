@@ -6,14 +6,14 @@ from django.utils.translation import ugettext as _
 User = get_user_model()
 
 class UserCreateForm(UserCreationForm):
-    role = forms.ChoiceField(choices = user_models.INTERNAL_ROLE_CHOICES)
+    role = forms.ChoiceField(choices=user_models.INTERNAL_ROLE_CHOICES, required=False)
     class Meta(UserCreationForm):
         model = User
         fields = ['email', 'first_name', 'last_name', 'role', 'billing',
                   'language', 'password1', 'password2']
 
 class UserUpdateForm(UserChangeForm):
-    role = forms.ChoiceField(choices = user_models.INTERNAL_ROLE_CHOICES)
+    role = forms.ChoiceField(choices=user_models.INTERNAL_ROLE_CHOICES, required=False)
     password = None
     class Meta:
         model = User

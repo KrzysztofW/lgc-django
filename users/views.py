@@ -43,7 +43,7 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.GET.get('paginate', '10')
 
     def get_queryset(self):
-        users = user_models.get_local_user_queryset()
+        users = user_models.get_all_local_user_queryset()
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
         if term == '':
@@ -360,7 +360,7 @@ def handle_auth_token(request):
 @login_required
 @must_be_staff
 def ajax_local_user_seach_view(request):
-    users = user_models.get_local_user_queryset()
+    users = user_models.get_all_local_user_queryset()
     return __ajax_view(request, users)
 
 @login_required

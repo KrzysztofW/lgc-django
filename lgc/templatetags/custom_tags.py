@@ -161,6 +161,14 @@ def generate_table(header_values, object_list, order_by, order_params, url):
     res += '</table>'
     return mark_safe(res)
 
+@register.simple_tag
+def is_local_user(user):
+    return user.role in user_models.get_internal_roles()
+
+@register.simple_tag
+def is_external_user(user):
+    return user.role in user_models.get_external_roles()
+
 @register.filter
 def getdefattr (obj, args):
     """ Try to get an attribute from an object.
