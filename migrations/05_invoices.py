@@ -225,7 +225,27 @@ while row is not None:
     except mysql.connector.Error as error :
         #lgc_v5.rollback() #rollback if any exception occured
         #print(sql_insert_query%insert_tuple)
-        print('Failed inserting record into invoice table, id:', row[0])
-        print("{}".format(error))
-        exit()
+        if error.errno == 1452:
+            print('the invoice:', row[0], 'has no client set')
+            # set client to None
+            insert_tuple = (row[6], row[5], row[10], row[7], '',
+                            '', siret, row[9], row[11], row[12],
+                            row[13], country, last_modified_date,
+                            0, row[0], 'I', row[1], row[2],
+                            payment_option, row[22], em(row[16]), row[17], row[19],
+                            row[18], row[20], row[21], 'L' if row[24] == 0 else 'F', row[23].upper(),
+                            row[30].decode('windows-1252').encode('utf8'), row[28], state, row[26], row_p[2] + ' ' + row_p[1],
+                            0, #total,
+                            None, id_personne, em(row[27])
+            )
+            try:
+                result = cursor5.execute(sql_insert_query, insert_tuple)
+                lgc_v5.commit()
+            except:
+                print("{}".format(error))
+                exit()
+        else:
+            print('Failed inserting record into invoice table, id:', row[0])
+            print("{}".format(error))
+            exit()
     row = cursor4.fetchone()

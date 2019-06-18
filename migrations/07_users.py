@@ -70,8 +70,10 @@ while row is not None:
 
     if row[11] == 'cons':
         role = 'CO'
-    else:
+    elif row[11] == 'assi':
         role = 'JU'
+    else:
+        role = ''
     if row[4] == 'on':
         is_staff = 1
     else:

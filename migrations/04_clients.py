@@ -19,6 +19,12 @@ cursor4.execute("SELECT * FROM client")
 row = cursor4.fetchone()
 
 while row is not None:
+    # skip duplicates:
+    id = row[0]
+    if id == 59 or id == 156 or id == 281 or id == 426 or id == 491 or id == 525 or id == 526 or id == 324 or id == 494 or id == 652 or id == 798 or id == 746 or id == 570 or id == 655 or id == 860 or id == 409 or id == 138 or id == 866 or id == 753 or id == 912 or id == 122 or id == 998:
+        row = cursor4.fetchone()
+        continue
+
     if row[14]:
         country = row[14].lower()
         for c in country_mapping:
