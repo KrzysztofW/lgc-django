@@ -142,12 +142,14 @@
 	  <div id="current-year-revenue" ></div>
 	</div>
       </div>
-      <div class="form-group col-md-6">
+      <div class="form-group col-md-2">&nbsp;</div>
+      <div class="form-group col-md-2">
 	<div id="div_id_last_name" class="form-group text-center">
 	  <label class="label label-success">{% trans 'Last month revenue' %}</label>
 	  <div id="last-month-donut" ></div>
 	</div>
       </div>
+      <div class="form-group col-md-2">&nbsp;</div>
       <div>
 	<input type="hidden" name="version" value="0" id="id_version">
       </div>
@@ -173,9 +175,9 @@
 	<tr>
 	  <td class="lgc_pull-right lgc_no-wrap">{{ u.0 }}</td>
 	  <td class="lgc_pull-right lgc_no-wrap">{{ u.1 }}</td>
-	  <td class="lgc_pull-right lgc_no-wrap">{{ u.1 }}</td>
-	  <td class="lgc_pull-right lgc_no-wrap">{{ u.1 }}</td>
-	  <td class="lgc_pull-right lgc_no-wrap">{{ u.1 }}</td>
+	  <td class="lgc_pull-right lgc_no-wrap">{{ u.2 }}</td>
+	  <td class="lgc_pull-right lgc_no-wrap">{{ u.3 }}</td>
+	  <td class="lgc_pull-right lgc_no-wrap">{{ u.4 }}</td>
 	</tr>
 	{% endfor %}
       </tbody>

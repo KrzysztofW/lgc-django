@@ -2532,7 +2532,7 @@ def get_revenue(start_date, end_date, currency):
     for invoice in invoices:
         month_total += float(invoice.total)
 
-    return month_total
+    return round(month_total, 2)
 
 def get_this_year_revenue():
     end_date = datetime.date.today()
@@ -2547,8 +2547,8 @@ def get_this_year_revenue():
         year_revenue.append((month_name, month, rev))
 
         for currency in currencies:
-            rev[currency] = round(get_revenue(start_date, end_date, currency),
-                                  2)
+            rev[currency] = get_revenue(start_date, end_date, currency)
+
         end_date = start_date - datetime.timedelta(days=1)
         start_date = end_date.replace(day=1)
 
@@ -2561,8 +2561,16 @@ def stats_view(request):
 
     user_stats = []
     users = user_models.get_local_user_queryset().filter(is_superuser=False, is_active=True).order_by('first_name')
+    compare_date = (timezone.now().date() +
+                    datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
     for u in users:
-        user_stats.append((u, u.person_resp_set.count()))
+        active_files = u.person_resp_set.filter(state=lgc_models.FILE_STATE_ACTIVE).count()
+        expirations = lgc_models.Expiration.objects.filter(enabled=True, person__responsible=u, end_date__lte=compare_date).exclude(end_date__lte=timezone.now().date())
+        wp = (expirations.filter(type=lgc_models.EXPIRATION_TYPE_WP)|
+              expirations.filter(type=lgc_models.EXPIRATION_TYPE_SWP)).count()
+        rp = expirations.exclude(type=lgc_models.EXPIRATION_TYPE_WP).exclude(type=lgc_models.EXPIRATION_TYPE_SWP).count()
+
+        user_stats.append((u, u.person_resp_set.count(), active_files, wp, rp))
 
     crossed_list = []
     consultants = users.filter(role__exact=user_models.ROLE_CONSULTANT)
