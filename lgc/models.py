@@ -1158,8 +1158,8 @@ class Invoice(AbstractClient):
         ret = self.total_items + self.total_disbursements
         ret = round(ret, 2)
         if ret != self.total:
-            log.error('invalid total: stored:%f, computed:%f', self.total,
-                      ret)
+            log.error('invalid total: stored:%f, computed:%f, id:%d',
+                      self.total, ret, self.id)
         return ret
 
     @property
