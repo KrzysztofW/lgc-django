@@ -173,7 +173,7 @@ while row is not None:
         client_id = 494
     elif row[4] == 789:
         client_id = 741
-    elif row[4] == 711 or row[4] == 712 or 746:
+    elif row[4] == 711 or row[4] == 712 or row[4] == 746:
         client_id = None
     elif row[4] == 281:
         client_id = 271
