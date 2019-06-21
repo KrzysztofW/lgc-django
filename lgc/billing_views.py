@@ -3,6 +3,7 @@ from django.db import transaction
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory
 from common.utils import (pagination, lgc_send_email, must_be_staff,
                           set_bold_search_attrs, get_template)
+from common.session_cache import session_cache_add, session_cache_get
 import common.utils as common_utils
 from django import http
 from django.contrib import messages
@@ -355,6 +356,15 @@ class InvoiceListView(BillingTest, ListView):
             elif end_date:
                 objs = objs.filter(last_modified_date__lte=common_utils.parse_date(end_date))
         if do_range_total:
+            key = start_date + end_date
+            val = session_cache_get(self.request.session, key)
+            if val:
+                self.eur = val['eur']
+                self.usd = val['usd']
+                self.cad = val['cad']
+                self.gbp = val['gbp']
+                return objs
+
             if len(objs) > 4000:
                 messages.error(self.request,
                                _('The number of selected invoices is greater than 4000.'))
@@ -384,6 +394,13 @@ class InvoiceListView(BillingTest, ListView):
                     if self.invoice_type == lgc_models.INVOICE:
                         self.gbp['disbursements'] += o.get_total_disbursements
                         self.gbp['disbursements_vat'] += o.get_total_disbursements_vat
+            cache_val = {
+                'eur': self.eur.copy(),
+                'usd': self.usd.copy(),
+                'cad': self.cad.copy(),
+                'gbp': self.gbp.copy(),
+            }
+            session_cache_add(self.request.session, key, cache_val, 1)
 
         return objs
 

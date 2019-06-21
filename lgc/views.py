@@ -4,6 +4,7 @@ from django.forms import formset_factory, modelformset_factory
 from common.utils import (pagination, lgc_send_email, must_be_staff,
                           set_bold_search_attrs, get_template)
 import common.utils as utils
+from common.session_cache import session_cache_add, session_cache_get
 from django import http
 from django.contrib import messages
 from django.shortcuts import render
@@ -2573,6 +2574,11 @@ def stats_view(request):
 
         user_stats.append((u, u.person_resp_set.count(), active_files, wp, rp))
 
+    context = session_cache_get(request.session, 'stats')
+    if context:
+        context['user_stats'] = user_stats
+        return render(request, 'lgc/statistics.html', context)
+
     crossed_list = []
     consultants = users.filter(role__exact=user_models.ROLE_CONSULTANT)
     for j in users.filter(role__exact=user_models.ROLE_JURIST):
@@ -2581,9 +2587,17 @@ def stats_view(request):
 
         for c in consultants:
             person = persons.filter(responsible__id=c.id)
+            cons = {
+                'first_name': c.first_name,
+                'last_name': c.last_name,
+            }
+            juri = {
+                'first_name': j.first_name,
+                'last_name': j.last_name,
+            }
             element = {
-                'cons': c,
-                'juri': j,
+                'cons': cons,
+                'juri': juri,
                 'count': person.count(),
             }
             cons_juri_list.append(element)
@@ -2596,10 +2610,15 @@ def stats_view(request):
         'nb_internal_users': user_models.get_all_local_user_queryset().count(),
         'nb_external_users': user_models.get_external_user_queryset().count(),
         'nb_hr': user_models.get_hr_user_queryset().count(),
-        'user_stats': user_stats,
         'crossed_list': crossed_list,
         'expirations': expirations_filter_objs(request, lgc_models.Expiration.objects).count(),
         'year_revenue': get_this_year_revenue() if request.user.billing else None,
         'nb_processes': lgc_models.Process.objects.count(),
     }
+    session_cache_add(request.session, 'stats', context, 30)
+
+    """Session handling is asynchronious."""
+    context = context.copy()
+    context['user_stats'] = user_stats
+
     return render(request, 'lgc/statistics.html', context)
