@@ -477,7 +477,7 @@ def check_dates(start, end, what):
 class PersonInfo(models.Model):
     is_private = models.BooleanField(_('Private File'), default=False)
     version = models.PositiveIntegerField(default=0)
-    creation_date = models.DateTimeField(_('Creation Date'), auto_now_add=True)
+    creation_date = models.DateField(_('Creation Date'), auto_now_add=True)
     first_name = models.CharField(_('First name'), max_length=50, validators=[validators.alpha])
     last_name = models.CharField(_('Last name'), max_length=50, validators=[validators.alpha])
     email = models.EmailField('Email', max_length=60, null=True)
@@ -739,8 +739,7 @@ class ProcessStage(models.Model):
     def __str__(self):
         if translation.get_language() == 'fr':
             return self.name_fr
-        else:
-            return self.name_en
+        return self.name_en
 
 class Process(models.Model):
     name_fr = models.CharField(_('French Name'), max_length=50, unique=True)
