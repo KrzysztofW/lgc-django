@@ -397,7 +397,7 @@ INVOICE_SEARCH_CSV_CHOICES = (
     ('invoice_date', 'Date'),
     ('modification_date', _('Modification Date')),
     ('validation_date', _('Validation Date')),
-    ('client', _('Client ID')),
+    ('client_id', _('Client ID')),
     ('last_name', _('Last Name')),
     ('email', 'Email'),
     ('siret', 'SIRET'),
@@ -430,6 +430,8 @@ INVOICE_SEARCH_CSV_CHOICES = (
      _('Disbursements No Vat No Various Expenses')),
     ('get_total_disbursements_plus_vat_no_various_expenses',
      _('Disbursements (+VAT) No Various Expenses')),
+    ('get_total_items', _('Items No VAT')),
+    ('get_total_items_plus_vat', _('Items (+VAT)')),
     ('get_total', _('Total No VAT')),
     ('get_vat', _('VAT')),
     ('get_total_plus_vat', _('Total (+VAT)')),
@@ -505,7 +507,7 @@ class InvoiceUpdateForm(InvoiceCreateForm):
                               choices=lgc_models.INVOICE_STATE_CHOICES,
                               label=_('State'),
                               widget=forms.Select(attrs={'class':'form-control', 'onchange':'invoice_validated_state_alert(this, "'+str(_('If this state is set, the invoice will not be editable anymore'))+'");'}))
-    already_paid = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
+    already_paid = forms.DecimalField(required=False, min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
     total = forms.DecimalField(initial=0, max_digits=8, decimal_places=2,
                                widget=forms.HiddenInput())
     class Meta:

@@ -5,7 +5,7 @@
 <form action="" method="post">{% csrf_token %}
   <p>{% trans "Are you sure you want to delete" %}
     {% if lang %}
-    {% if lang == 'en' %}
+    {% if lang == 'fr' %}
     "{{ object.name_fr }}"
     {% else %}
     "{{ object.name_en }}"

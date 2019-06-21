@@ -800,7 +800,7 @@ class PersonProcess(models.Model):
         if length:
             if length > 1:
                 log.error('process %d has more than one invoice', self.id)
-            self.invoice_id = invoices[0]
+            self.invoice = invoices[0]
             return invoices[0]
         return None
 
@@ -1029,6 +1029,12 @@ class Invoice(AbstractClient):
         if self.person.home_entity:
             return self.person.home_entity
         return self.person.host_entity
+
+    @property
+    def get_client_id(self):
+        if self.client:
+            return self.client.id
+        return None
 
     @property
     def client_info(self):
