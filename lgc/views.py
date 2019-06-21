@@ -1510,9 +1510,22 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = (_("%(obj_name)s %(id)s successfully deleted."%
-                             {'obj_name': self.obj_name,
-                              'id': self.object.id}))
+        if self.object.process_set.count():
+            if self.model == lgc_models.ProcessStage:
+                url = 'lgc-process-stage'
+                msg = _('This stage cannot be deleted as it is currently being used.')
+            else:
+                url = 'lgc-process'
+                msg = _('This process cannot be deleted as it is currently being used.')
+            messages.error(self.request, msg)
+            return redirect(url, self.object.id)
+
+        if translation.get_language() == 'fr':
+            name = self.object.name_fr
+        else:
+            name = self.object.name_en
+        success_message = (_("%(obj_name)s `%(name)s' successfully deleted."%
+                           {'obj_name': self.obj_name, 'name': name }))
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
