@@ -316,8 +316,8 @@ class InvoiceListView(BillingTest, ListView):
         state = self.request.GET.get('state')
         currency = self.request.GET.get('currency')
         responsible = self.request.GET.get('responsible')
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
+        start_date = self.request.GET.get('sdate')
+        end_date = self.request.GET.get('edate')
         dates = self.request.GET.get('dates')
         total = self.request.GET.get('total')
         do_range_total = False

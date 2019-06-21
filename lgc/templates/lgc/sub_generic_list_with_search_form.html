@@ -48,8 +48,8 @@
     })
 
     function submit_csv() {
-	var start_date_input = document.getElementById('id_start_date');
-	var end_date_input = document.getElementById('id_end_date');
+	var start_date_input = document.getElementById('id_sdate');
+	var end_date_input = document.getElementById('id_edate');
 	var cols_input = document.getElementById('id_csv');
 	var url = "{% url 'lgc-billing-csv' %}?";
 

@@ -464,8 +464,8 @@ class InvoiceSearchForm(forms.Form):
                                   'onchange':'form.submit();',
                               }),
                               initial=INVOICE_SEARCH_DATE_INVOICE)
-    start_date = forms.CharField(required=False, label=_('From Date'))
-    end_date = forms.CharField(required=False, label=_('To Date'))
+    sdate = forms.CharField(required=False, label=_('From Date'))
+    edate = forms.CharField(required=False, label=_('To Date'))
     state = forms.ChoiceField(required=False,
                               choices=(('', '---------'),) + lgc_models.INVOICE_STATE_CHOICES,
                               label=_('State'),
@@ -496,8 +496,8 @@ class InvoiceSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        datepicker_set_widget_attrs(self, 'start_date')
-        datepicker_set_widget_attrs(self, 'end_date')
+        datepicker_set_widget_attrs(self, 'sdate')
+        datepicker_set_widget_attrs(self, 'edate')
 
 class InvoiceUpdateForm(InvoiceCreateForm):
     number = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
