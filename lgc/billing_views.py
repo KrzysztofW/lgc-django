@@ -452,6 +452,19 @@ class InvoiceListView(BillingTest, ListView):
                 ('total', _('Total (+VAT)')),
             ]
 
+        context['exclude_order_by'] = [
+            'get_responsibles', 'person_first_name', 'person_last_name',
+            'person_home_entity', 'person_host_entity', 'get_process',
+            'entity_info', 'get_client_id', 'client_info', 'person_info',
+            'validated', 'to_be_done', 'get_various_expenses',
+            'get_various_expenses_vat', 'get_various_expenses_plus_vat',
+            'remaining_balance', 'get_total_items', 'get_total_items_vat',
+            'get_total_items_plus_vat', 'get_total_disbursements',
+            'get_total_disbursements_vat', 'get_total_disbursements_plus_vat',
+            'get_total_disbursements_no_various_expenses',
+            'get_total_disbursements_plus_vat_no_various_expenses',
+            'get_total_plus_vat', 'get_total', 'get_vat', 'validation_date',
+        ]
         if self.invoice_type != lgc_models.QUOTATION:
             context['totals'] = []
             if self.eur['items']:

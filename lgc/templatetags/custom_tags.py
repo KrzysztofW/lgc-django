@@ -100,26 +100,29 @@ def normalize_value(obj, key, val):
     return val
 
 @register.simple_tag
-def get_table_th(label, value, order_by, order_params):
+def get_table_th(label, value, order_by, order_params, exclude_list=None):
     label = str(label)
     res = '<th scope="col" class="lgc_no-wrap">' + label
 
-    if order_by == value:
-        res += '<a href="?' + order_params + '&order_by=-' + value + '"><i class="fa fa-fw fa-sort-up"></i></a>'
-    elif order_by == '-' + value:
-        res += '<a href="?' + order_params + '&order_by=' + value + '"><i class="fa fa-fw fa-sort-down"></i></a>'
-    else:
-        res += '<a href="?' + order_params +'&order_by=' + value + '"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>'
+    if exclude_list == None or value not in exclude_list:
+        if order_by == value:
+            res += '<a href="?' + order_params + '&order_by=-' + value + '"><i class="fa fa-fw fa-sort-up"></i></a>'
+        elif order_by == '-' + value:
+            res += '<a href="?' + order_params + '&order_by=' + value + '"><i class="fa fa-fw fa-sort-down"></i></a>'
+        else:
+            res += '<a href="?' + order_params +'&order_by=' + value + '"><i class="fa fa-fw fa-sort lgc-sorting-muted"></i></a>'
     res += '</th>'
     return mark_safe(res)
 
 @register.simple_tag
-def generate_table(header_values, object_list, order_by, order_params, url):
+def generate_table(header_values, object_list, order_by, order_params, url,
+                   exclude_order_by_list=None):
     res = '<table class="table table-striped table-bordered table-hover">'
     res += '<thead>'
     res += '<tr>'
     for th in header_values:
-        res += get_table_th(th[1], th[0], order_by, order_params)
+        res += get_table_th(th[1], th[0], order_by, order_params,
+                            exclude_order_by_list)
     res += '</tr>'
 
     res += '</thead>'
