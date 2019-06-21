@@ -2433,15 +2433,18 @@ def paginate_expirations(request, object_list):
     return paginator.get_page(page)
 
 def expirations_filter_objs(request, objs):
-    expires = request.GET.get('expires', None)
-    expiry_type = request.GET.get('expiry_type', None)
-    show_disabled = request.GET.get('show_disabled', None)
-    dont_show_expired = request.GET.get('dont_show_expired', None)
+    expires = request.GET.get('expires')
+    expiry_type = request.GET.get('expiry_type')
+    show_disabled = request.GET.get('show_disabled')
+    dont_show_expired = request.GET.get('dont_show_expired')
+    user = request.GET.get('user')
 
     """ initial value of 'expires' must be set """
-    if expires == None:
+    if not expires:
         request.GET = request.GET.copy()
         request.GET['expires'] = settings.EXPIRATIONS_NB_DAYS
+        request.GET['user'] = request.user.id
+        objs = objs.filter(person__responsible=request.user)
 
     try:
         delta = datetime.timedelta(days=int(expires))
@@ -2449,6 +2452,12 @@ def expirations_filter_objs(request, objs):
         delta = datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS)
     compare_date = timezone.now().date() + delta
     objs = objs.filter(end_date__lte=compare_date)
+
+    if user:
+        user = User.objects.filter(id=user)
+        if len(user) != 1:
+            raise Http404
+        objs = objs.filter(person__responsible__in=user)
 
     if expiry_type:
         objs = objs.filter(type=expiry_type)
@@ -2464,6 +2473,7 @@ def get_expirations_form(request):
     else:
         form = lgc_forms.ExpirationSearchForm()
         form.fields['expires'].initial = settings.EXPIRATIONS_NB_DAYS
+        form.fields['user'].initial = request.user
     form.helper = FormHelper()
     form.helper.form_method = 'get'
     form.helper.layout = Layout(
@@ -2483,7 +2493,8 @@ def __expirations(request, form, objs):
         'title': 'Expirations',
         'search_form': form,
     }
-    context = pagination(request, context, reverse_lazy('lgc-expirations'), 'end_date')
+    context = pagination(request, context, reverse_lazy('lgc-expirations'),
+                         'end_date')
 
     if objs:
         objs = expirations_filter_objs(request, objs)
@@ -2511,20 +2522,14 @@ def expirations(request):
             log.info('fixed detached child %d expiration', obj.id)
             obj.delete()
 
-    user = request.GET.get('user', None)
-    if user:
-        user = User.objects.filter(id=user)
-        if len(user) != 1:
-            raise Http404
-        objs = objs.filter(person__responsible__in=user)
-
     return __expirations(request, form, objs)
 
 def get_revenue(start_date, end_date, currency):
     start_date = start_date.strftime('%Y-%m-%d')
     end_date = end_date.strftime('%Y-%m-%d')
-
-    invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_PAID, currency=currency, last_modified_date__range=[start_date, end_date])
+    invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_PAID,
+                                                 currency=currency,
+                                                 last_modified_date__range=[start_date, end_date])
     month_total = 0.
 
     for invoice in invoices:
