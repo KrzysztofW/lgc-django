@@ -790,8 +790,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             context['docs'] = DocumentFormSet(prefix='docs', queryset=lgc_models.Document.objects.filter(person=obj))
             context['process'] = lgc_models.PersonProcess.objects.filter(person=obj)
             if self.request.user.role in user_models.get_internal_roles():
-                pending_invoices = self.object.invoice_set.filter(state=lgc_models.INVOICE_STATE_PENDING)|self.object.invoice_set.filter(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
-                closed_invoices = self.object.invoice_set.exclude(state=lgc_models.INVOICE_STATE_PENDING).exclude(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
+                invoices = self.object.invoice_set.filter(type=lgc_models.INVOICE)
+                pending_invoices = invoices.filter(state=lgc_models.INVOICE_STATE_PENDING)|invoices.filter(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
+                closed_invoices = invoices.exclude(state=lgc_models.INVOICE_STATE_PENDING).exclude(state=lgc_models.INVOICE_STATE_TOBEDONE).all()
                 context['invoice_set'] = [
                     (pending_invoices, _('Pending Invoices'), 'pending_id'),
                     (closed_invoices, _('Closed Invoices'), 'closed_id')

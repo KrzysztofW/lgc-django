@@ -7,11 +7,20 @@ $note_honoraires_et_frais['EN'] = 'Invoice for the legal services of Office, Esq
 $devis['FR'] = 'Devis';
 $devis['EN'] = 'Quotation for the legal services of Office, Esq.';
 
+$avoir['FR'] = 'Avoir';
+$avoir['EN'] = 'Credit Note for the legal services of Office, Esq.';
+
 $autorisation['FR'] = 'Autorisation';
 $autorisation['EN'] = 'Attention';
 
 $facture_no['FR'] = 'Facture n°';
 $facture_no['EN'] = 'Invoice number';
+
+$devis_no['FR'] = 'Devis n°';
+$devis_no['EN'] = 'Quotation number';
+
+$avoir_no['FR'] = 'Avoir n°';
+$avoir_no['EN'] = 'Credit note number';
 
 $mode_reglement['FR'] = 'Mode de réglement :';
 $mode_reglement['EN'] = 'Payment Method:';

@@ -22,6 +22,11 @@
     {% if person %}
     <a href="{% url 'lgc-file' person.id %}">{% trans 'File Id:' %} {{ person.id }}</a>
     {% if person_process %}
+    {% if form.instance.type == 'C' and person_process.get_invoice %}
+    <a href="{% url 'lgc-invoice' person_process.get_invoice.id %}">{% trans "Invoice Id:" %} {{ person_process.get_invoice.number }}</a>
+    {% elif form.instance.type == 'I' and person_process.get_credit_note %}
+    <a href="{% url 'lgc-invoice' person_process.get_credit_note.id %}">{% trans "Credit Note Id:" %} {{ person_process.get_credit_note.number }}</a>
+    {% endif %}
     ({% trans 'Process:' %}
     <a href="{% url 'lgc-person-process' person_process.id %}">
     {% if LANGUAGE_CODE == 'fr' %}
@@ -41,7 +46,9 @@
       <div class="panel-heading">{% trans 'Client information' %}</div>
       <div class="panel-body">
 	<div class="form-row">
+	  {% if not request.GET.cn %}
 	  <a href="#" onclick="window.open('{% url 'lgc-insert-client' %}', 'newwindow',config='height=400,width=950, toolbar=no, menubar=no,scrollbars=yes, resizable=no,location=no,directories=no, status=no');return false;">{% trans 'Insert Client' %}</a>
+	  {% endif %}
 	</div>
 	<div class="form-row">&nbsp;</div>
 	<div id="client_info">{{ client_info }}</div>

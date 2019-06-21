@@ -264,6 +264,11 @@ if (! $resultat) {
 	exit;
 }
 $row = mysqli_fetch_assoc($resultat);
+if ($row['type'] == 'C')
+	$prefix = 'AV';
+else
+	$prefix = 'FA';
+
 $id_facture = $row['number'];
 $file_id = $row['person_id'];
 
@@ -288,10 +293,12 @@ $pdf->AddPage();
 $lang = $row['language'];
 
 $pdf->SetFont('Times','B', 11);
-if ($row['type'] == 'I')
-	$pdf->Cell(0,10,$note_honoraires_et_frais[$lang],0,0,'C');
+if ($row['type'] == 'Q')
+	$pdf->Cell(0, 10, $devis[$lang], 0, 0, 'C');
+else if ($row['type'] == 'C')
+	$pdf->Cell(0, 10, $avoir[$lang], 0, 0, 'C');
 else
-	$pdf->Cell(0,10,$devis[$lang],0,0,'C');
+	$pdf->Cell(0, 10, $note_honoraires_et_frais[$lang], 0, 0, 'C');
 
 $pdf->Ln(15);
 $pdf->SetFont('Times','', 11);
@@ -376,7 +383,13 @@ if (!empty($row['po_email'])) {
 }
 
 $pdf->Ln(5);
-$pdf->Cell(0, 10, utf8_decode($facture_no[$lang]." : FA") . str_pad($row['number'], 5, "0", STR_PAD_LEFT),0,0,'L');
+if ($row['type'] == 'C')
+	$doc_number = $avoir_no[$lang];
+else if ($row['type'] == 'Q')
+	$doc_number = $devis_no[$lang];
+else
+	$doc_number = $facture_no[$lang];
+$pdf->Cell(0, 10, $doc_number . ": " . $prefix . str_pad($row['number'], 5, "0", STR_PAD_LEFT),0,0,'L');
 if (!empty($row['payment_option'])) {
 	$pdf->Ln(5);
 	$str = utf8_decode(get_mode($lang, $row['payment_option']));
@@ -595,7 +608,7 @@ if ($lang == "FR") {
 	$pdf->Ln(3);
 	$pdf->Cell(10, 0, utf8_decode("Article L441-6 of the Code of commerce."), 0, 0, 'L');
 }
-$pdf->Output('FA'.$id_facture.'.pdf', 'D');
+$pdf->Output($prefix . $id_facture . '.pdf', 'D');
 
 fclose($fh);
 ?>

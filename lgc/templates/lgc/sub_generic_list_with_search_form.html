@@ -58,6 +58,10 @@
 	    return false;
 	}
 
+	{% if type == 'C' %}
+	url += 'cn=1&';
+	{% endif %}
+
 	url += 'start_date=' + start_date_input.value + '&end_date=' +
 	    end_date_input.value
 	for (i = 0; i < cols_input.length; i++)

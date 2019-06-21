@@ -774,6 +774,7 @@ class PersonProcess(models.Model):
 
     invoice = None
     quotation = None
+    credit_note = None
 
     @property
     def get_quotation(self):
@@ -801,6 +802,20 @@ class PersonProcess(models.Model):
                 log.error('process %d has more than one invoice', self.id)
             self.invoice_id = invoices[0]
             return invoices[0]
+        return None
+
+    @property
+    def get_credit_note(self):
+        if self.credit_note:
+            return self.credit_note
+        credit_notes = Invoice.objects.filter(process=self).filter(type=CREDIT).all()
+        length = len(credit_notes)
+
+        if length:
+            if length > 1:
+                log.error('process %d has more than one credit note', self.id)
+            self.credit_note = credit_notes[0]
+            return credit_notes[0]
         return None
 
 class PersonProcessStage(models.Model):
@@ -852,9 +867,12 @@ class Client(AbstractClient):
 
 INVOICE = 'I'
 QUOTATION = 'Q'
+CREDIT = 'C'
+
 INVOICE_CHOICES = (
     (INVOICE, _('Invoice')),
     (QUOTATION, _('Quotation')),
+    (CREDIT, _('Credit Note')),
 )
 CURRENCY_CHOICES = (
     ('EUR', _('Euro')),
@@ -958,14 +976,19 @@ class Invoice(AbstractClient):
         if self.process_id == None:
             return
         if self.type == INVOICE:
-            objs = Invoice.objects.filter(type=INVOICE).filter(process_id=self.process_id)
+            objs = Invoice.objects.filter(type=INVOICE, process_id=self.process_id)
             if len(objs) > 1:
                 raise ValidationError(_('The process has already an invoice.'))
 
-        else:
-           objs = Invoice.objects.filter(type=QUOTATION).filter(process_id=self.process_id)
+        elif self.type == QUOTATION:
+           objs = Invoice.objects.filter(type=QUOTATION, process_id=self.process_id)
            if len(objs) > 1:
                raise ValidationError(_('The process has already a quotation.'))
+
+        elif self.type == CREDIT:
+           objs = Invoice.objects.filter(type=CREDIT, process_id=self.process_id)
+           if len(objs) > 1:
+               raise ValidationError(_('The process has already a credit note.'))
 
     @property
     def person_first_name(self):

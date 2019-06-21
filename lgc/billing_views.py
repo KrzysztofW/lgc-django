@@ -299,9 +299,9 @@ class InvoiceListView(BillingTest, ListView):
                 Div('currency', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
-                Div('dates', css_class='form-group col-md-3') if self.invoice_type == lgc_models.INVOICE else None,
-                Div('start_date', css_class='form-group col-md-3'),
-                Div('end_date', css_class='form-group col-md-3'),
+                Div('dates', css_class='form-group col-md-3') if self.invoice_type != lgc_models.QUOTATION else None,
+                Div('sdate', css_class='form-group col-md-3'),
+                Div('edate', css_class='form-group col-md-3'),
                 Div('total', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
@@ -343,7 +343,8 @@ class InvoiceListView(BillingTest, ListView):
                 objs = objs.filter(invoice_date__gte=common_utils.parse_date(start_date))
             elif end_date:
                 objs = objs.filter(invoice_date__lte=common_utils.parse_date(end_date))
-        elif self.invoice_type == lgc_models.INVOICE and (start_date or end_date):
+        elif (self.invoice_type != lgc_models.QUOTATION and
+              (start_date or end_date)):
             objs = objs.filter(state=lgc_models.INVOICE_STATE_PAID)
             if start_date and end_date:
                 do_range_total = True
@@ -362,23 +363,27 @@ class InvoiceListView(BillingTest, ListView):
                 if o.currency == 'EUR':
                     self.eur['items'] += o.get_total_items
                     self.eur['items_vat'] += o.get_total_items_vat
-                    self.eur['disbursements'] += o.get_total_disbursements
-                    self.eur['disbursements_vat'] += o.get_total_disbursements_vat
+                    if self.invoice_type == lgc_models.INVOICE:
+                        self.eur['disbursements'] += o.get_total_disbursements
+                        self.eur['disbursements_vat'] += o.get_total_disbursements_vat
                 elif o.currency == 'USD':
                     self.usd['items'] += o.get_total_items
                     self.usd['items_vat'] += o.get_total_items_vat
-                    self.usd['disbursements'] += o.get_total_disbursements
-                    self.usd['disbursements_vat'] += o.get_total_disbursements_vat
+                    if self.invoice_type == lgc_models.INVOICE:
+                        self.usd['disbursements'] += o.get_total_disbursements
+                        self.usd['disbursements_vat'] += o.get_total_disbursements_vat
                 if o.currency == 'CAD':
                     self.cad['items'] += o.get_total_items
                     self.cad['items_vat'] += o.get_total_items_vat
-                    self.cad['disbursements'] += o.get_total_disbursements
-                    self.cad['disbursements_vat'] += o.get_total_disbursements_vat
+                    if self.invoice_type == lgc_models.INVOICE:
+                        self.cad['disbursements'] += o.get_total_disbursements
+                        self.cad['disbursements_vat'] += o.get_total_disbursements_vat
                 if o.currency == 'GBP':
                     self.gbp['items'] += o.get_total_items
                     self.gbp['items_vat'] += o.get_total_items_vat
-                    self.gbp['disbursements'] += o.get_total_disbursements
-                    self.gbp['disbursements_vat'] += o.get_total_disbursements_vat
+                    if self.invoice_type == lgc_models.INVOICE:
+                        self.gbp['disbursements'] += o.get_total_disbursements
+                        self.gbp['disbursements_vat'] += o.get_total_disbursements_vat
 
         return objs
 
@@ -416,6 +421,7 @@ class InvoiceListView(BillingTest, ListView):
         context['item_url'] = self.item_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
+        context['type'] = self.invoice_type
 
         cols = self.request.GET.getlist('cols')
         context['header_values'] = []
@@ -429,7 +435,7 @@ class InvoiceListView(BillingTest, ListView):
                 ('total', _('Total (+VAT)')),
             ]
 
-        if self.invoice_type == lgc_models.INVOICE:
+        if self.invoice_type != lgc_models.QUOTATION:
             context['totals'] = []
             if self.eur['items']:
                 context['totals'].append(('EUR', self.eur))
@@ -455,6 +461,14 @@ class QuotationListView(InvoiceListView):
     ajax_search_url = reverse_lazy('lgc-quotation-search-ajax')
     objs = lgc_models.Invoice.objects.filter(type=lgc_models.QUOTATION)
     invoice_type = lgc_models.QUOTATION
+
+class CreditNoteListView(InvoiceListView):
+    title = _('Credit Notes')
+    this_url = reverse_lazy('lgc-credit-notes')
+    search_url = reverse_lazy('lgc-credit-notes')
+    ajax_search_url = reverse_lazy('lgc-credit-notes-search-ajax')
+    objs = lgc_models.Invoice.objects.filter(type=lgc_models.CREDIT)
+    invoice_type = lgc_models.CREDIT
 
 class InvoiceDeleteView(BillingTest, DeleteView):
     model = lgc_models.Invoice
@@ -546,34 +560,43 @@ class InvoiceCommonView(BillingTest):
         ItemFormSet = modelformset_factory(lgc_models.InvoiceItem,
                                            form=lgc_forms.InvoiceItemForm,
                                            can_delete=True)
-        DisbursementFormSet = modelformset_factory(lgc_models.InvoiceDisbursement,
-                                                   form=lgc_forms.InvoiceDisbursementForm,
-                                                   can_delete=True)
+        if not self.object or self.object.type != lgc_models.CREDIT:
+            DisbursementFormSet = modelformset_factory(lgc_models.InvoiceDisbursement,
+                                                       form=lgc_forms.InvoiceDisbursementForm,
+                                                       can_delete=True)
 
         if self.request.POST:
             formsets.append(ItemFormSet(self.request.POST, prefix='items'))
-            formsets.append(DisbursementFormSet(self.request.POST, prefix='disbursements'))
+            if not self.object or self.object.type != lgc_models.CREDIT:
+                formsets.append(DisbursementFormSet(self.request.POST,
+                                                    prefix='disbursements'))
         else:
             if self.object:
                 item_queryset = lgc_models.InvoiceItem.objects.filter(invoice=self.object)
-                disbursement_queryset = lgc_models.InvoiceDisbursement.objects.filter(invoice=self.object)
+                if self.object.type != lgc_models.CREDIT:
+                    disbursement_queryset = lgc_models.InvoiceDisbursement.objects.filter(invoice=self.object)
             else:
                 item_queryset = lgc_models.InvoiceItem.objects.none()
                 disbursement_queryset = lgc_models.InvoiceDisbursement.objects.none()
 
             formsets.append(ItemFormSet(queryset=item_queryset, prefix='items'))
-            formsets.append(DisbursementFormSet(queryset=disbursement_queryset,
-                                                prefix='disbursements'))
+            if not self.object or self.object.type != lgc_models.CREDIT:
+                formsets.append(DisbursementFormSet(queryset=disbursement_queryset,
+                                                    prefix='disbursements'))
         formsets[0].title = _('Items')
         formsets[0].id = 'items_id'
         formsets[0].err_msg = _('Invalid Item table')
 
-        formsets[1].title = _('Disbursements')
-        formsets[1].id = 'disbursements_id'
-        formsets[1].err_msg = _('Invalid Disbursement table')
+        if not self.object or self.object.type != lgc_models.CREDIT:
+            formsets[1].title = _('Disbursements')
+            formsets[1].id = 'disbursements_id'
+            formsets[1].err_msg = _('Invalid Disbursement table')
         return formsets
 
     def get_doc_forms(self):
+        if self.object and self.object.type == lgc_models.CREDIT:
+            return None, None
+
         DocumentFormSet = modelformset_factory(lgc_models.DisbursementDocument,
                                                form=lgc_forms.DisbursementDocumentFormSet,
                                                can_delete=True, extra=0)
@@ -684,6 +707,12 @@ class InvoiceCommonView(BillingTest):
         if self.request.GET.get('quote') == '1':
             form.instance.type = lgc_models.QUOTATION
 
+        if (invoice == None and
+            len(person_process.invoice_set.filter(type=form.instance.type))):
+            messages.error(self.request,
+                           _('There is already an invoice/quote for this process'))
+            return self.form_invalid(form)
+
         if person_process and person_process.process:
             form.instance.process = person_process
 
@@ -729,12 +758,11 @@ class InvoiceCommonView(BillingTest):
         form.instance.modified_by = self.request.user
         form.instance.modification_date = timezone.now()
 
-
         for formset in formsets:
             if not formset.is_valid():
                 messages.error(self.request, formset.err_msg)
                 return super().form_invalid(form)
-        if self.object and self.object.type != lgc_models.QUOTATION:
+        if self.object and self.object.type == lgc_models.INVOICE:
             doc, deleted_docs = self.get_doc_forms()
             docs = lgc_models.DisbursementDocument.objects.filter(invoice=self.object)
 
@@ -788,6 +816,10 @@ class InvoiceCommonView(BillingTest):
                     doc.instance.invoice = self.object
                     doc.save()
 
+            if form.instance.type == lgc_models.CREDIT:
+                self.success_message = _('Credit Note successfully updated.')
+            elif form.instance.type == lgc_models.QUOTATION:
+                self.success_message = _('Quotation successfully updated.')
             messages.success(self.request, self.success_message)
             return http.HttpResponseRedirect(self.get_success_url())
 
@@ -799,16 +831,27 @@ class InvoiceCommonView(BillingTest):
         form.helper = FormHelper()
         form.helper.form_tag = False
         gen_invoice_html = None
+        gen_credit_note_html = None
         gen_pdf_html = None
 
         if self.object:
             state_div = Div('state', css_class='form-group col-md-2')
-            if self.object.type == lgc_models.QUOTATION and self.object.process:
+            if (self.object.type == lgc_models.QUOTATION and self.object.process and
+                self.object.process.get_invoice == None):
                 gen_invoice_html = HTML(('&nbsp;<a href="' +
                                          str(reverse_lazy('lgc-gen-invoice',
                                                           kwargs={'pk':self.object.id})) +
                                          '" class="btn btn-outline-info">' +
                                          _('Generate invoice') + '</a>'))
+            elif (self.object.type == lgc_models.INVOICE and
+                  self.object.state == lgc_models.INVOICE_STATE_PAID and
+                  self.object.process and
+                  self.object.process.get_credit_note == None):
+                gen_credit_note_html = HTML(('&nbsp;<a href="' +
+                                             str(reverse_lazy('lgc-gen-credit-note',
+                                                              kwargs={'pk':self.object.id})) +
+                                             '" class="btn btn-outline-info">' +
+                                             _('Generate Credit Note') + '</a>'))
             gen_pdf_html = HTML(('&nbsp;<a href="' +
                                  str(reverse_lazy('lgc-billing-pdf',
                                                   kwargs={'pk':self.object.id})) +
@@ -845,7 +888,7 @@ class InvoiceCommonView(BillingTest):
                 state_div,
                 css_class='form-row')
         )
-        if self.object:
+        if self.object and self.object.type == lgc_models.INVOICE:
             layout.append(
                 Div(
                     Div('already_paid',
@@ -865,7 +908,7 @@ class InvoiceCommonView(BillingTest):
                 css_class='form-group col-md-9'),
             css_class='form-row')
         )
-        if self.object and self.object.type != lgc_models.QUOTATION:
+        if self.object and self.object.type == lgc_models.INVOICE:
             layout.append(Div(
                 Div(HTML(get_template(CURRENT_DIR, 'lgc/button_collapse.html') + '<hr>'),
                     css_class='form-group col-md-9'),
@@ -903,21 +946,26 @@ class InvoiceCommonView(BillingTest):
                                action + '</a>'))
         layout.append(gen_invoice_html)
         layout.append(gen_pdf_html)
+        layout.append(gen_credit_note_html);
         form.helper.layout = layout
         return form
 
 class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
     title = _('New Invoice')
     success_message = _('Invoice successfully created.')
+    quote_success_message = _('Quotation successfully created.')
+    credit_note_success_message = _('Credit note successfully created.')
 
     def get_context_data(self, **kwargs):
         if self.request.GET.get('quote') == '1':
-            self.title = _('New quotation')
+            self.title = _('New Quotation')
+            self.success_message = self.quote_success_message
         return super().get_context_data(**kwargs)
 
     def form_valid(self, form):
         if self.request.GET.get('quote') == '1':
             objs = lgc_models.Invoice.objects.filter(type=lgc_models.QUOTATION)
+            self.success_message = self.quote_success_message
         else:
             objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
         max_number = objs.all().aggregate(Max('number'))
@@ -949,6 +997,8 @@ class InvoiceUpdateView(InvoiceCommonView, SuccessMessageMixin, UpdateView):
     def get_context_data(self, **kwargs):
         if self.object.type == lgc_models.QUOTATION:
             self.title = _('Update quotation')
+        elif self.object.type == lgc_models.CREDIT:
+            self.title = _('Update credit note')
         return super().get_context_data(**kwargs)
 
     def get_form(self, form_class=lgc_forms.InvoiceUpdateForm):
@@ -1016,6 +1066,11 @@ def ajax_invoice_common_search_view(request, objs):
 @login_required
 def ajax_quotation_search_view(request):
     objs = lgc_models.Invoice.objects.filter(type=lgc_models.QUOTATION)
+    return ajax_invoice_common_search_view(request, objs)
+
+@login_required
+def ajax_credit_notes_search_view(request):
+    objs = lgc_models.Invoice.objects.filter(type=lgc_models.CREDIT)
     return ajax_invoice_common_search_view(request, objs)
 
 @login_required
@@ -1222,6 +1277,10 @@ def generate_invoice_from_quote(request, pk):
     if len(quote) != 1:
         raise Http404
     quote = quote[0]
+    if len(quote.process.invoice_set.filter(type=lgc_models.INVOICE)):
+        messages.error(request, _('There is already an invoice for this quotation'))
+        return redirect('lgc-invoice', quote.id)
+
     max_number = invoice_objs.all().aggregate(Max('number'))
     if max_number['number__max'] == None:
         max_number = 1
@@ -1242,7 +1301,43 @@ def generate_invoice_from_quote(request, pk):
             item.invoice = quote
             item.save()
 
+    messages.success(request, _('Invoice %(id)d has been successfully generated'%
+                                {'id':quote.number}))
     return redirect('lgc-invoice', quote.id)
+
+@login_required
+def generate_credit_note_from_invoice(request, pk):
+    if not user_checks:
+        return http.HttpResponseForbidden()
+
+    credit_notes_objs = lgc_models.Invoice.objects.filter(type=lgc_models.CREDIT)
+    invoice = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE).filter(id=pk)
+    if len(invoice) != 1:
+        raise Http404
+
+    invoice = invoice[0]
+    if len(invoice.process.invoice_set.filter(type=lgc_models.CREDIT)):
+        messages.error(request, _('There is already a credit note for this invoice'))
+        return redirect('lgc-invoice', invoice.id)
+
+    max_number = credit_notes_objs.all().aggregate(Max('number'))
+    if max_number['number__max'] == None:
+        max_number = 1
+    else:
+        max_number = max_number['number__max'] + 1
+
+    invoice.id = None
+    invoice.number = max_number
+    invoice.type = lgc_models.CREDIT
+    invoice.state = lgc_models.INVOICE_STATE_PENDING
+    invoice.already_paid = 0
+    invoice.various_expenses = False
+    invoice.total = 0
+    invoice.save()
+
+    messages.success(request, _('Credit Note %(id)d has been successfully generated'%
+                                {'id':invoice.number}))
+    return redirect('lgc-invoice', invoice.id)
 
 @login_required
 def billing_pdf_view(request, pk):
@@ -1255,10 +1350,12 @@ def billing_pdf_view(request, pk):
     invoice = invoice[0]
 
     response = http.HttpResponse(content_type='application/pdf')
-    if invoice.type == lgc_models.INVOICE:
-        filename = 'FA'
-    else:
+    if invoice.type == lgc_models.QUOTATION:
         filename = 'DE'
+    elif invoice.type == lgc_models.CREDIT:
+        filename = 'AV'
+    else:
+        filename = 'FA'
     filename += str(invoice.number).zfill(5) + '.pdf'
     response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
     pdf = subprocess.Popen('php_pdf/print.php ' + str(invoice.id),
@@ -1275,10 +1372,14 @@ def billing_csv_view(request):
     end_date = request.GET.get('end_date')
     if not start_date or not end_date:
         raise Http404
+    if request.GET.get('cn'):
+        invoice_type = lgc_models.CREDIT
+    else:
+        invoice_type = lgc_models.INVOICE
 
-    objs = lgc_models.Invoice.objects
-    objs = objs.filter(invoice_date__range=[common_utils.parse_date(start_date),
-                                            common_utils.parse_date(end_date)])
+    objs = lgc_models.Invoice.objects.filter(type=invoice_type,
+                                             invoice_date__range=[common_utils.parse_date(start_date), common_utils.parse_date(end_date)])
+
     if len(objs) > 4000:
         raise Http404('Too many objects')
 

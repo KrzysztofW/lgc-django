@@ -62,13 +62,13 @@
 
 {% if person_process.get_invoice %}
 <a href="{% url 'lgc-invoice' person_process.get_invoice.id %}" class="btn btn-outline-info">
-  {% trans "Show invoice" %}
+  {% trans "Show invoice" %}</a>
 {% endif %}
 {% if person_process.get_quotation %}
   <a href="{% url 'lgc-invoice' person_process.get_quotation.id %}" class="btn btn-outline-info">
-  {% trans "Show quotation" %}
+  {% trans "Show quotation" %}</a>
 {% endif %}
-  </a>
+
 {% endif %}
 {% if not person_process.no_billing %}
 {% if not person_process.get_invoice %}

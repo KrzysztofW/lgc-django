@@ -384,7 +384,7 @@ class InvoiceCreateForm(forms.ModelForm):
     class Meta:
         model = lgc_models.Invoice
         exclude = ['modified_by', 'person', 'process', 'type', 'id', 'number',
-                   'state', 'already_paid']
+                   'state', 'already_paid', 'credit_note']
 
 INVOICE_SEARCH_DATE_INVOICE = 'I'
 INVOICE_SEARCH_DATE_PAY = 'P'
@@ -510,7 +510,8 @@ class InvoiceUpdateForm(InvoiceCreateForm):
                                widget=forms.HiddenInput())
     class Meta:
         model = lgc_models.Invoice
-        exclude = ['modified_by', 'person', 'process', 'type', 'id']
+        exclude = ['modified_by', 'person', 'process', 'type', 'id',
+                   'credit_note']
 
 class ClientCreateForm(forms.ModelForm):
     address = forms.CharField(label=_('Address'), required=False,

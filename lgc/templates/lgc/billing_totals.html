@@ -14,22 +14,32 @@
 	  <table class="table table-striped table-bordered table-hover">
 	    <thead>
 	      <tr>
+		{% if type == 'I' %}
 		<th scope="col" class="lgc_no-wrap">{% trans 'Subtotal' %}</th>
 		<th scope="col" class="lgc_no-wrap">{% trans 'Disbursements' %}</th>
+		{% endif %}
 		<th scope="col" class="lgc_no-wrap">{% trans 'Total' %}</th>
+		{% if type == 'I' %}
 		<th scope="col" class="lgc_no-wrap">{% trans 'Subtotal + VAT' %}</th>
 		<th scope="col" class="lgc_no-wrap">{% trans 'Disbursements + VAT' %}</th>
+		{% endif %}
 		<th scope="col" class="lgc_no-wrap">{% trans 'Total + VAT' %}</th>
 	      </tr>
 	    </thead>
 	    <tbody>
 	      <tr>
 		<td class="lgc_pull-right lgc_no-wrap lgc_medium-fixed-col">{{ total.1.items|floatformat:2 }}</td>
+		{% if type == 'I' %}
 		<td class="lgc_pull-right lgc_no-wrap lgc_medium-fixed-col">{{ total.1.disbursements|floatformat:2 }}</td>
 		<td class="lgc_pull-right lgc_no-wrap lgc_medium-fixed-col">{{ total.1.items|addf:total.1.disbursements }}</td>
+		{% endif %}
+
 		<td class="lgc_pull-right lgc_no-wrap lgc_medium-fixed-col">{{ total.1.items|addf:total.1.items_vat }}</td>
+
+		{% if type == 'I' %}
 		<td class="lgc_pull-right lgc_no-wrap lgc_medium-fixed-col">{{ total.1.disbursements|addf:total.1.disbursements_vat }}</td>
 		<td class="lgc_pull-right lgc_no-wrap lgc_medium-fixed-col">{{ total.1.items|addf:total.1.disbursements|addf:total.1.items_vat|addf:total.1.disbursements_vat }}</td>
+		{% endif %}
 	      </tr>
 	    </tbody>
 	  </table>
