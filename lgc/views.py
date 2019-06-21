@@ -1311,10 +1311,11 @@ def ajax_person_process_search_view(request, *args, **kwargs):
     pk = kwargs.get('pk', '')
     objects = lgc_models.PersonProcess.objects.filter(person=pk, active=False)
     term = request.GET.get('term', '')
-    objs = objects.filter(process__name__istartswith=term)
+    objs =  objects.filter(name_fr__istartswith=term)
+    objs |= objects.filter(name_en__istartswith=term)
     objs = objs[:10]
 
-    col_list = ['name']
+    col_list = ['name_fr', 'name_en']
     col_list = set_bold_search_attrs(objs, col_list, term)
     context = {
         'objects': objs,
@@ -1328,12 +1329,9 @@ def __ajax_process_stage_search_view(request, model):
         return http.HttpResponseForbidden()
 
     term = request.GET.get('term', '')
-    if translation.get_language() == 'fr':
-        objs = model.objects.filter(name_fr__istartswith=term)
-        col_list = ['name_fr']
-    else:
-        objs = model.objects.filter(name_en__istartswith=term)
-        col_list = ['name_en']
+    objs =  model.objects.filter(name_fr__istartswith=term)
+    objs |= model.objects.filter(name_en__istartswith=term)
+    col_list = ['name_fr', 'name_en']
     objs = objs[:10]
 
     context = {
@@ -1437,14 +1435,10 @@ class ProcessListView(ProcessCommonView, ListView):
         context['item_url'] = self.item_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
-        context['header_values'] = [('id', 'ID'), ('name', _('Name'))]
-
-        lang = translation.get_language()
-        for obj in context['object_list']:
-            if lang == 'fr':
-                obj.name = obj.name_fr
-            else:
-                obj.name = obj.name_en
+        context['header_values'] = [
+            ('id', 'ID'), ('name_fr', _('French Name')),
+            ('name_en', _('English Name'))
+        ]
 
         return pagination(self.request, context, self.this_url)
 
@@ -1508,6 +1502,7 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         context['title'] = self.title
         context['cancel_url'] = reverse_lazy(self.cancel_url,
                                              kwargs={'pk':self.object.id})
+        context['lang'] = translation.get_language()
         return context
 
     def test_func(self):
@@ -1516,8 +1511,8 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_message = (_("%(obj_name)s %(id)s successfully deleted."%
-                           {'obj_name': self.obj_name,
-                            'id': self.object.id}))
+                             {'obj_name': self.obj_name,
+                              'id': self.object.id}))
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
@@ -1799,23 +1794,7 @@ class PersonProcessListView(ProcessListView):
     item_url = 'lgc-person-process'
 
     def get_ordering(self):
-        order_by = self.request.GET.get('order_by', 'id')
-        if order_by == 'name':
-            return 'process__name'
-        if order_by == '-name':
-            return '-process__name'
-
-        return order_by
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if translation.get_language() == 'fr':
-            name = 'name_fr'
-        else:
-            name = 'name_en'
-        for obj in context['object_list']:
-            obj.name = getattr(obj.process, name)
-        return context
+        return self.request.GET.get('order_by', 'id')
 
     def get_queryset(self, *args, **kwargs):
         pk = self.kwargs.get('pk', '')
@@ -1831,11 +1810,15 @@ class PersonProcessListView(ProcessListView):
                       {'first_name': person.first_name,
                        'last_name': person.last_name}))
 
-        term = self.request.GET.get('term', '')
+        term = self.request.GET.get('term')
         order_by = self.get_ordering()
-        if term == '':
+        if not term:
             return object_list.order_by(order_by)
-        return object_list.filter(process__name__istartswith=term).order_by(order_by)
+
+        objs =  object_list.filter(name_fr__istartswith=term)
+        objs |= object_list.filter(name_en__istartswith=term)
+        objs.order_by(order_by)
+        return objs
 
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');

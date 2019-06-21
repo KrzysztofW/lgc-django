@@ -756,7 +756,8 @@ class Process(models.Model):
 class PersonProcess(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE,
                                related_name='personprocess_set')
-    process = models.ForeignKey(Process, null=True, on_delete=models.SET_NULL)
+    process = models.ForeignKey(Process, null=True, on_delete=models.SET_NULL,
+                                related_name='process_set')
     name_fr = models.CharField(_('Name'), max_length=50, default='',
                                blank=True)
     name_en = models.CharField(_('Name'), max_length=50, default='',
