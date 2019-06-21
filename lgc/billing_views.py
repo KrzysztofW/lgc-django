@@ -811,7 +811,7 @@ class InvoiceCommonView(BillingTest):
                 form.instance.get_total_disbursements,
                 form.instance.get_total_disbursements_vat))
 
-            total = round(form.instance.get_total + form.instance.get_vat, 2)
+            total = form.instance.get_total_plus_vat
             if total != float(form.instance.total):
                 log.error('invoice total does not match. Computed total: %d form total: %d',
                           total, float(form.instance.total))

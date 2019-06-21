@@ -1054,8 +1054,9 @@ class Invoice(AbstractClient):
         return self.state == INVOICE_STATE_TOBEDONE
 
     def get_item_total(self, obj):
-        total = obj.quantity * obj.rate
+        total = round(obj.quantity * obj.rate, 2)
         obj_vat = float(obj.vat) / 100.
+        vat = round(total * obj_vat, 2)
         vat = total * obj_vat
 
         """Save the first item's VAT to compute various expenses."""
@@ -1064,12 +1065,14 @@ class Invoice(AbstractClient):
         return total, vat
 
     def get_disbursement_total(self, obj):
-        quantity_rate = obj.quantity * obj.rate
+        quantity_rate = round(obj.quantity * obj.rate, 2)
         obj_vat = float(obj.vat) / 100.
         total = quantity_rate
         if obj.margin:
             total *= 1 + 0.2
-        vat = total * obj_vat
+        total = round(total, 2)
+        vat = round(total * obj_vat, 2)
+        vat = round(total * obj_vat, 2)
         return total, vat
 
     def _get_various_expenses(self):
@@ -1110,6 +1113,8 @@ class Invoice(AbstractClient):
             total, total_vat = self.get_item_total(i)
             self.total_items += total
             self.total_items_vat += total_vat
+        self.total_items = round(self.total_items, 2)
+        self.total_items_vat = round(self.total_items_vat, 2)
 
     def set_total_disbursements(self):
         if self.total_disbursements:
@@ -1124,16 +1129,18 @@ class Invoice(AbstractClient):
             ve, ve_vat = self._get_various_expenses()
             self.total_disbursements += ve
             self.total_disbursements_vat += ve_vat
+        self.total_disbursements = round(self.total_disbursements, 2)
+        self.total_disbursements_vat = round(self.total_disbursements_vat, 2)
 
     @property
     def get_total_items(self):
         self.set_total_items()
-        return round(self.total_items, 2)
+        return self.total_items
 
     @property
     def get_total_items_vat(self):
         self.set_total_items()
-        return round(self.total_items_vat, 2)
+        return self.total_items_vat
 
     @property
     def get_total_items_plus_vat(self):
@@ -1143,12 +1150,12 @@ class Invoice(AbstractClient):
     @property
     def get_total_disbursements(self):
         self.set_total_disbursements()
-        return round(self.total_disbursements, 2)
+        return self.total_disbursements
 
     @property
     def get_total_disbursements_vat(self):
         self.set_total_disbursements()
-        return round(self.total_disbursements_vat, 2)
+        return self.total_disbursements_vat
 
     @property
     def get_total_disbursements_plus_vat(self):
@@ -1171,19 +1178,20 @@ class Invoice(AbstractClient):
         self.set_total_items()
         self.set_total_disbursements()
         ret = (self.total_items + self.total_items_vat +
-                self.total_disbursements + self.total_disbursements_vat)
-        return round(ret, 2)
+               self.total_disbursements + self.total_disbursements_vat)
+        ret = round(ret, 2)
+        if ret != float(self.total):
+            pdb.set_trace()
+            log.error('invalid total: stored:%f, computed:%f, id:%d',
+                      self.total, ret, self.id)
+
+        return ret
 
     @property
     def get_total(self):
         self.set_total_items()
         self.set_total_disbursements()
-        ret = self.total_items + self.total_disbursements
-        ret = round(ret, 2)
-        if ret != self.total:
-            log.error('invalid total: stored:%f, computed:%f, id:%d',
-                      self.total, ret, self.id)
-        return ret
+        return round(self.total_items + self.total_disbursements, 2)
 
     @property
     def get_vat(self):

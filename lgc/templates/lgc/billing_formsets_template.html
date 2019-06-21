@@ -206,14 +206,16 @@ function compute_invoice() {
 
     rate = parseFloat(rate_input.value);
     quantity = parseFloat(quantity_input.value);
-    rate_quantity = rate * quantity;
+    rate_quantity = Math.round(rate * quantity * 100) / 100;
     vat = parseFloat(vat_input.value) / 100;
+    vat = Math.round(vat * 100) / 100;
 
     /* this will be used to compute various expenses */
     if (i == 0)
       first_item_vat = vat;
 
     total = rate_quantity * (1 + vat);
+    total = Math.round(total * 100) / 100;
     total_input.value = total.toFixed(2);
 
     items_total += rate_quantity
@@ -237,21 +239,24 @@ function compute_invoice() {
     rate = parseFloat(rate_input.value);
     quantity = parseFloat(quantity_input.value);
     rate_quantity = rate * quantity;
+    rate_quantity = Math.round(rate * quantity * 100) / 100;
     vat = parseFloat(vat_input.value) / 100.;
+    vat = Math.round(vat * 100) / 100;
 
     total = rate_quantity * (1 + vat);
 
-    if (margin_input.checked)
-      total = total * (1 + margin);
+    if (margin_input.checked) {
+        total = Math.round(total * (1 + margin) * 100) / 100;
+    }
 
     total_input.value = total.toFixed(2);
 
     disbursements_total += rate_quantity;
-    disbursements_total_vat += rate_quantity * vat;
+    disbursements_total_vat += Math.round(rate_quantity * vat * 100) / 100;
 
     if (margin_input.checked) {
-      disbursements_total += rate_quantity * margin;
-      disbursements_total_vat += (rate_quantity * vat) * margin;
+      disbursements_total += Math.round(rate_quantity * margin * 100) / 100;
+      disbursements_total_vat += Math.round(rate_quantity * vat * margin * 100) / 100;
     }
     i++;
   }
@@ -259,7 +264,7 @@ function compute_invoice() {
   items_total_div.innerHTML = items_total.toFixed(2);
   items_total_vat_div.innerHTML = items_total_vat.toFixed(2);
 
-  if (various_expenses_input.checked) {
+  if (various_expenses_input && various_expenses_input.checked) {
     various_expenses = items_total *  5/100.;
 
     if (various_expenses > 100)
@@ -267,23 +272,30 @@ function compute_invoice() {
     various_expenses_vat = various_expenses * first_item_vat;
   }
 
-  disbursements_total += various_expenses;
-  disbursements_total_vat += various_expenses_vat;
-  disbursements_total_div.innerHTML = disbursements_total.toFixed(2);
-  disbursements_total_vat_div.innerHTML = disbursements_total_vat.toFixed(2);
-
-  if (already_paid_input !== null)
+  if (disbursements_total_div) {
+    disbursements_total += various_expenses;
+    disbursements_total = Math.round(disbursements_total * 100) / 100;
+    disbursements_total_vat += various_expenses_vat;
+    disbursements_total_vat = Math.round(disbursements_total_vat * 100) / 100;
+    disbursements_total_div.innerHTML = disbursements_total.toFixed(2);
+    disbursements_total_vat_div.innerHTML = disbursements_total_vat.toFixed(2);
+  }
+  if (already_paid_input && already_paid_div) {
     already_paid = parseFloat(already_paid_input.value);
-  already_paid_div.innerHTML = already_paid.toFixed(2);
-
+    already_paid_div.innerHTML = already_paid.toFixed(2);
+  }
   subtotal = items_total + disbursements_total;
-  subtotal_vat =items_total_vat + disbursements_total_vat;
+  subtotal_vat = items_total_vat + disbursements_total_vat;
+  subtotal = Math.round(subtotal * 100) / 100;
+  subtotal_vat = Math.round(subtotal_vat * 100) / 100;
 
-  total_div.innerHTML = '<b>' + subtotal.toFixed(2) + '</b>';
-  total_vat_div.innerHTML = '<b>' + subtotal_vat.toFixed(2) + '</b>';
-
-  invoice_total = items_total + items_total_vat + disbursements_total + disbursements_total_vat;
-  invoice_total_input.value = invoice_total.toFixed(2);
+  if (total_div) {
+    total_div.innerHTML = '<b>' + subtotal.toFixed(2) + '</b>';
+    total_vat_div.innerHTML = '<b>' + subtotal_vat.toFixed(2) + '</b>';
+  }
+  invoice_total = subtotal + subtotal_vat;
+  invoice_total = Math.round(invoice_total * 100) / 100;
+  invoice_total_input.value = invoice_total;
   if (already_paid)
     invoice_total -= already_paid;
 
