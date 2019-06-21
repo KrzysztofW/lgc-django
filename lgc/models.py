@@ -842,8 +842,7 @@ class AbstractClient(models.Model):
     cell_phone_number = models.CharField(_('Cell Phone Number'), max_length=50,
                                          blank=True)
     siret = models.CharField('SIRET', max_length=14, blank=True, null=True,
-                             validators=[validators.siret],
-                             unique=True)
+                             validators=[validators.siret])
     vat = models.CharField(_('VAT Number'), max_length=50, null=True,
                            blank=True, unique=True)
     address = models.TextField(_('Address'), max_length=100, blank=True)
