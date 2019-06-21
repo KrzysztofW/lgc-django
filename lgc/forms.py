@@ -450,6 +450,7 @@ QUOTATION_SEARCH_COLS_CHOICES = (
     ('get_total_disbursements', _('Disbursements')),
     ('get_total_disbursements_plus_vat', _('Disbursements (+VAT)')),
     ('total', 'Total'),
+    ('get_responsibles', 'Responsibles'),
 )
 INVOICE_SEARCH_COLS_CHOICES = QUOTATION_SEARCH_COLS_CHOICES + (
     ('remaining_balance', _('Remaining Balance')),

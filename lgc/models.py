@@ -991,6 +991,15 @@ class Invoice(AbstractClient):
                raise ValidationError(_('The process has already a credit note.'))
 
     @property
+    def get_responsibles(self):
+        resps = ''
+        for r in self.person.responsible.all():
+            if resps != '':
+                resps += ', '
+            resps += r.first_name[0].upper() + r.last_name[0].upper()
+        return resps
+
+    @property
     def person_first_name(self):
         if self.person == None:
             return None
