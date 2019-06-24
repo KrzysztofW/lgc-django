@@ -765,8 +765,7 @@ class PersonProcess(models.Model):
     consulate = models.CharField(_('Consulate'), max_length=3, default='',
                                  choices=CONSULATE_CHOICES, blank=True)
     # Préfecture / OFII compétent
-    prefecture = models.CharField(_('Prefecture'),
-                                  max_length=3, default='',
+    prefecture = models.CharField(_('Prefecture'), max_length=3, default='',
                                   choices=PREFECTURE_CHOICES, blank=True)
     no_billing = models.BooleanField(_('No billing for this process'),
                                      default=False)
@@ -780,7 +779,7 @@ class PersonProcess(models.Model):
     def get_quotation(self):
         if self.quotation:
             return self.quotation
-        quotes = Invoice.objects.filter(process=self).filter(type=QUOTATION).all()
+        quotes = Invoice.objects.filter(process=self, type=QUOTATION).all()
         length = len(quotes)
 
         if length:
@@ -794,7 +793,7 @@ class PersonProcess(models.Model):
     def get_invoice(self):
         if self.invoice:
             return self.invoice
-        invoices = Invoice.objects.filter(process=self).filter(type=INVOICE).all()
+        invoices = Invoice.objects.filter(process=self, type=INVOICE).all()
         length = len(invoices)
 
         if length:
@@ -808,7 +807,7 @@ class PersonProcess(models.Model):
     def get_credit_note(self):
         if self.credit_note:
             return self.credit_note
-        credit_notes = Invoice.objects.filter(process=self).filter(type=CREDIT).all()
+        credit_notes = Invoice.objects.filter(process=self, type=CREDIT).all()
         length = len(credit_notes)
 
         if length:

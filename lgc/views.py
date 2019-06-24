@@ -60,7 +60,7 @@ def token_generator():
 
     while True:
         r = ''.join(random.choice(chars) for _ in range(size))
-        if len(User.objects.filter(token=r)) == 0:
+        if not User.objects.get(token=r):
             return r
 
 def save_active_tab(obj):
@@ -97,7 +97,6 @@ def home(request):
         compare_date = (timezone.now().date() +
                         datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
         context['nb_expirations'] = len(expirations.filter(end_date__lte=compare_date))
-
         return render(request, 'lgc/home.html', context)
 
     return http.HttpResponseForbidden()
@@ -218,13 +217,13 @@ class PersonListView(PersonCommonListView):
         if state:
             objs = objs.filter(state__exact=state)
         if jurist:
-            o = User.objects.filter(id=jurist)
-            if len(o):
-                objs = objs.filter(responsible__in=o)
+            o = User.objects.get(id=jurist)
+            if o:
+                objs = objs.filter(responsible=o)
         if consultant:
-            o = User.objects.filter(id=consultant)
-            if len(o):
-                objs = objs.filter(responsible__in=o)
+            o = User.objects.get(id=consultant)
+            if o:
+                objs = objs.filter(responsible=o)
         if prefecture:
             objs = objs.filter(prefecture__exact=prefecture)
         if subprefecture:
@@ -580,6 +579,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
 
         to_skip = person_process.stages.filter(is_specific=False).count()
         stages = process_common.get_ordered_stages(person_process.process)
+
         for s in stages:
             if to_skip:
                 to_skip -= 1
@@ -1971,8 +1971,8 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
     def get_person(self):
         pk = self.kwargs.get('pk', '')
         if pk != '':
-            p = lgc_models.Person.objects.filter(id=pk)
-            if p == None or len(p) == 0:
+            p = lgc_models.Person.objects.get(id=pk)
+            if p == None:
                 raise ValueError('invalid person ID')
             return p.get()
         return None
@@ -2090,8 +2090,8 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
                                  'the user has not accepted our terms and ' +
                                  'condiftions yet.')
 
-        user = User.objects.filter(id=self.object.id)
-        if len(user) != 1:
+        user = User.objects.get(id=self.object.id)
+        if not user:
             return self.form_invalid(form)
         user = user[0]
 
@@ -2267,8 +2267,8 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
                 continue
             if self.is_deleted(employees, e['id']):
                 continue
-            u = users.filter(id=e['id'])
-            if u == None or len(u) == 0:
+            u = users.get(id=e['id'])
+            if u == None:
                 messages.error(self.request, _("Unknown employee ID `%s'"%(e['id'])))
                 return super().form_invalid(form)
             u = u.get()
@@ -2407,8 +2407,8 @@ def ajax_file_search_view(request):
 @login_required
 def download_file(request, *args, **kwargs):
     pk = kwargs.get('pk', '')
-    doc = lgc_models.Document.objects.filter(id=pk).all()
-    if doc == None or len(doc) != 1:
+    doc = lgc_models.Document.objects.get(id=pk)
+    if not doc:
         raise Http404
 
     if (request.user.role not in user_models.get_internal_roles() and
@@ -2454,10 +2454,10 @@ def expirations_filter_objs(request, objs):
     objs = objs.filter(end_date__lte=compare_date)
 
     if user:
-        user = User.objects.filter(id=user)
-        if len(user) != 1:
+        user = User.objects.get(id=user)
+        if not user:
             raise Http404
-        objs = objs.filter(person__responsible__in=user)
+        objs = objs.filter(person__responsible=user)
 
     if expiry_type:
         objs = objs.filter(type=expiry_type)
