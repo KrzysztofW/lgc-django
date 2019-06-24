@@ -734,7 +734,7 @@ class Child(ChildCommon):
 class ProcessStage(models.Model):
     name_fr = models.CharField(_('French Name'), max_length=50, unique=True)
     name_en = models.CharField(_('English Name'), max_length=50, unique=True)
-    noinvoice_alert = models.BooleanField(_('Generates an alert'), default=False)
+    invoice_alert = models.BooleanField(_('Generates an invoice alert'), default=False)
 
     def __str__(self):
         if translation.get_language() == 'fr':
@@ -769,8 +769,7 @@ class PersonProcess(models.Model):
                                   choices=PREFECTURE_CHOICES, blank=True)
     no_billing = models.BooleanField(_('No billing for this process'),
                                      default=False)
-    alert_on = models.BooleanField(default=False)
-
+    invoice_alert = models.BooleanField(default=False)
     invoice = None
     quotation = None
     credit_note = None
@@ -817,10 +816,25 @@ class PersonProcess(models.Model):
             return credit_notes[0]
         return None
 
+    def is_process_complete(self):
+        person_process_stages = self.stages.filter(is_specific=False)
+        process_stages = self.process.stages.all()
+        return len(process_stages) == len(person_process_stages.all())
+
+    @property
+    def get_name(self):
+        return self.person.first_name + ' ' + self.person.last_name
+
+    @property
+    def get_file_id(self):
+        return self.person.id
+
 class PersonProcessStage(models.Model):
     person_process = models.ForeignKey(PersonProcess,
                                        related_name="stages",
                                        on_delete=models.CASCADE)
+    process_stage = models.ForeignKey(ProcessStage, null=True,
+                                      on_delete=models.SET_NULL)
     name_fr = models.CharField(_('French Name'), max_length=50, default='',
                                blank=True)
     name_en = models.CharField(_('English Name'), max_length=50, default='',

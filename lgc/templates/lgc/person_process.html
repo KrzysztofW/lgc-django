@@ -39,5 +39,13 @@
   {% if object.get_quotation %}
   <a href="{% url 'lgc-invoice' object.get_quotation.id %}" class="btn btn-outline-info">{% trans "Show quotation" %}</a>
   {% endif %}
+
+  {% if not object.no_billing and not object.get_invoice and object.invoice_alert %}
+  <a href="{% url 'lgc-invoice-create' %}?pid={{ object.person.id }}&proc_id={{ object.id }}" class="btn btn-outline-info">{% trans "Generate invoice" %}</a>
+  {% if not object.get_quotation %}
+  <a href="{% url 'lgc-invoice-create' %}?pid={{ object.person.id }}&proc_id={{ object.id }}&quote=1" class="btn btn-outline-info">{% trans "Generate quotation" %}</a>
+  {% endif %}
+  {% endif %}
+
 </form>
 {% endblock content %}

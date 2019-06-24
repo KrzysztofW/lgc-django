@@ -239,7 +239,7 @@ class PersonProcessStageForm(forms.ModelForm):
 
     class Meta:
         model = lgc_models.PersonProcessStage
-        exclude = ['person_process', 'is_specific']
+        exclude = ['person_process', 'is_specific', 'process_stage']
 
 class PersonProcessSpecificStageForm(forms.Form):
     name_fr = forms.CharField(required=False,

@@ -1538,6 +1538,16 @@ class ProcessStageListView(ProcessListView):
     ajax_search_url = reverse_lazy('lgc-process-stage-search-ajax')
     search_url = reverse_lazy('lgc-process-stages')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['header_values'] = [
+            ('id', 'ID'), ('name_fr', _('French Name')),
+            ('name_en', _('English Name')),
+            ('invoice_alert', _('Generates invoice alert')),
+        ]
+
+        return pagination(self.request, context, self.this_url)
+
 class ProcessStageCreateView(ProcessCreateView):
     model = lgc_models.ProcessStage
     success_message = _('Process stage successfully created')
@@ -1583,13 +1593,8 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
     def test_func(self):
         return self.request.user.role in user_models.get_internal_roles()
 
-    def is_process_complete(self):
-        person_process_stages = self.object.stages.filter(is_specific=False)
-        process_stages = self.object.process.stages.all()
-        return len(process_stages) == len(person_process_stages.all())
-
     def get_stage_forms(self):
-        if self.is_process_complete():
+        if self.object.is_process_complete():
             stage_form = lgc_forms.UnboundFinalPersonProcessStageForm
         else:
             stage_form = lgc_forms.UnboundPersonProcessStageForm
@@ -1690,10 +1695,12 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         return stages.all()[stages.all().count()-1]
 
     def generate_next_person_process_stage(self, person_process,
-                                           name_fr, name_en,
-                                           is_specific=False):
+                                           name_fr, name_en, process_stage):
         next_stage = lgc_models.PersonProcessStage()
-        next_stage.is_specific = is_specific
+        if not process_stage:
+            next_stage.is_specific = True
+        else:
+            next_stage.process_stage = process_stage
         next_stage.person_process = person_process
         next_stage.start_date = str(datetime.date.today())
         next_stage.name_fr = name_fr
@@ -1710,13 +1717,13 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 return None
             return process_stages[0]
         person_process_stages = person_process_stages.filter(is_specific=False)
-        if (person_process_stages == None or
-            person_process_stages.count() == 0):
+        if person_process_stages == None or person_process_stages.count() == 0:
             return process_stages[0]
 
         last_pos = person_process_stages.count() - 1
         length = len(process_stages)
         pos = 0
+
         for s in process_stages:
             if pos < last_pos:
                 pos += 1
@@ -1749,6 +1756,8 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
             hasattr(self.object, 'invoice') and self.object.invoice):
             messages.error(self.request, _('This process has already an invoice'))
             return super().form_invalid(form)
+        if form.cleaned_data['no_billing']:
+            form.instance.invoice_alert = False
 
         specific_stage_form, stage_form = self.get_stage_forms()
         if not specific_stage_form.is_valid() or not stage_form.is_valid():
@@ -1757,7 +1766,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
 
         formset = self.get_formset()
         if not formset.is_valid():
-            messages.error(self.request, _('Invalid stages form:'))
+            messages.error(self.request, _('Invalid stages form'))
             return super().form_invalid(form)
 
         for sform in formset:
@@ -1767,10 +1776,17 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         if action == lgc_forms.PROCESS_STAGE_VALIDATE:
             next_process_stage = self.get_next_process_stage(self.object.stages,
                                                              self.object.process)
-            if next_process_stage != None:
+            if next_process_stage:
                 self.generate_next_person_process_stage(self.object,
                                                         next_process_stage.name_fr,
-                                                        next_process_stage.name_en)
+                                                        next_process_stage.name_en,
+                                                        next_process_stage)
+                if not form.instance.no_billing:
+                    if len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0:
+                        self.object.invoice_alert = next_process_stage.invoice_alert
+                    if not self.object.invoice_alert and self.object.is_process_complete():
+                        self.object.invoice_alert = True
+
             else:
                 messages.error(self.request, _('The next stage does not exist.'))
                 return super().form_invalid(form)
@@ -1780,6 +1796,12 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 messages.error(self.request, _('This process has no validated stages.'))
                 return super().form_invalid(form)
             last_stage.delete()
+            last_stage = self.get_last_person_process_stage(self.object.stages)
+            if (not form.instance.no_billing and
+                last_stage and last_stage.process_stage and
+                len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0):
+                self.object.invoice_alert = last_stage.process_stage.invoice_alert
+
         elif action == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
             if (specific_stage_form.cleaned_data['name_fr'] == '' or
                 specific_stage_form.cleaned_data['name_en'] == ''):
@@ -1789,10 +1811,10 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
             self.generate_next_person_process_stage(self.object,
                                                     specific_stage_form.cleaned_data['name_fr'],
                                                     specific_stage_form.cleaned_data['name_en'],
-                                                    is_specific=True)
+                                                    None)
 
         elif action == lgc_forms.PROCESS_STAGE_COMPLETED:
-            if not self.is_process_complete():
+            if not self.object.is_process_complete():
                 messages.error(self.request, _('The process is not complete.'))
                 return super().form_invalid(form)
             form.instance.active = False
@@ -1832,6 +1854,54 @@ class PersonProcessListView(ProcessListView):
         objs |= object_list.filter(name_en__istartswith=term)
         objs.order_by(order_by)
         return objs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['header_values'] = [
+            ('id', 'ID'), ('name_fr', _('French Name')),
+            ('name_en', _('English Name')), ('get_name', _('Person Name')),
+            ('get_file_id', _('File Id')),
+        ]
+        context['exclude_order_by'] = [ 'get_name', 'get_file_id' ]
+
+        return pagination(self.request, context, self.this_url)
+
+class PersonProcessReadyListView(PersonProcessListView):
+    title = _('Processes ready to invoice')
+    model = lgc_models.PersonProcess
+    ajax_search_url = None
+    search_url = reverse_lazy('lgc-person-processes-ready')
+    item_url = 'lgc-person-process'
+    objs = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.objs = lgc_models.PersonProcess.objects.filter(invoice_alert=True)
+
+    def get_queryset(self, *args, **kwargs):
+        objs = self.objs
+        for p in self.objs.all():
+            if p.invoice_set.filter(type=lgc_models.INVOICE).count() > 0:
+                objs = objs.exclude(id=p.id)
+
+        term = self.request.GET.get('term')
+        order_by = self.get_ordering()
+        if not term:
+            return objs.order_by(order_by)
+
+        object_list =  objs.filter(name_fr__istartswith=term)
+        object_list |= objs.filter(name_en__istartswith=term)
+        object_list.order_by(order_by)
+        return object_list
+
+class PersonProcessPendingListView(PersonProcessReadyListView):
+    title = _('Pending Processes')
+    model = lgc_models.PersonProcess
+    search_url = reverse_lazy('lgc-person-processes-pending')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.objs = lgc_models.PersonProcess.objects.filter(active=True)
 
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');

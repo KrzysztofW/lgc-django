@@ -23,8 +23,21 @@ def get_notification_menu(request):
     deletion_requests = User.objects.filter(status__in=user_models.get_user_deleted_statuses())
     res['expirations'] = expirations[:10]
     res['deletion_requests'] = deletion_requests[:5]
-    res['nb_items'] = len(expirations) + len(deletion_requests)
     res['today'] = timezone.now().date()
+    pcnt = 0
+    res['pcnt'] = 0
+
+    if request.user.billing:
+        processes = lgc_models.PersonProcess.objects.filter(invoice_alert=True)
+        ready_processes = []
+        pcnt = 0;
+        for p in processes.all():
+            if p.invoice_set.filter(type=lgc_models.INVOICE).count() == 0:
+                ready_processes.append(p)
+                pcnt += 1
+        res['ready_to_invoice'] = ready_processes
+        res['pcnt'] = pcnt
+    res['nb_items'] = len(expirations) + len(deletion_requests) + pcnt
     return res
 
 @register.simple_tag

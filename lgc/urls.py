@@ -55,6 +55,10 @@ urlpatterns = [
 
     path('person-process-list/<int:pk>/', views.PersonProcessListView.as_view(),
          name='lgc-person-processes'),
+    path('person-process-ready-list/', views.PersonProcessReadyListView.as_view(),
+         name='lgc-person-processes-ready'),
+    path('person-process-pending-list/', views.PersonProcessPendingListView.as_view(),
+         name='lgc-person-processes-pending'),
     path('person-process/<int:pk>/', views.PersonProcessUpdateView.as_view(),
          name='lgc-person-process'),
     path('person-process-search/ajax/<int:pk>', views.ajax_person_process_search_view,

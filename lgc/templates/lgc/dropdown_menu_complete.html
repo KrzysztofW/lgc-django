@@ -2,6 +2,7 @@
 {% load custom_tags %}
 {% load humanize %}
 
+{% get_current_language as LANGUAGE_CODE %}
 {% now "Y-m-d" as today %}
 {% get_notification_menu request as notifs %}
 {% get_process_progress request as process_progress %}
@@ -151,10 +152,36 @@
       <div class="dropdown-divider"></div>
       {% endfor %}
 
+      {% for p in notifs.ready_to_invoice %}
+      <a class="dropdown-item" href="{% url 'lgc-person-process' p.id %}">
+        <div>
+          &nbsp;<i class="fa fa-edit fa-fw"></i>&nbsp;
+	  {% if LANGUAGE_CODE == 'fr' %}{{ p.name_fr }}{% else %}{{ p.name_en }}{% endif %}
+	  <span class="float-right text-muted small">
+	    {% trans 'Ready to invoice' %}
+	  </span>
+        </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      {% endfor %}
+      {% if notifs.expirations|length %}
       <a class="dropdown-item see-more text-center" href="{% url 'lgc-expirations' %}">
-        <strong>{% trans 'See All Expirations' %}</strong>
+        <strong>{% trans 'See all expirations' %}</strong>
         <i class="fa fa-angle-right"></i>
       </a>
+      {% endif %}
+      {% if notifs.pcnt %}
+      <a class="dropdown-item see-more text-center" href="{% url 'lgc-person-processes-ready' %}">
+        <strong>{% trans 'See all ready processes' %}</strong>
+        <i class="fa fa-angle-right"></i>
+      </a>
+      {% endif %}
+      {% if not notifs.expirations|length and not notifs.pcnt %}
+      <a class="dropdown-item see-more text-center" href="#">
+        <strong>{% trans 'There are no pending notifications' %}</strong>
+        <i class="fa fa-angle-right"></i>
+      </a>
+      {% endif %}
     </div>
   </li>
   {% include 'lgc/dropdown_menu_users.html' %}

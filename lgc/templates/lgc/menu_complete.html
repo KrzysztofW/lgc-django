@@ -86,10 +86,21 @@
       </li>
 
       <li class="list-group-item">
-	<a href="{% url 'lgc-processes' %}"><i class="fa fa-edit fa-fw"></i> {% trans "Processes" %}</a>
-      </li>
-      <li class="list-group-item">
-	<a href="{% url 'lgc-process-stages' %}"><i class="fa fa-calendar-check fa-fw"></i> {% trans "Process stages" %}</a>
+	<a href="#"><i class="fa fa-edit fa-fw"></i> {% trans "Processes" %}<span class="fa arrow"></span></a>
+	<ul class="nav-second-level list-group nested">
+	  <li class="list-group-item">
+            <a href="{% url 'lgc-processes' %}">{% trans "Processes" %}</a>
+          </li>
+	  <li class="list-group-item">
+	    <a href="{% url 'lgc-process-stages' %}"> {% trans "Stages" %}</a>
+	  </li>
+	  <li class="list-group-item">
+	    <a href="{% url 'lgc-person-processes-ready' %}"> {% trans "Ready for invoicing" %}</a>
+	  </li>
+	  <li class="list-group-item">
+	    <a href="{% url 'lgc-person-processes-pending' %}"> {% trans "Pending" %}</a>
+	  </li>
+	</ul>
       </li>
 
       <li class="list-group-item">
