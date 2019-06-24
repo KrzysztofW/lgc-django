@@ -54,13 +54,17 @@ log = logging.getLogger('lgc')
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
 
-class BillingTest(LoginRequiredMixin, UserPassesTestMixin):
+class BillingTestLocalUser(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
-        if self.request.user.role not in user_models.get_internal_roles():
+        return self.request.user.role in user_models.get_internal_roles()
+
+class BillingTest(BillingTestLocalUser):
+    def test_func(self):
+        if super().test_func():
             return False
         return self.request.user.billing
 
-class ClientListView(BillingTest, ListView):
+class ClientListView(BillingTestLocalUser, ListView):
     template_name = 'lgc/sub_generic_list.html'
     model = lgc_models.Client
     title = _('Clients')
@@ -103,7 +107,7 @@ class ClientListView(BillingTest, ListView):
         ]
         return pagination(self.request, context, self.this_url)
 
-class ClientCommonView(BillingTest, SuccessMessageMixin):
+class ClientCommonView(BillingTestLocalUser, SuccessMessageMixin):
     model = lgc_models.Client
     template_name = 'lgc/generic_form_with_formsets.html'
 
@@ -527,7 +531,7 @@ class InvoiceDeleteView(BillingTest, DeleteView):
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
-class InvoiceCommonView(BillingTest):
+class InvoiceCommonView(BillingTestLocalUser):
     model = lgc_models.Invoice
     template_name = 'lgc/generic_form_with_formsets.html'
     success_url = 'lgc-invoice'
@@ -1102,8 +1106,6 @@ def ajax_invoice_search_view(request):
 def invoice_insert_client(request):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
-    if not request.user.billing:
-        return http.HttpResponseForbidden()
 
     object_list = []
     for obj in lgc_models.Client.objects.all():
@@ -1127,7 +1129,7 @@ def get_url_params(request):
         return '?index=' + index + '&currency=' + currency
     return ''
 
-class InvoiceItemCommonView(BillingTest):
+class InvoiceItemCommonView(BillingTestLocalUser):
     model = lgc_models.Item
     template_name ='lgc/insert_invoice_item.html'
     success_url = 'lgc-insert-item'
@@ -1258,13 +1260,13 @@ class InvoiceDisbursementUpdateView(InvoiceDisbursementCommon,
     title = _('Update Disbursement')
 
 
-def user_checks(request):
+def user_billing_check(request):
     return (request.user.role in user_models.get_internal_roles() and
             request.user.billing)
 
 @login_required
 def __invoice_item_delete_view(request, model, url, pk=None):
-    if not user_checks:
+    if not user_billing_check:
         return http.HttpResponseForbidden()
 
     if not pk:
@@ -1289,7 +1291,7 @@ def invoice_disbursement_delete_view(request, pk=None):
 
 @login_required
 def generate_invoice_from_quote(request, pk):
-    if not user_checks:
+    if not user_billing_check:
         return http.HttpResponseForbidden()
 
     invoice_objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
@@ -1327,7 +1329,7 @@ def generate_invoice_from_quote(request, pk):
 
 @login_required
 def generate_credit_note_from_invoice(request, pk):
-    if not user_checks:
+    if not user_billing_check:
         return http.HttpResponseForbidden()
 
     credit_notes_objs = lgc_models.Invoice.objects.filter(type=lgc_models.CREDIT)
@@ -1361,7 +1363,7 @@ def generate_credit_note_from_invoice(request, pk):
 
 @login_required
 def billing_pdf_view(request, pk):
-    if not user_checks:
+    if not user_billing_check:
         return http.HttpResponseForbidden()
 
     invoice = lgc_models.Invoice.objects.filter(id=pk)
@@ -1385,7 +1387,7 @@ def billing_pdf_view(request, pk):
 
 @login_required
 def billing_csv_view(request):
-    if not user_checks:
+    if not user_billing_check:
         return http.HttpResponseForbidden()
 
     start_date = request.GET.get('start_date')
@@ -1437,8 +1439,7 @@ def download_receipt_file(request, *args, **kwargs):
     if doc == None or len(doc) != 1:
         raise Http404
 
-    if (request.user.role not in user_models.get_internal_roles() or
-        not request.user.billing):
+    if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
 
     file_path = os.path.join(settings.MEDIA_ROOT, doc[0].document.name)
