@@ -2651,8 +2651,9 @@ def stats_view(request):
         return render(request, 'lgc/statistics.html', context)
 
     crossed_list = []
-    consultants = users.filter(role__exact=user_models.ROLE_CONSULTANT)
-    for j in users.filter(role__exact=user_models.ROLE_JURIST):
+    consultants = users.filter(role__exact=user_models.ROLE_CONSULTANT,
+                               is_active=True)
+    for j in users.filter(role__exact=user_models.ROLE_JURIST, is_active=True):
         persons = j.person_resp_set.get_queryset().filter(state=lgc_models.FILE_STATE_ACTIVE)
         cons_juri_list = []
 
