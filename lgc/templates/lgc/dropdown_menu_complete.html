@@ -178,8 +178,7 @@
       {% endif %}
       {% if not notifs.expirations|length and not notifs.pcnt %}
       <a class="dropdown-item see-more text-center" href="#">
-        <strong>{% trans 'There are no pending notifications' %}</strong>
-        <i class="fa fa-angle-right"></i>
+        {% trans 'There are no pending notifications' %}
       </a>
       {% endif %}
     </div>
