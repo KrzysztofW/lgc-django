@@ -830,8 +830,7 @@ class PersonProcess(models.Model):
         return self.person.id
 
 class PersonProcessStage(models.Model):
-    person_process = models.ForeignKey(PersonProcess,
-                                       related_name="stages",
+    person_process = models.ForeignKey(PersonProcess, related_name="stages",
                                        on_delete=models.CASCADE)
     process_stage = models.ForeignKey(ProcessStage, null=True,
                                       on_delete=models.SET_NULL)

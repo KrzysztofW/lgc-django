@@ -73,13 +73,17 @@ class PersonSearchForm(forms.Form):
                                      choices=lgc_models.JURISDICTION_SPECIFIQUE_CHOICES,
                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
     start_date = forms.CharField(required=False, label=_('Start Date'))
+    end_date = forms.CharField(required=False, label=_('End Date'))
     process_state = forms.ChoiceField(required=False, label=_('Process State'),
                                      choices=SEARCH_PROCESS_STATE,
                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    home_entity = forms.CharField(required=False, label=('Home Entity'))
+    host_entity = forms.CharField(required=False, label=('Host Entity'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         datepicker_set_widget_attrs(self, 'start_date')
+        datepicker_set_widget_attrs(self, 'end_date')
 
 class PersonCreateForm(forms.ModelForm):
     is_private = forms.BooleanField(required=False, initial=False,
@@ -90,7 +94,7 @@ class PersonCreateForm(forms.ModelForm):
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
 
-    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset())
+    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_active_local_user_queryset())
     start_date = forms.DateField(label=_('Start Date'))
     local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80, 'onchange':'auto_complete_region(this);'}),
                                     label=_('Local Address'))
@@ -120,7 +124,7 @@ class PersonCreateForm(forms.ModelForm):
         exclude = ['creation_date', 'modified_by', 'modification_date']
 
 class InitiateAccountForm(forms.ModelForm):
-    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_local_user_queryset(), label=_('Persons in charge'))
+    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_consultant_queryset(), label=_('Persons in charge'))
     new_token = forms.BooleanField(required=False, initial=True,
                                    label=_('Send new token'),
                                    help_text=_('Send authentication token allowing to choose a new password.'))
@@ -332,8 +336,8 @@ class ExpirationSearchForm(forms.Form):
                                  widget=forms.NumberInput(attrs={'onchange':'form.submit();'}))
     show_disabled = forms.BooleanField(required=False, label=_('Show disabled'),
                                        widget=forms.CheckboxInput(attrs={'onchange':'form.submit();'}))
-    dont_show_expired = forms.BooleanField(required=False, label=_("Don't show expired"),
-                                       widget=forms.CheckboxInput(attrs={'onchange':'form.submit();'}))
+    show_expired = forms.BooleanField(required=False, label=_("Show expired"),
+                                      widget=forms.CheckboxInput(attrs={'onchange':'form.submit();'}))
 
 
     class Meta:

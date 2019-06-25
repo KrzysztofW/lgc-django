@@ -49,6 +49,9 @@ def get_consultant_queryset():
 def get_local_user_queryset():
     return get_jurist_queryset()|get_consultant_queryset()
 
+def get_active_local_user_queryset():
+    return (get_jurist_queryset()|get_consultant_queryset()).exclude(is_active=False)
+
 def get_all_local_user_queryset():
     return get_jurist_queryset()|get_consultant_queryset()|User.objects.filter(role__exact=ROLE_NONE)
 
