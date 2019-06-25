@@ -620,7 +620,7 @@ def rename_person_doc_dir(old_obj, new_obj):
     old_path = os.path.join(PERSON_DOC_LINK_DIR, get_person_doc_path(old_obj))
     new_path = os.path.join(PERSON_DOC_LINK_DIR, get_person_doc_path(new_obj))
 
-    if old_path == new_path:
+    if old_path == new_path or not os.path.exists(old_path):
         return
 
     try:
