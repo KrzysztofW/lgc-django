@@ -60,7 +60,7 @@ def token_generator():
 
     while True:
         r = ''.join(random.choice(chars) for _ in range(size))
-        if not User.objects.get(token=r):
+        if len(User.objects.filter(token=r)) == 0:
             return r
 
 def save_active_tab(obj):
