@@ -22,6 +22,7 @@ from django.contrib.auth.hashers import check_password
 from django.utils import timezone
 from django.conf import settings
 from datetime import datetime, timedelta
+from ipaddress import IPv4Address, IPv4Network
 from . import models as user_models
 import os
 import logging
@@ -249,8 +250,32 @@ def update_profile(request):
     return render(request, 'users/create.html', context)
 
 class LoginView(authLoginView):
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        url_next = self.request.GET.get('next')
+
+        if not url_next:
+            return context
+
+        for lang in settings.LANGUAGES:
+            if url_next == '/' + lang[0] + '/':
+                return context
+        messages.error(self.request, _('Your session has expired.'))
+        return context
+
     def form_valid(self, form):
         form = super().form_valid(form)
+        ip = self.request.META.get('REMOTE_ADDR')
+        ip = IPv4Address(ip)
+        found = False
+
+        for subnet in settings.ALLOWED_SESSION_NOTIMEOUT_SUBNETS:
+            if ip in IPv4Network(subnet):
+                found = True
+                break
+        if not found:
+            self.request.session.set_expiry(settings.SESSION_EXPIRATION)
+
         if self.request.user.role in user_models.get_internal_roles():
             return form
 

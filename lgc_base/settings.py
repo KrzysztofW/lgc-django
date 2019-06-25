@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +26,9 @@ SECRET_KEY = '7g&a3%b538z5&#-4ud7q@eqnz!+lufnbgq1adk!ei#@0=o4a2j'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["2.2.2.2", "localhost"]
+ALLOWED_HOSTS = ["2.2.2.2", "localhost", "192.168.0.11", "lgc.example.com"]
+ALLOWED_SESSION_NOTIMEOUT_SUBNETS = ['127.0.0.1/32', '192.168.0.0/24']
+SESSION_EXPIRATION = 1200
 
 # Application definition
 
@@ -229,6 +232,10 @@ TIME_ZONE = 'Europe/London'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+LANGUAGES = [
+    ('en', _('English')),
+    ('fr', _('French')),
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
