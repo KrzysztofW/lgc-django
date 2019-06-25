@@ -503,7 +503,7 @@ def get_person_form_layout(cur_user, form, action, obj,
     if cur_user.role in user_models.get_internal_roles():
         return local_user_get_person_form_layout(cur_user, form, action, obj,
                                                  completed_processes)
-    if cur_user.role == user_models.EMPLOYEE:
+    if cur_user.role == user_models.ROLE_EMPLOYEE:
         return employee_user_get_person_form_layout(form, action, obj)
     if cur_user.role in user_models.get_hr_roles():
         return employee_user_get_person_form_layout(form, action, obj)
@@ -2074,11 +2074,11 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
 
         if self.is_hr:
             if form.cleaned_data['is_admin']:
-                form.instance.role = user_models.HR_ADMIN
+                form.instance.role = user_models.ROLE_HR_ADMIN
             else:
-                form.instance.role = user_models.HR
+                form.instance.role = user_models.ROLE_HR
         else:
-            form.instance.role = user_models.EMPLOYEE
+            form.instance.role = user_models.ROLE_EMPLOYEE
         if form.cleaned_data['new_token']:
             form.instance.token = token_generator()
             form.instance.token_date = timezone.now()
@@ -2153,7 +2153,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         context['title'] = self.title
         context['formset_title'] = _('Employees')
         context['formset_add_text'] = _('Add an employee')
-        if self.is_hr and self.object.role == user_models.HR_ADMIN:
+        if self.is_hr and self.object.role == user_models.ROLE_HR_ADMIN:
             context['form'].fields['is_admin'].initial = True
         context['form'].fields['new_token'].initial = False
         del context['user']
@@ -2201,17 +2201,17 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             self.object.person_user_set.responsible.set(form.instance.responsible.all())
             self.object.person_user_set.save()
         elif (self.object.status == user_models.USER_STATUS_ACTIVE and
-              self.object.role == user_models.EMPLOYEE):
+              self.object.role == user_models.ROLE_EMPLOYEE):
             messages.error(self.request, pending_user_err_msg)
             return redirect('lgc-account', self.object.id)
 
         if self.is_hr:
             if form.cleaned_data['is_admin']:
-                form.instance.role = user_models.HR_ADMIN
+                form.instance.role = user_models.ROLE_HR_ADMIN
             else:
-                form.instance.role = user_models.HR
+                form.instance.role = user_models.ROLE_HR
         else:
-            form.instance.role = user_models.EMPLOYEE
+            form.instance.role = user_models.ROLE_EMPLOYEE
 
         if form.cleaned_data['new_token']:
             form.instance.token = token_generator()
@@ -2312,7 +2312,7 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
         else:
             init = []
             for p in self.object.hr_employees.all():
-                if p.role != user_models.EMPLOYEE:
+                if p.role != user_models.ROLE_EMPLOYEE:
                     continue;
                 init.append({'id':p.id,
                              'first_name':p.first_name,

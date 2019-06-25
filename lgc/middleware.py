@@ -25,7 +25,7 @@ class UserRolesCheck(MiddlewareMixin):
                 request.path == '/fr' + i):
                 return
 
-        if request.user.role == user_models.EMPLOYEE:
+        if request.user.role == user_models.ROLE_EMPLOYEE:
             if re.search("^/((en)|(fr))/emp/.*$", request.path) == None:
                 raise PermissionDenied
             return

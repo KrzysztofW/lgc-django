@@ -96,7 +96,7 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
             return self.object in self.request.user.hr_employees.all()
         except:
             """ only the HR admin can initiate new cases """
-            return self.request.user.role == user_models.HR_ADMIN
+            return self.request.user.role == user_models.ROLE_HR_ADMIN
 
     def get_success_url(self):
         return reverse_lazy('hr-update-account', kwargs={'pk':self.object.id})
@@ -113,7 +113,7 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        form.instance.role = user_models.EMPLOYEE
+        form.instance.role = user_models.ROLE_EMPLOYEE
         if form.cleaned_data['new_token']:
             form.instance.token = lgc_views.token_generator()
             form.instance.token_date = timezone.now()

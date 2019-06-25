@@ -71,7 +71,7 @@ def my_file(request):
 
 @login_required
 def my_expirations(request):
-    if request.user.role != user_models.EMPLOYEE:
+    if request.user.role != user_models.ROLE_EMPLOYEE:
         return http.HttpResponseForbidden()
 
     form = lgc_views.get_expirations_form(request)

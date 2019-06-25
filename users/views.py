@@ -360,7 +360,7 @@ def handle_auth_token(request):
         form.instance.status = user_models.USER_STATUS_ACTIVE
         form.instance.password_last_update = timezone.now().date()
         form.save()
-        if (form.instance.role == user_models.EMPLOYEE and
+        if (form.instance.role == user_models.ROLE_EMPLOYEE and
             not hasattr(form.instance, 'person_user_set')):
             p = lgc_models.Person()
             p.first_name = form.instance.first_name
