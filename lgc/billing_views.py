@@ -60,7 +60,7 @@ class BillingTestLocalUser(LoginRequiredMixin, UserPassesTestMixin):
 
 class BillingTest(BillingTestLocalUser):
     def test_func(self):
-        if super().test_func():
+        if not super().test_func():
             return False
         return self.request.user.billing
 
