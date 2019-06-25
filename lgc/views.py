@@ -2709,7 +2709,7 @@ def stats_view(request):
         'nb_external_users': user_models.get_external_user_queryset().count(),
         'nb_hr': user_models.get_hr_user_queryset().count(),
         'crossed_list': crossed_list,
-        'expirations': expirations_filter_objs(request, lgc_models.Expiration.objects).count(),
+        'expirations': lgc_models.Expiration.objects.filter(enabled=True).exclude(end_date__lte=timezone.now().date()).count(),
         'year_revenue': get_this_year_revenue() if request.user.billing else None,
         'nb_processes': lgc_models.Process.objects.count(),
     }
