@@ -1,6 +1,12 @@
 {% load static %}
 
-<center><small><p class="mt-5 mb-3 text-muted">Copyright K. Witek © {% now "Y" %}</p></small></center>
+<center><small><p class="mt-5 mb-3 text-muted">
+      {% if request.session.is_empty %}
+      Office
+      {% else %}
+      Copyright K. Witek © {% now "Y" %}
+      {% endif %}
+</p></small></center>
 
 <!-- Metis Menu Plugin JavaScript -->
 <script src="{% static 'lgc/metisMenu.min.js' %}"></script>
