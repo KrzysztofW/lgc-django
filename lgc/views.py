@@ -2532,7 +2532,7 @@ def expirations_filter_objs(request, objs):
     expires = request.GET.get('expires')
     expiry_type = request.GET.get('expiry_type')
     show_disabled = request.GET.get('show_disabled')
-    dont_show_expired = request.GET.get('dont_show_expired')
+    show_expired = request.GET.get('show_expired')
     user = request.GET.get('user')
 
     """ initial value of 'expires' must be set """
@@ -2559,7 +2559,7 @@ def expirations_filter_objs(request, objs):
         objs = objs.filter(type=expiry_type)
     if not show_disabled:
         objs = objs.filter(enabled=True)
-    if dont_show_expired:
+    if not show_expired:
         objs = objs.exclude(end_date__lte=timezone.now().date())
     return objs
 
@@ -2578,7 +2578,7 @@ def get_expirations_form(request):
             Div('expires', css_class='form-group col-md-2'),
             Div('expiry_type', css_class='form-group col-md-3'),
             Div('show_disabled', css_class='form-group col-md-2 lgc_aligned_checkbox'),
-            Div('dont_show_expired', css_class='form-group col-md-3 lgc_aligned_checkbox'),
+            Div('show_expired', css_class='form-group col-md-3 lgc_aligned_checkbox'),
             css_class='form-row'),
     )
     return form
