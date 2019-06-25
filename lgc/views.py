@@ -154,8 +154,7 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
                                     ('birth_date', _('Birth Date')),
                                     ('creation_date', _('Created'))]
 
-        if self.request.user.role == user_models.ROLE_CONSULTANT:
-            context['create_url'] = reverse_lazy('lgc-file-create')
+        context['create_url'] = reverse_lazy('lgc-file-create')
 
         p = pagination(self.request, context, reverse_lazy('lgc-files'))
         if self.model == user_models.User or self.process_col == None:
