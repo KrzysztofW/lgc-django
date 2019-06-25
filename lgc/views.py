@@ -188,18 +188,21 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
 
 class PersonListView(PersonCommonListView):
     def match_extra_terms(self, objs):
-        id = self.request.GET.get('id', '')
-        info_process = self.request.GET.get('info_process', '')
-        state = self.request.GET.get('state', '')
-        jurist = self.request.GET.get('jurist', '')
-        consultant = self.request.GET.get('consultant', '')
-        prefecture = self.request.GET.get('prefecture', '')
-        subprefecture = self.request.GET.get('subprefecture', '')
-        consulate = self.request.GET.get('consulate', '')
-        direccte = self.request.GET.get('direccte', '')
-        jurisdiction = self.request.GET.get('jurisdiction', '')
-        start_date = self.request.GET.get('start_date', '')
-        process_state = self.request.GET.get('process_state', '')
+        id = self.request.GET.get('id')
+        info_process = self.request.GET.get('info_process')
+        state = self.request.GET.get('state')
+        jurist = self.request.GET.get('jurist')
+        consultant = self.request.GET.get('consultant')
+        prefecture = self.request.GET.get('prefecture')
+        subprefecture = self.request.GET.get('subprefecture')
+        consulate = self.request.GET.get('consulate')
+        direccte = self.request.GET.get('direccte')
+        jurisdiction = self.request.GET.get('jurisdiction')
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        process_state = self.request.GET.get('process_state')
+        home_entity = self.request.GET.get('home_entity')
+        host_entity = self.request.GET.get('host_entity')
 
         if process_state == 'A':
             objs = objs.filter(personprocess_set__active=True)
@@ -233,21 +236,30 @@ class PersonListView(PersonCommonListView):
             objs = objs.filter(direccte__exact=direccte)
         if jurisdiction:
             objs = objs.filter(jurisdiction__exact=jurisdiction)
-        if start_date:
-            objs = objs.filter(start_date=utils.parse_date(start_date))
+
+        if start_date and end_date:
+            objs = objs.filter(start_date__range=[utils.parse_date(start_date),
+                                                  utils.parse_date(end_date)])
+        elif start_date:
+            objs = objs.filter(start_date__gte=utils.parse_date(start_date))
+        elif end_date:
+            objs = objs.filter(start_date__lte=utils.parse_date(end_date))
+        if home_entity:
+            objs = objs.filter(home_entity__istartswith=home_entity)
+        if host_entity:
+            objs = objs.filter(host_entity__istartswith=host_entity)
         return objs
 
     def get_queryset(self):
-        term = self.request.GET.get('term', '')
+        term = self.request.GET.get('term')
         order_by = self.get_ordering()
         objs = self.match_extra_terms(lgc_models.Person.objects)
 
         if term == '':
             return objs.order_by(order_by)
 
-        objs = (objs.filter(email__istartswith=term)|
-                objs.filter(first_name__istartswith=term)|
-                objs.filter(last_name__istartswith=term))
+        objs = (objs.filter(email=term)|objs.filter(first_name=term)|
+                objs.filter(last_name=term))
         return objs.order_by(order_by)
 
     def get_search_form(self):
@@ -276,6 +288,11 @@ class PersonListView(PersonCommonListView):
                 Div('direccte', css_class='form-group col-md-3'),
                 Div('jurisdiction', css_class='form-group col-md-3'),
                 Div('start_date', css_class='form-group col-md-3'),
+                Div('end_date', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
+                Div('home_entity', css_class='form-group col-md-3'),
+                Div('host_entity', css_class='form-group col-md-3'),
                 Div('process_state', css_class='form-group col-md-3'),
                 css_class='form-row'),
         )
@@ -1056,7 +1073,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 continue
 
             for form in formset.forms:
-                if form.errors.get('id', '') == '':
+                if not form.errors.get('id'):
                     continue
                 """
                 A form that we modified has been deleted, treat it as new.
@@ -1403,9 +1420,9 @@ class ProcessListView(ProcessCommonView, ListView):
     search_url = reverse_lazy('lgc-processes')
 
     def get_queryset(self):
-        term = self.request.GET.get('term', '')
+        term = self.request.GET.get('term')
         order_by = self.get_ordering()
-        if term == '':
+        if not term:
             return self.model.objects.order_by(order_by)
         objs = (self.model.objects.filter(name_fr__istartswith=term)|
                 self.model.objects.filter(name_en__istartswith=term))
@@ -1545,7 +1562,7 @@ class ProcessStageListView(ProcessListView):
             ('invoice_alert', _('Generates invoice alert')),
         ]
 
-        return pagination(self.request, context, self.this_url)
+        return context
 
 class ProcessStageCreateView(ProcessCreateView):
     model = lgc_models.ProcessStage
@@ -1863,7 +1880,7 @@ class PersonProcessListView(ProcessListView):
         ]
         context['exclude_order_by'] = [ 'get_name', 'get_file_id' ]
 
-        return pagination(self.request, context, self.this_url)
+        return context
 
 class PersonProcessReadyListView(PersonProcessListView):
     title = _('Processes ready to invoice')
@@ -2000,9 +2017,9 @@ class AccountView(LoginRequiredMixin, UserPassesTestMixin):
         return self.request.user.role in user_models.get_internal_roles()
 
 class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
-    success_message = _('New account successfully initiated')
-    title = _('Initiate an account')
-    form_name = _('Initiate account')
+    success_message = _('New account successfully created')
+    title = _('Create acces')
+    form_name = _('Create access')
 
     def test_func(self):
         return self.request.user.role in user_models.get_internal_roles()
@@ -2038,8 +2055,8 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         return super().form_invalid(form)
 
     def get_person(self):
-        pk = self.kwargs.get('pk', '')
-        if pk != '':
+        pk = self.kwargs.get('pk')
+        if pk:
             p = lgc_models.Person.objects.get(id=pk)
             if p == None:
                 raise ValueError('invalid person ID')
@@ -2270,7 +2287,7 @@ class HRView(LoginRequiredMixin):
         return self.request.user.role in user_models.get_internal_roles()
 
 class HRCreateView(HRView, InitiateAccount):
-    success_message = _('New HR account successfully initiated')
+    success_message = _('New HR account successfully created')
     title = _('New HR account')
     form_name = _('Initiate account')
 
@@ -2426,6 +2443,17 @@ def ajax_insert_employee_view(request):
     }
     return render(request, 'lgc/insert_employee.html', context)
 
+def ajax_file_search_find_exact_objs(objs, term, res):
+    objects = objs.filter(first_name=term)[:1]
+    if len(objects):
+        res.append(objects[0])
+    objects = objs.filter(last_name=term)[:1]
+    if len(objects):
+        res.append(objects[0])
+    objects = objs.filter(last_name=term)[:1]
+    if len(objects):
+        res.append(objects[0])
+
 def ajax_file_search_find_objs(objs, term):
     return (objs.filter(first_name__istartswith=term)|
             objs.filter(last_name__istartswith=term)|
@@ -2438,31 +2466,30 @@ def ajax_file_search_view(request):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
 
-    objs = lgc_models.Person.objects
-    all_objs = []
-    term = request.GET.get('term', '')
+    term = request.GET.get('term')
 
     """ ignore empty requests """
-    if term == '':
+    if not term:
         return
 
-    if term == 'le' or term == 'la':
-        eterm = term + ' '
-        efiles = ajax_file_search_find_objs(objs, eterm)[:10]
-        if len(efiles) < 10:
-            files = objs.exclude(first_name__istartswith=eterm).exclude(last_name__istartswith=eterm).exclude(email__istartswith=eterm).exclude(host_entity__istartswith=eterm).exclude(home_entity__istartswith=eterm)
-            files = ajax_file_search_find_objs(files, term)[:(10-len(efiles))]
-        else:
-            files = None
-    else:
-        efiles = None
-        files = ajax_file_search_find_objs(objs, term)[:10]
+    objs = lgc_models.Person.objects
+    all_objs = []
+    print('term:', term)
 
-    if efiles:
-        for obj in efiles:
-            all_objs.append(obj)
+    ajax_file_search_find_exact_objs(objs, term, all_objs)
+    eterm = term + ' '
+    files = ajax_file_search_find_objs(objs, eterm)[:10-len(all_objs)]
     for obj in files:
         all_objs.append(obj)
+    cnt = len(all_objs)
+
+    if cnt < 10:
+        files = (objs.filter(first_name__istartswith=term).exclude(first_name=term)|
+                 objs.filter(last_name__istartswith=term).exclude(last_name=term)|
+                 objs.filter(email__istartswith=term).exclude(email=term))[:10-cnt]
+
+        for obj in files:
+            all_objs.append(obj)
 
     col_list = ['first_name', 'last_name', 'email', 'host_entity', 'home_entity']
     col_list = set_bold_search_attrs(all_objs, col_list, term)
