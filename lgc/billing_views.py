@@ -854,7 +854,7 @@ class InvoiceCommonView(BillingTestLocalUser):
                 self.success_message = _('Credit Note successfully updated.')
             elif form.instance.type == lgc_models.QUOTATION:
                 self.success_message = _('Quotation successfully updated.')
-            else:
+            elif person_process:
                 person_process.invoice_alert = False
                 person_process.save()
             messages.success(self.request, self.success_message)
