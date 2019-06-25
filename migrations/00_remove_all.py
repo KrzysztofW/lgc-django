@@ -13,6 +13,7 @@ except Exception as e:
 
 cursor5 = lgc_v5.cursor()
 cursor5.execute("delete FROM lgc_person_responsible")
+cursor5.execute("delete FROM lgc_disbursementdocument")
 cursor5.execute("delete FROM lgc_invoicedisbursement")
 cursor5.execute("delete FROM lgc_invoiceitem")
 cursor5.execute("delete FROM lgc_disbursement")
@@ -33,3 +34,5 @@ cursor5.execute("delete FROM users_user_responsible")
 cursor5.execute("delete FROM users_user_hr_employees")
 cursor5.execute("delete FROM users_user where is_superuser=0")
 lgc_v5.commit()
+
+print("don't forget to: rm -rf  /home/partage/LGC-documents/*")
