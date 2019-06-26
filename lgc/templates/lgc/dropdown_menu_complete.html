@@ -155,10 +155,22 @@
       {% for p in notifs.ready_to_invoice %}
       <a class="dropdown-item" href="{% url 'lgc-person-process' p.id %}">
         <div>
-          &nbsp;<i class="fa fa-edit fa-fw"></i>&nbsp;
-	  {% if LANGUAGE_CODE == 'fr' %}{{ p.name_fr }}{% else %}{{ p.name_en }}{% endif %}
+          &nbsp;<i class="fa fa-edit fa-fw"></i>
+	  {% if LANGUAGE_CODE == 'fr' %}{{ p.name_fr|truncatechars:30 }}{% else %}{{ p.name_en|truncatechars:30 }}{% endif %}
 	  <span class="float-right text-muted small">
 	    {% trans 'Ready to invoice' %}
+	  </span>
+        </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      {% endfor %}
+      {% for i in notifs.ready_invoices %}
+      <a class="dropdown-item" href="{% url 'lgc-invoice' i.id %}">
+        <div>
+          <i class="fa fa-money-bill-alt fa-fw"></i>
+	  {% trans 'Invoice' %} {{ i.number }}
+	  <span class="float-right text-muted small">
+	    {% trans 'is ready' %}
 	  </span>
         </div>
       </a>
@@ -176,7 +188,13 @@
         <i class="fa fa-angle-right"></i>
       </a>
       {% endif %}
-      {% if not notifs.expirations|length and not notifs.pcnt %}
+      {% if notifs.ready_invoices|length %}
+      <a class="dropdown-item see-more text-center" href="{% url 'lgc-invoices' %}?state=T">
+        <strong>{% trans 'See all ready invoices' %}</strong>
+        <i class="fa fa-angle-right"></i>
+      </a>
+      {% endif %}
+      {% if not notifs.expirations|length and not notifs.pcnt and not notifs.ready_invoices|length%}
       <a class="dropdown-item see-more text-center" href="#">
         {% trans 'There are no pending notifications' %}
       </a>

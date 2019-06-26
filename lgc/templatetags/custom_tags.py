@@ -27,8 +27,8 @@ def get_notification_menu(request):
     pcnt = 0
     res['pcnt'] = 0
 
-    if request.user.billing:
-        processes = lgc_models.PersonProcess.objects.filter(invoice_alert=True)
+    if request.user.role == user_models.ROLE_CONSULTANT:
+        processes = lgc_models.PersonProcess.objects.filter(person__responsible=request.user, invoice_alert=True)
         ready_processes = []
         pcnt = 0;
         for p in processes.all():
@@ -37,7 +37,13 @@ def get_notification_menu(request):
                 pcnt += 1
         res['ready_to_invoice'] = ready_processes
         res['pcnt'] = pcnt
+
     res['nb_items'] = len(expirations) + len(deletion_requests) + pcnt
+    if request.user.billing:
+        invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE)
+        res['ready_invoices'] = invoices[:10].all()
+        res['nb_items'] += len(invoices)
+
     return res
 
 @register.simple_tag
