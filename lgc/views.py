@@ -261,7 +261,7 @@ class PersonListView(PersonCommonListView):
         order_by = self.get_ordering()
         objs = self.match_extra_terms(lgc_models.Person.objects)
 
-        if term == '':
+        if not term:
             return objs.order_by(order_by)
 
         objs = (objs.filter(email=term)|objs.filter(first_name=term)|
