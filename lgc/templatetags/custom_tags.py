@@ -39,7 +39,7 @@ def get_notification_menu(request):
         res['pcnt'] = pcnt
 
     res['nb_items'] = len(expirations) + len(deletion_requests) + pcnt
-    if request.user.billing:
+    if request.user.billing and request.user.show_invoice_notifs:
         invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE)
         res['ready_invoices'] = invoices[:10].all()
         res['nb_items'] += len(invoices)

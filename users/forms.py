@@ -18,7 +18,7 @@ class UserUpdateForm(UserChangeForm):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'is_active', 'is_staff',
-                  'role', 'billing', 'language']
+                  'role', 'billing', 'show_invoice_notifs', 'language']
 
 class UserUpdateProfileForm(UserChangeForm):
     password = None

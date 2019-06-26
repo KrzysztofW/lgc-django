@@ -126,6 +126,8 @@ class User(AbstractUser):
     role = models.CharField(max_length=2, choices=ALL_ROLE_CHOICES,
                             default=ROLE_JURIST, blank=True)
     billing = models.BooleanField(default=False)
+    show_invoice_notifs = models.BooleanField(_('Show invoice notifications'),
+                                              default=False)
     objects = UserManager()
     token = models.CharField(max_length=64, default="", blank=True)
     token_date = models.DateTimeField(null=True)
