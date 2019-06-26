@@ -1851,6 +1851,10 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
             if not self.object.is_process_complete():
                 messages.error(self.request, _('The process is not complete.'))
                 return super().form_invalid(form)
+            if (not form.instance.no_billing and
+                len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0):
+                messages.error(self.request, _('This process cannot be closed as it does not have any invoice.'))
+                return super().form_invalid(form)
             form.instance.active = False
             super().form_valid(form)
             return redirect('lgc-file', self.object.person.id)
