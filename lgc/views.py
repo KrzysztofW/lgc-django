@@ -2204,7 +2204,6 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         user = User.objects.get(id=self.object.id)
         if not user:
             return self.form_invalid(form)
-        user = user[0]
 
         if (user.status == user_models.USER_STATUS_PENDING and
             form.cleaned_data['status'] == user_models.USER_STATUS_ACTIVE):
@@ -2317,7 +2316,7 @@ class HRCreateView(HRView, InitiateAccount):
     form_name = _('Initiate account')
 
     def test_func(self):
-        return (self.request.user.role == user_models.CONSULTANT or
+        return (self.request.user.role == user_models.ROLE_CONSULTANT or
                 self.request.user.is_staff)
 
 class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
