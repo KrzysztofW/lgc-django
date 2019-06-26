@@ -889,10 +889,11 @@ class InvoiceCommonView(BillingTestLocalUser):
                                                               kwargs={'pk':self.object.id})) +
                                              '" class="btn btn-outline-info">' +
                                              _('Generate Credit Note') + '</a>'))
-            gen_pdf_html = HTML(('&nbsp;<a href="' +
-                                 str(reverse_lazy('lgc-billing-pdf',
-                                                  kwargs={'pk':self.object.id})) +
-                                 '" class="btn btn-outline-info">PDF</a>'))
+            if self.request.user.billing:
+                gen_pdf_html = HTML(('&nbsp;<a href="' +
+                                     str(reverse_lazy('lgc-billing-pdf',
+                                                      kwargs={'pk':self.object.id})) +
+                                     '" class="btn btn-outline-info">PDF</a>'))
         else:
             state_div = None
         layout = Layout(
