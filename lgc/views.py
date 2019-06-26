@@ -323,60 +323,57 @@ def local_user_get_person_form_layout(user, form, action, obj,
         _('Information'),
         Div(Div('is_private'), css_class='form-row'),
         Div(Div('active_tab'),
-            Div('first_name', css_class='form-group col-md-4'),
-            Div('last_name', css_class='form-group col-md-4'),
+            Div('first_name', css_class='form-group col-md-3'),
+            Div('last_name', css_class='form-group col-md-3'),
+            Div('email', css_class='form-group col-md-3'),
             Div('version'),
             css_class='form-row'),
-        Div(Div('email', css_class='form-group col-md-4'),
-            Div('citizenship', css_class='form-group col-md-4'),
+        Div(
+            Div('citizenship', css_class='form-group col-md-3'),
+            Div('foreigner_id', css_class='form-group col-md-3'),
+            Div('birth_date', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('foreigner_id', css_class='form-group col-md-4'),
-            Div('birth_date', css_class='form-group col-md-4'),
+        Div(Div('info_process', css_class='form-group col-md-3'),
+            Div('responsible', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('info_process', css_class='form-group col-md-4'),
-            Div('responsible', css_class='form-group col-md-4'),
+        Div(Div('passport_expiry', css_class='form-group col-md-3'),
+            Div('passport_nationality', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('work_permit', css_class='form-group col-md-4'),
+        Div(Div('work_permit', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('passport_expiry', css_class='form-group col-md-4'),
-            Div('passport_nationality', css_class='form-group col-md-4'),
+        Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
             css_class='form-row'),
-        Div(Div(HTML('<hr>'), css_class='form-group col-md-8'),
+        Div(Div('home_entity', css_class='form-group col-md-3'),
+            Div('host_entity', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('home_entity', css_class='form-group col-md-4'),
-            Div('host_entity', css_class='form-group col-md-4'),
+        Div(Div('home_entity_address', css_class='form-group col-md-3'),
+            Div('host_entity_address', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('home_entity_address', css_class='form-group col-md-4'),
-            Div('host_entity_address', css_class='form-group col-md-4'),
+        Div(Div('local_address', css_class='form-group col-md-3'),
+            Div('local_phone_number', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('local_address', css_class='form-group col-md-4'),
-            Div('local_phone_number', css_class='form-group col-md-4'),
+        Div(Div('foreign_address', css_class='form-group col-md-3'),
+            Div('foreign_phone_number', css_class='form-group col-md-3'),
+            Div('foreign_country', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('foreign_address', css_class='form-group col-md-4'),
-            Div('foreign_phone_number', css_class='form-group col-md-4'),
+        Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
             css_class='form-row'),
-        Div(Div('foreign_country', css_class='form-group col-md-4'),
+        Div(Div('spouse_first_name', css_class='form-group col-md-3'),
+            Div('spouse_last_name', css_class='form-group col-md-3'),
+            Div('spouse_birth_date', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div(HTML('<hr>'), css_class='form-group col-md-8'),
+        Div(Div('spouse_citizenship', css_class='form-group col-md-3'),
+            Div('spouse_passport_expiry', css_class='form-group col-md-3'),
+            Div('spouse_passport_nationality', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('spouse_first_name', css_class='form-group col-md-4'),
-            Div('spouse_last_name', css_class='form-group col-md-4'),
+        Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
             css_class='form-row'),
-        Div(Div('spouse_birth_date', css_class='form-group col-md-4'),
-            Div('spouse_citizenship', css_class='form-group col-md-4'),
+        Div(Div('prefecture', css_class='form-group col-md-3'),
+            Div('subprefecture', css_class='form-group col-md-3'),
+            Div('consulate', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('spouse_passport_expiry', css_class='form-group col-md-4'),
-            Div('spouse_passport_nationality', css_class='form-group col-md-4'),
-            css_class='form-row'),
-        Div(Div(HTML('<hr>'), css_class='form-group col-md-8'),
-            css_class='form-row'),
-        Div(Div('prefecture', css_class='form-group col-md-4'),
-            Div('subprefecture', css_class='form-group col-md-4'),
-            css_class='form-row'),
-        Div(Div('consulate', css_class='form-group col-md-4'),
-            Div('direccte', css_class='form-group col-md-4'),
-            css_class='form-row'),
-        Div(Div('jurisdiction', css_class='form-group col-md-4'),
+        Div(Div('direccte', css_class='form-group col-md-3'),
+            Div('jurisdiction', css_class='form-group col-md-3'),
             css_class='form-row'),
     )
 
@@ -384,10 +381,10 @@ def local_user_get_person_form_layout(user, form, action, obj,
                                               'lgc/formsets_template.html')),
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
-    info_tab.append(Div(Div('state', css_class='form-group col-md-4'),
-                        Div('start_date', css_class='form-group col-md-4'),
+    info_tab.append(Div(Div('state', css_class='form-group col-md-3'),
+                        Div('start_date', css_class='form-group col-md-3'),
                         css_class='form-row'))
-    info_tab.append(Div(Div('comments', css_class='form-group col-md-8'),
+    info_tab.append(Div(Div('comments', css_class='form-group col-md-6'),
             css_class='form-row'))
 
     tab_holder = TabHolder(info_tab)
@@ -459,32 +456,31 @@ def employee_user_get_person_form_layout(form, action, obj):
     info_tab = LgcTab(
         _('Information'),
         Div(Div('active_tab'),
-            Div('first_name', css_class='form-group col-md-4'),
-            Div('last_name', css_class='form-group col-md-4'),
+            Div('first_name', css_class='form-group col-md-3'),
+            Div('last_name', css_class='form-group col-md-3'),
+            Div('email', css_class='form-group col-md-3'),
             Div('version'),
             css_class='form-row'),
-        Div(Div('email', css_class='form-group col-md-4'),
-            Div('citizenship', css_class='form-group col-md-4'),
+        Div(
+            Div('citizenship', css_class='form-group col-md-3'),
+            Div('foreigner_id', css_class='form-group col-md-3'),
+            Div('birth_date', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('foreigner_id', css_class='form-group col-md-4'),
-            Div('birth_date', css_class='form-group col-md-4'),
+        Div(Div('passport_expiry', css_class='form-group col-md-3'),
+            Div('passport_nationality', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('passport_expiry', css_class='form-group col-md-4'),
-            Div('passport_nationality', css_class='form-group col-md-4'),
+        Div(Div('home_entity', css_class='form-group col-md-3'),
+            Div('host_entity', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('home_entity', css_class='form-group col-md-4'),
-            Div('host_entity', css_class='form-group col-md-4'),
+        Div(Div('home_entity_address', css_class='form-group col-md-3'),
+            Div('host_entity_address', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('home_entity_address', css_class='form-group col-md-4'),
-            Div('host_entity_address', css_class='form-group col-md-4'),
+        Div(Div('local_address', css_class='form-group col-md-3'),
+            Div('local_phone_number', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div('local_address', css_class='form-group col-md-4'),
-            Div('local_phone_number', css_class='form-group col-md-4'),
-            css_class='form-row'),
-        Div(Div('foreign_address', css_class='form-group col-md-4'),
-            Div('foreign_phone_number', css_class='form-group col-md-4'),
-            css_class='form-row'),
-        Div(Div('foreign_country', css_class='form-group col-md-4'),
+        Div(Div('foreign_address', css_class='form-group col-md-3'),
+            Div('foreign_phone_number', css_class='form-group col-md-3'),
+            Div('foreign_country', css_class='form-group col-md-3'),
             css_class='form-row'),
     )
 
@@ -1952,35 +1948,38 @@ def get_account_layout(layout, new_token, is_hr=False, is_active=False):
 
     layout.append(
         Div(
-            Div('first_name', css_class='form-group col-md-4'),
-            Div('last_name', css_class='form-group col-md-4'),
-            css_class='form-row'))
-    layout.append(
-        Div(
-            Div('email', css_class='form-group col-md-4'),
-            Div('language', css_class='form-group col-md-4'),
+            Div('first_name', css_class='form-group col-md-3'),
+            Div('last_name', css_class='form-group col-md-3'),
+            Div('email', css_class='form-group col-md-3'),
             css_class='form-row'))
     if is_hr:
-        div.append(Div('company', css_class='form-group col-md-4'));
-    div.append(Div('responsible', css_class='form-group col-md-4'));
+        hr_div = Div('company', css_class='form-group col-md-3')
+    else:
+        hr_div = None
+
+    layout.append(
+        Div(
+            Div('responsible', css_class='form-group col-md-3'),
+            Div('language', css_class='form-group col-md-3'),
+            hr_div,
+            css_class='form-row'))
     layout.append(div)
 
     if is_active:
         row_div = Div(css_class='form-row')
-        row_div.append(Div('is_active', css_class='form-group col-md-4'))
-        layout.append(row_div)
-        row_div = Div(css_class='form-row')
-        row_div.append(Div('status', css_class='form-group col-md-4'))
+        row_div.append(Div('status', css_class='form-group col-md-3'))
         layout.append(row_div)
 
+    row_div = Div(css_class='form-row')
     if new_token or is_hr:
-        row_div = Div(css_class='form-row')
         if new_token:
-            row_div.append(Div('new_token', css_class='form-group col-md-4'))
+            row_div.append(Div('new_token', css_class='form-group col-md-3'))
         if is_hr:
-            row_div.append(Div('is_admin', css_class='form-group col-md-4'))
-        layout.append(row_div)
+            row_div.append(Div('is_admin', css_class='form-group col-md-3'))
+    if is_active:
+        row_div.append(Div('is_active', css_class='form-group col-md-3'))
 
+    layout.append(row_div)
 
     return layout
 

@@ -489,12 +489,12 @@ class PersonInfo(models.Model):
                                        null=True, default=None)
     passport_nationality = CountryField(_('Passport Nationality'), blank=True,
                                         null=True)
-    home_entity = models.CharField(_('Home entity'), max_length=50,
+    home_entity = models.CharField(_('Home Entity'), max_length=50,
                                    default='', blank=True, validators=[validators.alphanum])
     home_entity_address = models.TextField(_('Home Entity address'),
                                            max_length=100, default='',
                                            blank=True)
-    host_entity = models.CharField(_('Host entity'), max_length=50,
+    host_entity = models.CharField(_('Host Entity'), max_length=50,
                                    default='', blank=True, validators=[validators.alphanum])
     host_entity_address = models.TextField(_('Host Entity address'),
                                            max_length=100, default='',

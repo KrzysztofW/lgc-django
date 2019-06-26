@@ -93,16 +93,16 @@ class PersonCreateForm(forms.ModelForm):
     email = forms.EmailField(required=False)
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
     birth_date = forms.DateField(label=_('Birth Date'), required=False)
-    home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Home Entity Address'))
-    host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Host Entity Address'))
+    home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Home Entity Address'))
+    host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Host Entity Address'))
 
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_active_local_user_queryset())
     start_date = forms.DateField(label=_('Start Date'))
-    local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80, 'onchange':'auto_complete_region(this);'}),
+    local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80, 'onchange':'auto_complete_region(this);'}),
                                     label=_('Local Address'))
 
-    foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Foreign Address'))
-    comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 5, 'cols': 80}), label=_('Comments'))
+    foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Foreign Address'))
+    comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Comments'))
     process_name = forms.ModelChoiceField(required=False,
                                           queryset=lgc_models.Process.objects.all(),
                                           label=_('Create an active process'))
