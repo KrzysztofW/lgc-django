@@ -116,14 +116,9 @@
       </li>
 
       <li class="list-group-item">
-        <a href="#"><i class="fa fa-chart-bar fa-fw"></i> {% trans 'Statistics ' %}<span class="fa arrow"></span></a>
-        <ul class="nav-second-level list-group nested">
-          <li class="list-group-item">
-            <a href="{% url 'lgc-stats' %}">{% trans 'User stats' %}</a>
-          </li>
-        </ul>
-        <!-- /.nav-second-level -->
+	<a href="{% url 'lgc-stats' %}"><i class="fa fa-chart-bar fa-fw"></i> {% trans "Statistics" %}</a>
       </li>
+
       {% if request.user.is_staff %}
       <li class="list-group-item">
 	<a href="#"><i class="fa fa-wrench fa-fw"></i> Admin<span class="fa arrow"></span></a>
