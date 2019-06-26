@@ -92,7 +92,7 @@
 	</a>
 
 	<ul class="nav-second-level list-group nested">
-	  {% if request.user.is_staff %}
+	  {% if request.user.is_staff or request.user.role == 'CO' %}
 	  <li class="list-group-item">
             <a href="#">{% trans "Models" %} <span class="fa arrow"></span></a>
             <ul class="nav-third-level list-group nested">

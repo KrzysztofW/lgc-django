@@ -1455,9 +1455,16 @@ class ProcessListView(ProcessCommonView, ListView):
         return self.request.GET.get('paginate', '10')
 
     def get_context_data(self, **kwargs):
+        if (self.model != lgc_models.PersonProcess and
+            (self.request.user.is_staff or
+             self.request.user.role == user_models.ROLE_CONSULTANT)):
+            create_url = self.create_url
+        else:
+            create_url = None
+
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['create_url'] = self.create_url
+        context['create_url'] = create_url
         context['item_url'] = self.item_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
@@ -1483,7 +1490,8 @@ class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
         return context
 
     def test_func(self):
-        return self.request.user.is_staff
+        return (self.request.user.is_staff or
+                self.request.user.role == user_models.ROLE_CONSULTANT)
 
     def get_form(self, form_class=lgc_forms.ProcessForm):
         return super().get_form(form_class=form_class)
@@ -1510,10 +1518,14 @@ class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
         if self.model == lgc_models.Process:
             context['available_stages'] = self.get_available_stages(self.object.stages)
             context['stages'] = self.get_ordered_stages(self.object)
+        if (not self.request.user.is_staff or
+            self.request.user.role != user_models.ROLE_CONSULTANT):
+            context['read_only'] = True
         return context
 
     def test_func(self):
-        return self.request.user.is_staff
+        return (self.request.user.is_staff or
+                self.request.user.role == user_models.ROLE_CONSULTANT)
 
 class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = lgc_models.Process
@@ -1851,7 +1863,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
 
 class PersonProcessListView(ProcessListView):
     model = lgc_models.PersonProcess
-    create_url = ''
+    create_url = None
     item_url = 'lgc-person-process'
 
     def get_ordering(self):

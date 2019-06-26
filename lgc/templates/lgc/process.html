@@ -67,6 +67,7 @@
 	</fieldset>
       </div>
     </div>
+    {% if not read_only %}
     <div class="form-group">
       <button class="btn btn-outline-info" type="submit">
 	{% trans "Submit" %}
@@ -77,6 +78,7 @@
       </a>
       {% endif %}
     </div>
+    {% endif %}
   </form>
 </div>
 
