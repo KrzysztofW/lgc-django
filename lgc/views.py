@@ -1858,6 +1858,10 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
             form.instance.active = False
             super().form_valid(form)
             return redirect('lgc-file', self.object.person.id)
+        else:
+            if (not form.instance.invoice_alert and
+                'invoice_alert' in form.changed_data):
+                form.instance.invoice_alert = True
 
         return super().form_valid(form)
 
