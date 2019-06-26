@@ -1816,8 +1816,9 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                                                         next_process_stage.name_en,
                                                         next_process_stage)
                 if not form.instance.no_billing:
+                    process = lgc_models.PersonProcess.objects.get(id=form.instance.id)
                     if len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0:
-                        self.object.invoice_alert = next_process_stage.invoice_alert
+                        self.object.invoice_alert = next_process_stage.invoice_alert|process.invoice_alert
                     if not self.object.invoice_alert and self.object.is_process_complete():
                         self.object.invoice_alert = True
 
