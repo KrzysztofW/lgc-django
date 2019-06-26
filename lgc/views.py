@@ -203,6 +203,8 @@ class PersonListView(PersonCommonListView):
         process_state = self.request.GET.get('process_state')
         home_entity = self.request.GET.get('home_entity')
         host_entity = self.request.GET.get('host_entity')
+        first_name = self.request.GET.get('first_name')
+        last_name = self.request.GET.get('last_name')
 
         if process_state == 'A':
             objs = objs.filter(personprocess_set__active=True)
@@ -248,6 +250,10 @@ class PersonListView(PersonCommonListView):
             objs = objs.filter(home_entity__istartswith=home_entity)
         if host_entity:
             objs = objs.filter(host_entity__istartswith=host_entity)
+        if first_name:
+            objs = objs.filter(first_name__istartswith=first_name)
+        if last_name:
+            objs = objs.filter(last_name__istartswith=last_name)
         return objs
 
     def get_queryset(self):
@@ -291,8 +297,12 @@ class PersonListView(PersonCommonListView):
                 Div('end_date', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
+                Div('first_name', css_class='form-group col-md-3'),
+                Div('last_name', css_class='form-group col-md-3'),
                 Div('home_entity', css_class='form-group col-md-3'),
                 Div('host_entity', css_class='form-group col-md-3'),
+                css_class='form-row'),
+            Div(
                 Div('process_state', css_class='form-group col-md-3'),
                 css_class='form-row'),
         )

@@ -79,6 +79,8 @@ class PersonSearchForm(forms.Form):
                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
     home_entity = forms.CharField(required=False, label=('Home Entity'))
     host_entity = forms.CharField(required=False, label=('Host Entity'))
+    first_name = forms.CharField(required=False, label=_('First Name'))
+    last_name = forms.CharField(required=False, label=_('Last Name'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
