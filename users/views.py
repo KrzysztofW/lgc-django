@@ -259,8 +259,10 @@ class LoginView(authLoginView):
         if not url_next:
             return context
 
+        url_next = url_next[4:]
+        urls = [ '', 'user/profile/', 'user/logout/' ]
         for lang in settings.LANGUAGES:
-            if url_next == '/' + lang[0] + '/':
+            if url_next in urls:
                 return context
         messages.error(self.request, _('Your session has expired.'))
         return context
