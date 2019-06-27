@@ -23,7 +23,7 @@ from . import models as lgc_models
 from . import forms as lgc_forms
 from employee import forms as employee_forms
 from employee import models as employee_models
-from .forms import LgcTab
+from .forms import LgcTab, LgcRadio
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit, Div, Button, Row, HTML, MultiField
 from crispy_forms.bootstrap import (
@@ -801,7 +801,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             changes_form = lgc_forms.ChangesDetectedForm()
             changes_form.helper = FormHelper()
             changes_form.helper.form_tag = False
-
+            changes_form.helper.layout = Layout(
+                Div(LgcRadio('changes_action'), css_class='form-row')
+            )
             context['changes_detected_form'] = changes_form
 
         DocumentFormSet = modelformset_factory(lgc_models.Document,

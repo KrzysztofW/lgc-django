@@ -235,3 +235,8 @@ p {
 #pie-chart{
   min-height: 250px;
 }
+
+.lgc_align-radio {
+    font: 15px Arial;
+    margin-top: 0px;
+}

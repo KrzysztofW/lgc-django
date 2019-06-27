@@ -9,6 +9,10 @@ from . import models as lgc_models
 from users import models as user_models
 from django.contrib.auth import get_user_model
 from django_countries.fields import CountryField
+from crispy_forms.layout import Field
+
+class LgcRadio(Field):
+    template = 'lgc/lgc_radio_select.html'
 
 User = get_user_model()
 
