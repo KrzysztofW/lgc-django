@@ -1,6 +1,5 @@
 from common.utils import pagination, must_be_staff
-from django.http import Http404
-from django.http import HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -23,6 +22,9 @@ from django.utils import timezone
 from django.conf import settings
 from datetime import datetime, timedelta
 from ipaddress import IPv4Address, IPv4Network
+from django.contrib.auth.signals import (user_logged_in, user_logged_out,
+                                         user_login_failed)
+from django.dispatch import receiver
 from . import models as user_models
 import os
 import logging
@@ -264,7 +266,11 @@ class LoginView(authLoginView):
         for lang in settings.LANGUAGES:
             if url_next in urls:
                 return context
+
         messages.error(self.request, _('Your session has expired.'))
+        log.info('session expired from: {ip}'.format(
+            ip=self.request.META.get('REMOTE_ADDR'))
+        )
         return context
 
     def form_valid(self, form):
@@ -406,3 +412,22 @@ def ajax_employee_user_seach_view(request):
         return HttpResponseForbidden()
     users = user_models.get_employee_user_queryset()
     return __ajax_view(request, users)
+
+@receiver(user_logged_in)
+def user_logged_in_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    log.info('login user: {user} (id:{id}, email:{email}) from: {ip}'.format(
+        user=user, id=user.id, email=user.email, ip=ip))
+
+@receiver(user_logged_out)
+def user_logged_out_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    log.info('logout user: {user} (id:{id}, email:{email}) from: {ip}'.format(
+        user=user, id=user.id, email=user.email, ip=ip))
+
+@receiver(user_login_failed)
+def user_login_failed_callback(sender, credentials, request, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    log.warning('login failed for: {credentials} from: {ip}'.format(
+        credentials=credentials, ip=ip
+    ))
