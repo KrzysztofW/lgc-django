@@ -602,16 +602,20 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         to_skip = person_process.stages.filter(is_specific=False).count()
         stages = process_common.get_ordered_stages(person_process.process)
 
-        for s in stages:
-            if to_skip:
-                to_skip -= 1
-                continue
-            timeline_stage = TemplateTimelineStages()
-            if translation.get_language() == 'fr':
-                timeline_stage.name = s.name_fr
-            else:
-                timeline_stage.name = s.name_en
-            timeline_stages.append(timeline_stage)
+        if stages:
+            for s in stages:
+                if to_skip:
+                    to_skip -= 1
+                    continue
+                timeline_stage = TemplateTimelineStages()
+                if translation.get_language() == 'fr':
+                    timeline_stage.name = s.name_fr
+                else:
+                    timeline_stage.name = s.name_en
+                timeline_stages.append(timeline_stage)
+        else:
+            log.error('process %d of the file %d does not have stages',
+                      person_process.id, self.object.id)
 
         return timeline_stages
 
