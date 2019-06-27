@@ -426,14 +426,14 @@ def local_user_get_person_form_layout(user, form, action, obj,
             billing_tab.append(HTML(get_template(CURRENT_DIR, 'lgc/file_invoice_list.html')))
             tab_holder.append(billing_tab)
 
-    documents_tab = LgcTab(_('Documents'))
-    documents_tab.append(HTML(get_template(CURRENT_DIR,
-                                           'lgc/document_form.html')))
-
     if external_profile != None:
         tab_holder.append(external_profile)
 
-    tab_holder.append(documents_tab)
+    if obj:
+        documents_tab = LgcTab(_('Documents'))
+        documents_tab.append(HTML(get_template(CURRENT_DIR,
+                                               'lgc/document_form.html')))
+        tab_holder.append(documents_tab)
 
     layout = Layout(tab_holder)
     layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
@@ -775,11 +775,12 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
+        context['doc_download_url'] = 'lgc-download-file'
         context['form_diff'] = self.form_diff
         context['formsets_diff'] = []
-
         context['formsets'] = self.get_person_formsets()
         model = self.get_model(self.object)
+
         if self.is_children_diff:
             """Do not show the DCEM expiration in employee view."""
             if model == employee_models:
@@ -2546,7 +2547,7 @@ def download_file(request, *args, **kwargs):
         doc.person.user.id != request.user.id):
         return http.HttpResponseForbidden()
 
-    file_path = os.path.join(settings.MEDIA_ROOT, doc[0].document.name)
+    file_path = os.path.join(settings.MEDIA_ROOT, doc.document.name)
     if not os.path.exists(file_path):
         raise Http404
     with open(file_path, 'rb') as fh:

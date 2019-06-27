@@ -665,6 +665,7 @@ class InvoiceCommonView(BillingTestLocalUser):
         context['doc'], context['docs'] = self.get_doc_forms()
         context['button_collapse_id'] = self.disbursement_receipt_btn_id
         context['button_label'] = _('Disbursement receipts')
+        context['doc_download_url'] = 'lgc-receipt-download'
 
         context['form_diff'] = self.form_diff
         context['formsets_diff'] = []
