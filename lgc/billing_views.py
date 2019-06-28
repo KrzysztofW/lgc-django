@@ -449,7 +449,7 @@ class InvoiceListView(BillingTest, ListView):
         if len(cols) == 0:
             # set 'cols' in InvoiceSearchform to have these fields selected
             context['header_values'] = [
-                ('number', 'ID'), ('person_info', _('Employee Name')),
+                ('number', 'ID'), ('with_regard_to', _('Employee Name')),
                 ('client_info', _('Company / Client')),
                 ('invoice_date', _('Date')),
                 ('get_total_items', _('Items')),
@@ -459,7 +459,7 @@ class InvoiceListView(BillingTest, ListView):
         context['exclude_order_by'] = [
             'get_responsibles', 'person_first_name', 'person_last_name',
             'person_home_entity', 'person_host_entity', 'get_process',
-            'entity_info', 'get_client_id', 'client_info', 'person_info',
+            'entity_info', 'get_client_id', 'client_info',
             'validated', 'to_be_done', 'get_various_expenses',
             'get_various_expenses_vat', 'get_various_expenses_plus_vat',
             'remaining_balance', 'get_total_items', 'get_total_items_vat',

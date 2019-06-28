@@ -1068,15 +1068,6 @@ class Invoice(AbstractClient):
         return self.first_name + ' ' + self.last_name
 
     @property
-    def person_info(self):
-        if self.person == None:
-            return None
-        if self.person.first_name and self.person.last_name:
-            return self.person.first_name + ' ' + self.person.last_name
-        return ''
-
-
-    @property
     def validated(self):
         return self.state == INVOICE_STATE_PAID
 

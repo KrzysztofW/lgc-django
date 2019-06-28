@@ -453,7 +453,7 @@ INVOICE_SEARCH_CSV_CHOICES = (
 
 QUOTATION_SEARCH_COLS_CHOICES = (
     ('number', 'ID'),
-    ('person_info', _('Employee Name')),
+    ('with_regard_to', _('Employee Name')),
     ('client_info', _('Company / Client')),
     ('entity_info', _('Home / Host Entity')),
     ('get_process', _('Process')),
@@ -504,7 +504,7 @@ class InvoiceSearchForm(forms.Form):
                                      required=False,
                                      label=_('Displayed Columns'),
                                      choices=INVOICE_SEARCH_COLS_CHOICES,
-                                     initial=['number', 'person_info',
+                                     initial=['number', 'with_regard_to',
                                               'client_info', 'invoice_date',
                                               'get_total_items', 'total'])
     total = forms.DecimalField(required=False, max_digits=8,
