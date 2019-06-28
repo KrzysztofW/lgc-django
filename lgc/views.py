@@ -383,11 +383,10 @@ def local_user_get_person_form_layout(user, form, action, obj,
                                               'lgc/formsets_template.html')),
                             css_class='form-group col-md-10'),
                         css_class='form-row'))
-    info_tab.append(Div(Div('state', css_class='form-group col-md-3'),
+    info_tab.append(Div(Div('comments', css_class='form-group col-md-3'),
+                        Div('state', css_class='form-group col-md-3'),
                         Div('start_date', css_class='form-group col-md-3'),
                         css_class='form-row'))
-    info_tab.append(Div(Div('comments', css_class='form-group col-md-6'),
-            css_class='form-row'))
 
     tab_holder = TabHolder(info_tab)
 
