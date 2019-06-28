@@ -473,6 +473,12 @@ INVOICE_SEARCH_COLS_CHOICES = QUOTATION_SEARCH_COLS_CHOICES + (
 )
 
 class InvoiceSearchForm(forms.Form):
+    default_cols = ['number', 'with_regard_to', 'client_info',
+                    'invoice_date', 'get_total_items', 'total']
+    default_csv_cols = ['number', 'invoice_date', 'last_name', 'company',
+                        'get_total_disbursements', 'get_total_items',
+                        'get_vat', 'get_total_plus_vat']
+
     number = forms.CharField(required=False, label='ID')
     dates = forms.ChoiceField(label='&nbsp;', required=False,
                               choices=INVOICE_SEARCH_DATE_CHOICES,
@@ -497,16 +503,12 @@ class InvoiceSearchForm(forms.Form):
                                     required=False,
                                     label=_('CSV Export'),
                                     choices=INVOICE_SEARCH_CSV_CHOICES,
-                                    initial=['number', 'invoice_date', 'last_name', 'company',
-                                             'get_disbursements', 'get_items', 'get_vat',
-                                             'get_total_plus_vat'])
+                                    initial=default_csv_cols)
     cols = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control', 'size': 13}),
                                      required=False,
                                      label=_('Displayed Columns'),
                                      choices=INVOICE_SEARCH_COLS_CHOICES,
-                                     initial=['number', 'with_regard_to',
-                                              'client_info', 'invoice_date',
-                                              'get_total_items', 'total'])
+                                     initial=default_cols)
     total = forms.DecimalField(required=False, max_digits=8,
                                min_value=0, decimal_places=2,
                                widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'form.submit();', 'step': "0.01"}))

@@ -278,6 +278,16 @@ class InvoiceListView(BillingTest, ListView):
 
     def get_search_form(self):
         if len(self.request.GET):
+            """Set default cols if none in GET."""
+            if (not self.request.GET.get('cols') or
+                not self.request.GET.get('csv')):
+                self.request.GET = self.request.GET.copy()
+
+                if not self.request.GET.get('cols'):
+                    self.request.GET.setlist('cols', lgc_forms.InvoiceSearchForm.default_cols)
+                if not self.request.GET.get('csv'):
+                    self.request.GET.setlist('csv', lgc_forms.InvoiceSearchForm.default_csv_cols)
+
             form = lgc_forms.InvoiceSearchForm(self.request.GET)
         else:
             form = lgc_forms.InvoiceSearchForm()
@@ -446,7 +456,13 @@ class InvoiceListView(BillingTest, ListView):
 
         cols = self.request.GET.getlist('cols')
         context['header_values'] = []
-        if len(cols) == 0:
+
+        if len(cols):
+            for c in cols:
+                for ac in lgc_forms.INVOICE_SEARCH_COLS_CHOICES:
+                    if ac[0] == c:
+                        context['header_values'].append(ac)
+        else:
             # set 'cols' in InvoiceSearchform to have these fields selected
             context['header_values'] = [
                 ('number', 'ID'), ('with_regard_to', _('Employee Name')),
@@ -479,11 +495,6 @@ class InvoiceListView(BillingTest, ListView):
                 context['totals'].append(('CAD', self.cad))
             if self.gbp['items']:
                 context['totals'].append(('GBP', self.gbp))
-
-        for c in cols:
-            for ac in lgc_forms.INVOICE_SEARCH_COLS_CHOICES:
-                if ac[0] == c:
-                    context['header_values'].append(ac)
 
         context['search_form'] = self.get_search_form()
         return pagination(self.request, context, self.this_url)
