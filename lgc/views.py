@@ -2737,18 +2737,62 @@ def stats_view(request):
             cons_juri_list.append(element)
         crossed_list.append(cons_juri_list)
 
+    nb_files = lgc_models.Person.objects.count()
+    nb_active_files = lgc_models.Person.objects.filter(state=lgc_models.FILE_STATE_ACTIVE).count()
+    nb_internal_users = user_models.get_all_local_user_queryset().count()
+    nb_external_users = user_models.get_external_user_queryset().count()
+
+    nb_max = max(nb_files, nb_active_files, nb_internal_users,
+                 nb_external_users)
+    if nb_max < 100:
+        max_level = 10
+    elif nb_max < 1000:
+        max_level = 30
+    elif nb_max < 10000:
+        max_level = 60
+    else:
+        max_level = 90
+
+    if nb_max == nb_files:
+        nb_files_level = max_level
+        nb_active_files_level = (max_level / nb_files) * nb_active_files
+        nb_internal_users_level = (max_level / nb_files) * nb_internal_users
+        nb_external_users_level = (max_level / nb_files) * nb_external_users
+    elif nb_max == nb_internal_users:
+        nb_internal_users_level = max_level
+        nb_files_level = (max_level / nb_internal_users) * nb_files
+        nb_active_files_level = (max_level / nb_internal_users) * nb_active_files
+        nb_external_users_level = (max_level / nb_internal_users) * nb_external_users
+    elif nb_max == nb_external_users:
+        nb_external_users_level = max_level
+        nb_files_level = (max_level / nb_external_users) * nb_files
+        nb_active_files_level = (max_level / nb_external_users) * nb_active_files
+        nb_internal_users_level = (max_level / nb_external_users) * nb_internal_users
+    else:
+        log.error('incoherent statistics')
+        nb_files_level = 0
+        nb_active_files_level = 0
+        nb_internal_users_level = 0
+        nb_external_users_level = 0
+
     context = {
         'title': _('Statistics'),
-        'nb_files': lgc_models.Person.objects.count(),
-        'nb_active_files': lgc_models.Person.objects.filter(state=lgc_models.FILE_STATE_ACTIVE).count(),
-        'nb_internal_users': user_models.get_all_local_user_queryset().count(),
-        'nb_external_users': user_models.get_external_user_queryset().count(),
+        'nb_files': nb_files,
+        'nb_active_files': nb_active_files,
+        'nb_internal_users': nb_internal_users,
+        'nb_external_users': nb_external_users,
+        'nb_files_level': nb_files_level,
+        'nb_active_files_level': nb_active_files_level,
+        'nb_internal_users_level': nb_internal_users_level,
+        'nb_external_users_level': nb_external_users_level,
+
         'nb_hr': user_models.get_hr_user_queryset().count(),
         'crossed_list': crossed_list,
         'expirations': lgc_models.Expiration.objects.filter(enabled=True).exclude(end_date__lte=timezone.now().date()).count(),
         'year_revenue': get_this_year_revenue() if request.user.billing else None,
         'nb_processes': lgc_models.Process.objects.count(),
     }
+
     session_cache_add(request.session, 'stats', context, 30)
 
     """Session handling is asynchronious."""

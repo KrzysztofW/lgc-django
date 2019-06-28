@@ -36,7 +36,7 @@
 		    </div>
 		  </div>
 		  <div class="progress mt-1 mb-0" style="height: 7px;">
-		    <div class="progress-bar bg-primary" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+		    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ nb_files_level }}%" aria-valuenow="{{ nb_files_level }}" aria-valuemin="0" aria-valuemax="100"></div>
 		  </div>
 		</div>
 		<div class="col-lg-3 col-sm-12 border-right-blue-grey border-right-lighten-5">
@@ -50,7 +50,7 @@
 		    </div>
 		  </div>
 		  <div class="progress mt-1 mb-0" style="height: 7px;">
-		    <div class="progress-bar bg-danger" role="progressbar" style="width: 55%" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"></div>
+		    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ nb_active_files_level }}%" aria-valuenow="{{ nb_active_files_level }}" aria-valuemin="0" aria-valuemax="100"></div>
 		  </div>
 		</div>
 		<div class="col-lg-3 col-sm-12 border-right-blue-grey border-right-lighten-5">
@@ -64,7 +64,7 @@
 		    </div>
 		  </div>
 		  <div class="progress mt-1 mb-0" style="height: 7px;">
-		    <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+		    <div class="progress-bar bg-success" role="progressbar" style="width: {{ nb_internal_users_level }}%" aria-valuenow="{{ nb_internal_users_level }}" aria-valuemin="0" aria-valuemax="100"></div>
 		  </div>
 		</div>
 		<div class="col-lg-3 col-sm-12">
@@ -79,7 +79,7 @@
 		    </div>
 		  </div>
 		  <div class="progress mt-1 mb-0" style="height: 7px;">
-		    <div class="progress-bar bg-warning" role="progressbar" style="width: 5%" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
+		    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ nb_external_users_level }}%" aria-valuenow="{{ nb_external_users_level }}" aria-valuemin="0" aria-valuemax="100"></div>
 		  </div>
 		</div>
 	      </div>
