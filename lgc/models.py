@@ -1005,6 +1005,10 @@ class Invoice(AbstractClient):
     @property
     def get_responsibles(self):
         resps = ''
+
+        if not self.person:
+            return resps
+
         for r in self.person.responsible.all():
             if resps != '':
                 resps += ', '
