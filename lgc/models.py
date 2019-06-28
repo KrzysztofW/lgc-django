@@ -1203,7 +1203,6 @@ class Invoice(AbstractClient):
                self.total_disbursements + self.total_disbursements_vat)
         ret = round(ret, 2)
         if ret != float(self.total):
-            pdb.set_trace()
             log.error('invalid total: stored:%f, computed:%f, id:%d',
                       self.total, ret, self.id)
 
