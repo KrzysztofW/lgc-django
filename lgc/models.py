@@ -769,6 +769,7 @@ class PersonProcess(models.Model):
                                   choices=PREFECTURE_CHOICES, blank=True)
     no_billing = models.BooleanField(_('No billing for this process'),
                                      default=False)
+    version = models.PositiveIntegerField(default=0)
     invoice_alert = models.BooleanField(default=False)
     invoice = None
     quotation = None

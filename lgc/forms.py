@@ -298,11 +298,15 @@ class UnboundFinalPersonProcessStageForm(UnboundPersonProcessStageForm):
         fields = '__all__'
 
 class PersonProcessForm(forms.ModelForm):
+    version = forms.IntegerField(min_value=0, widget=forms.HiddenInput(),
+                                 initial=0)
     class Meta:
         model = lgc_models.PersonProcess
         exclude = ['name_en', 'name_fr']
 
 class PersonProcessCompleteForm(forms.ModelForm):
+    version = forms.IntegerField(min_value=0, widget=forms.HiddenInput(),
+                                 initial=0)
     name_fr = forms.CharField(required=False, label=_('French name'))
     name_en = forms.CharField(required=False, label=_('English name'))
 

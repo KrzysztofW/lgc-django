@@ -1691,6 +1691,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
     def get_context_data(self, **kwargs):
         person_common = PersonCommonView()
         context = super().get_context_data(**kwargs)
+        context['object'] = self.get_object()
         if translation.get_language() == 'fr':
             name = self.object.name_fr
         else:
@@ -1715,6 +1716,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         form.helper.form_tag = False
         form.helper.layout = Layout(
             Div(
+                Div('version'),
                 Div('consulate', css_class='form-group col-md-2'),
                 Div('prefecture', css_class='form-group col-md-2'),
                 css_class='form-row'),
@@ -1794,6 +1796,19 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         return None
 
     def form_valid(self, form):
+        if self.object:
+            self.object = self.get_object()
+            if self.object.version != form.instance.version:
+                msg = (_('This process has been modified by %(firstname)s %(lastname)s while you were editing it.'%{
+                    'firstname':self.object.person.modified_by.first_name,
+                    'lastname':self.object.person.modified_by.last_name,
+                }) +
+                       '<a href="' +
+                       str(reverse_lazy('lgc-person-process', kwargs={'pk':self.object.id})) +
+                       '"> ' + _('Reload the page.'))
+                messages.error(self.request, mark_safe(msg))
+                return super().form_invalid(form)
+
         if (form.cleaned_data['no_billing'] and
             hasattr(self.object, 'invoice') and self.object.invoice):
             messages.error(self.request, _('This process has already an invoice'))
@@ -1824,11 +1839,10 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                                                         next_process_stage.name_en,
                                                         next_process_stage)
                 if not form.instance.no_billing:
-                    process = lgc_models.PersonProcess.objects.get(id=form.instance.id)
                     if len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0:
-                        self.object.invoice_alert = next_process_stage.invoice_alert|process.invoice_alert
+                        form.instance.invoice_alert = next_process_stage.invoice_alert|self.object.invoice_alert
                     if not self.object.invoice_alert and self.object.is_process_complete():
-                        self.object.invoice_alert = True
+                        form.instance.invoice_alert = True
 
             else:
                 messages.error(self.request, _('The next stage does not exist.'))
@@ -1872,6 +1886,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 'invoice_alert' in form.changed_data):
                 form.instance.invoice_alert = True
 
+        form.instance.version += 1
         return super().form_valid(form)
 
 class PersonProcessListView(ProcessListView):
