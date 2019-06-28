@@ -2592,8 +2592,8 @@ def expirations_filter_objs(request, objs):
         request.GET = request.GET.copy()
         request.GET['expires'] = settings.EXPIRATIONS_NB_DAYS
         request.GET['user'] = request.user.id
-        objs = objs.filter(person__responsible=request.user)
-
+        if request.user.role != user_models.ROLE_NONE:
+            objs = objs.filter(person__responsible=request.user)
     try:
         delta = datetime.timedelta(days=int(expires))
     except:
@@ -2645,7 +2645,6 @@ def __expirations(request, form, objs):
                          'end_date')
 
     if objs:
-        objs = expirations_filter_objs(request, objs)
         context['page_obj'] = paginate_expirations(request, objs)
 
         if context['page_obj'].has_next() or context['page_obj'].has_previous():
