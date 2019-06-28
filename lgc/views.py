@@ -415,7 +415,7 @@ def local_user_get_person_form_layout(user, form, action, obj,
                                     ')</a><hr><br>'))
 
         process_tab.append(Div(Div('process_name', css_class='form-group col-md-3'),
-                               HTML('<div class="form-group"><label for="id_process_name" class="col-form-label">&nbsp;</label><div class=""><button class="btn btn-outline-info" type="submit">' + _('Create') + '</button></div></div>'),
+                               HTML('<div class="form-group"><label for="id_process_name" class="col-form-label">&nbsp;</label><div class=""><button class="btn btn-outline-info" type="submit" onclick="return person_form_check();">' + _('Create') + '</button></div></div>'),
                                css_class='form-row'))
 
         process_tab.append(
@@ -437,7 +437,7 @@ def local_user_get_person_form_layout(user, form, action, obj,
         tab_holder.append(documents_tab)
 
     layout = Layout(tab_holder)
-    layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
+    layout.append(HTML('<button class="btn btn-outline-info" type="submit" onclick="return person_form_check();">' +
                        action + '</button>'))
     if obj and user.is_staff:
         layout.append(HTML('&nbsp;<a href="' +
@@ -500,7 +500,7 @@ def employee_user_get_person_form_layout(form, action, obj):
     tab_holder.append(documents_tab)
 
     layout = Layout(tab_holder)
-    layout.append(HTML('<button class="btn btn-outline-info" type="submit">' +
+    layout.append(HTML('<button class="btn btn-outline-info" type="submit" onclick="return employee_form_check();">' +
                        action + '</button>'))
     form.helper.layout = layout
     return form
@@ -510,9 +510,8 @@ def get_person_form_layout(cur_user, form, action, obj,
     if cur_user.role in user_models.get_internal_roles():
         return local_user_get_person_form_layout(cur_user, form, action, obj,
                                                  completed_processes)
-    if cur_user.role == user_models.ROLE_EMPLOYEE:
-        return employee_user_get_person_form_layout(form, action, obj)
-    if cur_user.role in user_models.get_hr_roles():
+    if (cur_user.role == user_models.ROLE_EMPLOYEE or
+        cur_user.role in user_models.get_hr_roles()):
         return employee_user_get_person_form_layout(form, action, obj)
     return None
 

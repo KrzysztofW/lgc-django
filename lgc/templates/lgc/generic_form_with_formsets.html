@@ -117,6 +117,100 @@ $(document).ready(function () {
   });
 });
 
+function person_form_check() {
+    var process = document.getElementById('id_info_process');
+    var start_date = document.getElementById('id_start_date');
+    var responsible = document.getElementById('id_responsible');
+    var first_name = document.getElementById('id_first_name');
+    var last_name = document.getElementById('id_last_name');
+
+    if (first_name && first_name.value == '') {
+        $.notify("{% trans 'First Name not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+    if (last_name && last_name.value == '') {
+        $.notify("{% trans 'Last Name not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+
+    if (process && process.value == '') {
+        $.notify("{% trans 'Process info not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+    if (start_date && start_date.value == '') {
+        $.notify("{% trans 'Start Date not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+    if (responsible && responsible.value == '') {
+        $.notify("{% trans 'Responsible not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+
+    return true;
+}
+
+function employee_form_check() {
+    var first_name = document.getElementById('id_first_name');
+    var last_name = document.getElementById('id_last_name');
+    var birth_date = document.getElementById('id_birth_date');
+    var email = document.getElementById('id_email');
+
+    if (first_name && first_name.value == '') {
+        $.notify("{% trans 'First Name not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+    if (last_name && last_name.value == '') {
+        $.notify("{% trans 'Last Name not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+    if (birth_date && birth_date.value == '') {
+        $.notify("{% trans 'Birth Date not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+    if (email && email.value == '') {
+        $.notify("{% trans 'Email not set' %}",
+	         {
+	             className: 'error',
+	             position: 'top center',
+	         });
+        return false;
+    }
+
+    return true;
+}
+
 autosize(document.querySelectorAll('textarea'));
 </script>
 
