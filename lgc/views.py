@@ -97,6 +97,8 @@ def home(request):
         compare_date = (timezone.now().date() +
                         datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
         context['nb_expirations'] = len(expirations.filter(end_date__lte=compare_date))
+        if request.user.billing:
+            context['nb_ready_invoices'] = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE).count()
         return render(request, 'lgc/home.html', context)
 
     return http.HttpResponseForbidden()

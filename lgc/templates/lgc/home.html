@@ -153,7 +153,7 @@
 	  </div>
 	  <div class="col-xs-7">
 	    <div class="numbers">
-	      <p>{% trans 'Billing' %}</p>
+	      <p>{% trans 'Ready invoices' %}</p>{{ nb_ready_invoices }}
 	    </div>
 	  </div>
 	</div>
@@ -162,7 +162,7 @@
 	<hr class="lgc_hr">
 	<div class="stats">
 	  <i class="fa fa-arrow-circle-right"></i>
-	  <a href="{% url 'lgc-invoices' %}"> {% trans 'Go' %}</a>
+	  <a href="{% url 'lgc-invoices' %}?state=T"> {% trans 'Go' %}</a>
 	</div>
       </div>
     </div>
