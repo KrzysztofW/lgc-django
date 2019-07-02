@@ -1149,7 +1149,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 self.get_active_person_processes()):
                 messages.error(self.request,
                                _('This file cannot be closed as it has a pending process.'))
-                return self.form_invalid(form)
+                return super().form_invalid(form)
 
             changes_action = self.request.POST.get('changes_action', '')
             if changes_action == lgc_forms.CHANGES_DETECTED_DISCARD:
