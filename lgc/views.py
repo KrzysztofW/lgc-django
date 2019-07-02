@@ -1135,6 +1135,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         self.object = self.get_current_object()
         save_active_tab(self)
 
+        for p in lgc_models.PROCESS_CHOICES_DEPRECATED:
+            if form.instance.info_process == p[0]:
+                if 'info_process' not in form.changed_data:
+                    break
+                messages.error(self.request, _('A deprecated immigration process cannot be used.'))
+                return super().form_invalid(form)
+
         if self.object:
             if (self.request.user.role in user_models.get_internal_roles() and
                 self.object.state != lgc_models.FILE_STATE_CLOSED and

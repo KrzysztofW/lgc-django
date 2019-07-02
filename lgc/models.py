@@ -28,6 +28,17 @@ class Currencies(models.Model):
 class Settings(Currencies):
     pass
 
+deprecated_str = '(' + str(_('deprecated')) + ')'
+PROCESS_CHOICES_DEPRECATED = (
+    ('CBE', 'Carte bleue européenne ' + deprecated_str),
+    ('COM', 'Commerçant ' + deprecated_str),
+    ('COT', 'Compétences et talents ' + deprecated_str),
+    ('DET', 'Détachement ' + deprecated_str),
+    ('SED', 'SEM détaché ' + deprecated_str),
+    ('SES', 'SEM salarié ' + deprecated_str),
+    ('TIR', 'TIR ' + deprecated_str),
+)
+
 PROCESS_CHOICES = (
     ('', '---------'),
     ('OD', 'Obtention de docs/légalisation'),
@@ -39,7 +50,7 @@ PROCESS_CHOICES = (
     ('CFR', 'Conjoint Fr'),
     ('CON', 'Consultation'),
     ('DCE', 'DCEM'),
-    ('DDD', 'DDD UE'),
+    ('DDD', 'DDD'),
     ('DI', 'Détaché ICT'),
     ('DIM', 'Détaché ICT Mobile'),
     ('DAT', 'Dispense AT – 3 mois'),
@@ -58,9 +69,11 @@ PROCESS_CHOICES = (
     ('SIM', 'Stagiaire ICT mobile'),
     ('URS', 'URSSAF/CPAM'),
     ('VIR', 'Visiteur'),
-    ('VIS', 'Visa'),
+    ('VIS', 'Visa (Hors France)'),
+    ('ECP', 'Echange permis'),
+    ('COV', 'Coordination visa étranger'),
     ('AUT', 'Autres'),
-)
+) + PROCESS_CHOICES_DEPRECATED
 
 PREFECTURE_CHOICES = (
     ('', '---------'),

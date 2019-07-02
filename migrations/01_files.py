@@ -506,29 +506,29 @@ while row is not None:
         state = ''
 
     if row[11] == "carte_bleue_europeenne":
-        proc = 'PT2'
+        proc = 'CBE'
     elif row[11] == "casier_judiciaire":
         proc = 'OD'
     elif row[11] == "commercant":
-        proc = 'AUT'
+        proc = 'COM'
     elif row[11] == "competences_et_talents":
-        proc = 'AUT'
+        proc = 'COT'
     elif row[11] == "detachement":
-        proc = 'AUT'
+        proc = 'DET'
     elif row[11] == "intro_salarie_hn":
         proc = 'SAL'
     elif row[11] == "prestataire_service":
         proc = 'PSI'
     elif row[11] == "salarie_mission-detache":
-        proc = 'DI'
+        proc = 'SED'
     elif row[11] == "salarie_mission-salarie":
-        proc = 'PT3'
+        proc = 'SES'
     elif row[11] == "stage_information":
         proc = 'STA'
     elif row[11] == "stage_professionnel":
         proc = 'STA'
     elif row[11] == "tir":
-        proc = 'DCE'
+        proc = 'TIR'
     elif row[11] == 'apostille_legalisation':
         proc = 'OD'
     elif row[11] == 'apprenti':
