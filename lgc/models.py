@@ -28,20 +28,19 @@ class Currencies(models.Model):
 class Settings(Currencies):
     pass
 
-deprecated_str = '(' + str(_('deprecated')) + ')'
 PROCESS_CHOICES_DEPRECATED = (
-    ('CBE', 'Carte bleue européenne ' + deprecated_str),
-    ('COM', 'Commerçant ' + deprecated_str),
-    ('COT', 'Compétences et talents ' + deprecated_str),
-    ('DET', 'Détachement ' + deprecated_str),
-    ('SED', 'SEM détaché ' + deprecated_str),
-    ('SES', 'SEM salarié ' + deprecated_str),
-    ('TIR', 'TIR ' + deprecated_str),
+    ('CBE', 'Z Carte bleue européenne'),
+    ('COM', 'Z Commerçant'),
+    ('COT', 'Z Compétences et talents'),
+    ('DET', 'Z Détachement'),
+    ('SED', 'Z SEM détaché'),
+    ('SES', 'Z SEM salarié'),
+    ('TIR', 'Z TIR'),
 )
 
 PROCESS_CHOICES = (
     ('', '---------'),
-    ('OD', 'Obtention de docs/légalisation'),
+    ('AUT', 'Autres'),
     ('AP', 'Apprenti'),
     ('CR', 'Carte de résident'),
     ('CDS', 'Changement de statut'),
@@ -49,13 +48,15 @@ PROCESS_CHOICES = (
     ('CEU', 'Conjoint UE'),
     ('CFR', 'Conjoint Fr'),
     ('CON', 'Consultation'),
+    ('COV', 'Coordination visa étranger'),
     ('DCE', 'DCEM'),
     ('DDD', 'DDD'),
     ('DI', 'Détaché ICT'),
     ('DIM', 'Détaché ICT Mobile'),
     ('DAT', 'Dispense AT – 3 mois'),
+    ('ECP', 'Echange permis'),
     ('NAT', 'Nationalité'),
-    ('SAL', 'Salarié'),
+    ('OD', 'Obtention de docs/légalisation'),
     ('PT1', 'Passeport talent 1°'),
     ('PT2', 'Passeport talent 2°'),
     ('PT3', 'Passeport talent 3°'),
@@ -64,15 +65,13 @@ PROCESS_CHOICES = (
     ('PT9', 'Passeport talent 9°'),
     ('PTA', 'Passeport talent – Autre'),
     ('PSI', 'PSI'),
+    ('SAL', 'Salarié'),
     ('STA', 'Stagiaire'),
     ('SI', 'Stagiaire ICT'),
     ('SIM', 'Stagiaire ICT mobile'),
     ('URS', 'URSSAF/CPAM'),
-    ('VIR', 'Visiteur'),
     ('VIS', 'Visa (Hors France)'),
-    ('ECP', 'Echange permis'),
-    ('COV', 'Coordination visa étranger'),
-    ('AUT', 'Autres'),
+    ('VIR', 'Visiteur'),
 ) + PROCESS_CHOICES_DEPRECATED
 
 PREFECTURE_CHOICES = (
