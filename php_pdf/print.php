@@ -384,11 +384,11 @@ if (!empty($row['po_email'])) {
 
 $pdf->Ln(5);
 if ($row['type'] == 'C')
-	$doc_number = $avoir_no[$lang];
+	$doc_number = utf8_decode($avoir_no[$lang]);
 else if ($row['type'] == 'Q')
-	$doc_number = $devis_no[$lang];
+	$doc_number = utf8_decode($devis_no[$lang]);
 else
-	$doc_number = $facture_no[$lang];
+	$doc_number = utf8_decode($facture_no[$lang]);
 $pdf->Cell(0, 10, $doc_number . ": " . $prefix . str_pad($row['number'], 5, "0", STR_PAD_LEFT),0,0,'L');
 if (!empty($row['payment_option'])) {
 	$pdf->Ln(5);
@@ -427,8 +427,7 @@ if (! empty($file_id)) {
 $pdf->Ln(10);
 
 /* description */
-$description = str_replace("&quot", '"', $row['invoice_description']);
-$pieces = explode("\n", $description);
+$pieces = explode("\n", $row['invoice_description']);
 
 foreach ($pieces as $val => $key) {
 	$pdf->Cell(25, 10, "$key", 0, 0, 'L');
