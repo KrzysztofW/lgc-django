@@ -52,7 +52,6 @@ function closeAllLists(elmnt, inp) {
     }
 }
 
-
 $("#search_box").keyup(function (event) {
     if (url == '')
        return;
@@ -84,13 +83,16 @@ $("#search_box").keyup(function (event) {
 	    var array2 = [];
 
 	    data = data.replace(/,\n/gm, "");
-	    if (data != "")
-		array = data.split(delim);
+	    if (data == "")
+	      return;
+	    array = data.split(delim);
 	    for (var item in array) {
 		if (array[item] == "" || array[item] == '\n')
 		    continue;
 		array2.push(array[item]);
 	    }
+	    if (array2.length == 0)
+	      return;
 
 	    /* remove duplicates */
 	    set = new Set(array2);

@@ -2127,7 +2127,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             p = lgc_models.Person.objects.get(id=pk)
             if p == None:
                 raise ValueError('invalid person ID')
-            return p.get()
+            return p
         return None
 
     def form_valid(self, form):
@@ -2392,7 +2392,7 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
 
     def is_deleted(self, employees, id):
         for e in employees.deleted_forms:
-            if e.cleaned_data['id'] == id:
+            if e.cleaned_data.get('id') and e.cleaned_data['id'] == id:
                 return True
         return False
 
@@ -2421,10 +2421,6 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
             if self.is_deleted(employees, e['id']):
                 continue
             u = users.get(id=e['id'])
-            if u == None:
-                messages.error(self.request, _("Unknown employee ID `%s'"%(e['id'])))
-                return super().form_invalid(form)
-            u = u.get()
             if u == None:
                 messages.error(self.request, _("Unknown employee ID `%s'"%(e['id'])))
                 return super().form_invalid(form)

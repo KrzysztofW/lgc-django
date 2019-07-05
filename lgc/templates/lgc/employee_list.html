@@ -65,7 +65,7 @@ function addEmployee() {
     cell4.innerHTML += '<input name="form-'+last_elem+'-email" type="hidden" value="' + res[3] + '">';
   }
 
-  cell5.innerHTML = '<input id="array_del" class="btn btn-white" value="X" onclick="removeEmployee(this, '+last_elem+')" type="button" name=""><input name="employee_id_'+last_elem+'" type="hidden" value="' + res[0] + '">';
+  cell5.innerHTML = '<input id="array_del" class="btn btn-light" value="X" onclick="removeEmployee(this, '+last_elem+')" type="button" name=""><input name="employee_id_'+last_elem+'" type="hidden" value="' + res[0] + '">';
   search_box.value = "";
   last_elem++;
   total_forms.value = last_elem;
@@ -115,7 +115,7 @@ function addEmployee() {
 	    {% if forloop.last %}
 	    {% if form.hidden_fields.0.value %}
 	    <td>
-	      <input id="array_del" class="btn btn-white" value="X" onclick="removeEmployee(this, {{ forloop.parentloop.counter0 }})" type="button" name="">
+	      <input id="array_del" class="btn btn-light" value="X" onclick="removeEmployee(this, {{ forloop.parentloop.counter0 }})" type="button" name="">
 	    </td>
 	    {% endif %}
 	    {% endif %}
@@ -133,7 +133,7 @@ function addEmployee() {
 	<div class="input-group custom-search-form">
           <input type="text" class="form-control" name="term" value="" id="search_box" placeholder="Search..." autocomplete="off" onfocus="this.selectionStart = this.selectionEnd = this.value.length;" autofocus="">
           <span class="input-group-btn">
-            <button class="btn btn-white" type="button" onclick="return addEmployee();">{% trans 'Add' %}</button>
+            <button class="btn btn-light" type="button" onclick="return addEmployee();">{% trans 'Add' %}</button>
           </span>
 	</div>
       </div>
