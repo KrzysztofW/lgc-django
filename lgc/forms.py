@@ -384,7 +384,7 @@ class InvoiceCreateForm(forms.ModelForm):
                                        initial=False)
     various_expenses = forms.BooleanField(label=_('Include Various Expenses'),
                                           required=False, initial=False,
-                                          help_text="(Phone, mail...) 5% of the services limited to 100.",
+                                          help_text=_('(Phone, mail...) 5% of the services limited to 100.'),
                                           widget=forms.CheckboxInput(attrs={'onchange':'return compute_invoice();'}))
     total = forms.DecimalField(initial=0, max_digits=8, decimal_places=2,
                                widget=forms.HiddenInput())
@@ -525,12 +525,16 @@ class InvoiceSearchForm(forms.Form):
 class InvoiceUpdateForm(InvoiceCreateForm):
     number = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
     state = forms.ChoiceField(required=False,
-                              choices=lgc_models.INVOICE_STATE_CHOICES,
-                              label=_('State'),
-                              widget=forms.Select(attrs={'class':'form-control', 'onchange':'invoice_validated_state_alert(this, "'+str(_('If this state is set, the invoice will not be editable anymore'))+'");'}))
-    already_paid = forms.DecimalField(required=False, min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
+                              label=_('State'))
+    already_paid = forms.DecimalField(required=False, label=_('Already Paid'),
+                                      min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
     total = forms.DecimalField(initial=0, max_digits=8, decimal_places=2,
                                widget=forms.HiddenInput())
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['state'].widget = forms.Select(attrs={'class':'form-control', 'onchange':'invoice_validated_state_alert(this, \''+str(_('If this state is set, the invoice will not be editable anymore')).replace("'", "\\'") +'\');'})
+        self.fields['state'].choices = choices=lgc_models.INVOICE_STATE_CHOICES
+
     class Meta:
         model = lgc_models.Invoice
         exclude = ['modified_by', 'person', 'process', 'type', 'id',
@@ -547,15 +551,20 @@ class ClientCreateForm(forms.ModelForm):
         exclude = ['id']
 
 class InvoiceCommonForm(forms.ModelForm):
-    quantity = forms.IntegerField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();'}), initial=1)
-    vat = forms.ChoiceField(required=False, choices=lgc_models.VAT_CHOICES,
+    quantity = forms.IntegerField(required=False, label=_('Quantity'),
+                                  min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();'}), initial=1)
+    vat = forms.ChoiceField(required=False, label=_('VAT'),
+                            choices=lgc_models.VAT_CHOICES,
                             widget=forms.Select(attrs={'style':'height:30px; width:60px;',
                                                        'class':'form-control lgc_pull-right',
                                                        'onchange':'return compute_invoice();'}))
-    rate = forms.FloatField(required=False, min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
-    description = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 1,
+    rate = forms.FloatField(required=False, label=_('Rate'),
+                            min_value=0, widget=forms.NumberInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
+    description = forms.CharField(required=False, label=_('Description'),
+                                  widget=forms.Textarea(attrs={'rows': 1,
                                                                                'class':'form-control'}))
-    total = forms.FloatField(required=False, min_value=0, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'readonly':'yes', 'step': "0.01"}), initial=0)
+    total = forms.FloatField(required=False, label=_('Total'),
+                             min_value=0, widget=forms.TextInput(attrs={'style':'height:30px;', 'class':'form-control lgc_pull-right', 'readonly':'yes', 'step': "0.01"}), initial=0)
 
     class Meta:
         abstract = True

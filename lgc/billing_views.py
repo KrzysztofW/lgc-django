@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy
 from django.core.paginator import Paginator
 from django.utils import translation
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -67,7 +68,7 @@ class BillingTest(BillingTestLocalUser):
 class ClientListView(BillingTestLocalUser, ListView):
     template_name = 'lgc/sub_generic_list.html'
     model = lgc_models.Client
-    title = _('Clients')
+    title = ugettext_lazy('Clients')
     create_url = reverse_lazy('lgc-client-create')
     item_url = 'lgc-client'
     this_url = reverse_lazy('lgc-clients')
@@ -185,13 +186,13 @@ class ClientCommonView(BillingTestLocalUser, SuccessMessageMixin):
         return super().form_valid(form)
 
 class ClientCreateView(ClientCommonView, CreateView):
-    title = _('New Client')
-    success_message = _('Client successfully created.')
+    title = ugettext_lazy('New Client')
+    success_message = ugettext_lazy('Client successfully created.')
     success_url = reverse_lazy('lgc-client-create')
 
 class ClientUpdateView(ClientCommonView, UpdateView):
-    title = _('Client')
-    success_message = _('Client successfully updated.')
+    title = ugettext_lazy('Client')
+    success_message = ugettext_lazy('Client successfully updated.')
     success_url = 'lgc-client'
     delete_url = 'lgc-client-delete'
 
@@ -213,9 +214,9 @@ class ClientUpdateView(ClientCommonView, UpdateView):
 class ClientDeleteView(BillingTest, DeleteView):
     model = lgc_models.Client
     success_url = reverse_lazy('lgc-clients')
-    title = _('Delete Client')
+    title = ugettext_lazy('Delete Client')
     cancel_url = 'lgc-client'
-    obj_name = _('Client')
+    obj_name = ugettext_lazy('Client')
     template_name = 'lgc/person_confirm_delete.html'
 
     def get_context_data(self, **kwargs):
@@ -240,7 +241,7 @@ class ClientDeleteView(BillingTest, DeleteView):
 class InvoiceListView(BillingTest, ListView):
     template_name = 'lgc/sub_generic_list_with_search_form.html'
     model = lgc_models.Invoice
-    title = _('Invoices')
+    title = ugettext_lazy('Invoices')
     item_url = 'lgc-invoice'
     this_url = reverse_lazy('lgc-invoices')
     ajax_search_url = reverse_lazy('lgc-invoice-search-ajax')
@@ -500,7 +501,7 @@ class InvoiceListView(BillingTest, ListView):
         return pagination(self.request, context, self.this_url)
 
 class QuotationListView(InvoiceListView):
-    title = _('Quotations')
+    title = ugettext_lazy('Quotations')
     this_url = reverse_lazy('lgc-quotations')
     search_url = reverse_lazy('lgc-quotations')
     ajax_search_url = reverse_lazy('lgc-quotation-search-ajax')
@@ -508,7 +509,7 @@ class QuotationListView(InvoiceListView):
     invoice_type = lgc_models.QUOTATION
 
 class CreditNoteListView(InvoiceListView):
-    title = _('Credit Notes')
+    title = ugettext_lazy('Credit Notes')
     this_url = reverse_lazy('lgc-credit-notes')
     search_url = reverse_lazy('lgc-credit-notes')
     ajax_search_url = reverse_lazy('lgc-credit-notes-search-ajax')
@@ -518,9 +519,9 @@ class CreditNoteListView(InvoiceListView):
 class InvoiceDeleteView(BillingTest, DeleteView):
     model = lgc_models.Invoice
     success_url = reverse_lazy('lgc-invoices')
-    title = _('Delete Invoice')
+    title = ugettext_lazy('Delete Invoice')
     cancel_url = 'lgc-invoice'
-    obj_name = _('Invoice')
+    obj_name = ugettext_lazy('Invoice')
     template_name = 'lgc/person_confirm_delete.html'
 
     def get_context_data(self, **kwargs):
@@ -1001,10 +1002,10 @@ class InvoiceCommonView(BillingTestLocalUser):
         return form
 
 class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
-    title = _('New Invoice')
-    success_message = _('Invoice successfully created.')
-    quote_success_message = _('Quotation successfully created.')
-    credit_note_success_message = _('Credit note successfully created.')
+    title = ugettext_lazy('New Invoice')
+    success_message = ugettext_lazy('Invoice successfully created.')
+    quote_success_message = ugettext_lazy('Quotation successfully created.')
+    credit_note_success_message = ugettext_lazy('Credit note successfully created.')
 
     def get_context_data(self, **kwargs):
         if self.request.GET.get('quote') == '1':
@@ -1028,8 +1029,8 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
 class InvoiceUpdateView(InvoiceCommonView, SuccessMessageMixin, UpdateView):
-    title = _('Update Invoice')
-    success_message = _('Invoice successfully updated.')
+    title = ugettext_lazy('Invoice')
+    success_message = ugettext_lazy('Invoice successfully updated.')
 
     def get_context_data(self, **kwargs):
         if self.object.type == lgc_models.QUOTATION:
@@ -1252,10 +1253,10 @@ class InvoiceItemCommonView(BillingTestLocalUser):
         return context
 
 class InvoiceItemCreateView(InvoiceItemCommonView, CreateView):
-    title = _('Insert Item')
+    title = ugettext_lazy('Insert Item')
 
 class InvoiceItemUpdateView(InvoiceItemCommonView, UpdateView):
-    title = _('Update Item')
+    title = ugettext_lazy('Update Item')
     edit_expanded = True
 
 class InvoiceDisbursementCommon():
@@ -1266,11 +1267,11 @@ class InvoiceDisbursementCommon():
 
 class InvoiceDisbursementCreateView(InvoiceDisbursementCommon,
                                     InvoiceItemCommonView, CreateView):
-    title = _('Insert Disbursement')
+    title = ugettext_lazy('Insert Disbursement')
 
 class InvoiceDisbursementUpdateView(InvoiceDisbursementCommon,
                                     InvoiceItemUpdateView):
-    title = _('Update Disbursement')
+    title = ugettext_lazy('Update Disbursement')
 
 
 def user_billing_check(request):
