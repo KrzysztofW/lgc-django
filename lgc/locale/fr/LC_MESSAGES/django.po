@@ -538,6 +538,11 @@ msgstr "Date de modification"
 msgid "Include Various Expenses"
 msgstr "Inclure les frais divers"
 
+#: forms.py:389
+#, python-format
+msgid "(Phone, mail...) 5% of the services limited to 100."
+msgstr "(Téléphone, télécopie, courrier) 5% des prestations plafonné à 100."
+
 #: forms.py:393 forms.py:445 models.py:697 models.py:986 models.py:993
 #: models.py:1249 models.py:1271 models.py:1299
 #: templates/lgc/document_form.html:25
