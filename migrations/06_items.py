@@ -40,7 +40,8 @@ while row is not None:
     (`id`, `description`, `title`, `rate_eur`, `rate_usd`, `rate_cad`, `rate_gbp`)
     values (%s, %s, %s, %s, %s, %s, %s)"""
 
-    insert_tuple = (row[0], row[3].decode('windows-1252').encode('utf8'), row[2], row_tarif[2], row_tarif[3], row_tarif[4], row_tarif[5])
+    description = row[3].decode('windows-1252').replace('&quot;', '"')
+    insert_tuple = (row[0], description, row[2], row_tarif[2], row_tarif[3], row_tarif[4], row_tarif[5])
 
     try:
         result  = cursor5.execute(sql_insert_query, insert_tuple)
@@ -61,7 +62,8 @@ while row is not None:
     (`id`, `description`, `rate`, `title`, `currency`)
     values (%s, %s, %s, %s, %s)"""
 
-    insert_tuple = (row[0], row[5].decode('iso-8859-1').encode('utf8'), row[3], row[2],
+    description = row[5].decode('windows-1252').replace('&quot;', '"')
+    insert_tuple = (row[0], description, row[3], row[2],
                     row[4])
 
     try:
@@ -90,7 +92,8 @@ while row is not None:
     (`item_id`, `description`, `rate`, `quantity`, `vat`, `invoice_id`)
     values (%s, %s, %s, %s, %s, %s)"""
 
-    insert_tuple = (row[3], row[4].decode('windows-1252').encode('utf8'), row[6],
+    description = row[4].decode('windows-1252').replace('&quot;', '"')
+    insert_tuple = (row[3], description, row[6],
                     row[5], row[7], row_invoice[0])
 
     try:
@@ -124,7 +127,8 @@ while row is not None:
     `invoice_id`)
     values (%s, %s, %s, %s, %s, %s, %s)"""
 
-    insert_tuple = (row[3], row[4].decode('windows-1252').encode('utf8'), row[6],
+    description = row[4].decode('windows-1252').replace('&quot;', '"')
+    insert_tuple = (row[3], description, row[6],
                     row[5], row[7], margin, row_invoice[0])
 
     try:
