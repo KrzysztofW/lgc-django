@@ -53,6 +53,7 @@ new:
 | status               | varchar(2)   | NO   |     | NULL    |                |
 | language             | varchar(2)   | NO   |     | NULL    |                |
 | company              | varchar(50)  | NO   |     | NULL    |                |
+| show_invoice_notifs  | tinyint(1)   | NO   |     | NULL    |                |
 +----------------------+--------------+------+-----+---------+----------------+
 """
 
@@ -65,8 +66,8 @@ while row is not None:
     sql_insert_query = """INSERT INTO `users_user`
     (`password`, `is_superuser`, `first_name`, `last_name`, `is_staff`,
     `is_active`, `date_joined`, `email`, `role`, `billing`,
-    `token`, `status`, `language`, `company`)
-    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+    `token`, `status`, `language`, `company`, `show_invoice_notifs`)
+    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
     if row[11] == 'cons':
         role = 'CO'
@@ -82,9 +83,13 @@ while row is not None:
         billing = 1
     else:
         billing = 0
+    if row[5] == 'btissam.bougrine@example.com':
+        show_invoice_notifs = 1
+    else:
+        show_invoice_notifs = 0
     insert_tuple = ('', 0, row[1], row[0], is_staff,
                     1, formatted_date, row[5], role, billing,
-                    '', 'A', 'FR', '')
+                    '', 'A', 'FR', '', show_invoice_notifs)
 
     try:
         result  = cursor5.execute(sql_insert_query, insert_tuple)
