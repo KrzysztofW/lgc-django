@@ -324,3 +324,8 @@ function auto_complete_jurisdiction(elem) {
 	    consulate.appendChild(consulate_select[i]);
     }
 }
+
+$("#id_responsible").select2({
+  placeholder: "Select…",
+  escapeMarkup: function(m) { return m; }
+});
