@@ -777,11 +777,14 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
-        context['doc_download_url'] = 'lgc-download-file'
         context['form_diff'] = self.form_diff
         context['formsets_diff'] = []
         context['formsets'] = self.get_person_formsets()
         model = self.get_model(self.object)
+        if model == employee_models:
+            context['doc_download_url'] = 'employee-download-file'
+        else:
+            context['doc_download_url'] = 'lgc-download-file'
 
         if self.is_children_diff:
             """Do not show the DCEM expiration in employee view."""
