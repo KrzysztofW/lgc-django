@@ -81,8 +81,8 @@ class PersonSearchForm(forms.Form):
     process_state = forms.ChoiceField(required=False, label=_('Process State'),
                                      choices=SEARCH_PROCESS_STATE,
                                      widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
-    home_entity = forms.CharField(required=False, label=('Home Entity'))
-    host_entity = forms.CharField(required=False, label=('Host Entity'))
+    home_entity = forms.CharField(required=False, label=_('Home Entity'))
+    host_entity = forms.CharField(required=False, label=_('Host Entity'))
     first_name = forms.CharField(required=False, label=_('First Name'))
     last_name = forms.CharField(required=False, label=_('Last Name'))
 
@@ -93,6 +93,7 @@ class PersonSearchForm(forms.Form):
 
 class PersonCreateForm(forms.ModelForm):
     is_private = forms.BooleanField(required=False, initial=False,
+                                    label=_('Is private'),
                                     help_text=_('Designates whether this file is private (not related to a corporation).'))
     email = forms.EmailField(required=False)
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
@@ -100,7 +101,8 @@ class PersonCreateForm(forms.ModelForm):
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Host Entity Address'))
 
-    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_active_local_user_queryset())
+    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_active_local_user_queryset(),
+                                                 label=_('Person in charge'))
     start_date = forms.DateField(label=_('Start Date'))
     local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80, 'onchange':'auto_complete_region(this);'}),
                                     label=_('Local Address'))
@@ -169,7 +171,8 @@ class ProcessForm(forms.Form):
 
 # children:
 class ChildCreateForm(forms.ModelForm):
-    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class':'form-control lgc_small_formset'}))
+    first_name = forms.CharField(label=_('First Name'),
+                                 required=True, widget=forms.TextInput(attrs={'class':'form-control lgc_small_formset'}))
     birth_date = forms.DateField(label=_('Birth Date'))
     passport_expiry = forms.DateField(required=False, label=_('Passport Expiry'))
     passport_nationality = CountryField().formfield(label=_('Passport nationality'), required=False, widget=forms.Select(attrs={'class':'form-control lgc_small_formset', 'style':'width:90px;'}))
@@ -229,7 +232,8 @@ class ArchiveBoxForm(forms.ModelForm):
         fields = ['number']
 
 class ProcessForm(forms.ModelForm):
-    stages = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control', 'size': 15}), queryset = lgc_models.ProcessStage.objects.all())
+    stages = forms.ModelMultipleChoiceField(label=_('Stages'),
+                                            widget=forms.SelectMultiple(attrs={'class':'form-control', 'size': 15}), queryset = lgc_models.ProcessStage.objects.all())
     class Meta:
         model = lgc_models.Process
         fields = '__all__'
@@ -330,7 +334,7 @@ class DocumentFormSet(forms.ModelForm):
         fields = ['id']
 
 class ExpirationSearchForm(forms.Form):
-    user = forms.ModelChoiceField(required=False, label=_('Responsible'),
+    user = forms.ModelChoiceField(required=False, label=_('Person in charge'),
                                   widget=forms.Select(attrs={'class':'form-control',
                                                              'onchange':'form.submit();'}),
                                   queryset=user_models.get_local_user_queryset())
@@ -464,7 +468,7 @@ QUOTATION_SEARCH_COLS_CHOICES = (
     ('get_total_disbursements', _('Disbursements')),
     ('get_total_disbursements_plus_vat', _('Disbursements (+VAT)')),
     ('total', 'Total'),
-    ('get_responsibles', 'Responsibles'),
+    ('get_responsibles', _('Persons in charge')),
 )
 INVOICE_SEARCH_COLS_CHOICES = QUOTATION_SEARCH_COLS_CHOICES + (
     ('remaining_balance', _('Remaining Balance')),
@@ -493,7 +497,7 @@ class InvoiceSearchForm(forms.Form):
                               choices=(('', '---------'),) + lgc_models.INVOICE_STATE_CHOICES,
                               label=_('State'),
                               widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
-    responsible = forms.ModelChoiceField(required=False, label=_('Responsible'),
+    responsible = forms.ModelChoiceField(required=False, label=_('Person in charge'),
                                          widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}),
                                          queryset=user_models.get_local_user_queryset())
     currency = forms.ChoiceField(required=False, label=_('Currency'),

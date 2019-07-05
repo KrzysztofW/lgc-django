@@ -8,11 +8,15 @@
     <div class="card">
       <div class="card-header">
 	<div class="float-left">
+	  {% if page_obj.paginator.count %}
 	  {% blocktrans count entries=page_obj.paginator.count %}
-	  Found {{ entries }} entry
+	  Found 1 entry
 	  {% plural %}
 	  Found {{ entries }} entries
 	  {% endblocktrans %}
+	  {% else %}
+	  {% trans 'No entries found' %}
+	  {% endif %}
 	</div>
 	{% if create_url %}
 	<div class="float-right">

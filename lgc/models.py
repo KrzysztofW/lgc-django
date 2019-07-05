@@ -17,10 +17,10 @@ log = logging.getLogger('lgc')
 User = get_user_model()
 
 class Currencies(models.Model):
-    rate_eur = models.FloatField(_('EUR'), default=0)
-    rate_usd = models.FloatField(_('USD'), default=0)
-    rate_cad = models.FloatField(_('CAD'), default=0)
-    rate_gbp = models.FloatField(_('GBP'), default=0)
+    rate_eur = models.FloatField('EUR', default=0)
+    rate_usd = models.FloatField('USD', default=0)
+    rate_cad = models.FloatField('CAD', default=0)
+    rate_gbp = models.FloatField('GBP', default=0)
 
     class Meta:
         abstract = True
@@ -512,20 +512,20 @@ class PersonInfo(models.Model):
                                            max_length=100, default='',
                                            blank=True)
 
-    spouse_first_name = models.CharField(_('Spouse First Name'),
+    spouse_first_name = models.CharField(_('First Name'),
                                          max_length=50, default='',
                                          blank=True, validators=[validators.alpha])
-    spouse_last_name = models.CharField(_('Spouse Last Name'),
+    spouse_last_name = models.CharField(_('Last Name'),
                                         max_length=50, default='',
                                         blank=True, validators=[validators.alpha])
-    spouse_birth_date = models.DateField(_('Spouse Birth Date'), blank=True,
+    spouse_birth_date = models.DateField(_('Birth Date'), blank=True,
                                          null=True)
-    spouse_citizenship = CountryField(_('Spouse Citizenship'), blank=True,
+    spouse_citizenship = CountryField(_('Citizenship'), blank=True,
                                       null=True)
-    spouse_passport_expiry = models.DateField(_('Spouse Passport Expiry'),
+    spouse_passport_expiry = models.DateField(_('Passport Expiry'),
                                               blank=True, null=True,
                                               default=None)
-    spouse_passport_nationality = CountryField(_('Spouse Passport Nationality'),
+    spouse_passport_nationality = CountryField(_('Passport Nationality'),
                                                blank=True, null=True)
 
     local_address = models.TextField(_('Local Address'), max_length=100,
@@ -592,7 +592,7 @@ class Person(PersonInfo):
                                     choices=PROCESS_CHOICES)
     work_permit = models.BooleanField(_('Work Permit Required'), default=False)
     responsible = models.ManyToManyField(User, blank=True,
-                                         verbose_name=_('Persons in charge'),
+                                         verbose_name=_('Person in charge'),
                                          related_name='person_resp_set')
     start_date = models.DateField(_('Start Date'), blank=True, null=True)
 
@@ -711,7 +711,7 @@ class ExpirationCommon(models.Model):
     type = models.CharField(max_length=7, default='', choices=EXPIRATION_CHOICES + EXPIRATION_CHOICES_DCEM)
     start_date = models.DateField(null=True, default=None)
     end_date = models.DateField()
-    enabled = models.BooleanField(default=True)
+    enabled = models.BooleanField(_('Enabled'), default=True)
 
     def clean(self, model_class=None):
         check_dates(self.start_date, self.end_date, self.label)

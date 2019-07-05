@@ -1,0 +1,129 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-07-04 11:50+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: forms.py:10
+msgid "Birth Date"
+msgstr "Date de naissance"
+
+#: forms.py:11
+msgid "Home Entity Address"
+msgstr "Adresse société d'origine"
+
+#: forms.py:12
+msgid "Host Entity Address"
+msgstr "Adresse société d'accueil"
+
+#: forms.py:14
+msgid "Local Address"
+msgstr "Adresse en France"
+
+#: forms.py:15
+msgid "Foreign Address"
+msgstr "Adresse à l'étranger"
+
+#: forms.py:18
+msgid "Passport Expiry"
+msgstr "Expiration du passeport"
+
+#: templates/employee/home.html:16
+msgid "My Case"
+msgstr "Mon dossier"
+
+#: templates/employee/home.html:25 templates/employee/home.html:51
+msgid "Show"
+msgstr "Afficher"
+
+#: templates/employee/home.html:42
+msgid "My Expirations"
+msgstr "Mes expirations"
+
+#: templates/employee/menu.html:8
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#: templates/employee/menu.html:11
+msgid "My case"
+msgstr "Mon dossier"
+
+#: templates/employee/menu.html:15
+msgid "My expirations"
+msgstr "Mes expirations"
+
+#: templates/employee/moderation.html:11
+#, python-format
+msgid ""
+"\n"
+"    Updated by %(firstname)s %(lastname)s (%(role)s) on %(mdate)s\n"
+"    "
+msgstr ""
+"\n"
+"    Mis à jour par %(firstname)s %(lastname)s (%(role)s) le %(mdate)s\n"
+"    "
+
+#: templates/employee/moderation.html:18
+msgid "Current form:"
+msgstr "Le contenu actuel :"
+
+#: templates/employee/moderation.html:25
+msgid "To be moderated:"
+msgstr "À modérer :"
+
+#: templates/employee/moderation.html:35
+msgid "Accept"
+msgstr "Accepter"
+
+#: views.py:112
+msgid "First name"
+msgstr "Prénom"
+
+#: views.py:113
+msgid "Last name"
+msgstr "Nom"
+
+#: views.py:114
+msgid "E-mail"
+msgstr "E-mail"
+
+#: views.py:115
+msgid "Host entity"
+msgstr "Société d'accueil"
+
+#: views.py:140
+#, python-format
+msgid ""
+"The form has been modified by %(firstname)s %(lastname)s while you were "
+"editing it. <a href=\"%(url)s\">Reload the page</a> to continue (your "
+"modifications will be lost)."
+msgstr ""
+"Le formulaire a été modifié par %(firstname)s %(lastname)s pendant que vous l'éditiez. <a href=\"%(url)s\">Recharger la page</a> pour continuer (vos "
+"modifications en cours seront perdues)."
+
+#: views.py:199
+#, python-format
+msgid "Invalid %(title)s table."
+msgstr "Table %(title)s invalide."
+
+#: views.py:309 views.py:349
+msgid "Children"
+msgstr "Enfants"
+
+#: views.py:337
+msgid "Moderation successfully submitted."
+msgstr "Modération prise en compte avec succès."

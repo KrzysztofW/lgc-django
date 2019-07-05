@@ -130,8 +130,9 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         context['title'] = self.title
         if not self.profile_update:
             cancel_url = reverse_lazy('user', kwargs={'pk': self.object.id})
-            confirm_message = _('Are you sure you want to delete the account of %s %s'%(
-                self.object.first_name, self.object.last_name))
+            confirm_message = _('Are you sure you want to delete the account of %(firstname)s %(lastname)s')%{
+                'firstname':self.object.first_name, 'lastname':self.object.last_name
+            }
         else:
             cancel_url = reverse_lazy('user-profile')
             confirm_message = _('Are you sure you want to delete your account?')
@@ -168,8 +169,8 @@ def password_reset(request, user_id):
         if form.is_valid():
             form.save()
             messages.success(request,
-                             _('The password for %s %s has been successfully updated') %
-                             (user[0].first_name, user[0].last_name))
+                             _('The password for %(firstname)s %(lastname)s has been successfully updated')%{
+                                 'firstname':user[0].first_name, 'lastname':user[0].last_name})
             return redirect('user', user_id)
 
     context = {
@@ -381,8 +382,8 @@ def handle_auth_token(request):
             p.save()
             p.responsible.set(form.instance.responsible.all())
         messages.success(request,
-                         _('The password for %s %s has been successfully set') %
-                         (user.first_name, user.last_name))
+                         _('The password for %(firstname)s %(lastname)s has been successfully set')%{
+                             'firstname':user.first_name, 'lastname':user.last_name})
         return redirect('user-login')
     else:
         if user.password == '':

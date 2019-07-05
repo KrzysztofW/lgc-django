@@ -191,7 +191,7 @@ class ClientCreateView(ClientCommonView, CreateView):
 
 class ClientUpdateView(ClientCommonView, UpdateView):
     title = _('Client')
-    success_message = _('Client successfully updated')
+    success_message = _('Client successfully updated.')
     success_url = 'lgc-client'
     delete_url = 'lgc-client-delete'
 

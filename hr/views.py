@@ -7,7 +7,7 @@ from django import http
 from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy, ugettext as _
 from django.core.paginator import Paginator
 from django.utils import translation
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -76,13 +76,13 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
                 Div('new_token', css_class='form-group col-md-4'),
                 css_class='form-row'),
             HTML('<button class="btn btn-outline-info" type="submit">' +
-                 action + '</button>')
+                 str(action) + '</button>')
         )
         if uid:
             form.helper.layout.append(
                 HTML(' <a href="{% url "hr-delete-account" ' + str(uid) +
                      '%}" class="btn btn-outline-danger">' +
-                     lgc_views.delete_str +
+                     str(lgc_views.delete_str) +
                      '</a>')
             )
         return form
@@ -120,8 +120,10 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
             try:
                 lgc_send_email(self.object, lgc_types.MsgType.NEW_EM)
             except Exception as e:
-                messages.error(self.request, _('Cannot send email to') + '`'
-                               + self.object.email + '`: ' + str(e))
+                messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
+                    'email':self.object.email,
+                    'err': str(e)
+                })
                 return super().form_invalid(form)
 
         self.object = form.save()
@@ -133,9 +135,9 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
         return super().form_valid(form)
 
 class InitiateAccountByHR(CommonAccountByHR, CreateView):
-    success_message = _('New account successfully initiated')
-    title = _('Initiate an account')
-    submit_button_label = _('Initiate account')
+    success_message = ugettext_lazy('New account successfully initiated')
+    title = ugettext_lazy('Initiate an account')
+    submit_button_label = ugettext_lazy('Initiate account')
 
     def get_form(self, form_class=hr_forms.HRInitiateEmployeeAccountForm):
         form = super().get_form(form_class=form_class)
@@ -143,9 +145,9 @@ class InitiateAccountByHR(CommonAccountByHR, CreateView):
                                                None)
 
 class UpdateAccountByHR(CommonAccountByHR, UpdateView):
-    success_message = _('Account successfully updated')
-    title = _('Update Account')
-    submit_button_label = _('Update')
+    success_message = ugettext_lazy('Account successfully updated')
+    title = ugettext_lazy('Update Account')
+    submit_button_label = ugettext_lazy('Update')
     is_update = True
 
     def get_form(self, form_class=hr_forms.HRInitiateEmployeeAccountForm):
@@ -198,7 +200,7 @@ class HRDeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
     template_name = 'lgc/person_confirm_delete.html'
     success_url = reverse_lazy('hr-employees')
-    title = _('Delete Account')
+    title = ugettext_lazy('Delete Account')
     cancel_url = 'hr-update-account'
 
     def get_context_data(self, **kwargs):

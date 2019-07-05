@@ -1,0 +1,112 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-07-04 18:23+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: templates/common/pagination_buttons.html:5
+msgid "Showing"
+msgstr "Affichage"
+
+#: templates/common/pagination_buttons.html:5
+msgid "to"
+msgstr "à"
+
+#: templates/common/pagination_buttons.html:5
+msgid "of"
+msgstr "sur"
+
+#: templates/common/pagination_buttons.html:7
+msgid ""
+"\n"
+"      1 entry\n"
+"      "
+msgid_plural ""
+"\n"
+"      %(entries)s entries\n"
+"      "
+msgstr[0] ""
+"\n"
+"      1 élément\n"
+"      "
+msgstr[1] ""
+"\n"
+"      %(entries)s élements\n"
+"      "
+
+#: templates/common/pagination_buttons.html:13
+msgid "No entries found"
+msgstr "Pas d'éléments trouvés"
+
+#: templates/common/pagination_buttons.html:21
+msgid "First"
+msgstr "Premier"
+
+#: templates/common/pagination_buttons.html:22
+msgid "Previous"
+msgstr "Précédent"
+
+#: templates/common/pagination_buttons.html:34
+msgid "Next"
+msgstr "Suivant"
+
+#: templates/common/pagination_buttons.html:35
+msgid "Last"
+msgstr "Dernier"
+
+#: templates/common/pagination_header.html:5
+msgid "Show"
+msgstr "Afficher"
+
+#: templates/common/pagination_header.html:16
+msgid "entries"
+msgstr "éléments"
+
+#: utils.py:104
+msgid "new employee subject"
+msgstr "sujet nouveau salarié"
+
+#: utils.py:107
+msgid "new HR subject"
+msgstr "sujet nouveau RH"
+
+#: utils.py:110
+msgid "new account delete subject"
+msgstr "sujet suppression compte"
+
+#: validators.py:5
+msgid "Numbers and special characters are not allowed."
+msgstr "Chiffres et caractères spéciaux ne sont pas autorisés."
+
+#: validators.py:7
+msgid "Special characters are not allowed."
+msgstr "Caractères spéciaux ne sont pas autorisés."
+
+#~ msgid ""
+#~ "\n"
+#~ "      entry"
+#~ msgid_plural ""
+#~ "\n"
+#~ "      entries\n"
+#~ "      "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "      élément"
+#~ msgstr[1] ""
+#~ "\n"
+#~ "      éléments\n"
+#~ "      "

@@ -9,7 +9,7 @@ from django import http
 from django.contrib import messages
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy, ugettext as _
 from django.core.paginator import Paginator
 from django.utils import translation
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -48,8 +48,8 @@ import logging
 
 log = logging.getLogger('lgc')
 
-contact_admin_str = _('Please contact your administrator.')
-delete_str = _('Delete')
+contact_admin_str = ugettext_lazy('Please contact your administrator.')
+delete_str = ugettext_lazy('Delete')
 
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
@@ -150,7 +150,8 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
         context['search_url'] = self.search_url
 
         context['item_url'] = 'lgc-file'
-        context['header_values'] = [('id', 'ID', 'is_private', _('<i>(private)</i>')),
+        context['header_values'] = [('id', 'ID', 'is_private',
+                                     '<i>(' + str(_('private')) + ')</i>'),
                                     ('first_name', _('First Name')),
                                     ('last_name', _('Last Name')), ('email', 'E-mail'),
                                     ('birth_date', _('Birth Date')),
@@ -358,7 +359,8 @@ def local_user_get_person_form_layout(user, form, action, obj,
             Div('foreign_phone_number', css_class='form-group col-md-3'),
             Div('foreign_country', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
+        Div(Div(HTML('<h5>' + _('Spouse information') +
+                     '</h5><hr>'), css_class='form-group col-md-9'),
             css_class='form-row'),
         Div(Div('spouse_first_name', css_class='form-group col-md-3'),
             Div('spouse_last_name', css_class='form-group col-md-3'),
@@ -1164,7 +1166,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                        '<a href="' +
                        str(reverse_lazy('employee-moderation',
                                         kwargs={'pk':self.object.user.employee_user_set.id})) +
-                       '"> ' + _('Click here to moderate it.</a>'))
+                       '"> ' + _('Click here to moderate it.') + '</a>')
                 messages.error(self.request, mark_safe(msg))
                 return super().form_invalid(form)
 
@@ -1248,7 +1250,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                         lgc_models.delete_person_doc(form.instance, d.instance)
                     except Exception as e:
                         messages.error(self.request,
-                                       _('Cannot delete the file `%(filename)s`'%{'filename':d.instance.filename}))
+                                       _('Cannot delete the file `%(filename)s`')%{
+                                           'filename':d.instance.filename})
                         log.error(e)
 
         messages.success(self.request, self.success_message)
@@ -1272,19 +1275,19 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         abstract = True
 
 class PersonCreateView(PersonCommonView, CreateView):
-    title = _('New File')
+    title = ugettext_lazy('New File')
     is_update = False
-    success_message = _('File successfully created')
+    success_message = ugettext_lazy('File successfully created')
 
 class PersonUpdateView(PersonCommonView, UpdateView):
-    title = _('File')
+    title = ugettext_lazy('File')
     is_update = True
-    success_message = _('File successfully updated')
+    success_message = ugettext_lazy('File successfully updated')
 
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = lgc_models.Person
-    obj_name = _('File')
-    title = _('Delete File')
+    obj_name = ugettext_lazy('File')
+    title = ugettext_lazy('Delete File')
     template_name = 'lgc/person_confirm_delete.html'
     success_url = reverse_lazy('lgc-files')
     cancel_url = 'lgc-file'
@@ -1303,11 +1306,11 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_message = _("%(obj_name)s of %(firstname)s %(lastname)s deleted successfully."%{
+        success_message = _("%(obj_name)s of %(firstname)s %(lastname)s deleted successfully.")%{
             'obj_name':self.obj_name,
             'firstname':self.object.first_name,
             'lastname':self.object.last_name,
-        })
+        }
 
         if type(self.object).__name__ == 'User':
             if hasattr(self.object, 'person_user_set'):
@@ -1332,8 +1335,10 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             try:
                 lgc_send_email(self.object.user, lgc_types.MsgType.DEL)
             except Exception as e:
-                messages.error(self.request, _('Cannot send email to') + '`'
-                               + self.object.user.email + '`: ' + str(e))
+                messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
+                    'email':self.object.user.email,
+                    'err': str(e)
+                })
                 return redirect('lgc-file', self.object.id)
 
         messages.success(self.request, success_message)
@@ -1432,7 +1437,7 @@ class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
 class ProcessListView(ProcessCommonView, ListView):
     template_name = 'lgc/sub_generic_list.html'
     model = lgc_models.Process
-    title = _('Processes')
+    title = ugettext_lazy('Processes')
     create_url = reverse_lazy('lgc-process-create')
     item_url = 'lgc-process'
     this_url = reverse_lazy('lgc-processes')
@@ -1487,10 +1492,10 @@ class ProcessListView(ProcessCommonView, ListView):
 
 class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
     model = lgc_models.Process
-    success_message = _('Process successfully created')
+    success_message = ugettext_lazy('Process successfully created')
     template_name = 'lgc/process.html'
     success_url = reverse_lazy('lgc-process-create')
-    title = _('New Process')
+    title = ugettext_lazy('New Process')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1508,10 +1513,10 @@ class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
 
 class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
     model = lgc_models.Process
-    success_message = _('Process successfully updated')
+    success_message = ugettext_lazy('Process successfully updated')
     success_url = 'lgc-process'
     template_name = 'lgc/process.html'
-    title = _('Process')
+    title = ugettext_lazy('Process')
     delete_url = 'lgc-process-delete'
     fields = '__all__'
 
@@ -1541,9 +1546,9 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = lgc_models.Process
     template_name = 'lgc/process_confirm_delete.html'
     success_url = reverse_lazy('lgc-processes')
-    title = _('Delete Process')
+    title = ugettext_lazy('Delete Process')
     cancel_url = 'lgc-process'
-    obj_name = _('Process')
+    obj_name = ugettext_lazy('Process')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1579,7 +1584,7 @@ class ProcessDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class ProcessStageListView(ProcessListView):
     model = lgc_models.ProcessStage
-    title = _('Process Stages')
+    title = ugettext_lazy('Process Stages')
     create_url = reverse_lazy('lgc-process-stage-create')
     item_url = 'lgc-process-stage'
     this_url = reverse_lazy('lgc-process-stages')
@@ -1598,9 +1603,9 @@ class ProcessStageListView(ProcessListView):
 
 class ProcessStageCreateView(ProcessCreateView):
     model = lgc_models.ProcessStage
-    success_message = _('Process stage successfully created')
+    success_message = ugettext_lazy('Process stage successfully created')
     success_url = reverse_lazy('lgc-process-stage-create')
-    title = _('New Process Stage')
+    title = ugettext_lazy('New Process Stage')
     template_name = 'lgc/generic_form.html'
 
     def get_form(self, form_class=lgc_forms.ProcessStageForm):
@@ -1608,9 +1613,9 @@ class ProcessStageCreateView(ProcessCreateView):
 
 class ProcessStageUpdateView(ProcessUpdateView):
     model = lgc_models.ProcessStage
-    success_message = _('Process stage successfully updated')
+    success_message = ugettext_lazy('Process stage successfully updated')
     success_url = 'lgc-process-stage'
-    title = _('Process Stage')
+    title = ugettext_lazy('Process Stage')
     delete_url = 'lgc-process-stage-delete'
     template_name = 'lgc/generic_form.html'
 
@@ -1620,9 +1625,9 @@ class ProcessStageUpdateView(ProcessUpdateView):
 class ProcessStageDeleteView(ProcessDeleteView):
     model = lgc_models.ProcessStage
     success_url = reverse_lazy('lgc-process-stages')
-    title = _('Delete Process Stage')
+    title = ugettext_lazy('Delete Process Stage')
     cancel_url = 'lgc-process-stage'
-    obj_name = _('Process stage')
+    obj_name = ugettext_lazy('Process stage')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1633,7 +1638,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                               SuccessMessageMixin, UpdateView):
     model = lgc_models.PersonProcess
     template_name = 'lgc/person_process.html'
-    success_message = _('Process successfully updated.')
+    success_message = ugettext_lazy('Process successfully updated.')
     success_url = 'lgc-person-process'
     delete_url = ''
     fields = '__all__'
@@ -1805,10 +1810,10 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         if self.object:
             self.object = self.get_object()
             if self.object.version != form.instance.version:
-                msg = (_('This process has been modified by %(firstname)s %(lastname)s while you were editing it.'%{
+                msg = (_('This process has been modified by %(firstname)s %(lastname)s while you were editing it.')%{
                     'firstname':self.object.person.modified_by.first_name,
                     'lastname':self.object.person.modified_by.last_name,
-                }) +
+                } +
                        '<a href="' +
                        str(reverse_lazy('lgc-person-process', kwargs={'pk':self.object.id})) +
                        '"> ' + _('Reload the page.'))
@@ -1939,7 +1944,7 @@ class PersonProcessListView(ProcessListView):
         return context
 
 class PersonProcessReadyListView(PersonProcessListView):
-    title = _('Processes ready to invoice')
+    title = ugettext_lazy('Processes ready to invoice')
     model = lgc_models.PersonProcess
     ajax_search_url = None
     search_url = reverse_lazy('lgc-person-processes-ready')
@@ -1967,7 +1972,7 @@ class PersonProcessReadyListView(PersonProcessListView):
         return object_list
 
 class PersonProcessPendingListView(PersonProcessReadyListView):
-    title = _('Pending Processes')
+    title = ugettext_lazy('Pending Processes')
     model = lgc_models.PersonProcess
     search_url = reverse_lazy('lgc-person-processes-pending')
 
@@ -2024,11 +2029,12 @@ def get_account_form(form, action, uid, is_staff=False, new_token=False):
 
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
-             action + '</button>'))
+             str(action) + '</button>'))
     if uid and is_staff:
         form.helper.layout.append(
             HTML(' <a href="{% url "lgc-account-delete" ' + str(uid) +
-                 '%}" class="btn btn-outline-danger">' + delete_str + '</a>')
+                 '%}" class="btn btn-outline-danger">' + str(delete_str) +
+                 '</a>')
         )
     return form
 
@@ -2048,11 +2054,12 @@ def get_hr_account_form(form, action, uid, new_token=False):
 
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
-             action + '</button>'))
+             str(action) + '</button>'))
     if uid:
         form.helper.layout.append(
             HTML(' <a href="{% url "lgc-hr-delete" ' + str(uid) +
-                 '%}" class="btn btn-outline-danger">' + delete_str + '</a>')
+                 '%}" class="btn btn-outline-danger">' + str(delete_str) +
+                 '</a>')
         )
 
     return form
@@ -2076,9 +2083,9 @@ class AccountView(LoginRequiredMixin, UserPassesTestMixin):
         return self.request.user.role in user_models.get_internal_roles()
 
 class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
-    success_message = _('New account successfully created')
-    title = _('Create acces')
-    form_name = _('Create access')
+    success_message = ugettext_lazy('New account successfully created')
+    title = ugettext_lazy('Create access')
+    form_name = ugettext_lazy('Create access')
 
     def test_func(self):
         return self.request.user.role in user_models.get_internal_roles()
@@ -2148,9 +2155,10 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             try:
                 lgc_send_email(self.object, type)
             except Exception as e:
-                messages.error(self.request, _('Cannot send email to') + '`'
-                               + self.object.email + '`: ' + str(e))
-                return super().form_invalid(form)
+                messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
+                    'email':self.object.email,
+                    'err': str(e)
+                })
         ret = super().form_valid(form)
         self.object = form.save()
         if p:
@@ -2166,7 +2174,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         return super().form_invalid(form)
 
 class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
-    title = _('Employee Accounts')
+    title = ugettext_lazy('Employee Accounts')
     template_name = 'lgc/accounts.html'
     ajax_search_url = reverse_lazy('user-employee-search-ajax')
     search_url = reverse_lazy('lgc-accounts')
@@ -2199,9 +2207,9 @@ class Accounts(AccountView, PersonCommonListView, UserPassesTestMixin):
         return objs.order_by(order_by)
 
 class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
-    success_message = _('Account successfully updated')
-    title = _('Update Account')
-    form_name = _('Update')
+    success_message = ugettext_lazy('Account successfully updated')
+    title = ugettext_lazy('Update Account')
+    form_name = ugettext_lazy('Update')
     is_hr = False
 
     def get_success_url(self):
@@ -2292,8 +2300,8 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         return super().form_invalid(form)
 
 class DeleteAccount(AccountView, DeleteView):
-    obj_name = _('Account')
-    title = _('Delete Account')
+    obj_name = ugettext_lazy('Account')
+    title = ugettext_lazy('Delete Account')
     success_url = reverse_lazy('lgc-accounts')
     template_name = 'lgc/person_confirm_delete.html'
 
@@ -2345,17 +2353,17 @@ class HRView(LoginRequiredMixin):
         return self.request.user.role in user_models.get_internal_roles()
 
 class HRCreateView(HRView, InitiateAccount):
-    success_message = _('New HR account successfully created')
-    title = _('New HR account')
-    form_name = _('Initiate account')
+    success_message = ugettext_lazy('New HR account successfully created')
+    title = ugettext_lazy('New HR account')
+    form_name = ugettext_lazy('Initiate account')
 
     def test_func(self):
         return (self.request.user.role == user_models.ROLE_CONSULTANT or
                 self.request.user.is_staff)
 
 class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
-    success_message = _('HR account successfully updated')
-    title = _('Update HR')
+    success_message = ugettext_lazy('HR account successfully updated')
+    title = ugettext_lazy('Update HR')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2427,7 +2435,7 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
         return super().form_valid(form, self.object.hr_employees.all())
 
 class HRAccountListView(HRView, Accounts):
-    title = _('HR accounts')
+    title = ugettext_lazy('HR accounts')
     template_name = 'lgc/accounts.html'
     ajax_search_url = reverse_lazy('user-hr-search-ajax')
     search_url = reverse_lazy('lgc-hr-accounts')
@@ -2435,8 +2443,8 @@ class HRAccountListView(HRView, Accounts):
 
 class HRDeleteView(HRView, DeleteAccount):
     success_url = reverse_lazy('lgc-hr-accounts')
-    obj_name = _('HR account')
-    title = _('Delete HR account')
+    obj_name = ugettext_lazy('HR account')
+    title = ugettext_lazy('Delete HR account')
     template_name = 'lgc/person_confirm_delete.html'
 
 @login_required

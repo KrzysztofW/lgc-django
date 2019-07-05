@@ -95,7 +95,7 @@ jQuery(function($) {
 
 function form_changed() {
   if ($("#form_id").data("changed")) {
-    return confirm('{% trans 'The form has not been saved. Are you sure you want to navigate away from this page?' %}');
+    return confirm("{% trans 'The form has not been saved. Are you sure you want to navigate away from this page?' %}");
   }
   return true;
 }

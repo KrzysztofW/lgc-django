@@ -2,10 +2,14 @@
 <div class="row mb-1 align-items-baseline">
   <div class="col-sm-12 col-md-5">
     <div class="dataTables_info" id="dataTables-example_info" role="status" aria-live="polite">
-      {% trans 'Showing' %} {{ page_obj.start_index }} {% trans 'to' %} {{ page_obj.end_index }} {% trans 'of' %} {{ page_obj.paginator.count }}
+      {% if page_obj.paginator.count %}
+      {% trans 'Showing' %} {{ page_obj.start_index }} {% trans 'to' %} {{ page_obj.end_index }} {% trans 'of' %}
       {% blocktrans count entries=page_obj.paginator.count %}
-      entry{% plural %}entries
+      1 entry
+      {% plural %}
+      {{ entries }} entries
       {% endblocktrans %}
+      {% endif %}
     </div>
   </div>
   <div class="col-sm-12 col-md-7">

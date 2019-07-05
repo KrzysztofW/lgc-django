@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-27 16:59+0000\n"
+"POT-Creation-Date: 2019-07-04 22:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,26 +18,252 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: users/templates/users/login.html:22
+#: forms.py:35
+msgid "Current password"
+msgstr ""
+
+#: forms.py:39
+msgid "New password"
+msgstr "Nouveau mot de passe"
+
+#: models.py:9
+msgid "English"
+msgstr "Anglais"
+
+#: models.py:10
+msgid "French"
+msgstr "Français"
+
+#: models.py:21
+msgid "HR Admin"
+msgstr "RH admin"
+
+#: models.py:22
+msgid "HR"
+msgstr "RH"
+
+#: models.py:23
+msgid "Employee"
+msgstr "Salarié"
+
+#: models.py:28
+msgid "Jurist"
+msgstr "Juriste"
+
+#: models.py:29
+msgid "Consultant"
+msgstr "Consultant"
+
+#: models.py:105
+msgid "Pending"
+msgstr "En cours"
+
+#: models.py:106 views.py:68
+msgid "Active"
+msgstr "Actif"
+
+#: models.py:107
+msgid "Deleted by employee"
+msgstr "Supprimé par le salarié"
+
+#: models.py:108
+msgid "Deleted by HR"
+msgstr "Supprimé par le RH"
+
+#: models.py:123
+msgid "First name"
+msgstr "Prénom"
+
+#: models.py:124
+msgid "Last name"
+msgstr "Nom"
+
+#: models.py:129
+msgid "Show invoice notifications"
+msgstr "Afficher les notifications de facturation"
+
+#: templates/users/confirm_delete.html:7
+msgid "Confirm"
+msgstr "Confirmer"
+
+#: templates/users/confirm_delete.html:8 templates/users/password_reset.html:19
+msgid "Cancel"
+msgstr "Annuler"
+
+#: templates/users/create.html:13 templates/users/token.html:48
+msgid "Submit"
+msgstr "Enregistrer"
+
+#: templates/users/create.html:15
+msgid "Delete"
+msgstr "Supprimer"
+
+#: templates/users/create.html:16
+msgid "Change password"
+msgstr "Changer le mot de passe"
+
+#: templates/users/login.html:21
 msgid "Please Sign In"
 msgstr "Connectez-vous"
 
-#: users/templates/users/login.html:33
+#: templates/users/login.html:29
+msgid "E-mail"
+msgstr "E-mail"
+
+#: templates/users/login.html:32
 msgid "Password"
 msgstr "Mot de passe"
 
-#: users/templates/users/login.html:39
+#: templates/users/login.html:37
 msgid "Remember Me"
 msgstr "Se rappeler de moi"
 
-#: users/templates/users/login.html:43
+#: templates/users/login.html:41
 msgid "Login"
 msgstr "Se connecter"
 
-#: users/templates/users/logout.html:9
-msgid "You have been logged out."
+#: templates/users/password_reset.html:12
+msgid "Update password for user"
+msgstr "Changer le mot de passe de l'utilisateur"
+
+#: templates/users/password_reset.html:18 templates/users/profile.html:14
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: templates/users/profile.html:10
+msgid "Profile Info"
+msgstr "Informations du profile"
+
+#: templates/users/token.html:30
+msgid "Welcome"
+msgstr "Bienvenue"
+
+#: templates/users/token.html:35
+msgid "Please choose a password to access your account"
+msgstr "Merci de choisir un mot de passe"
+
+#: templates/users/token.html:44
+msgid "I accept the terms and conditions"
+msgstr "J'accepte les conditions d'utilisation"
+
+#: views.py:61
+msgid "Users"
+msgstr "Utilisateurs"
+
+#: views.py:67
+msgid "First Name"
+msgstr "Prénom"
+
+#: views.py:68
+msgid "Last Name"
+msgstr "Nom"
+
+#: views.py:69
+msgid "Role"
+msgstr "Rôle"
+
+#: views.py:69
+msgid "Billing"
+msgstr "Facturation"
+
+#: views.py:70
+msgid "Staff"
+msgstr "Administrateur"
+
+#: views.py:79
+msgid "User successfully created."
+msgstr "Utilisateur créé avec succès."
+
+#: views.py:84
+msgid "New User"
+msgstr "Nouvel utilisateur"
+
+#: views.py:97
+msgid "User successfully updated."
+msgstr "Utilisateur mis à jour avec succès."
+
+#: views.py:107
+msgid "Update User"
+msgstr "Modifier utilisateur"
+
+#: views.py:124
+msgid "Delete User"
+msgstr "Supprimer utilisateur"
+
+#: views.py:125
+msgid "User successfully deleted."
+msgstr "Utilisateur supprimé avec succès."
+
+#: views.py:133
+#, python-format
+msgid ""
+"Are you sure you want to delete the account of %(firstname)s %(lastname)s"
+msgstr ""
+"Êtes-vous sûr de vouloir supprimer le compte de %(firstname)s %(lastname)s"
+
+#: views.py:138
+msgid "Are you sure you want to delete your account?"
+msgstr "Êtes-vous sûr de vouloir supprimer votre compte ?"
+
+#: views.py:161 views.py:201
+msgid "Password Reset"
+msgstr "Changer le mot de passe"
+
+#: views.py:172
+#, python-format
+msgid ""
+"The password for %(firstname)s %(lastname)s has been successfully updated"
+msgstr ""
+"Le mot de passe de %(firstname)s %(lastname)s a été mis à jour avec succès"
+
+#: views.py:191
+msgid "Delete My Account"
+msgstr "Supprimer mon compte"
+
+#: views.py:193
+msgid "Your account has been successfully deleted."
+msgstr "Votre compte a été supprimé avec succès."
+
+#: views.py:210
+msgid "Your password has been successfully updated"
+msgstr "Votre mot de passe a été modifié avec succès"
+
+#: views.py:225
+msgid "My Account Profile"
+msgstr "Mon profile utilisateur"
+
+#: views.py:242
+msgid "Your account profile has been updated"
+msgstr "Votre profile utilisateur a été mis à jour"
+
+#: views.py:271
+msgid "Your session has expired."
+msgstr "Votre session a expirée."
+
+#: views.py:295
+msgid "Your password has expired. Please choose a new one"
+msgstr "Votre mot de passe a expiré. Merci d'en créer un nouveau"
+
+#: views.py:308
+msgid "You were successfully logged-out."
 msgstr "Vous avez été déconnecté."
 
-#: users/templates/users/logout.html:10
-msgid "Log In Again."
-msgstr "Se reconnecter."
+#: views.py:330
+msgid "Welcome to LGC"
+msgstr "Bienvenue sur le site Office"
+
+#: views.py:363
+msgid "The current password does not match."
+msgstr "Le mot de passe est erroné."
+
+#: views.py:367
+msgid "The new password and the old one must be different."
+msgstr "Le nouveau mot de passe et l'ancien doivent être différents."
+
+#: views.py:385
+#, python-format
+msgid "The password for %(firstname)s %(lastname)s has been successfully set"
+msgstr "Le mot de passe de %(firstname)s %(lastname)s a été pris en compte"
+
+#~ msgid "Log In Again."
+#~ msgstr "Se reconnecter."

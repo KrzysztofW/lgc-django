@@ -137,11 +137,11 @@ def objs_diff(objs1, objs2):
     return False
 
 def set_modifiedby_err_msg(request, first_name, last_name, url):
-    msg = _('The form has been modified by %(firstname)s %(lastname)s while you were editing it. <a href="%(url)s">Reload the page</a> to continue (your modifications will be lost).'%{
+    msg = _('The form has been modified by %(firstname)s %(lastname)s while you were editing it. <a href="%(url)s">Reload the page</a> to continue (your modifications will be lost).')%{
         'firstname':first_name,
         'lastname': last_name,
         'url': url,
-    })
+    }
     messages.error(request, mark_safe(msg))
 
 def set_formset(request, context, form_class, queryset, person_objs, title,
@@ -196,8 +196,8 @@ def check_form(request, context, obj, employee_form, url):
 
     for formset in context['formsets']:
         if not formset.is_valid():
-            messages.error(request, _('Invalid %(title)s table.'%{
-                'title':formset.title}))
+            messages.error(request, _('Invalid %(title)s table.')%{
+                'title':formset.title})
             return False
 
     if person_form_version != person_version:
