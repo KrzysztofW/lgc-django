@@ -988,7 +988,7 @@ class InvoiceCommonView(BillingTestLocalUser):
         if action_url == None:
             layout.append(HTML('<button class="btn btn-outline-info" type="submit" ' +
                                'onclick="return invoice_form_checks(\'' +
-                               _('If the state PAID is set, the invoice will not be editable anymore.') +
+                               _('If the state PAID is set, the invoice will not be editable anymore.').replace("'", "\\'") +
                                '\');">' + action + '</button>'))
         else:
             layout.append(HTML('<a href="' + action_url +
