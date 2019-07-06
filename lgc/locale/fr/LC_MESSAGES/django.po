@@ -472,7 +472,7 @@ msgstr "Valider une étape"
 
 #: forms.py:285
 msgid "Completed"
-msgstr "Marquer comme completé"
+msgstr "Marquer comme complété"
 
 #: forms.py:289 forms.py:298
 msgid "Action:"
