@@ -68,3 +68,9 @@ get_form post: <QueryDict: {'csrfmiddlewaretoken': ['kSWLEflnyiicoY71qpHW6R4qANA
 form_invalid, post: <QueryDict: {'csrfmiddlewaretoken': ['kSWLEflnyiicoY71qpHW6R4qANAb4McCABATORnzfcQM69jk0i9eGbw4o0xplUxv'], 'name': ['process one2'], 'stages': ['1', '2', '3']}>
 get_context_data post: <QueryDict: {'csrfmiddlewaretoken': ['kSWLEflnyiicoY71qpHW6R4qANAb4McCABATORnzfcQM69jk0i9eGbw4o0xplUxv'], 'name': ['process one2'], 'stages': ['1', '2', '3']}>
 [02/May/2019 09:53:05] "POST /en/process/1/ HTTP/1.1" 200 13889
+
+Deployment
+==========
+
+https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
+./manage.py check --deploy
