@@ -224,13 +224,17 @@ class PersonListView(PersonCommonListView):
         if state:
             objs = objs.filter(state__exact=state)
         if jurist:
-            o = User.objects.get(id=jurist)
-            if o:
+            try:
+                o = User.objects.get(id=jurist)
                 objs = objs.filter(responsible=o)
+            except:
+                pass
         if consultant:
-            o = User.objects.get(id=consultant)
-            if o:
+            try:
+                o = User.objects.get(id=consultant)
                 objs = objs.filter(responsible=o)
+            except:
+                pass
         if prefecture:
             objs = objs.filter(prefecture__exact=prefecture)
         if subprefecture:
@@ -2126,12 +2130,13 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
 
     def get_person(self):
         pk = self.kwargs.get('pk')
-        if pk:
+        if not pk:
+            return None
+        try:
             p = lgc_models.Person.objects.get(id=pk)
-            if p == None:
-                raise ValueError('invalid person ID')
-            return p
-        return None
+        except:
+            raise ValueError('invalid person ID')
+        return p
 
     def form_valid(self, form):
         try:
@@ -2247,8 +2252,9 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
                                  'the user has not accepted our terms and ' +
                                  'condiftions yet.')
 
-        user = User.objects.get(id=self.object.id)
-        if not user:
+        try:
+            user = User.objects.get(id=self.object.id)
+        except:
             return self.form_invalid(form)
 
         if (user.status == user_models.USER_STATUS_PENDING and
@@ -2569,9 +2575,12 @@ def ajax_file_search_view(request):
 @login_required
 def download_file(request, *args, **kwargs):
     pk = kwargs.get('pk', '')
-    doc = lgc_models.Document.objects.get(id=pk)
+    try:
+        doc = lgc_models.Document.objects.get(id=pk)
+    except:
+        raise Http404
 
-    if not doc or doc.person.user == None:
+    if doc.person.user == None:
         raise Http404
 
     if (request.user.role not in user_models.get_internal_roles() and
@@ -2617,8 +2626,9 @@ def expirations_filter_objs(request, objs):
     objs = objs.filter(end_date__lte=compare_date)
 
     if user:
-        user = User.objects.get(id=user)
-        if not user:
+        try:
+            user = User.objects.get(id=user)
+        except:
             raise Http404
         objs = objs.filter(person__responsible=user)
 
