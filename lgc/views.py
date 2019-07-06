@@ -2570,7 +2570,8 @@ def ajax_file_search_view(request):
 def download_file(request, *args, **kwargs):
     pk = kwargs.get('pk', '')
     doc = lgc_models.Document.objects.get(id=pk)
-    if not doc:
+
+    if not doc or doc.person.user == None:
         raise Http404
 
     if (request.user.role not in user_models.get_internal_roles() and
