@@ -274,11 +274,17 @@ class LoginView(authLoginView):
         )
         return context
 
+    def redirect_language(self):
+        return redirect('lgc-home')
+
     def form_valid(self, form):
         form = super().form_valid(form)
         ip = self.request.META.get('REMOTE_ADDR')
         ip = IPv4Address(ip)
         found = False
+
+        translation.activate(self.request.user.language)
+        self.request.session[translation.LANGUAGE_SESSION_KEY] = self.request.user.language
 
         for subnet in settings.ALLOWED_SESSION_NOTIMEOUT_SUBNETS:
             if ip in IPv4Network(subnet):
@@ -288,7 +294,7 @@ class LoginView(authLoginView):
             self.request.session.set_expiry(settings.SESSION_EXPIRATION)
 
         if self.request.user.role in user_models.get_internal_roles():
-            return form
+            return self.redirect_language()
 
         if (self.request.user.password_last_update == None or
             self.request.user.password_last_update + timedelta(days=settings.AUTH_PASSWORD_EXPIRY) < timezone.now().date()):
@@ -301,7 +307,7 @@ class LoginView(authLoginView):
             response = redirect('user-token')
             response['Location'] += '?token=' + token
             return response
-        return form
+        return self.redirect_language()
 
 @login_required
 def logout_then_login_with_msg(request):
