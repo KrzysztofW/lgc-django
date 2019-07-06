@@ -10,18 +10,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import os
+import os, json
 from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+with open(os.path.join(BASE_DIR, 'lgc_base/lgc-config.json')) as cfg:
+    lgc_config = json.load(cfg)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7g&a3%b538z5&#-4ud7q@eqnz!+lufnbgq1adk!ei#@0=o4a2j'
+SECRET_KEY = lgc_config['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -92,10 +94,13 @@ WSGI_APPLICATION = 'lgc_base.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'lgc_v5',
-        'USER': 'lgc',
-        'PASSWORD':'zqooe872Fjdhe',
+        'NAME': lgc_config['DB_NAME'],
+        'USER': lgc_config['DB_USER'],
+        'PASSWORD': lgc_config['DB_PASSWORD'],
         'HOST':'/var/run/mysqld/mysqld.sock',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
 
@@ -119,11 +124,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-EMAIL_HOST = 'kw-net.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'autotestkw@example.com'
-EMAIL_HOST_PASSWORD = 'udis82udD'
-EMAIL_USE_TLS = True
+EMAIL_HOST = lgc_config['EMAIL_HOST']
+EMAIL_PORT = lgc_config['EMAIL_PORT']
+EMAIL_HOST_USER = lgc_config['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = lgc_config['EMAIL_HOST_PASSWORD']
+EMAIL_USE_TLS = lgc_config['EMAIL_USE_TLS']
 ADMINS = [('John Doe', 'admin@example.com')]
 
 LOGFILE_NAME = '/tmp/lgc.log'
