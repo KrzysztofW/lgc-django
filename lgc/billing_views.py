@@ -1394,7 +1394,8 @@ def billing_pdf_view(request, pk):
         filename = 'FA'
     filename += str(invoice.number).zfill(5) + '.pdf'
     response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
-    pdf = subprocess.Popen('php_pdf/print.php ' + str(invoice.id),
+    pdf = subprocess.Popen(os.path.join(settings.BASE_DIR, 'php_pdf/print.php') +
+                           ' ' + str(invoice.id),
                            shell=True, stdout=subprocess.PIPE).stdout.read()
     response.write(pdf)
     return response
