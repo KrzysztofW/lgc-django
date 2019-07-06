@@ -2641,8 +2641,8 @@ def get_expirations_form(request):
     form.helper.form_method = 'get'
     form.helper.layout = Layout(
         Div(
-            Div('user', css_class='form-group col-md-2'),
-            Div('expires', css_class='form-group col-md-2'),
+            Div('user', css_class='form-group col-md-3'),
+            Div('expires', css_class='form-group col-md-3'),
             Div('expiry_type', css_class='form-group col-md-3'),
             Div('show_disabled', css_class='form-group col-md-2 lgc_aligned_checkbox'),
             Div('show_expired', css_class='form-group col-md-3 lgc_aligned_checkbox'),
