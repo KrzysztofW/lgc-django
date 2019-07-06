@@ -427,7 +427,7 @@ if (! empty($file_id)) {
 $pdf->Ln(10);
 
 /* description */
-$pieces = explode("\n", $row['invoice_description']);
+$pieces = explode("\n", utf8_decode($row['invoice_description']));
 
 foreach ($pieces as $val => $key) {
 	$pdf->Cell(25, 10, "$key", 0, 0, 'L');

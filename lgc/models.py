@@ -1092,7 +1092,6 @@ class Invoice(AbstractClient):
         total = round(obj.quantity * obj.rate, 2)
         obj_vat = float(obj.vat) / 100.
         vat = round(total * obj_vat, 2)
-        vat = total * obj_vat
 
         """Save the first item's VAT to compute various expenses."""
         if not hasattr(self, 'item_vat'):
@@ -1104,9 +1103,8 @@ class Invoice(AbstractClient):
         obj_vat = float(obj.vat) / 100.
         total = quantity_rate
         if obj.margin:
-            total *= 1 + 0.2
+            total *= 1.2
         total = round(total, 2)
-        vat = round(total * obj_vat, 2)
         vat = round(total * obj_vat, 2)
         return total, vat
 

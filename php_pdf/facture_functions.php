@@ -29,32 +29,30 @@ function get_total($id_facture, $pdf, $file_log, $type, $frais_divers) {
 	} else {
 		while ($row_op = mysqli_fetch_assoc($resultat)) {
 
-			$prix_ht = $row_op['rate'];
-			$marge = 0;
-			if ($type == "deb" and $row_op['margin'])
-				$marge = 0.2;
-
+			$prix_ht = $row_op['rate'] * $row_op['quantity'];
+			$prix_ht = round($prix_ht, 2);
+			if ($type == "deb" and $row_op['margin']) {
+				$prix_ht *= 1.2;
+				$prix_ht = round($prix_ht, 2);
+			}
 			$tva = $row_op['vat'] / 100;
 			$ret['tva'] = $row_op['vat'];
 			$prix_ttc = $prix_ht * ($tva + 1);
-			if ($marge > 0)
-				$prix_ttc = $prix_ttc * ($marge + 1);
-			$prix_ht = $prix_ttc / ($tva + 1);
 
 			if ($tva != 0) {
-				$ret['t_tva'] += ($prix_ht * $row_op['quantity']) * $tva;
-				$ret['total'] += ($prix_ht * $row_op['quantity']) * (1 + $tva);
-				$ret['t_tva_ht'] += $prix_ht * $row_op['quantity'];
+				$ret['t_tva'] += round($prix_ht * $tva, 2);
+				$ret['total'] += round($prix_ht * (1 + $tva), 2);
+				$ret['t_tva_ht'] += $prix_ht;
 			} else {
-				$ret['t_notva'] += $prix_ht * $row_op['quantity'];
-				$ret['total'] += $prix_ht * $row_op['quantity'];
+				$ret['t_notva'] += $prix_ht;
+				$ret['total'] += $prix_ht;
 			}
 
-			$ret['total_ht'] += $prix_ht * $row_op['quantity'];
+			$ret['total_ht'] += $prix_ht;
 
 			if ($pdf and $type == "dil") {
 				$pdf->Cell(20, 4, '-', 0, 0, 'R');
-				$pdf->MultiCell(0, 4, $row_op['description'], '','L');
+				$pdf->MultiCell(0, 4, utf8_decode($row_op['description']), '','L');
 				$pdf->Ln(1);
 			} elseif ($pdf and $type == "deb") {
 				$pdf->Cell(60);
@@ -62,11 +60,10 @@ function get_total($id_facture, $pdf, $file_log, $type, $frais_divers) {
 				$Yord = $pdf->GetY();
 
 				$pdf->Cell(60);
-				$prix_ht_all = $prix_ht * $row_op['quantity'];
-				$pdf->Cell(30, 4, number_format($prix_ht_all, 2, ',', ' '), 0, 0, 'R');
+				$pdf->Cell(30, 4, number_format($prix_ht, 2, ',', ' '), 0, 0, 'R');
 
 				$pdf->SetX($Xabs, $Yord);
-				$pdf->MultiCell(70, 4, $row_op['description'], '','L');
+				$pdf->MultiCell(70, 4, utf8_decode($row_op['description']), '','L');
 
 				$pdf->Ln(1);
 			}

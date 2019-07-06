@@ -843,8 +843,8 @@ class InvoiceCommonView(BillingTestLocalUser):
 
             total = form.instance.get_total_plus_vat
             if total != float(form.instance.total):
-                log.error('invoice total does not match. Computed total: %d form total: %d',
-                          total, float(form.instance.total))
+                log.error('invoice %f total does not match. Computed total: %d form total: %f',
+                          form.instance.id, total, float(form.instance.total))
                 messages.error(self.request,
                                _('Total does not match. Contact your administrator'))
 
