@@ -2580,11 +2580,8 @@ def download_file(request, *args, **kwargs):
     except:
         raise Http404
 
-    if doc.person.user == None:
-        raise Http404
-
     if (request.user.role not in user_models.get_internal_roles() and
-        doc.person.user.id != request.user.id):
+        doc.person.user and doc.person.user.id != request.user.id):
         return http.HttpResponseForbidden()
 
     file_path = os.path.join(settings.MEDIA_ROOT, doc.document.name)
