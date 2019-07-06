@@ -105,7 +105,7 @@ function get_frais_divers($id_facture, $dil_total_ht, $file_log) {
 	$tva = 0;
 
 	if ($dil_total_ht) {
-		$sql = "select vat from lgc_invoiceitem where id=$id_facture limit 1;";
+		$sql = "select vat from lgc_invoiceitem where invoice_id=$id_facture limit 1;";
 		$resultat_tmp = mysqli_query($GLOBALS['c'], $sql);
 		if (! $resultat_tmp) {
 			if ($file_log) {
