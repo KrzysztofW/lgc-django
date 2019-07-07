@@ -1331,7 +1331,7 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if person_obj and person_obj.document_set:
             for doc in person_obj.document_set.all():
                 try:
-                    lgc_models.delete_person_doc(self.object.person_user_set, doc)
+                    lgc_models.delete_person_doc(self.object, doc)
                 except Exception as e:
                     log.error(e)
                     messages.error(self.request, _('Cannot remove user files.'))
