@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os, json
+import common
 from django.utils.translation import ugettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -93,7 +94,7 @@ WSGI_APPLICATION = 'lgc_base.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'common.db_backend',
         'NAME': lgc_config['DB_NAME'],
         'USER': lgc_config['DB_USER'],
         'PASSWORD': lgc_config['DB_PASSWORD'],
