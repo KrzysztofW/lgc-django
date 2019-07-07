@@ -94,7 +94,7 @@ def queue_request(req_type, action, id, form, relations = None):
         f.write(s + "\n")
 
 def read_template(filename):
-    path = os.path.join('common', MSG_TPL_DIR, filename)
+    path = os.path.join(settings.BASE_DIR, 'common', MSG_TPL_DIR, filename)
     with open(path, 'r', encoding='utf-8') as template_file:
         template_file_content = template_file.read()
     return Template(template_file_content)
