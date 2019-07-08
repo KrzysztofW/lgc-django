@@ -86,22 +86,22 @@ def home(request):
     if request.user.role in user_models.get_hr_roles():
         return render(request, 'hr/home.html', context)
 
-    if request.user.role in user_models.get_internal_roles():
-        employees = user_models.get_employee_user_queryset().filter(status=user_models.USER_STATUS_PENDING).count()
-        hrs = user_models.get_hr_user_queryset().filter(status=user_models.USER_STATUS_PENDING).count()
-        files = lgc_models.Person.objects.count()
-        context['nb_pending_employees'] = employees
-        context['nb_pending_hrs'] = hrs
-        context['nb_files'] = files
-        expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user, enabled=True).order_by('end_date')
-        compare_date = (timezone.now().date() +
-                        datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
-        context['nb_expirations'] = len(expirations.filter(end_date__lte=compare_date))
-        if request.user.billing:
-            context['nb_ready_invoices'] = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE).count()
-        return render(request, 'lgc/home.html', context)
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
 
-    return http.HttpResponseForbidden()
+    employees = user_models.get_employee_user_queryset().filter(status=user_models.USER_STATUS_PENDING).count()
+    hrs = user_models.get_hr_user_queryset().filter(status=user_models.USER_STATUS_PENDING).count()
+    files = lgc_models.Person.objects.count()
+    context['nb_pending_employees'] = employees
+    context['nb_pending_hrs'] = hrs
+    context['nb_files'] = files
+    compare_date = (timezone.now().date() +
+                    datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
+    expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user, enabled=True, end_date__lte=compare_date).order_by('end_date').count()
+    context['nb_expirations'] = expirations
+    if request.user.billing:
+        context['nb_ready_invoices'] = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE).count()
+    return render(request, 'lgc/home.html', context)
 
 @login_required
 def tables(request):
