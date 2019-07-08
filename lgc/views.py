@@ -2509,8 +2509,10 @@ def settings_view(request):
     return render(request, 'lgc/generic_form_with_formsets.html', context)
 
 @login_required
-@must_be_staff
 def ajax_insert_employee_view(request):
+    if request.user.role not in user_models.get_internal_roles():
+        return http.HttpResponseForbidden()
+
     term = request.GET.get('term', '')
     users = user_models.get_employee_user_queryset()
     employees = users.filter(first_name__istartswith=term)|users.filter(last_name__istartswith=term)|users.filter(email__istartswith=term)
