@@ -2019,7 +2019,7 @@ msgstr ""
 
 #: views.py:2259
 msgid "Deleted status cannot be set."
-msgstr "Le status supprimé ne peut pas être mis."
+msgstr "Le status 'supprimé' n'est pas sélectionnable."
 
 #: views.py:2295
 msgid "Cannot send email to"
