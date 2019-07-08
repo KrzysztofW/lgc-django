@@ -125,7 +125,7 @@
 	    {% else %}
 	    {% trans 'expires in' %}
 	    {% if e.end_date|timeuntil|wordcount > 2 %}
-	    {{ e.end_date|timeuntil|truncatewords:2|slice:":-3" }}
+	    {{ e.end_date|timeuntil|lgc_truncatewords:2 }}
 	    {% else %}
 	    {{ e.end_date|timeuntil }}
 	    {% endif %}

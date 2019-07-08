@@ -5,6 +5,7 @@ from employee import models as employee_models
 from lgc import views as lgc_views
 from django.conf import settings
 from django.utils import timezone
+from django.utils.text import Truncator
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.contrib.auth import get_user_model
@@ -221,8 +222,19 @@ def getattr(obj, arg):
 def tpl_hasattr(obj, arg):
     return hasattr(obj, arg)
 
+@register.filter(is_safe=False)
 def addf(value, arg):
     """Adds the arg to the value."""
     return round(float(value) + float(arg), 2)
-addf.is_safe = False
-register.filter(addf)
+
+@register.filter(is_safe=True)
+def lgc_truncatewords(value, arg):
+    """
+    Truncate a string after `arg` number of words.
+    Remove newlines within the string.
+    """
+    try:
+        length = int(arg)
+    except ValueError:  # Invalid literal for int().
+        return value  # Fail silently.
+    return Truncator(value).words(length, html=True, truncate='')
