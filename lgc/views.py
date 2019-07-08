@@ -4,7 +4,7 @@ from django.forms import formset_factory, modelformset_factory
 from common.utils import (pagination, lgc_send_email, must_be_staff,
                           set_bold_search_attrs, get_template)
 import common.utils as utils
-from common.session_cache import session_cache_add, session_cache_get
+from common.session_cache import session_cache_add, session_cache_get, session_cache_del
 from django import http
 from django.contrib import messages
 from django.shortcuts import render
@@ -1226,6 +1226,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 person_process.name_fr = person_process.process.name_fr
                 person_process.name_en = person_process.process.name_en
                 person_process.save()
+                session_cache_del(self.request.session, 'process_progress')
 
             for formset in formsets:
                 self.delete_formset(formset)
@@ -1239,6 +1240,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 if self.request.user.role in user_models.get_internal_roles():
                     form.instance.user.responsible.set(form.instance.responsible.all())
                     form.instance.user.save()
+
+            if 'responsible' in form.changed_data:
+                session_cache_del(self.request.session, 'process_progress')
 
             if doc.cleaned_data['document'] != None:
                 doc.instance = lgc_models.Document()
@@ -1906,6 +1910,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 form.instance.invoice_alert = True
 
         form.instance.version += 1
+        session_cache_del(self.request.session, 'process_progress')
         return super().form_valid(form)
 
 class PersonProcessListView(ProcessListView):

@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
 from django.contrib.auth import get_user_model
 from django.template.defaultfilters import date, time
+from common.session_cache import session_cache_add, session_cache_get
 import datetime
 
 User = get_user_model()
@@ -17,9 +18,8 @@ register = template.Library()
 @register.simple_tag
 def get_notification_menu(request):
     res = {}
-    expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user, enabled=True).order_by('end_date').exclude(end_date__lte=timezone.now().date())
     compare_date = timezone.now().date() + datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS)
-    expirations = expirations.filter(end_date__lte=compare_date)
+    expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user, enabled=True, end_date__lte=compare_date).order_by('end_date').exclude(end_date__lte=timezone.now().date())
     deletion_requests = User.objects.filter(status__in=user_models.get_user_deleted_statuses())
     res['expirations'] = expirations[:10]
     res['deletion_requests'] = deletion_requests[:5]
@@ -52,6 +52,11 @@ def get_expiration_mapping(val):
 @register.simple_tag
 def get_process_progress(request):
     res = []
+    res_cached = session_cache_get(request.session, 'process_progress')
+
+    if res_cached:
+        return res_cached
+
     person_processes = lgc_models.PersonProcess.objects.select_related('person').filter(active=True, person__responsible=request.user)[:10]
 
     for person_process in person_processes:
@@ -75,7 +80,9 @@ def get_process_progress(request):
         url = reverse_lazy('lgc-file', kwargs={'pk':person_process.person.id})
         res.append((person_process.person.first_name,
                     person_process.person.last_name, host_entity,
-                    progress, bg, url))
+                    progress, bg, str(url)))
+
+    session_cache_add(request.session, 'process_progress', res, 60)
     return res
 
 @register.simple_tag
