@@ -29,19 +29,14 @@ def get_notification_menu(request):
 
     if request.user.role == user_models.ROLE_CONSULTANT:
         processes = lgc_models.PersonProcess.objects.filter(person__responsible=request.user, invoice_alert=True)
-        ready_processes = []
-        pcnt = 0;
-        for p in processes.all():
-            if p.invoice_set.filter(type=lgc_models.INVOICE).count() == 0:
-                ready_processes.append(p)
-                pcnt += 1
-        res['ready_to_invoice'] = ready_processes
-        res['pcnt'] = pcnt
+
+        res['ready_to_invoice'] = processes
+        res['pcnt'] += processes.count()
 
     res['nb_items'] = len(expirations) + len(deletion_requests) + pcnt
     if request.user.billing and request.user.show_invoice_notifs:
         invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE)
-        res['ready_invoices'] = invoices[:10].all()
+        res['ready_invoices'] = invoices[:10]
         res['nb_items'] += len(invoices)
 
     return res
@@ -57,40 +52,30 @@ def get_expiration_mapping(val):
 @register.simple_tag
 def get_process_progress(request):
     res = []
-    external_users = user_models.get_employee_user_queryset()|user_models.get_hr_user_queryset()
-    files = lgc_models.Person.objects.filter(responsible=request.user)
-    # files = files.filter(modified_by__in=external_users).order_by('modification_date')
-    person_common_view = lgc_views.PersonCommonView()
+    person_processes = lgc_models.PersonProcess.objects.select_related('person').filter(active=True, person__responsible=request.user)[:10]
 
-    for f in files:
-        person_common_view.object = f
-        person_processes = person_common_view.get_active_person_processes()
-        if person_processes == None:
+    for person_process in person_processes:
+        stages_cnt = person_process.process.stages.count()
+        if stages_cnt == 0:
             continue
-        for person_process in person_processes:
-            stages = person_process.process.stages.all()
-            if stages.count() == 0:
-                continue
-            person_process_stages = lgc_models.PersonProcessStage.objects.filter(is_specific=False).filter(person_process=person_process)
-            progress = (person_process_stages.count() / stages.count()) * 100
+        person_process_stages_cnt = lgc_models.PersonProcessStage.objects.filter(is_specific=False, person_process=person_process).count()
+        progress = int((person_process_stages_cnt / stages_cnt) * 100)
 
-            if f.host_entity:
-                host_entity = ' (' + f.host_entity + ')'
-            else:
-                host_entity = ''
-            progress = int(progress)
+        if person_process.person.host_entity:
+            host_entity = ' (' + person_process.person.host_entity + ')'
+        else:
+            host_entity = ''
 
-            if progress < 50:
-                bg = 'bg-info'
-            elif progress >= 50 and progress < 80:
-                bg = 'bg-warning'
-            else:
-                bg = 'bg-danger'
-            url = reverse_lazy('lgc-file', kwargs={'pk':f.id})
-            res.append((f.first_name, f.last_name, host_entity, int(progress),
-                        bg, url))
-            if len(res) > 10:
-                return res
+        if progress < 50:
+            bg = 'bg-info'
+        elif progress >= 50 and progress < 80:
+            bg = 'bg-warning'
+        else:
+            bg = 'bg-danger'
+        url = reverse_lazy('lgc-file', kwargs={'pk':person_process.person.id})
+        res.append((person_process.person.first_name,
+                    person_process.person.last_name, host_entity,
+                    progress, bg, url))
     return res
 
 @register.simple_tag
