@@ -2305,8 +2305,10 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             try:
                 lgc_send_email(self.object, type)
             except Exception as e:
-                messages.error(self.request, _('Cannot send email to') + '`'
-                               + self.object.email + '`: ' + str(e))
+                messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
+                    'email':self.object.email,
+                    'err': str(e)
+                })
                 return super().form_invalid(form)
         return super().form_valid(form)
 

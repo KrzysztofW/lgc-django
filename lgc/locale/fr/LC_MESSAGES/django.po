@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-05 18:25+0200\n"
+"POT-Creation-Date: 2019-07-08 15:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr "Prénom"
 msgid "Last Name"
 msgstr "Nom"
 
-#: billing_views.py:107 forms.py:425 models.py:863 models.py:883 models.py:981
+#: billing_views.py:107 forms.py:425 models.py:862 models.py:882 models.py:981
 #: templates/lgc/insert_client.html:14
 msgid "Company"
 msgstr "Société"
@@ -40,19 +40,19 @@ msgstr "Société"
 msgid "Billing Address"
 msgstr "Adresse de facturation"
 
-#: billing_views.py:165 billing_views.py:996 billing_views.py:1195
-#: templates/lgc/person_process.html:31 views.py:1271 views.py:2214
-#: views.py:2487
+#: billing_views.py:165 billing_views.py:998 billing_views.py:1197
+#: templates/lgc/person_process.html:31 views.py:1282 views.py:2227
+#: views.py:2503
 msgid "Update"
 msgstr "Mettre à jour"
 
 #: billing_views.py:170 templates/lgc/document_form.html:33
 #: templates/lgc/generic_form.html:22 templates/lgc/insert_invoice_item.html:24
-#: templates/lgc/process.html:77 views.py:52 views.py:448
+#: templates/lgc/process.html:77 views.py:52 views.py:452
 msgid "Delete"
 msgstr "Supprimer"
 
-#: billing_views.py:172 billing_views.py:998 views.py:420 views.py:1270
+#: billing_views.py:172 billing_views.py:1000 views.py:424 views.py:1281
 msgid "Create"
 msgstr "Créer"
 
@@ -110,7 +110,7 @@ msgstr "Société / Client"
 msgid "Date"
 msgstr "Date"
 
-#: billing_views.py:472 billing_views.py:642 billing_views.py:695 forms.py:468
+#: billing_views.py:472 billing_views.py:644 billing_views.py:697 forms.py:468
 #: templates/lgc/insert_invoice_item.html:14
 msgid "Items"
 msgstr "Dilligences"
@@ -131,7 +131,7 @@ msgstr "Avoirs"
 msgid "Delete Invoice"
 msgstr "Supprimer la facture"
 
-#: billing_views.py:524 billing_views.py:1042 models.py:897
+#: billing_views.py:524 billing_views.py:1044 models.py:896
 #: templates/lgc/dropdown_menu_complete.html:171
 msgid "Invoice"
 msgstr "Facture"
@@ -141,156 +141,156 @@ msgstr "Facture"
 msgid "Invoice %(name)s successfully deleted."
 msgstr "Facture %(name)s supprimée avec succès."
 
-#: billing_views.py:644
+#: billing_views.py:646
 msgid "Invalid Item table"
 msgstr "La tables des dilligences est invalide"
 
-#: billing_views.py:647 billing_views.py:698 forms.py:470
+#: billing_views.py:649 billing_views.py:700 forms.py:470
 #: templates/lgc/billing_totals.html:19
 msgid "Disbursements"
 msgstr "Débours"
 
-#: billing_views.py:649
+#: billing_views.py:651
 msgid "Invalid Disbursement table"
 msgstr "La table des débours est invalide"
 
-#: billing_views.py:689
+#: billing_views.py:691
 msgid "Disbursement receipts"
 msgstr "Notes de frais"
 
-#: billing_views.py:752
+#: billing_views.py:754
 msgid "Cannot update a validated invoice."
 msgstr "Une facture validée ne peut pas être mise à jour."
 
-#: billing_views.py:770
+#: billing_views.py:772
 msgid "There is already an invoice/quote for this process"
 msgstr "Il y a déjà une facture / un devis pour cette procédure"
 
-#: billing_views.py:776
+#: billing_views.py:778
 msgid "Client not set."
 msgstr "Choisissez un client."
 
-#: billing_views.py:859
+#: billing_views.py:861
 msgid "Total does not match. Contact your administrator"
 msgstr "Le total est erroné. Contactez votre administrateur."
 
-#: billing_views.py:877
+#: billing_views.py:879
 msgid "Credit Note successfully updated."
 msgstr "Avoir mis à jour avec succès."
 
-#: billing_views.py:879
+#: billing_views.py:881
 msgid "Quotation successfully updated."
 msgstr "Devis mis à jour avec succès."
 
-#: billing_views.py:905 templates/lgc/person_process.html:44
+#: billing_views.py:907 templates/lgc/person_process.html:44
 #: templates/lgc/process_stages_template.html:74
 msgid "Generate invoice"
 msgstr "Générer une facture"
 
-#: billing_views.py:914
+#: billing_views.py:916
 msgid "Generate Credit Note"
 msgstr "Générer un avoir."
 
-#: billing_views.py:994
+#: billing_views.py:996
 msgid "Invoice list"
 msgstr "Factures"
 
-#: billing_views.py:1002
+#: billing_views.py:1004
 msgid "If the state PAID is set, the invoice will not be editable anymore."
 msgstr "Une facture avec l'état 'Payée' n'est plus modifiable."
 
-#: billing_views.py:1015
+#: billing_views.py:1017
 msgid "New Invoice"
 msgstr "Nouvelle facture"
 
-#: billing_views.py:1016
+#: billing_views.py:1018
 msgid "Invoice successfully created."
 msgstr "Facture créée avec succès."
 
-#: billing_views.py:1017
+#: billing_views.py:1019
 msgid "Quotation successfully created."
 msgstr "Devis créé avec succès."
 
-#: billing_views.py:1018
+#: billing_views.py:1020
 msgid "Credit note successfully created."
 msgstr "Avoir créé avec succès."
 
-#: billing_views.py:1022
+#: billing_views.py:1024
 msgid "New Quotation"
 msgstr "Nouveau devis"
 
-#: billing_views.py:1043
+#: billing_views.py:1045
 msgid "Invoice successfully updated."
 msgstr "Facture mise à jour avec succès."
 
-#: billing_views.py:1047
+#: billing_views.py:1049
 msgid "Update quotation"
 msgstr "Mettre à jour le devis"
 
-#: billing_views.py:1049
+#: billing_views.py:1051
 msgid "Update credit note"
 msgstr "Mettre à jour l'avoir"
 
-#: billing_views.py:1144 templates/lgc/billing_template.html:50
+#: billing_views.py:1146 templates/lgc/billing_template.html:50
 #: templates/lgc/insert_client.html:6
 msgid "Insert Client"
 msgstr "Insérer un client"
 
-#: billing_views.py:1171
+#: billing_views.py:1173
 #, python-format
 msgid "Item %(item)s successfully updated."
 msgstr "Dilligence %(item)s mise à jour avec succès."
 
-#: billing_views.py:1174
+#: billing_views.py:1176
 #, python-format
 msgid "Item %(item)s successfully created."
 msgstr "Dilligence %(item)s créée avec succès."
 
-#: billing_views.py:1189
+#: billing_views.py:1191
 msgid "Edit item"
 msgstr "Éditer une dilligence"
 
-#: billing_views.py:1193 templates/lgc/billing_formsets_template.html:124
+#: billing_views.py:1195 templates/lgc/billing_formsets_template.html:124
 #: templates/lgc/employee_list.html:136 templates/lgc/formset_template.html:114
 #: templates/lgc/generic_list.html:24
 msgid "Add"
 msgstr "Ajouter"
 
-#: billing_views.py:1266
+#: billing_views.py:1268
 msgid "Insert Item"
 msgstr "Insérer une dilligence"
 
-#: billing_views.py:1269
+#: billing_views.py:1271
 msgid "Update Item"
 msgstr "Mettre à jour une dilligence"
 
-#: billing_views.py:1280
+#: billing_views.py:1282
 msgid "Insert Disbursement"
 msgstr "Insérer un débour"
 
-#: billing_views.py:1284
+#: billing_views.py:1286
 msgid "Update Disbursement"
 msgstr "Mettre à jour un débour"
 
-#: billing_views.py:1304
+#: billing_views.py:1306
 #, python-format
 msgid "Item %(item)s successfully deleted."
 msgstr "Dilligence %(item)s supprimée avec succès."
 
-#: billing_views.py:1327
+#: billing_views.py:1329
 msgid "There is already an invoice for this quotation"
 msgstr "Il y a déjà une facture pour ce devis."
 
-#: billing_views.py:1350
+#: billing_views.py:1352
 #, python-format
 msgid "Invoice %(id)d has been successfully generated"
 msgstr "Facture %(id)d générée avec succès."
 
-#: billing_views.py:1366
+#: billing_views.py:1368
 msgid "There is already a credit note for this invoice"
 msgstr "Il y a déjà un avoir pour cette facture."
 
-#: billing_views.py:1384
+#: billing_views.py:1386
 #, python-format
 msgid "Credit Note %(id)d has been successfully generated"
 msgstr "Avoir %(id)d généré avec succès."
@@ -319,7 +319,7 @@ msgstr "Juriste"
 msgid "Consultant"
 msgstr "Consultant"
 
-#: forms.py:66 models.py:572 models.py:780
+#: forms.py:66 models.py:572 models.py:779
 msgid "Prefecture"
 msgstr "Préfecture / OFII compétent"
 
@@ -434,7 +434,7 @@ msgstr "Nationalité passeport"
 msgid "VLTS-TS/DCEM Expiry"
 msgstr "Expiration VLTS-TS/DCEM"
 
-#: forms.py:183 models.py:714 views.py:741
+#: forms.py:183 models.py:714 views.py:745
 msgid "Enabled"
 msgstr "Actif"
 
@@ -522,11 +522,11 @@ msgstr "Abandonner mes modifications et recharger la page."
 msgid "Choose an action:"
 msgstr "Choisir une action :"
 
-#: forms.py:377 forms.py:412 models.py:956
+#: forms.py:377 forms.py:412 models.py:955
 msgid "Invoice Date"
 msgstr "Date de facturation"
 
-#: forms.py:378 forms.py:418 models.py:957
+#: forms.py:378 forms.py:418 models.py:956
 msgid "Modification Date"
 msgstr "Date de modification"
 
@@ -539,8 +539,8 @@ msgstr "Inclure les frais divers"
 msgid "(Phone, mail...) 5% of the services limited to 100."
 msgstr "(Téléphone, télécopie, courrier) 5% des prestations plafonné à 100."
 
-#: forms.py:393 forms.py:445 models.py:697 models.py:986 models.py:993
-#: models.py:1250 models.py:1272 models.py:1300
+#: forms.py:393 forms.py:445 forms.py:565 models.py:697 models.py:986
+#: models.py:993 models.py:1247 models.py:1269 models.py:1297
 #: templates/lgc/document_form.html:25
 msgid "Description"
 msgstr "Description"
@@ -573,7 +573,7 @@ msgstr "Ville client"
 msgid "Client Country"
 msgstr "Pays client"
 
-#: forms.py:429
+#: forms.py:429 models.py:960
 msgid "Payment Option"
 msgstr "Mode de réglement"
 
@@ -597,7 +597,7 @@ msgstr "Email PO"
 msgid "PO rate"
 msgstr "Montant PO"
 
-#: forms.py:436 forms.py:505 models.py:963 models.py:1259
+#: forms.py:436 forms.py:505 models.py:963 models.py:1256
 #: templates/lgc/insert_invoice_item.html:23
 msgid "Currency"
 msgstr "Devise"
@@ -611,11 +611,11 @@ msgid "Company Option"
 msgstr "Société"
 
 #: forms.py:439 forms.py:465 templates/lgc/file_invoice_list.html:19
-#: views.py:1520 views.py:1552 views.py:1711
+#: views.py:1531 views.py:1563 views.py:1722
 msgid "Process"
 msgstr "Procédure"
 
-#: forms.py:440 models.py:991
+#: forms.py:440 forms.py:531 models.py:991
 msgid "Already Paid"
 msgstr "Déjà réglé"
 
@@ -667,7 +667,7 @@ msgstr "Dilligences TTC"
 msgid "Total No VAT"
 msgstr "Total HT"
 
-#: forms.py:456 models.py:1266 models.py:1285
+#: forms.py:456 forms.py:558 models.py:1263 models.py:1282
 #: templates/lgc/billing_total_template.html:12
 msgid "VAT"
 msgstr "TVA"
@@ -700,15 +700,29 @@ msgstr "Export en CSV"
 msgid "Displayed Columns"
 msgstr "Colonnes affichées"
 
-#: forms.py:536
+#: forms.py:537
 msgid "If this state is set, the invoice will not be editable anymore"
 msgstr "Si cet état est choisi, la facture ne sera plus modifiable."
 
-#: forms.py:545 forms.py:547 models.py:873 models.py:884
+#: forms.py:546 forms.py:548 models.py:872 models.py:883
 msgid "Address"
 msgstr "Adresse"
 
-#: forms.py:585 models.py:1267
+#: forms.py:556 models.py:1262 models.py:1281
+msgid "Quantity"
+msgstr "Quantité"
+
+#: forms.py:563 models.py:979 models.py:1248 models.py:1280
+#: templates/lgc/insert_invoice_item.html:22
+msgid "Rate"
+msgstr "Montant"
+
+#: forms.py:568 models.py:996 templates/lgc/billing_totals.html:21
+#: templates/lgc/file_invoice_list.html:22
+msgid "Total"
+msgstr "Total"
+
+#: forms.py:591 models.py:1264
 msgid "20% margin"
 msgstr "marge 20%"
 
@@ -772,7 +786,7 @@ msgstr "CSP époux(se)"
 msgid "Spouse APS"
 msgstr "APS époux(se)"
 
-#: models.py:481 models.py:914 templates/lgc/accounts.html:19
+#: models.py:481 models.py:913 templates/lgc/accounts.html:19
 #: templates/lgc/custom_table.html:49 templates/lgc/menu_complete.html:113
 msgid "Pending"
 msgstr "En cours"
@@ -794,13 +808,13 @@ msgstr "Fiche privée"
 msgid "Creation Date"
 msgstr "Date de création"
 
-#: models.py:493 models.py:731 models.py:859 models.py:974
+#: models.py:493 models.py:731 models.py:858 models.py:974
 #: templates/lgc/custom_table.html:12 templates/lgc/employee_list.html:92
 #: templates/lgc/expirations.html:39
 msgid "First name"
 msgstr "Prénom"
 
-#: models.py:494 models.py:861 models.py:976 templates/lgc/custom_table.html:13
+#: models.py:494 models.py:860 models.py:976 templates/lgc/custom_table.html:13
 #: templates/lgc/employee_list.html:93 templates/lgc/expirations.html:40
 msgid "Last name"
 msgstr "Nom"
@@ -825,7 +839,7 @@ msgstr "Adresse société d'origine"
 msgid "Host Entity address"
 msgstr "Adresse société d'accueil"
 
-#: models.py:534 models.py:865
+#: models.py:534 models.py:864
 msgid "Local Phone Number"
 msgstr "Numéro de télépone en France"
 
@@ -837,7 +851,7 @@ msgstr "Pays"
 msgid "Foreign Phone Number"
 msgstr "Numéro de téléphone à l'étranger"
 
-#: models.py:545 models.py:958
+#: models.py:545 models.py:957
 msgid "Modified by"
 msgstr "Modifié par"
 
@@ -854,7 +868,7 @@ msgstr ""
 msgid "Work Permit Required"
 msgstr "Autorisation de travail requise"
 
-#: models.py:693 models.py:1299 views.py:1284 views.py:1290
+#: models.py:693 models.py:1296 views.py:1295 views.py:1301
 msgid "File"
 msgstr "Fiche"
 
@@ -866,7 +880,7 @@ msgstr "Date"
 msgid "Uploaded by"
 msgstr "Enregistré Par"
 
-#: models.py:710 views.py:630
+#: models.py:710 views.py:634
 msgid "Visas / Residence Permits / Work Permits"
 msgstr "Visas / Titre de séjour / Autorisation de travail"
 
@@ -878,13 +892,13 @@ msgstr "Date de naissance"
 msgid "Passport expiry"
 msgstr "Expiration passeport"
 
-#: models.py:747 models.py:757 models.py:850 views.py:1488 views.py:1598
-#: views.py:1940
+#: models.py:747 models.py:757 models.py:849 views.py:1499 views.py:1609
+#: views.py:1952
 msgid "French Name"
 msgstr "Nom français"
 
-#: models.py:748 models.py:758 models.py:852 views.py:1489 views.py:1599
-#: views.py:1941
+#: models.py:748 models.py:758 models.py:851 views.py:1500 views.py:1610
+#: views.py:1953
 msgid "English Name"
 msgstr "Nom anglais"
 
@@ -896,115 +910,105 @@ msgstr "Génère une alerte de facturation"
 msgid "Name"
 msgstr "Nom"
 
-#: models.py:782
+#: models.py:781
 msgid "No billing for this process"
 msgstr "Pas de facture pour cette procédure"
 
-#: models.py:867
+#: models.py:866
 msgid "Cell Phone Number"
 msgstr "Portable"
 
-#: models.py:871 models.py:968
+#: models.py:870 models.py:968
 msgid "VAT Number"
 msgstr "Numéro TVA"
 
-#: models.py:874 models.py:885
+#: models.py:873 models.py:884
 msgid "Post Code"
 msgstr "Code postal"
 
-#: models.py:875 models.py:886
+#: models.py:874 models.py:885
 msgid "City"
 msgstr "Ville"
 
-#: models.py:876 models.py:887
+#: models.py:875 models.py:886
 msgid "Country"
 msgstr "Pays"
 
-#: models.py:898
+#: models.py:897
 msgid "Quotation"
 msgstr "Devis"
 
-#: models.py:899
+#: models.py:898
 msgid "Credit Note"
 msgstr "Avoir"
 
-#: models.py:902
+#: models.py:901
 msgid "Euro"
 msgstr "Euro"
 
-#: models.py:903
+#: models.py:902
 msgid "Dollar"
 msgstr "Dollar"
 
-#: models.py:904 templates/lgc/statistics.html:234
+#: models.py:903 templates/lgc/statistics.html:234
 msgid "Pound"
 msgstr "Livre"
 
-#: models.py:905
+#: models.py:904
 msgid "Canadian Dollar"
 msgstr "Dollar canadien"
 
-#: models.py:915
+#: models.py:914
 msgid "To be done"
 msgstr "À facturer"
 
-#: models.py:916
+#: models.py:915
 msgid "Done"
 msgstr "Facturé"
 
-#: models.py:917
+#: models.py:916
 msgid "Canceled"
 msgstr "Annulé"
 
-#: models.py:918
+#: models.py:917
 msgid "Paid"
 msgstr "Payé"
 
-#: models.py:922
+#: models.py:921
 msgid "Credit card"
 msgstr "Carte de crédit"
 
-#: models.py:923
+#: models.py:922
 msgid "Check"
 msgstr "Chèque"
 
-#: models.py:924
+#: models.py:923
 msgid "Bank transfer"
 msgstr "Virement"
 
-#: models.py:925
+#: models.py:924
 msgid "Cash"
 msgstr "Éspèces"
 
-#: models.py:928
+#: models.py:927
 msgid "Home"
 msgstr "d'origine"
 
-#: models.py:929
+#: models.py:928
 msgid "Host"
 msgstr "d'accueil"
 
-#: models.py:937
+#: models.py:936
 msgid "Next Invoice Number"
 msgstr "Numéro de facture suivante"
 
-#: models.py:938
+#: models.py:937
 msgid "Next Quotation Number"
 msgstr "Numéro de devis suivant"
-
-#: models.py:979 models.py:1251 models.py:1283
-#: templates/lgc/insert_invoice_item.html:22
-msgid "Rate"
-msgstr "Montant"
 
 #: models.py:994
 msgid "With regard to"
 msgstr "Concernant"
-
-#: models.py:996 templates/lgc/billing_totals.html:21
-#: templates/lgc/file_invoice_list.html:22
-msgid "Total"
-msgstr "Total"
 
 #: models.py:1005
 msgid "The process has already an invoice."
@@ -1018,17 +1022,13 @@ msgstr "Il y a déjà un devis pour cette procédure."
 msgid "The process has already a credit note."
 msgstr "Il y a déjà un avoir pour cette procédure."
 
-#: models.py:1249 models.py:1271
+#: models.py:1246 models.py:1268
 msgid "ID"
 msgstr "ID"
 
-#: models.py:1258 models.py:1278 templates/lgc/insert_invoice_item.html:21
+#: models.py:1255 models.py:1275 templates/lgc/insert_invoice_item.html:21
 msgid "Title"
 msgstr "Libellé"
-
-#: models.py:1265 models.py:1284
-msgid "Quantity"
-msgstr "Quantité"
 
 #: templates/lgc/accounts.html:15
 msgid "All"
@@ -1250,7 +1250,7 @@ msgstr "Il n'y a pas de notifications en cours"
 msgid "User Profile"
 msgstr "Mon profile"
 
-#: templates/lgc/dropdown_menu_users.html:12 views.py:2491
+#: templates/lgc/dropdown_menu_users.html:12 views.py:2507
 msgid "Settings"
 msgstr "Configuration"
 
@@ -1458,7 +1458,7 @@ msgstr "Compte RH en cours de création"
 msgid "Files"
 msgstr "Fiches"
 
-#: templates/lgc/home.html:129 templates/lgc/menu_complete.html:85 views.py:795
+#: templates/lgc/home.html:129 templates/lgc/menu_complete.html:85 views.py:802
 msgid "Expirations"
 msgstr "Expirations"
 
@@ -1490,7 +1490,7 @@ msgstr "Rechercher les fiches ..."
 msgid "External accounts"
 msgstr "Comptes externes"
 
-#: templates/lgc/menu_complete.html:34 views.py:2049 views.py:2223
+#: templates/lgc/menu_complete.html:34 views.py:2061 views.py:2236
 msgid "Employees"
 msgstr "Salariés"
 
@@ -1518,12 +1518,12 @@ msgstr "Créer compte RH"
 msgid "HR account list"
 msgstr "Comptes RH"
 
-#: templates/lgc/menu_complete.html:66 views.py:428
+#: templates/lgc/menu_complete.html:66 views.py:432
 msgid "Billing"
 msgstr "Facturation"
 
 #: templates/lgc/menu_complete.html:90 templates/lgc/menu_complete.html:100
-#: views.py:410 views.py:496 views.py:1441
+#: views.py:414 views.py:500 views.py:1452
 msgid "Processes"
 msgstr "Procédures"
 
@@ -1535,7 +1535,7 @@ msgstr "Modèles"
 msgid "Ready for invoicing"
 msgstr "À facturer"
 
-#: templates/lgc/menu_complete.html:119 views.py:2806
+#: templates/lgc/menu_complete.html:119 views.py:2824
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -1686,230 +1686,230 @@ msgstr "Bienvenue %(first_name)s %(last_name)s"
 msgid "private"
 msgstr "privée"
 
-#: views.py:326 views.py:460 views.py:2047
+#: views.py:330 views.py:464 views.py:2059
 msgid "Information"
 msgstr "Informations"
 
-#: views.py:362
+#: views.py:366
 msgid "Spouse information"
 msgstr "Information concernant l'époux/épouse"
 
-#: views.py:396
+#: views.py:400
 msgid "Account Profile"
 msgstr "Profile utilisateur"
 
-#: views.py:398
+#: views.py:402
 msgid "Click here to manage this person's account profile: "
 msgstr "Cliquez ici pour afficher le profile de cette utilisateur"
 
-#: views.py:401
+#: views.py:405
 msgid "update profile"
 msgstr "mettre à jour le profile"
 
-#: views.py:403
+#: views.py:407
 msgid ""
 "The profile for this person does not exist. Follow this link to create it: "
 msgstr ""
 "Le compte utilisateur de cette personne n'existe pas. Cliquez sur ce lient "
 "pour le créer :"
 
-#: views.py:406
+#: views.py:410
 msgid "create profile"
 msgstr "créer le profile"
 
-#: views.py:436 views.py:500
+#: views.py:440 views.py:504
 msgid "Documents"
 msgstr "Documents"
 
-#: views.py:545
+#: views.py:549
 msgid "Invalid document."
 msgstr "Document invalid."
 
-#: views.py:551
+#: views.py:555
 msgid "Invalid document description."
 msgstr "Description du document n'est pas valide."
 
-#: views.py:555
+#: views.py:559
 #, python-format
 msgid "File too big. Maximum file size is %dM."
 msgstr "Fichier trop volumineux. La taille maximale ne doit pas dépasser %dM."
 
-#: views.py:561
+#: views.py:565
 #, python-format
 msgid "File `%s' already exists."
 msgstr "Fichier `%s' existe déjà."
 
-#: views.py:625 views.py:792
+#: views.py:629 views.py:799
 msgid "Children"
 msgstr "Enfants"
 
-#: views.py:627
+#: views.py:631
 msgid "Invalid Children table"
 msgstr "Le formaire des enfants n'est pas valide"
 
-#: views.py:632
+#: views.py:636
 msgid "Invalid Visas / Residence Permits / Work Permits table"
 msgstr "Visas / APT / CS non valide"
 
-#: views.py:634
+#: views.py:638
 msgid "Spouse Visas / Residence Permits / Work Permits"
 msgstr "Visas / APT / CS de l'époux/épouse"
 
-#: views.py:636
+#: views.py:640
 msgid "Invalid Spouse Visas / Residence Permits / Work Permits table"
 msgstr "Visas / APT / CS de l'époux/épouse non valide"
 
-#: views.py:638 views.py:801
+#: views.py:642 views.py:808
 msgid "Archive boxes"
 msgstr "Boîtes d'archive"
 
-#: views.py:640
+#: views.py:644
 msgid "Invalid archive box number"
 msgstr "Numéro de la boîte d'archive non valide"
 
-#: views.py:759
+#: views.py:763
 msgid "Yes"
 msgstr "Oui"
 
-#: views.py:761
+#: views.py:765
 msgid "No"
 msgstr "Non"
 
-#: views.py:798
+#: views.py:805
 msgid "Spouse Expirations"
 msgstr "Expirations de l'époux/épouse"
 
-#: views.py:829
+#: views.py:836
 msgid "Pending Invoices"
 msgstr "Factures en cours"
 
-#: views.py:830
+#: views.py:837
 msgid "Closed Invoices"
 msgstr "Factures validées"
 
-#: views.py:1145
+#: views.py:1152
 msgid "A deprecated immigration process cannot be used."
 msgstr ""
 "Un statut obsolète de la procédure d'immigration ne peut pas être utilisé."
 
-#: views.py:1154
+#: views.py:1161
 msgid "This file cannot be closed as it has a pending process."
 msgstr ""
 "Cette fiche ne peut pas être fermée car elle contient une procédure en cours."
 
-#: views.py:1166
+#: views.py:1173
 msgid "There is a pending moderation on this file."
 msgstr "Une modération est requise sur cette fiche."
 
-#: views.py:1170
+#: views.py:1177
 msgid "Click here to moderate it."
 msgstr "Cliquez ici pour l'afficher."
 
-#: views.py:1254
+#: views.py:1265
 #, python-format
 msgid "Cannot delete the file `%(filename)s`"
 msgstr "Fichier `%(filename)s` ne peut pas être supprimé"
 
-#: views.py:1279
+#: views.py:1290
 msgid "New File"
 msgstr "Nouvelle fiche"
 
-#: views.py:1281
+#: views.py:1292
 msgid "File successfully created"
 msgstr "Fiche créée avec succès."
 
-#: views.py:1286
+#: views.py:1297
 msgid "File successfully updated"
 msgstr "Fiche mise à jour avec succès."
 
-#: views.py:1291
+#: views.py:1302
 msgid "Delete File"
 msgstr "Supprimer fiche"
 
-#: views.py:1310
+#: views.py:1321
 #, python-format
 msgid "%(obj_name)s of %(firstname)s %(lastname)s deleted successfully."
 msgstr "%(obj_name)s de %(firstname)s %(lastname)s supprimée avec succès."
 
-#: views.py:1330 views.py:2333
+#: views.py:1341 views.py:2349
 msgid "Cannot remove user files."
 msgstr "Les documents de cet utilisateur ne peuvent pas être supprimés."
 
-#: views.py:1339 views.py:2160
+#: views.py:1350 views.py:2173 views.py:2309
 #, python-format
 msgid "Cannot send email to `%(email)s` (%(err)s)"
 msgstr "L'envoi de l'mail à %(email)s a échoué (%(err)s)"
 
-#: views.py:1496
+#: views.py:1507
 msgid "Process successfully created"
 msgstr "Procédure créée avec succès."
 
-#: views.py:1499
+#: views.py:1510
 msgid "New Process"
 msgstr "Nouvelle procédure"
 
-#: views.py:1517
+#: views.py:1528
 msgid "Process successfully updated"
 msgstr "Procédure mise à jour avec succès."
 
-#: views.py:1550
+#: views.py:1561
 msgid "Delete Process"
 msgstr "Supprimer procédure"
 
-#: views.py:1570
+#: views.py:1581
 msgid "This stage cannot be deleted as it is currently being used."
 msgstr "Cette étape ne peut pas être supprimée car elle est utilisée."
 
-#: views.py:1573
+#: views.py:1584
 msgid "This process cannot be deleted as it is currently being used."
 msgstr "Cette procédure ne peut pas être supprimée car elle est utilisée."
 
-#: views.py:1581
+#: views.py:1592
 #, python-format
 msgid "%(obj_name)s `%(name)s' successfully deleted."
 msgstr "%(obj_name)s `%(name)s' supprimée avec succès."
 
-#: views.py:1588
+#: views.py:1599
 msgid "Process Stages"
 msgstr "Étapes de procédures"
 
-#: views.py:1600
+#: views.py:1611
 msgid "Generates invoice alert"
 msgstr "Génère une alert de facturation"
 
-#: views.py:1607
+#: views.py:1618
 msgid "Process stage successfully created"
 msgstr "Étape de procédure créée avec succès."
 
-#: views.py:1609
+#: views.py:1620
 msgid "New Process Stage"
 msgstr "Nouvelle étape de procédure"
 
-#: views.py:1617
+#: views.py:1628
 msgid "Process stage successfully updated"
 msgstr "Avoir mis à jour avec succès."
 
-#: views.py:1619
+#: views.py:1630
 msgid "Process Stage"
 msgstr "Étape de la procédure"
 
-#: views.py:1629
+#: views.py:1640
 msgid "Delete Process Stage"
 msgstr "Supprimer l'étape"
 
-#: views.py:1631
+#: views.py:1642
 msgid "Process stage"
 msgstr "Étape de la procédure"
 
-#: views.py:1642
+#: views.py:1653
 msgid "Process successfully updated."
 msgstr "Procédure mise à jour avec succès."
 
-#: views.py:1688
+#: views.py:1699
 msgid "Stage Name"
 msgstr "Nom de l'étape"
 
-#: views.py:1814
+#: views.py:1825
 #, python-format
 msgid ""
 "This process has been modified by %(firstname)s %(lastname)s while you were "
@@ -1918,98 +1918,98 @@ msgstr ""
 "La procédure a été modifiée par %(firstname)s %(lastname)s pendant que vous "
 "l'éditiez."
 
-#: views.py:1820
+#: views.py:1831
 msgid "Reload the page."
 msgstr "Recharger la page."
 
-#: views.py:1826
+#: views.py:1837
 msgid "This process has already an invoice"
 msgstr "Il y a déjà une facture pour cette procédure"
 
-#: views.py:1833
+#: views.py:1844
 msgid "Invalid form"
 msgstr "Formulaire invalid"
 
-#: views.py:1838
+#: views.py:1849
 msgid "Invalid stages form"
 msgstr "Le formulaire des étapes de procédure est invalide"
 
-#: views.py:1860
+#: views.py:1871
 msgid "The next stage does not exist."
 msgstr "L'étape suivante n'existe pas."
 
-#: views.py:1866
+#: views.py:1877
 msgid "This process has no validated stages."
 msgstr "Cette procédure n'a aucune procédure validées."
 
-#: views.py:1878
+#: views.py:1889
 msgid "The specific stage names are invalid."
 msgstr "Les nomes de l'étape spécifique ne sont pas valides."
 
-#: views.py:1888
+#: views.py:1899
 msgid "The process is not complete."
 msgstr "La procédure n'est pas complétée."
 
-#: views.py:1892
+#: views.py:1903
 msgid "This process cannot be closed as it does not have any invoice."
 msgstr ""
 "Cette procédure ne peut pas être fermée car aucune facture n'a été créée."
 
-#: views.py:1923
+#: views.py:1935
 #, python-format
 msgid "Completed Processes of %(first_name)s %(last_name)s"
 msgstr "Les procédures terminées de %(first_name)s %(last_name)s"
 
-#: views.py:1941
+#: views.py:1953
 msgid "Person Name"
 msgstr "Nom personne"
 
-#: views.py:1942
+#: views.py:1954
 msgid "File Id"
 msgstr "ID fiche"
 
-#: views.py:1949
+#: views.py:1961
 msgid "Processes ready to invoice"
 msgstr "Procédures prête à facturer."
 
-#: views.py:1977
+#: views.py:1989
 msgid "Pending Processes"
 msgstr "Procédures en cours"
 
-#: views.py:2088
+#: views.py:2100
 msgid "New account successfully created"
 msgstr "Compte créé avec succès."
 
-#: views.py:2089 views.py:2090
+#: views.py:2101 views.py:2102
 msgid "Create access"
 msgstr "Créer un compte utilisateur"
 
-#: views.py:2122
+#: views.py:2134
 #, python-format
 msgid "Cannot link with a non-existent file `%s'"
 msgstr "La fiche correspondante n'existe pas `%s'"
 
-#: views.py:2175 views.py:2301
+#: views.py:2188 views.py:2317
 msgid "There are errors on the page"
 msgstr "La page comporte des erreurs"
 
-#: views.py:2179
+#: views.py:2192
 msgid "Employee Accounts"
 msgstr "Comptes des salariés"
 
-#: views.py:2212
+#: views.py:2225
 msgid "Account successfully updated"
 msgstr "Compte mis à jour avec succès."
 
-#: views.py:2213
+#: views.py:2226
 msgid "Update Account"
 msgstr "Modifier compte utilisateur"
 
-#: views.py:2224 views.py:2373
+#: views.py:2237 views.py:2389
 msgid "Add an employee"
 msgstr "Ajouter un salarié"
 
-#: views.py:2244
+#: views.py:2257
 msgid ""
 "The status cannot be set to active as the user has not accepted our terms "
 "and condiftions yet."
@@ -2017,75 +2017,71 @@ msgstr ""
 "Le compte ne peut pas être acitver tant que l'utilisateur n'a pas accepté "
 "nos conditions d'utilisation."
 
-#: views.py:2259
+#: views.py:2273
 msgid "Deleted status cannot be set."
 msgstr "Le status 'supprimé' n'est pas sélectionnable."
 
-#: views.py:2295
-msgid "Cannot send email to"
-msgstr "L'envoi de l'mail à %(email)s a échoué (%(err)s)"
-
-#: views.py:2305
+#: views.py:2321
 msgid "Account"
 msgstr "Compte"
 
-#: views.py:2306
+#: views.py:2322
 msgid "Delete Account"
 msgstr "Supprimer compte utilisateur"
 
-#: views.py:2358
+#: views.py:2374
 msgid "New HR account successfully created"
 msgstr "Compte RH créé avec succès."
 
-#: views.py:2359
+#: views.py:2375
 msgid "New HR account"
 msgstr "Nouveau compte RH"
 
-#: views.py:2360
+#: views.py:2376
 msgid "Initiate account"
 msgstr "Initier un compte RH"
 
-#: views.py:2367
+#: views.py:2383
 msgid "HR account successfully updated"
 msgstr "Compte RH mis à jour avec succès."
 
-#: views.py:2368
+#: views.py:2384
 msgid "Update HR"
 msgstr "Mettre à jour compte RH"
 
-#: views.py:2412
+#: views.py:2428
 msgid "Invalid Employee table"
 msgstr "La table des salariés est invalide"
 
-#: views.py:2426
+#: views.py:2442
 #, python-format
 msgid "Unknown employee ID `%s'"
 msgstr "ID `%s' du salarié est inconnu"
 
-#: views.py:2429
+#: views.py:2445
 msgid "Employee's e-mail cannot be empty"
 msgstr "E-mail du salarié ne peut pas être vide"
 
-#: views.py:2436
+#: views.py:2452
 msgid "HR accounts"
 msgstr "Comptes RH"
 
-#: views.py:2444
+#: views.py:2460
 msgid "HR account"
 msgstr "Compte RH"
 
-#: views.py:2445
+#: views.py:2461
 msgid "Delete HR account"
 msgstr "Supprimer un compte RH"
 
-#: views.py:2460
+#: views.py:2476
 msgid "Settings successfully updated"
 msgstr "Configuration mise à jour avec succès"
 
-#: views.py:2462
+#: views.py:2478
 msgid "Cannot save"
 msgstr "Impossible de sauvegarder"
 
-#: views.py:2477
+#: views.py:2493
 msgid "Currencies"
 msgstr "Devises"
