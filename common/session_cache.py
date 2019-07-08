@@ -16,7 +16,10 @@ def session_cache_add(session, key, val, expires=None):
     log.debug('setting `%s` in cache', key)
 
 def session_cache_del(session, key):
-    del session[key]
+    try:
+        del session[key]
+    except:
+        pass
 
 def session_cache_get(session, key):
     entry = session.get(key)
