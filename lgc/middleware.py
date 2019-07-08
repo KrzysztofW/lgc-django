@@ -47,8 +47,9 @@ class SqlLogger(MiddlewareMixin):
             if q['sql'] == None:
                 continue
 
-            if ('UPDATE ' in q['sql'] or 'INSERT ' in q['sql'] or
-                'DELETE ' in q['sql']):
-                log.info('%s %s (%d): %s', request.user.first_name,
+            if (q['sql'].startswith('UPDATE ') or
+                q['sql'].startswith('INSERT ') or
+                q['sql'].startswith('DELETE ')):
+                log.info('%s %s (%d): %s\n', request.user.first_name,
                          request.user.last_name, request.user.id, q['sql'])
         return response
