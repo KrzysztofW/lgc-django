@@ -321,7 +321,7 @@ msgstr "Consultant"
 
 #: forms.py:66 models.py:572 models.py:780
 msgid "Prefecture"
-msgstr "Préfecture"
+msgstr "Préfecture / OFII compétent"
 
 #: forms.py:69 models.py:576
 msgid "Subprefecture"

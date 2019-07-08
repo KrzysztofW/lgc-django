@@ -776,7 +776,6 @@ class PersonProcess(models.Model):
     active = models.BooleanField(_('Active'), default=True)
     consulate = models.CharField(_('Consulate'), max_length=3, default='',
                                  choices=CONSULATE_CHOICES, blank=True)
-    # Préfecture / OFII compétent
     prefecture = models.CharField(_('Prefecture'), max_length=3, default='',
                                   choices=PREFECTURE_CHOICES, blank=True)
     no_billing = models.BooleanField(_('No billing for this process'),
