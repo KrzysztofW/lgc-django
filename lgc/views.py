@@ -2754,7 +2754,9 @@ def stats_view(request):
     context = session_cache_get(request.session, 'stats')
     if context:
         context['user_stats'] = user_stats
-        return render(request, 'lgc/statistics.html', context)
+        ret = render(request, 'lgc/statistics.html', context)
+        del context['user_stats']
+        return ret
 
     crossed_list = []
     consultants = users.filter(role__exact=user_models.ROLE_CONSULTANT,
