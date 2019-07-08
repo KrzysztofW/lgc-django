@@ -17,10 +17,10 @@ from django.utils.translation import ugettext_lazy as _
 SECURE_BROWSER_XSS_FILTER=True
 SECURE_CONTENT_TYPE_NOSNIFF=True
 CSRF_COOKIE_SECURE=True
-SESSION_COOKIE_SECURE=True
 X_FRAME_OPTIONS='DENY'
 SECURE_HSTS_SECONDS=3600
 # SECURE_SSL_REDIRECT=True
+# SESSION_COOKIE_SECURE=True
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
