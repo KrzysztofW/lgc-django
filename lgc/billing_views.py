@@ -238,7 +238,7 @@ class ClientDeleteView(BillingTest, DeleteView):
         messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
-class InvoiceListView(BillingTest, ListView):
+class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     template_name = 'lgc/sub_generic_list_with_search_form.html'
     model = lgc_models.Invoice
     title = ugettext_lazy('Invoices')
@@ -248,6 +248,10 @@ class InvoiceListView(BillingTest, ListView):
     search_url = reverse_lazy('lgc-invoices')
     objs = lgc_models.Invoice.objects.filter(type=lgc_models.INVOICE)
     invoice_type = lgc_models.INVOICE
+
+    def test_func(self):
+        return (self.request.user.role == user_models.ROLE_CONSULTANT or
+                self.request.user.billing)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -293,11 +297,12 @@ class InvoiceListView(BillingTest, ListView):
         else:
             form = lgc_forms.InvoiceSearchForm()
 
+        csv_div = None
+        csv_html = None
+
         if self.invoice_type == lgc_models.QUOTATION:
             form.fields['cols'].choices = lgc_forms.QUOTATION_SEARCH_COLS_CHOICES
-            csv_div = None
-            csv_html = None
-        else:
+        elif self.request.user.billing:
             csv_div = Div('csv', css_class='form-group col-md-4')
             csv_html = Div(Div(HTML('<label class="col-form-label">&nbsp;</label>'),
                                Div(HTML('<a href="#" onclick="submit_csv();">' +
@@ -1377,7 +1382,7 @@ def generate_credit_note_from_invoice(request, pk):
 
 @login_required
 def billing_pdf_view(request, pk):
-    if not user_billing_check:
+    if not request.user.billing:
         return http.HttpResponseForbidden()
 
     invoice = lgc_models.Invoice.objects.filter(id=pk)
@@ -1402,7 +1407,7 @@ def billing_pdf_view(request, pk):
 
 @login_required
 def billing_csv_view(request):
-    if not user_billing_check:
+    if not request.user.billing:
         return http.HttpResponseForbidden()
 
     start_date = request.GET.get('start_date')
