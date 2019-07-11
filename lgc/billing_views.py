@@ -309,6 +309,14 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                                         _('Export') + '</a>')),
                                css_class="form-group"), css_class='form-group col-md-3')
 
+        if self.request.user.billing:
+            cols_div = Div('cols', css_class='form-group col-md-3')
+            resp_div = Div('responsible', css_class='form-group col-md-3')
+            total_div = Div('total', css_class='form-group col-md-3')
+        else:
+            cols_div = None
+            resp_div = None
+            total_div = None
         form.helper = FormHelper()
         form.helper.form_tag = False
         form.helper.form_method = 'get'
@@ -316,19 +324,16 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             Div(
                 Div('number', css_class='form-group col-md-3'),
                 Div('state', css_class='form-group col-md-3'),
-                Div('responsible', css_class='form-group col-md-3'),
+                resp_div,
                 Div('currency', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
                 Div('dates', css_class='form-group col-md-3') if self.invoice_type != lgc_models.QUOTATION else None,
                 Div('sdate', css_class='form-group col-md-3'),
                 Div('edate', css_class='form-group col-md-3'),
-                Div('total', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
-                Div('cols', css_class='form-group col-md-3'),
-                csv_div, csv_html,
-                css_class='form-row'),
+                cols_div, csv_div, csv_html, css_class='form-row'),
         )
         return form
 
@@ -427,7 +432,11 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_queryset(self):
         term = self.request.GET.get('term', '')
         order_by = self.get_ordering()
-        objs = self.match_extra_terms(self.objs)
+        if not self.request.user.billing and not self.request.user.is_staff:
+            objs = self.objs.filter(person__responsible=self.request.user)
+        else:
+            objs = self.objs
+        objs = self.match_extra_terms(objs)
 
         if term == '':
             return objs.order_by(order_by)
@@ -440,7 +449,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 objs.filter(company__istartswith=term))
         try:
             term_int = int(term)
-            objs = self.objs.filter(number__istartswith=term_int)
+            objs = objs.filter(number=term_int)
         except:
             pass
 
@@ -1036,6 +1045,15 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
 class InvoiceUpdateView(InvoiceCommonView, SuccessMessageMixin, UpdateView):
     title = ugettext_lazy('Invoice')
     success_message = ugettext_lazy('Invoice successfully updated.')
+
+    def test_func(self):
+        if not super().test_func():
+            return False
+        if self.request.user.billing or self.request.user.is_staff:
+            return True
+
+        self.object = self.get_object()
+        return self.request.user in self.object.person.responsible.all()
 
     def get_context_data(self, **kwargs):
         if self.object.type == lgc_models.QUOTATION:
