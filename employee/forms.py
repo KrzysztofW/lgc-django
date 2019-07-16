@@ -11,8 +11,8 @@ class EmployeeUpdateForm(forms.ModelForm):
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Home Entity Address'))
     host_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Host Entity Address'))
 
-    local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Local Address'))
-    foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Foreign Address'))
+    local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Home Address in France'))
+    foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Home Address outside France'))
     passport_expiry = forms.DateField(required=False,
                                       widget=DatePickerInput(),
                                       label=_('Passport Expiry'))
@@ -26,6 +26,8 @@ class EmployeeUpdateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         lgc_forms.datepicker_set_widget_attrs(self, 'birth_date')
         lgc_forms.datepicker_set_widget_attrs(self, 'spouse_birth_date')
+        lgc_forms.datepicker_set_widget_attrs(self, 'passport_expiry')
+        lgc_forms.datepicker_set_widget_attrs(self, 'spouse_passport_expiry')
 
 class ChildCreateForm(lgc_forms.ChildCreateForm):
     # unset DCEM/TIR expiration

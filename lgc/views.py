@@ -489,6 +489,19 @@ def employee_user_get_person_form_layout(form, action, obj):
             Div('foreign_phone_number', css_class='form-group col-md-3'),
             Div('foreign_country', css_class='form-group col-md-3'),
             css_class='form-row'),
+        Div(Div(HTML('<h5>' + _('Spouse information') +
+                     '</h5><hr>'), css_class='form-group col-md-9'),
+            css_class='form-row'),
+        Div(Div('spouse_first_name', css_class='form-group col-md-3'),
+            Div('spouse_last_name', css_class='form-group col-md-3'),
+            Div('spouse_birth_date', css_class='form-group col-md-3'),
+            css_class='form-row'),
+        Div(Div('spouse_citizenship', css_class='form-group col-md-3'),
+            Div('spouse_passport_expiry', css_class='form-group col-md-3'),
+            Div('spouse_passport_nationality', css_class='form-group col-md-3'),
+            css_class='form-row'),
+        Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
+            css_class='form-row'),
     )
 
     info_tab.append(Div(Div(HTML(get_template(CURRENT_DIR,

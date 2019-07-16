@@ -105,9 +105,9 @@ class PersonCreateForm(forms.ModelForm):
                                                  label=_('Person in charge'))
     start_date = forms.DateField(label=_('Start Date'))
     local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80, 'onchange':'auto_complete_region(this);'}),
-                                    label=_('Local Address'))
+                                    label=_('Home Address in France'))
 
-    foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Foreign Address'))
+    foreign_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Home Address outside France'))
     comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Comments'))
     process_name = forms.ModelChoiceField(required=False,
                                           queryset=lgc_models.Process.objects.all(),
@@ -124,6 +124,8 @@ class PersonCreateForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         datepicker_set_widget_attrs(self, 'birth_date')
         datepicker_set_widget_attrs(self, 'spouse_birth_date')
+        datepicker_set_widget_attrs(self, 'passport_expiry')
+        datepicker_set_widget_attrs(self, 'spouse_passport_expiry')
         if self.fields.get('start_date'):
             datepicker_set_widget_attrs(self, 'start_date')
 
@@ -421,7 +423,7 @@ INVOICE_SEARCH_CSV_CHOICES = (
     ('siret', 'SIRET'),
     ('vat', _('Client VAT')),
     ('company', _('Company')),
-    ('address', _('Client Adress')),
+    ('address', _('Client Address')),
     ('city', _('Client City')),
     ('country', _('Client Country')),
     ('payment_option', _('Payment Option')),

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-04 22:07+0200\n"
+"POT-Creation-Date: 2019-07-16 15:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -240,27 +240,27 @@ msgstr "Votre profile utilisateur a été mis à jour"
 msgid "Your session has expired."
 msgstr "Votre session a expirée."
 
-#: views.py:295
+#: views.py:301
 msgid "Your password has expired. Please choose a new one"
 msgstr "Votre mot de passe a expiré. Merci d'en créer un nouveau"
 
-#: views.py:308
+#: views.py:314
 msgid "You were successfully logged-out."
 msgstr "Vous avez été déconnecté."
 
-#: views.py:330
+#: views.py:336
 msgid "Welcome to LGC"
 msgstr "Bienvenue sur le site Office"
 
-#: views.py:363
+#: views.py:369
 msgid "The current password does not match."
 msgstr "Le mot de passe est erroné."
 
-#: views.py:367
+#: views.py:373
 msgid "The new password and the old one must be different."
 msgstr "Le nouveau mot de passe et l'ancien doivent être différents."
 
-#: views.py:385
+#: views.py:391
 #, python-format
 msgid "The password for %(firstname)s %(lastname)s has been successfully set"
 msgstr "Le mot de passe de %(firstname)s %(lastname)s a été pris en compte"

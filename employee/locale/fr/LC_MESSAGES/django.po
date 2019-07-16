@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-04 11:50+0200\n"
+"POT-Creation-Date: 2019-07-16 15:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,12 +31,12 @@ msgid "Host Entity Address"
 msgstr "Adresse société d'accueil"
 
 #: forms.py:14
-msgid "Local Address"
-msgstr "Adresse en France"
+msgid "Home Address in France"
+msgstr ""
 
 #: forms.py:15
-msgid "Foreign Address"
-msgstr "Adresse à l'étranger"
+msgid "Home Address outside France"
+msgstr ""
 
 #: forms.py:18
 msgid "Passport Expiry"
@@ -112,7 +112,8 @@ msgid ""
 "editing it. <a href=\"%(url)s\">Reload the page</a> to continue (your "
 "modifications will be lost)."
 msgstr ""
-"Le formulaire a été modifié par %(firstname)s %(lastname)s pendant que vous l'éditiez. <a href=\"%(url)s\">Recharger la page</a> pour continuer (vos "
+"Le formulaire a été modifié par %(firstname)s %(lastname)s pendant que vous "
+"l'éditiez. <a href=\"%(url)s\">Recharger la page</a> pour continuer (vos "
 "modifications en cours seront perdues)."
 
 #: views.py:199

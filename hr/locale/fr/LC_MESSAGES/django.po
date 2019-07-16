@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-04 11:50+0200\n"
+"POT-Creation-Date: 2019-07-16 15:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,7 +59,7 @@ msgid "Go"
 msgstr "Afficher"
 
 #: templates/hr/home.html:44 templates/hr/menu_hr_admin.html:13
-#: templates/hr/menu_hr_simple.html:12 views.py:176
+#: templates/hr/menu_hr_simple.html:12 views.py:178
 msgid "Employees"
 msgstr "Salariés"
 
@@ -76,7 +76,7 @@ msgstr "Expirations"
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: templates/hr/menu_hr_admin.html:19 views.py:137
+#: templates/hr/menu_hr_admin.html:19 views.py:139
 msgid "Initiate an account"
 msgstr "Initier un compte"
 
@@ -85,42 +85,44 @@ msgid "Account list"
 msgstr "Comptes"
 
 #: views.py:123
-msgid "Cannot send email to %(email)s (%(err)s)"
+#, fuzzy, python-format
+#| msgid "Cannot send email to %(email)s (%(err)s)"
+msgid "Cannot send email to `%(email)s` (%(err)s)"
 msgstr "L'envoi de l'mail à %(email)s a échoué (%(err)s)"
 
-#: views.py:136
+#: views.py:138
 msgid "New account successfully initiated"
 msgstr "Nouveau compte créé avec succès"
 
-#: views.py:138
+#: views.py:140
 msgid "Initiate account"
 msgstr "Initier un dossier"
 
-#: views.py:146
+#: views.py:148
 msgid "Account successfully updated"
 msgstr "Compte mis à jour avec succès"
 
-#: views.py:147
+#: views.py:149
 msgid "Update Account"
 msgstr "Modifier compte"
 
-#: views.py:148
+#: views.py:150
 msgid "Update"
 msgstr "Modifier"
 
-#: views.py:157
+#: views.py:159
 msgid "Employee File"
 msgstr "Fiche du salarié"
 
-#: views.py:201
+#: views.py:203
 msgid "Delete Account"
 msgstr "Supprimer compte"
 
-#: views.py:219
+#: views.py:221
 #, python-format
 msgid "Account of %(first_name)s %(last_name)s successfully deleted."
 msgstr "Compte de %(first_name)s %(last_name)s supprimé avec succès."
 
-#: views.py:233
+#: views.py:235
 msgid "Employee"
 msgstr "Salarié"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-04 18:23+0200\n"
+"POT-Creation-Date: 2019-07-16 15:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: templates/common/pagination_buttons.html:5
+#: templates/common/pagination_buttons.html:6
 msgid "Showing"
 msgstr "Affichage"
 
-#: templates/common/pagination_buttons.html:5
+#: templates/common/pagination_buttons.html:6
 msgid "to"
 msgstr "à"
 
-#: templates/common/pagination_buttons.html:5
+#: templates/common/pagination_buttons.html:6
 msgid "of"
 msgstr "sur"
 
 #: templates/common/pagination_buttons.html:7
+#, python-format
 msgid ""
 "\n"
 "      1 entry\n"
@@ -48,23 +49,19 @@ msgstr[1] ""
 "      %(entries)s élements\n"
 "      "
 
-#: templates/common/pagination_buttons.html:13
-msgid "No entries found"
-msgstr "Pas d'éléments trouvés"
-
-#: templates/common/pagination_buttons.html:21
+#: templates/common/pagination_buttons.html:19
 msgid "First"
 msgstr "Premier"
 
-#: templates/common/pagination_buttons.html:22
+#: templates/common/pagination_buttons.html:20
 msgid "Previous"
 msgstr "Précédent"
 
-#: templates/common/pagination_buttons.html:34
+#: templates/common/pagination_buttons.html:32
 msgid "Next"
 msgstr "Suivant"
 
-#: templates/common/pagination_buttons.html:35
+#: templates/common/pagination_buttons.html:33
 msgid "Last"
 msgstr "Dernier"
 
@@ -76,11 +73,11 @@ msgstr "Afficher"
 msgid "entries"
 msgstr "éléments"
 
-#: utils.py:105 utils.py:108
+#: utils.py:110 utils.py:113
 msgid "Creation of your LGC account"
 msgstr "Création de votre compte LGC"
 
-#: utils.py:111
+#: utils.py:116
 msgid "Removal of your LGC account"
 msgstr "Suppression de votre compte LGC"
 
