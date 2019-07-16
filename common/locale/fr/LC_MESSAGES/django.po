@@ -76,17 +76,13 @@ msgstr "Afficher"
 msgid "entries"
 msgstr "éléments"
 
-#: utils.py:104
-msgid "new employee subject"
-msgstr "sujet nouveau salarié"
+#: utils.py:105 utils.py:108
+msgid "Creation of your LGC account"
+msgstr "Création de votre compte LGC"
 
-#: utils.py:107
-msgid "new HR subject"
-msgstr "sujet nouveau RH"
-
-#: utils.py:110
-msgid "new account delete subject"
-msgstr "sujet suppression compte"
+#: utils.py:111
+msgid "Removal of your LGC account"
+msgstr "Suppression de votre compte LGC"
 
 #: validators.py:5
 msgid "Numbers and special characters are not allowed."
@@ -95,18 +91,3 @@ msgstr "Chiffres et caractères spéciaux ne sont pas autorisés."
 #: validators.py:7
 msgid "Special characters are not allowed."
 msgstr "Caractères spéciaux ne sont pas autorisés."
-
-#~ msgid ""
-#~ "\n"
-#~ "      entry"
-#~ msgid_plural ""
-#~ "\n"
-#~ "      entries\n"
-#~ "      "
-#~ msgstr[0] ""
-#~ "\n"
-#~ "      élément"
-#~ msgstr[1] ""
-#~ "\n"
-#~ "      éléments\n"
-#~ "      "

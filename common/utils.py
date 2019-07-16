@@ -1,5 +1,6 @@
 from django.utils.formats import get_format
 from datetime import datetime
+from django.utils import translation
 from django.utils.translation import ugettext as _
 from django.urls import reverse_lazy
 import time
@@ -101,19 +102,24 @@ def read_template(filename):
     return Template(template_file_content)
 
 def lgc_send_email(obj, action):
+    prev_lang = translation.get_language()
+    lang = obj.language.lower()
+    translation.activate(lang)
+
     if action == lgc_types.MsgType.NEW_EM:
-        subject = _('new employee subject')
+        subject = _('Creation of your LGC account')
         tpl = 'message_employee'
     elif action == lgc_types.MsgType.NEW_HR:
-        subject = _('new HR subject')
-        tpl = 'message_employee'
+        subject = _('Creation of your LGC account')
+        tpl = 'message_hr'
     elif action == lgc_types.MsgType.DEL:
-        subject = _('new account delete subject')
+        subject = _('Removal of your LGC account')
         tpl = 'message_delete'
     else:
+        translation.activate(prev_lang)
         return
 
-    lang = obj.language.lower()
+    translation.activate(prev_lang)
     tpl_txt = tpl + '_' + lang + '.txt'
     tpl_html = tpl + '_' + lang + '.html'
     msg_tpl = read_template(tpl_txt)
@@ -127,12 +133,10 @@ def lgc_send_email(obj, action):
     msg_html = msg_tpl_html.substitute(PERSON_NAME=name, URL=url)
     to = name + '<' + obj.email + '>'
 
-    ret = send_mail(subject, msg, 'no-reply <no-reply@example.com>',
+    ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
                     [to], html_message=msg_html)
     if ret != 1:
         raise RuntimeError('cannot send email')
-
-    from datetime import datetime
 
 def parse_date(date_str):
     """Parse date from string by DATE_INPUT_FORMATS of current language"""
