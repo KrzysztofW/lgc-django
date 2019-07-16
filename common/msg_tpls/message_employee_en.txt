@@ -1,0 +1,67 @@
+ 
+Dear ${PERSON_NAME},
+ 
+Our  Firm has been appointed to assist you with your immigration formalities in
+France.
+We will accompany you throughout all steps of your application.
+Within the framework of our assistance, you will have access to a hub dedicated
+to the exchange of documents and the follow-up of your file.
+In order to access this hub, we invite you to activate your account online by
+creating your password.
+When logging-in for the first time, you will be asked to complete an online
+form with information that will be useful for your immigration file. If you
+have any questions, you can contact the person in charge of your case.
+ 
+    * • How to activate my account on-line ?
+       
+The activation of your account takes place on our on-line hub by creating a
+password.
+Kindly click on this link: ${URL}. A pop up window will appear allowing you to activate
+your account. Follow the instructions to create your password.
+ 
+    * • How to complete your on-line form?
+       
+1. Once you have selected your password, please connect using your email
+address and your password.
+2. On the home page, select « My case »
+3. Proceed to fill out the forms using your personal information.
+ You must confirm at least the following information in order validate the
+questionnaire:
+    * -.Last Name 
+    * -.First Name 
+    * -.Email 
+    * -.Date of Birth 
+The field « Foreigner ID » corresponds to the 10 digit number written on the
+middle right side of your residence permit or on the OFII validation documents.
+If you do not hold a French residence permit yet, please ignore this field.
+4. Once the questionnaire has been filled out, please click on « update » in
+the lower part of the page. You will be able to amend or update the information
+on this form at any time during our assistance.
+5. You may upload all the documents that we will ask you to provide throughout
+your process on the thumbnail « Documents ». This is also where you will find a
+copy of the documents we wish to share with you.
+ 
+    * • How to connect yourself on our platform after activating your account? 
+ 
+ After activating your account, you will be able to access our hub by clicking
+lgc.example.com.
+
+To log in you will need to use your email address as login and the password you
+personalized when you activated your account.
+----
+Our Firm takes a special care in processing of your personal data. As part of
+the activation of your on-line account, you will be asked to consent to the
+collection of some of your personal data. You will clearly be informed of which
+personal data we will be collecting, and the purpose of processing of such
+personal data.
+Office
+34 Address
+ London
+Tel : +00 (0) 1 23 34 45 56
+www.example.com
+ 
+In case of any difficulties with the activation your account, kindly contact
+the following address: office@example.com
+ 
+ 
+ 
