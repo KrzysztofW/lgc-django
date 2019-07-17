@@ -74,3 +74,8 @@ Deployment
 
 https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 ./manage.py check --deploy
+
+add support for UTF-8 in filenames:
+/etc/apache2/envvars:
+export LANG='en_US.UTF-8'
+export LC_ALL='en_US.UTF-8'
