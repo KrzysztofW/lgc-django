@@ -27,10 +27,10 @@ address and your password.
 3. Proceed to fill out the forms using your personal information.
  You must confirm at least the following information in order validate the
 questionnaire:
-    * -.Last Name 
-    * -.First Name 
-    * -.Email 
-    * -.Date of Birth 
+    * - Last Name 
+    * - First Name 
+    * - Email 
+    * - Date of Birth 
 The field « Foreigner ID » corresponds to the 10 digit number written on the
 middle right side of your residence permit or on the OFII validation documents.
 If you do not hold a French residence permit yet, please ignore this field.

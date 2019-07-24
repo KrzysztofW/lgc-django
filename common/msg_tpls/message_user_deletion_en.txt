@@ -1,0 +1,18 @@
+ 
+Dear ${PERSON_NAME},
+ 
+Following your request, we confirm that your "LGC" account has been deleted
+in accordance with Article 17.1 of the General Data Protection Regulation
+(GDPR) on the Right to Erasure ("Right to be Forgotten").
+ 
+Your personal data will no longer be accessible.
+If this is an error, please contact me.
+Best regards,
+ 
+${PERSON_IN_CHARGE}
+Office
+34 Address
+ London
+Tel : +00 (0) 1 23 34 45 56
+www.example.com
+ 

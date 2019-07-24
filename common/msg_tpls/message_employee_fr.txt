@@ -27,10 +27,10 @@ adresse mail et votre mot de passe.
 3. Remplissez le formulaire avec vos informations personnelles.
  Vous devez renseigner au moins les informations suivantes afin de valider le
 questionnaire :
-    * -.Nom 
-    * -.Prénom 
-    * -.Email 
-    * -.Date de naissance 
+    * - Nom 
+    * - Prénom 
+    * - Email 
+    * - Date de naissance 
 Le champ « Numéro d’étranger », correspond au numéro à 10 chiffres inscrit sur
 le côté droit, au centre, de votre titre de séjour ou sur votre document de
 validation délivré par l’OFII. Si vous n’êtes pas encore titulaire de document

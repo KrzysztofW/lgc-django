@@ -101,7 +101,7 @@ def read_template(filename):
         template_file_content = template_file.read()
     return Template(template_file_content)
 
-def lgc_send_email(obj, action):
+def lgc_send_email(obj, action, from_name=''):
     prev_lang = translation.get_language()
     lang = obj.language.lower()
     translation.activate(lang)
@@ -113,8 +113,8 @@ def lgc_send_email(obj, action):
         subject = _('Creation of your LGC account')
         tpl = 'message_hr'
     elif action == lgc_types.MsgType.DEL:
-        subject = _('Removal of your LGC account')
-        tpl = 'message_delete'
+        subject = _('Confirmation - your “my KWA” account has been deleted')
+        tpl = 'message_user_deletion'
     else:
         translation.activate(prev_lang)
         return
@@ -129,8 +129,10 @@ def lgc_send_email(obj, action):
     url = reverse_lazy('user-token')[3:]
     url = settings.SITE_URL + '/' + lang + url + '?token=' + obj.token
 
-    msg = msg_tpl.substitute(PERSON_NAME=name, URL=url)
-    msg_html = msg_tpl_html.substitute(PERSON_NAME=name, URL=url)
+    msg = msg_tpl.substitute(PERSON_NAME=name, URL=url,
+                             PERSON_IN_CHARGE=from_name)
+    msg_html = msg_tpl_html.substitute(PERSON_NAME=name, URL=url,
+                                       PERSON_IN_CHARGE=from_name)
     to = name + '<' + obj.email + '>'
 
     ret = send_mail(subject, msg, 'Office <no-reply@example.com>',

@@ -1,0 +1,18 @@
+ 
+Bonjour ${PERSON_NAME},
+ 
+A la suite de votre demande, nous vous confirmons que votre compte « LGC » a
+bien été supprimé conformément à l’article 17.1 du Règlement général sur la
+protection des données (RGPD) sur le Droit à l'effacement («droit à l'oubli»).
+ 
+Vos données à caractère personnel ne nous seront plus accessibles.
+S’il s’agit d’une erreur, je vous prie de bien vouloir me contacter.
+Très cordialement,
+ 
+${PERSON_IN_CHARGE}
+Office
+34 Address
+ London
+Tel : +00 (0) 1 23 34 45 56
+www.example.com
+ 
