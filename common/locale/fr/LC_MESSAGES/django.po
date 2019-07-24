@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-16 15:59+0200\n"
+"POT-Creation-Date: 2019-07-24 17:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,8 +78,8 @@ msgid "Creation of your LGC account"
 msgstr "Création de votre compte LGC"
 
 #: utils.py:116
-msgid "Removal of your LGC account"
-msgstr "Suppression de votre compte LGC"
+msgid "Confirmation - your “my KWA” account has been deleted"
+msgstr "Confirmation de la suppression de compte LGC"
 
 #: validators.py:5
 msgid "Numbers and special characters are not allowed."

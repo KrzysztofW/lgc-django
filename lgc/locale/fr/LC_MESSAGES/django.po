@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-16 15:59+0200\n"
+"POT-Creation-Date: 2019-07-24 17:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,8 +41,8 @@ msgid "Billing Address"
 msgstr "Adresse de facturation"
 
 #: billing_views.py:165 billing_views.py:1000 billing_views.py:1208
-#: templates/lgc/person_process.html:31 views.py:1295 views.py:2239
-#: views.py:2515
+#: templates/lgc/person_process.html:31 views.py:1295 views.py:2245
+#: views.py:2528
 msgid "Update"
 msgstr "Mettre à jour"
 
@@ -611,7 +611,7 @@ msgid "Company Option"
 msgstr "Société"
 
 #: forms.py:439 forms.py:465 templates/lgc/file_invoice_list.html:19
-#: views.py:1544 views.py:1576 views.py:1735
+#: views.py:1550 views.py:1582 views.py:1741
 msgid "Process"
 msgstr "Procédure"
 
@@ -876,7 +876,7 @@ msgstr ""
 msgid "Work Permit Required"
 msgstr "Autorisation de travail requise"
 
-#: models.py:693 models.py:1295 views.py:1308 views.py:1314
+#: models.py:693 models.py:1295 views.py:1308 views.py:1328
 msgid "File"
 msgstr "Fiche"
 
@@ -900,13 +900,13 @@ msgstr "Date de naissance"
 msgid "Passport expiry"
 msgstr "Expiration passeport"
 
-#: models.py:747 models.py:757 models.py:849 views.py:1512 views.py:1622
-#: views.py:1964
+#: models.py:747 models.py:757 models.py:849 views.py:1518 views.py:1628
+#: views.py:1970
 msgid "French Name"
 msgstr "Nom français"
 
-#: models.py:748 models.py:758 models.py:851 views.py:1513 views.py:1623
-#: views.py:1965
+#: models.py:748 models.py:758 models.py:851 views.py:1519 views.py:1629
+#: views.py:1971
 msgid "English Name"
 msgstr "Nom anglais"
 
@@ -1258,7 +1258,7 @@ msgstr "Il n'y a pas de notifications en cours"
 msgid "User Profile"
 msgstr "Mon profile"
 
-#: templates/lgc/dropdown_menu_users.html:12 views.py:2519
+#: templates/lgc/dropdown_menu_users.html:12 views.py:2532
 msgid "Settings"
 msgstr "Configuration"
 
@@ -1368,6 +1368,10 @@ msgstr "Suivant"
 #: templates/lgc/insert_invoice_item.html:124
 msgid "Last"
 msgstr "Dernier"
+
+#: templates/lgc/footer.html:11
+msgid "Terms and conditions"
+msgstr "Mentions légales & RGPD"
 
 #: templates/lgc/generic_form.html:18
 msgid "Save"
@@ -1498,7 +1502,7 @@ msgstr "Rechercher les fiches ..."
 msgid "External accounts"
 msgstr "Comptes externes"
 
-#: templates/lgc/menu_complete.html:34 views.py:2073 views.py:2248
+#: templates/lgc/menu_complete.html:34 views.py:2079 views.py:2254
 msgid "Employees"
 msgstr "Salariés"
 
@@ -1531,7 +1535,7 @@ msgid "Billing"
 msgstr "Facturation"
 
 #: templates/lgc/menu_complete.html:92 templates/lgc/menu_complete.html:102
-#: views.py:414 views.py:513 views.py:1465
+#: views.py:414 views.py:513 views.py:1471
 msgid "Processes"
 msgstr "Procédures"
 
@@ -1543,7 +1547,7 @@ msgstr "Modèles"
 msgid "Ready for invoicing"
 msgstr "À facturer"
 
-#: templates/lgc/menu_complete.html:121 views.py:2840
+#: templates/lgc/menu_complete.html:121 views.py:2853
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -1694,7 +1698,7 @@ msgstr "Bienvenue %(first_name)s %(last_name)s"
 msgid "private"
 msgstr "privée"
 
-#: views.py:330 views.py:464 views.py:2071
+#: views.py:330 views.py:464 views.py:2077
 msgid "Information"
 msgstr "Informations"
 
@@ -1830,94 +1834,94 @@ msgstr "Fiche créée avec succès."
 msgid "File successfully updated"
 msgstr "Fiche mise à jour avec succès."
 
-#: views.py:1315
-msgid "Delete File"
-msgstr "Supprimer fiche"
-
-#: views.py:1334
-#, python-format
-msgid "%(obj_name)s of %(firstname)s %(lastname)s deleted successfully."
-msgstr "%(obj_name)s de %(firstname)s %(lastname)s supprimée avec succès."
-
-#: views.py:1354 views.py:2361
-msgid "Cannot remove user files."
-msgstr "Les documents de cet utilisateur ne peuvent pas être supprimés."
-
-#: views.py:1363 views.py:2185 views.py:2321
+#: views.py:1319 views.py:2191 views.py:2327
 #, python-format
 msgid "Cannot send email to `%(email)s` (%(err)s)"
 msgstr "L'envoi de l'mail à %(email)s a échoué (%(err)s)"
 
-#: views.py:1520
+#: views.py:1329
+msgid "Delete File"
+msgstr "Supprimer fiche"
+
+#: views.py:1348
+#, python-format
+msgid "%(obj_name)s of %(firstname)s %(lastname)s deleted successfully."
+msgstr "%(obj_name)s de %(firstname)s %(lastname)s supprimée avec succès."
+
+#: views.py:1368 views.py:2368
+msgid "Cannot remove user files."
+msgstr "Les documents de cet utilisateur ne peuvent pas être supprimés."
+
+#: views.py:1526
 msgid "Process successfully created"
 msgstr "Procédure créée avec succès."
 
-#: views.py:1523
+#: views.py:1529
 msgid "New Process"
 msgstr "Nouvelle procédure"
 
-#: views.py:1541
+#: views.py:1547
 msgid "Process successfully updated"
 msgstr "Procédure mise à jour avec succès."
 
-#: views.py:1574
+#: views.py:1580
 msgid "Delete Process"
 msgstr "Supprimer procédure"
 
-#: views.py:1594
+#: views.py:1600
 msgid "This stage cannot be deleted as it is currently being used."
 msgstr "Cette étape ne peut pas être supprimée car elle est utilisée."
 
-#: views.py:1597
+#: views.py:1603
 msgid "This process cannot be deleted as it is currently being used."
 msgstr "Cette procédure ne peut pas être supprimée car elle est utilisée."
 
-#: views.py:1605
+#: views.py:1611
 #, python-format
 msgid "%(obj_name)s `%(name)s' successfully deleted."
 msgstr "%(obj_name)s `%(name)s' supprimée avec succès."
 
-#: views.py:1612
+#: views.py:1618
 msgid "Process Stages"
 msgstr "Étapes de procédures"
 
-#: views.py:1624
+#: views.py:1630
 msgid "Generates invoice alert"
 msgstr "Génère une alert de facturation"
 
-#: views.py:1631
+#: views.py:1637
 msgid "Process stage successfully created"
 msgstr "Étape de procédure créée avec succès."
 
-#: views.py:1633
+#: views.py:1639
 msgid "New Process Stage"
 msgstr "Nouvelle étape de procédure"
 
-#: views.py:1641
+#: views.py:1647
 msgid "Process stage successfully updated"
 msgstr "Avoir mis à jour avec succès."
 
-#: views.py:1643
+#: views.py:1649
 msgid "Process Stage"
 msgstr "Étape de la procédure"
 
-#: views.py:1653
+#: views.py:1659
 msgid "Delete Process Stage"
 msgstr "Supprimer l'étape"
 
-#: views.py:1655
+#: views.py:1661
 msgid "Process stage"
 msgstr "Étape de la procédure"
 
-#: views.py:1666
+#: views.py:1672
 msgid "Process successfully updated."
 msgstr "Procédure mise à jour avec succès."
 
-#: views.py:1712
+#: views.py:1718
 msgid "Stage Name"
 msgstr "Nom de l'étape"
 
-#: views.py:1838
+#: views.py:1844
 #, python-format
 msgid ""
 "This process has been modified by %(firstname)s %(lastname)s while you were "
@@ -1926,98 +1930,98 @@ msgstr ""
 "La procédure a été modifiée par %(firstname)s %(lastname)s pendant que vous "
 "l'éditiez."
 
-#: views.py:1844
+#: views.py:1850
 msgid "Reload the page."
 msgstr "Recharger la page."
 
-#: views.py:1850
+#: views.py:1856
 msgid "This process has already an invoice"
 msgstr "Il y a déjà une facture pour cette procédure"
 
-#: views.py:1857
+#: views.py:1863
 msgid "Invalid form"
 msgstr "Formulaire invalid"
 
-#: views.py:1862
+#: views.py:1868
 msgid "Invalid stages form"
 msgstr "Le formulaire des étapes de procédure est invalide"
 
-#: views.py:1884
+#: views.py:1890
 msgid "The next stage does not exist."
 msgstr "L'étape suivante n'existe pas."
 
-#: views.py:1889
+#: views.py:1895
 msgid "This process has no validated stages."
 msgstr "Cette procédure n'a aucune procédure validées."
 
-#: views.py:1901
+#: views.py:1907
 msgid "The specific stage names are invalid."
 msgstr "Les nomes de l'étape spécifique ne sont pas valides."
 
-#: views.py:1911
+#: views.py:1917
 msgid "The process is not complete."
 msgstr "La procédure n'est pas complétée."
 
-#: views.py:1915
+#: views.py:1921
 msgid "This process cannot be closed as it does not have any invoice."
 msgstr ""
 "Cette procédure ne peut pas être fermée car aucune facture n'a été créée."
 
-#: views.py:1947
+#: views.py:1953
 #, python-format
 msgid "Completed Processes of %(first_name)s %(last_name)s"
 msgstr "Les procédures terminées de %(first_name)s %(last_name)s"
 
-#: views.py:1965
+#: views.py:1971
 msgid "Person Name"
 msgstr "Nom personne"
 
-#: views.py:1966
+#: views.py:1972
 msgid "File Id"
 msgstr "ID fiche"
 
-#: views.py:1973
+#: views.py:1979
 msgid "Processes ready to invoice"
 msgstr "Procédures prête à facturer."
 
-#: views.py:2001
+#: views.py:2007
 msgid "Pending Processes"
 msgstr "Procédures en cours"
 
-#: views.py:2112
+#: views.py:2118
 msgid "New account successfully created"
 msgstr "Compte créé avec succès."
 
-#: views.py:2113 views.py:2114
+#: views.py:2119 views.py:2120
 msgid "Create access"
 msgstr "Créer un compte utilisateur"
 
-#: views.py:2146
+#: views.py:2152
 #, python-format
 msgid "Cannot link with a non-existent file `%s'"
 msgstr "La fiche correspondante n'existe pas `%s'"
 
-#: views.py:2200 views.py:2329
+#: views.py:2206 views.py:2335
 msgid "There are errors on the page"
 msgstr "La page comporte des erreurs"
 
-#: views.py:2204
+#: views.py:2210
 msgid "Employee Accounts"
 msgstr "Comptes des salariés"
 
-#: views.py:2237
+#: views.py:2243
 msgid "Account successfully updated"
 msgstr "Compte mis à jour avec succès."
 
-#: views.py:2238
+#: views.py:2244
 msgid "Update Account"
 msgstr "Modifier compte utilisateur"
 
-#: views.py:2249 views.py:2401
+#: views.py:2255 views.py:2414
 msgid "Add an employee"
 msgstr "Ajouter un salarié"
 
-#: views.py:2269
+#: views.py:2275
 msgid ""
 "The status cannot be set to active as the user has not accepted our terms "
 "and condiftions yet."
@@ -2025,71 +2029,76 @@ msgstr ""
 "Le compte ne peut pas être acitvé tant que l'utilisateur n'a pas accepté nos "
 "conditions d'utilisation."
 
-#: views.py:2285
+#: views.py:2291
 msgid "Deleted status cannot be set."
 msgstr "Le status 'supprimé' n'est pas sélectionnable."
 
-#: views.py:2333
+#: views.py:2339
 msgid "Account"
 msgstr "Compte"
 
-#: views.py:2334
+#: views.py:2340
 msgid "Delete Account"
 msgstr "Supprimer compte utilisateur"
 
-#: views.py:2386
+#: views.py:2356
+#, python-format
+msgid "Account of `%(firstname)s %(lastname)s' deleted successfully."
+msgstr "Compte de `%(firstname)s %(lastname)s' supprimé avec succès."
+
+#: views.py:2399
 msgid "New HR account successfully created"
 msgstr "Compte RH créé avec succès."
 
-#: views.py:2387
+#: views.py:2400
 msgid "New HR account"
 msgstr "Nouveau compte RH"
 
-#: views.py:2388
+#: views.py:2401
 msgid "Initiate account"
 msgstr "Initier un compte RH"
 
-#: views.py:2395
+#: views.py:2408
 msgid "HR account successfully updated"
 msgstr "Compte RH mis à jour avec succès."
 
-#: views.py:2396
+#: views.py:2409
 msgid "Update HR"
 msgstr "Mettre à jour compte RH"
 
-#: views.py:2440
+#: views.py:2453
 msgid "Invalid Employee table"
 msgstr "La table des salariés est invalide"
 
-#: views.py:2454
+#: views.py:2467
 #, python-format
 msgid "Unknown employee ID `%s'"
 msgstr "ID `%s' du salarié est inconnu"
 
-#: views.py:2457
+#: views.py:2470
 msgid "Employee's e-mail cannot be empty"
 msgstr "E-mail du salarié ne peut pas être vide"
 
-#: views.py:2464
+#: views.py:2477
 msgid "HR accounts"
 msgstr "Comptes RH"
 
-#: views.py:2472
+#: views.py:2485
 msgid "HR account"
 msgstr "Compte RH"
 
-#: views.py:2473
+#: views.py:2486
 msgid "Delete HR account"
 msgstr "Supprimer un compte RH"
 
-#: views.py:2488
+#: views.py:2501
 msgid "Settings successfully updated"
 msgstr "Configuration mise à jour avec succès"
 
-#: views.py:2490
+#: views.py:2503
 msgid "Cannot save"
 msgstr "Impossible de sauvegarder"
 
-#: views.py:2505
+#: views.py:2518
 msgid "Currencies"
 msgstr "Devises"
