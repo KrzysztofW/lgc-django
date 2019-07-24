@@ -35,4 +35,4 @@ cursor5.execute("delete FROM users_user_hr_employees")
 cursor5.execute("delete FROM users_user where is_superuser=0")
 lgc_v5.commit()
 
-print("don't forget to: rm -rf  /home/partage/LGC-documents/*")
+print("don't forget to: rm -rf  /home/LGC-documents/*")

@@ -72,6 +72,7 @@ get_context_data post: <QueryDict: {'csrfmiddlewaretoken': ['kSWLEflnyiicoY71qpH
 Deployment
 ==========
 
+./manage.py collectstatic
 https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 ./manage.py check --deploy
 

@@ -255,6 +255,7 @@ LANGUAGES = [
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/management/lgc/static'
 LOGIN_REDIRECT_URL = 'lgc-home'
 LOGIN_URL = 'user-login'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -263,7 +264,7 @@ SITE_URL = 'http://localhost:8000'
 AUTH_TOKEN_EXPIRY = 48
 AUTH_PASSWORD_EXPIRY = 3 * 30
 
-MEDIA_ROOT= '/home/partage/LGC-documents'
+MEDIA_ROOT= '/home/LGC-documents'
 MEDIA_URL = '/docs/'
 MAX_FILE_SIZE = 2 # in megabytes
 
