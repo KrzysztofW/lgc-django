@@ -1309,6 +1309,20 @@ class PersonUpdateView(PersonCommonView, UpdateView):
     is_update = True
     success_message = ugettext_lazy('File successfully updated')
 
+def send_delete_email(request, user, success_msg):
+    if (request.method == 'POST' and request.POST.get('inform_person') and
+        request.POST['inform_person'] == 'on'):
+        try:
+            lgc_send_email(user, lgc_types.MsgType.DEL,
+                           request.user.first_name + ' ' + request.user.last_name)
+        except Exception as e:
+            messages.error(request, _('Cannot send email to `%(email)s` (%(err)s)')%{
+                'email':user.email, 'err': str(e)
+            })
+            raise
+
+    messages.success(request, success_msg)
+
 class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = lgc_models.Person
     obj_name = ugettext_lazy('File')
@@ -1354,19 +1368,11 @@ class PersonDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
                     messages.error(self.request, _('Cannot remove user files.'))
                     return redirect('lgc-account', self.object.id)
 
-        if (self.object.user and self.request.method == 'POST' and
-            self.request.POST.get('inform_person') and
-            self.request.POST['inform_person'] == 'on'):
+        if self.object.user:
             try:
-                lgc_send_email(self.object.user, lgc_types.MsgType.DEL)
-            except Exception as e:
-                messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
-                    'email':self.object.user.email,
-                    'err': str(e)
-                })
+                send_delete_email(self.request, self.object.user, success_message)
+            except:
                 return redirect('lgc-file', self.object.id)
-
-        messages.success(self.request, success_message)
         return super().delete(request, *args, **kwargs)
 
 @login_required
@@ -2347,20 +2353,27 @@ class DeleteAccount(AccountView, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
+        success_message = _("Account of `%(firstname)s %(lastname)s' deleted successfully.")%{
+            'firstname':self.object.first_name,
+            'lastname':self.object.last_name,
+        }
 
-        if not hasattr(self.object, 'person_user_set'):
-            return super().delete(request, args, kwargs)
-        if not hasattr(self.object.person_user_set, 'document_set'):
-            return super().delete(request, args, kwargs)
+        if (hasattr(self.object, 'person_user_set') and
+            hasattr(self.object.person_user_set, 'document_set')):
+            for doc in self.object.person_user_set.document_set.all():
+                try:
+                    lgc_models.delete_person_doc(self.object.person_user_set, doc)
+                except Exception as e:
+                    log.error(e)
+                    messages.error(self.request, _('Cannot remove user files.'))
+                    return redirect('lgc-account', self.object.id)
+        try:
+            send_delete_email(self.request, self.object, success_message)
+        except:
+            return redirect('lgc-account', self.object.id)
 
-        for doc in self.object.person_user_set.document_set.all():
-            try:
-                lgc_models.delete_person_doc(self.object.person_user_set, doc)
-            except Exception as e:
-                log.error(e)
-                messages.error(self.request, _('Cannot remove user files.'))
-                return redirect('lgc-account', self.object.id)
-
+        if hasattr(self.object, 'person_user_set'):
+            self.object.person_user_set.delete()
         return super().delete(request, args, kwargs)
 
 class HRView(LoginRequiredMixin):
