@@ -1,11 +1,14 @@
 {% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 
 <center><small><p class="mt-5 mb-3 text-muted">
       {% if request.session.is_empty %}
       Office
       {% else %}
-      Copyright K. Witek © {% now "Y" %}
+      Copyright K. Witek © {% now "Y" %} | 
       {% endif %}
+      <a href="#" onClick="window.open('{% if LANGUAGE_CODE == 'fr' %}{% static 'users/terms_and_conditions_fr.html' %}{% else %}{% static 'users/terms_and_conditions_en.html' %}{% endif %}', 'newwindow',config='height=400,width=950, toolbar=no, menubar=no,scrollbars=yes, resizable=no,location=no,directories=no, status=no');return false;">{% trans 'Terms and conditions' %}</a>
 </p></small></center>
 
 <!-- Metis Menu Plugin JavaScript -->
