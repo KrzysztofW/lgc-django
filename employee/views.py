@@ -146,15 +146,15 @@ def set_modifiedby_err_msg(request, first_name, last_name, url):
 
 def set_formset(request, context, form_class, queryset, person_objs, title,
                 prefix, id):
-    if queryset:
+    if request.method == 'POST':
+        formset = form_class(request.POST, prefix=prefix)
+    else:
         formset = form_class(queryset=queryset, prefix=prefix)
         for form in formset.forms:
             if (hasattr(form.instance, 'expiration') and
                 form.instance.expiration):
                 form.fields['dcem_end_date'].initial = form.instance.expiration.end_date
                 form.fields['dcem_enabled'].initial = form.instance.expiration.enabled
-    else:
-        formset = form_class(request.POST, prefix=prefix)
 
     pcv = lgc_views.PersonCommonView()
     formset.db_objs = pcv.get_formset_objs(person_objs, show_dcem=True)
@@ -294,7 +294,7 @@ def moderation(request, *args, **kwargs):
         'formsets': [], 'formsets_form': None,
     }
 
-    if request.POST:
+    if request.method == 'POST':
         employee_form = (
             employee_forms.ModerationEmployeeUpdateForm(request.POST,
                                                         instance=employee_obj,
@@ -342,10 +342,9 @@ def moderation(request, *args, **kwargs):
     employee_form.helper = FormHelper()
     employee_form.helper.form_tag = False
 
-    echildren = employee_models.Child.objects.filter(person=employee_obj).all()
-    if objs_diff(echildren, pchildren):
-        set_formset(request, context, ChildrenFormSet,
-                    employee_models.Child.objects.filter(person=employee_obj),
+    echildren = employee_models.Child.objects.filter(person=employee_obj)
+    if objs_diff(echildren.all(), pchildren):
+        set_formset(request, context, ChildrenFormSet, echildren,
                     pchildren, _('Children'), 'children', 'children_id')
         set_formsets_form(context)
 
