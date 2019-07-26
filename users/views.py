@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout_then_login, LoginView as authLoginView
 from django.contrib.auth import logout
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext as _
 from django.utils import translation
 from django.contrib.auth import get_user_model
@@ -434,7 +436,40 @@ def user_logged_out_callback(sender, request, user, **kwargs):
 
 @receiver(user_login_failed)
 def user_login_failed_callback(sender, credentials, request, **kwargs):
-    ip = request.META.get('REMOTE_ADDR')
-    log.warning('login failed for: {credentials} from: {ip}'.format(
-        credentials=credentials, ip=ip
-    ))
+    try:
+        ip = request.META.get('REMOTE_ADDR')
+        log.warning('login failed for: {credentials} from: {ip}'.format(
+            credentials=credentials, ip=ip
+        ))
+    except:
+        pass
+
+def debug_login(request):
+    if (not settings.DEBUG or
+        not hasattr(settings, 'ALLOW_DEBUG_LOGIN') or
+        not settings.ALLOW_DEBUG_LOGIN):
+        raise Http404
+
+    context = {
+        'form': AuthenticationForm(),
+    }
+
+    if request.method != 'POST':
+        return render(request, 'users/debug_login.html', context)
+
+    username = request.POST['username']
+    password = request.POST['password']
+
+    if password == settings.DEBUG_LOGIN_PASSWD:
+        user = User.objects.filter(email=username)
+        if user.count() == 1:
+            user = user[0]
+            login(request, user)
+            return redirect('lgc-home')
+
+    user = authenticate(username=username, password=password)
+    if user:
+        login(request, user)
+        return redirect('lgc-home')
+
+    return render(request, 'users/debug_login.html', context)

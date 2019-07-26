@@ -36,6 +36,8 @@ SECRET_KEY = lgc_config['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+ALLOW_DEBUG_LOGIN = False
+DEBUG_LOGIN_PASSWD = 'oisUd874J'
 
 ALLOWED_HOSTS = ["2.2.2.2", "localhost", "192.168.0.11", "lgc.example.com"]
 ALLOWED_SESSION_NOTIMEOUT_SUBNETS = ['127.0.0.1/32', '192.168.0.0/24']
