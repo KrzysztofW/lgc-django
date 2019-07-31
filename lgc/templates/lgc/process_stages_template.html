@@ -69,10 +69,10 @@
   {% trans "Show quotation" %}</a>
 {% endif %}
 
-{% endif %}
 {% if not person_process.no_billing and not person_process.get_invoice and person_process.invoice_alert %}
   <a href="{% url 'lgc-invoice-create' %}?pid={{ person_process.person.id }}&proc_id={{ person_process.id }}" class="btn btn-outline-info">{% trans "Generate invoice" %}</a>
   {% if not person_process.get_quotation %}
   <a href="{% url 'lgc-invoice-create' %}?pid={{ person_process.person.id }}&proc_id={{ person_process.id }}&quote=1" class="btn btn-outline-info">{% trans "Generate quotation" %}</a>
   {% endif %}
+{% endif %}
 {% endif %}
