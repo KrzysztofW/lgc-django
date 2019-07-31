@@ -155,6 +155,8 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
                                     ('first_name', _('First Name')),
                                     ('last_name', _('Last Name')), ('email', 'E-mail'),
                                     ('birth_date', _('Birth Date')),
+                                    ('home_entity', _('Home Entity')),
+                                    ('host_entity', _('Host Entity')),
                                     ('creation_date', _('Created'))]
 
         context['create_url'] = reverse_lazy('lgc-file-create')
