@@ -1680,8 +1680,15 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         return self.request.user.role in user_models.get_internal_roles()
 
     def get_stage_forms(self):
+        last_stage = self.get_last_person_process_stage(self.object.stages)
+
         if self.object.is_process_complete():
             stage_form = lgc_forms.UnboundFinalPersonProcessStageForm
+        elif last_stage == None:
+            if len(self.object.invoice_set.all()) == 0:
+                stage_form = lgc_forms.UnboundPersonProcessInitialStageForm
+            else:
+                stage_form = lgc_forms.UnboundPersonProcessInitialStageForm2
         else:
             stage_form = lgc_forms.UnboundPersonProcessStageForm
         if self.request.POST:
@@ -1902,6 +1909,20 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 last_stage and last_stage.process_stage and
                 len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0):
                 self.object.invoice_alert = last_stage.process_stage.invoice_alert
+
+        elif action == lgc_forms.PROCESS_STAGE_DELETE_PROCESS:
+            last_stage = self.get_last_person_process_stage(self.object.stages)
+            if last_stage != None:
+                messages.error(self.request, _('This process cannot be deleted as it has active stages.'))
+                return super().form_invalid(form)
+            if len(form.instance.invoice_set.all()) != 0:
+                messages.error(self.request, _('This process cannot be deleted.'))
+                return super().form_invalid(form)
+
+            person_id = form.instance.person.id
+            form.instance.delete()
+            messages.success(self.request, _('Process successfully deleted.'))
+            return redirect('lgc-file', person_id)
 
         elif action == lgc_forms.PROCESS_STAGE_ADD_SPECIFIC:
             if (specific_stage_form.cleaned_data['name_fr'] == '' or

@@ -268,6 +268,8 @@ class PersonProcessSpecificStageForm(forms.Form):
 
 PROCESS_STAGE_NONE = '-'
 PROCESS_STAGE_DELETE = 'D'
+PROCESS_STAGE_DELETE_PROCESS = 'Z'
+process_stage_delete_process_str = _('Delete process')
 PROCESS_STAGE_ADD_SPECIFIC = 'S'
 PROCESS_STAGE_VALIDATE = 'V'
 PROCESS_STAGE_COMPLETED = 'C'
@@ -284,6 +286,37 @@ PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
 FINAL_PROCESS_STAGE_CHOICES = PROCESS_STAGE_COMMON_CHOICES + (
     (PROCESS_STAGE_COMPLETED, _('Completed')),
 )
+
+class UnboundPersonProcessInitialStageForm(forms.Form):
+    action = forms.ChoiceField(label=_('Action:'),
+                               required=False, choices=PROCESS_STAGE_CHOICES,
+                               widget = forms.RadioSelect(attrs = {
+                                   'onclick' : "specific_stage_action(this);",
+                               }))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = ()
+        for a, b in PROCESS_STAGE_CHOICES:
+            if a == PROCESS_STAGE_DELETE:
+                a = PROCESS_STAGE_DELETE_PROCESS
+                b = process_stage_delete_process_str
+            choices += ((a, b), )
+        self.fields['action'].choices = choices
+
+    class Meta:
+        fields = '__all__'
+
+class UnboundPersonProcessInitialStageForm2(UnboundPersonProcessInitialStageForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = ()
+        for a, b in PROCESS_STAGE_CHOICES:
+            if a != PROCESS_STAGE_DELETE:
+                choices += ((a, b), )
+        self.fields['action'].choices = choices
+
+    class Meta:
+        fields = '__all__'
 
 class UnboundPersonProcessStageForm(forms.Form):
     action = forms.ChoiceField(label=_('Action:'),
@@ -535,7 +568,7 @@ class InvoiceUpdateForm(InvoiceCreateForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['state'].widget = forms.Select(attrs={'class':'form-control', 'onchange':'invoice_validated_state_alert(this, \''+str(_('If this state is set, the invoice will not be editable anymore')).replace("'", "\\'") +'\');'})
-        self.fields['state'].choices = choices=lgc_models.INVOICE_STATE_CHOICES
+        self.fields['state'].choices = lgc_models.INVOICE_STATE_CHOICES
 
     class Meta:
         model = lgc_models.Invoice
