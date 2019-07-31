@@ -311,6 +311,28 @@ class LoginView(authLoginView):
             return response
         return self.redirect_language()
 
+    def form_invalid(self, form):
+        email = form.cleaned_data.get('username')
+
+        if email:
+            try:
+                user = User.objects.get(email=email)
+            except:
+                user = None
+
+        if user:
+            translation.activate(user.language)
+            if not user.is_active:
+                messages.error(self.request,
+                               _('Your account is no longer active, please contact your Office consultant.'))
+                return super().form_invalid(form)
+        try:
+            messages.error(self.request, form.errors.get('__all__')[0])
+        except:
+            pass
+
+        return super().form_invalid(form)
+
 @login_required
 def logout_then_login_with_msg(request):
     messages.success(request, _('You were successfully logged-out.'))
