@@ -273,7 +273,7 @@ CONSULATE_CHOICES = (
     ('CI', "Côte d'Ivoire"),
     ('CR', "Costa rica"),
     ('DK', "Danemark"),
-    ('EG', "Egypte"),
+    ('EG', "Égypte"),
     ('ES', "Espagne"),
     ('AE', "Emirats Arabes Unis"),
     ('EC', "Équateur"),
@@ -338,6 +338,7 @@ DIRECCTE_CHOICES = (
     ('FIN', "Finistère (29)"),
     ('GAR', "Gard (30)"),
     ('HGA', "Haute Garonne (31)"),
+    ('HGB', "Haute Garonne (47)"),
     ('GIR', "Gironde (33)"),
     ('HER', "Hérault (34)"),
     ('ILL', "Ille-et-Vilaine (35)"),
@@ -501,13 +502,13 @@ class PersonInfo(models.Model):
                                        null=True, default=None)
     passport_nationality = CountryField(_('Passport Nationality'), blank=True,
                                         null=True)
-    home_entity = models.CharField(_('Home Entity'), max_length=50,
-                                   default='', blank=True, validators=[validators.alphanum])
+    home_entity = models.CharField(_('Home Entity'), max_length=50, default='',
+                                   blank=True)
     home_entity_address = models.TextField(_('Home Entity address'),
                                            max_length=100, default='',
                                            blank=True)
-    host_entity = models.CharField(_('Host Entity'), max_length=50,
-                                   default='', blank=True, validators=[validators.alphanum])
+    host_entity = models.CharField(_('Host Entity'), max_length=50, default='',
+                                   blank=True)
     host_entity_address = models.TextField(_('Host Entity address'),
                                            max_length=100, default='',
                                            blank=True)
