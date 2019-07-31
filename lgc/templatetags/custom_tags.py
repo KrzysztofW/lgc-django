@@ -25,7 +25,6 @@ def get_notification_menu(request):
     res['expirations'] = expirations[:10]
     res['deletion_requests'] = deletion_requests[:5]
     res['today'] = timezone.now().date()
-    pcnt = 0
     res['pcnt'] = 0
 
     if request.user.role == user_models.ROLE_CONSULTANT:
@@ -34,7 +33,7 @@ def get_notification_menu(request):
         res['ready_to_invoice'] = processes
         res['pcnt'] += processes.count()
 
-    res['nb_items'] = len(expirations) + len(deletion_requests) + pcnt
+    res['nb_items'] = len(expirations) + len(deletion_requests) + res['pcnt']
     if request.user.billing and request.user.show_invoice_notifs:
         invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE)
         res['ready_invoices'] = invoices[:10]
