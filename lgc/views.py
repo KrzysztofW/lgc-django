@@ -2695,7 +2695,7 @@ def expirations_filter_objs(request, objs):
         objs = objs.exclude(end_date__lte=timezone.now().date())
     return objs
 
-def get_expirations_form(request):
+def get_expirations_form(request, show_expiry_type=True):
     if len(request.GET):
         form = lgc_forms.ExpirationSearchForm(request.GET)
     else:
@@ -2708,7 +2708,7 @@ def get_expirations_form(request):
         Div(
             Div('user', css_class='form-group col-md-3'),
             Div('expires', css_class='form-group col-md-3'),
-            Div('expiry_type', css_class='form-group col-md-3'),
+            Div('expiry_type', css_class='form-group col-md-3') if show_expiry_type else None,
             Div('show_disabled', css_class='form-group col-md-2 lgc_aligned_checkbox'),
             Div('show_expired', css_class='form-group col-md-3 lgc_aligned_checkbox'),
             css_class='form-row'),

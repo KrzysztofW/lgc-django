@@ -74,7 +74,7 @@ def my_expirations(request):
     if request.user.role != user_models.ROLE_EMPLOYEE:
         return http.HttpResponseForbidden()
 
-    form = lgc_views.get_expirations_form(request)
+    form = lgc_views.get_expirations_form(request, show_expiry_type=False)
 
     """ remove the user field """
     del form.fields['user']
