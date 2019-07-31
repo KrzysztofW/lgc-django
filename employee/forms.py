@@ -6,6 +6,11 @@ from lgc import models as lgc_models
 from . import models as employee_models
 
 class EmployeeUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(required=False, label=_('First Name'),
+                                 help_text=_('As per passport'))
+    last_name = forms.CharField(required=False, label=_('Last Name'),
+                                 help_text=_('As per passport'))
+
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
     birth_date = forms.DateField(widget=DatePickerInput(), label=_('Birth Date'))
     home_entity_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}), label=_('Home Entity Address'))
