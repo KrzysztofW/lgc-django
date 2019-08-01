@@ -5,7 +5,7 @@
 {% block content %}
 
 <div class="content-section">
-  <form method="POST">
+  <form method="POST" id="employee_form_id">
     {% csrf_token %}
     <i>
     {% blocktrans with firstname=object.modified_by.first_name lastname=object.modified_by.last_name role=object.modified_by.get_role_display mdate=object.modification_date %}
@@ -50,6 +50,38 @@
     });
   });
   {% endfor %}
+
+var employee_form = document.getElementById('employee_form_id');
+for (var i = 0; i < employee_form.elements.length; i++) {
+    var e = employee_form.elements[i];
+
+    if (!e.name.match('^emp-.*')) {
+	continue;
+    }
+    if (e.name == 'emp-version') {
+	continue;
+    }
+    var pers_id = e.id.replace('id_emp-', 'id_pers-');
+    var pers_e = document.getElementById(pers_id);
+
+    if (!pers_e)
+	continue;
+
+    if (e.value == pers_e.value) {
+	var div_emp = document.getElementById('div_' + e.id);
+	var div_pers = document.getElementById('div_' + pers_e.id);
+
+	if (!div_emp || !div_pers)
+	    continue;
+
+	div_emp.style.display = 'none';
+	div_pers.style.display = 'none';
+	continue;
+    }
+
+    e.style.color = 'red';
+}
+
 </script>
 
 {% endblock javascript %}
