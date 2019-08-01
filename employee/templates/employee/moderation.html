@@ -33,7 +33,10 @@
     <div class="form-group">
       <button class="btn btn-outline-info" type="submit">
 	{% trans "Accept" %}
-      </button>
+      </button>&nbsp;
+      <a href="?reject=1" class="btn btn-outline-info" onclick="return confirm('{% trans 'Are you sure to reject this moderation?' %}');">
+	{% trans "Reject" %}
+      </a>
     </div>
   </form>
 </div>

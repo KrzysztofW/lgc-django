@@ -214,12 +214,12 @@ def check_form(request, context, obj, employee_form, url):
 
     return True
 
-def save_employee_form(request, employee_form):
-    employee_form.instance.version += 1
-    employee_form.instance.updated = False
-    employee_form.instance.modified_by = request.user
-    employee_form.instance.modification_date = timezone.now()
-    employee_form.save()
+def save_employee_obj(request, employee_instance):
+    employee_instance.version += 1
+    employee_instance.updated = False
+    employee_instance.modified_by = request.user
+    employee_instance.modification_date = timezone.now()
+    employee_instance.save()
 
 def save_formset(employee_obj, formset):
     if formset == None:
@@ -293,6 +293,15 @@ def moderation(request, *args, **kwargs):
         'title': 'Moderation', 'person_form': person_form, 'object': employee_obj,
         'formsets': [], 'formsets_form': None,
     }
+    person_common_view = lgc_views.PersonCommonView()
+
+    if request.GET.get('reject') == '1':
+        person_common_view.copy_related_object(employee_obj.user.person_user_set,
+                                               employee_obj, employee_obj)
+        save_employee_obj(request, employee_obj)
+
+        messages.success(request, _('Moderation has been rejected.'))
+        return redirect('employee-moderations')
 
     if request.method == 'POST':
         employee_form = (
@@ -317,7 +326,6 @@ def moderation(request, *args, **kwargs):
         lgc_models.copy_doc_path_attributes(employee_obj.user.person_user_set,
                                             old_person)
 
-        person_common_view = lgc_views.PersonCommonView()
         person_common_view.copy_related_object(employee_form.instance,
                                                employee_obj.user.person_user_set,
                                                employee_form.instance)
@@ -329,7 +337,7 @@ def moderation(request, *args, **kwargs):
             formset = None
 
         with transaction.atomic():
-            save_employee_form(request, employee_form)
+            save_employee_obj(request, employee_form.instance)
             lgc_models.rename_person_doc_dir(old_person,
                                              employee_obj.user.person_user_set)
             employee_obj.user.person_user_set.save()

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-16 15:59+0200\n"
+"POT-Creation-Date: 2019-08-01 16:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,27 +18,39 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: forms.py:10
+#: forms.py:9
+msgid "First Name"
+msgstr "Prénom"
+
+#: forms.py:10 forms.py:12
+msgid "As per passport"
+msgstr ""
+
+#: forms.py:11
+msgid "Last Name"
+msgstr "Nom"
+
+#: forms.py:15
 msgid "Birth Date"
 msgstr "Date de naissance"
 
-#: forms.py:11
+#: forms.py:16
 msgid "Home Entity Address"
 msgstr "Adresse société d'origine"
 
-#: forms.py:12
+#: forms.py:17
 msgid "Host Entity Address"
 msgstr "Adresse société d'accueil"
 
-#: forms.py:14
+#: forms.py:19
 msgid "Home Address in France"
 msgstr ""
 
-#: forms.py:15
+#: forms.py:20
 msgid "Home Address outside France"
 msgstr ""
 
-#: forms.py:18
+#: forms.py:23
 msgid "Passport Expiry"
 msgstr "Expiration du passeport"
 
@@ -89,6 +101,14 @@ msgstr "À modérer :"
 msgid "Accept"
 msgstr "Accepter"
 
+#: templates/employee/moderation.html:37
+msgid "Are you sure to reject this moderation?"
+msgstr "Êtes-vous sûr de vouloir rejecter cette modération ?"
+
+#: templates/employee/moderation.html:38
+msgid "Reject"
+msgstr "Rejeter"
+
 #: views.py:112
 msgid "First name"
 msgstr "Prénom"
@@ -121,10 +141,14 @@ msgstr ""
 msgid "Invalid %(title)s table."
 msgstr "Table %(title)s invalide."
 
-#: views.py:309 views.py:349
+#: views.py:303
+msgid "Moderation has been rejected."
+msgstr ""
+
+#: views.py:319 views.py:357
 msgid "Children"
 msgstr "Enfants"
 
-#: views.py:337
+#: views.py:346
 msgid "Moderation successfully submitted."
 msgstr "Modération prise en compte avec succès."
