@@ -13,18 +13,20 @@
     {% endblocktrans %}
     </i>
     <br><br>
-    <div class="form-row">
-      <div class="form-group col-md-3">
-	<label><b>{% trans 'Current form:' %}</b></label>
-	<fieldset class="form-group">
-	  {{ person_form|crispy }}
-	</fieldset>
-      </div>
-      <div class="form-group col-md-3">
-	<fieldset class="form-group">
-	  <label><b>{% trans 'To be moderated:' %}</b></label>
-	  {% crispy employee_form %}
-	</fieldset>
+    <div id="id_moderation_form_titles">
+      <div class="form-row">
+	<div class="form-group col-md-3">
+	  <label><b>{% trans 'Current form:' %}</b></label>
+	  <fieldset class="form-group">
+	    {{ person_form|crispy }}
+	  </fieldset>
+	</div>
+	<div class="form-group col-md-3">
+	  <fieldset class="form-group">
+	    <label><b>{% trans 'To be moderated:' %}</b></label>
+	    {% crispy employee_form %}
+	  </fieldset>
+	</div>
       </div>
     </div>
     {% if formsets_form %}
@@ -55,6 +57,8 @@
   {% endfor %}
 
 var employee_form = document.getElementById('employee_form_id');
+var nb_diffs = 0;
+
 for (var i = 0; i < employee_form.elements.length; i++) {
     var e = employee_form.elements[i];
 
@@ -82,7 +86,14 @@ for (var i = 0; i < employee_form.elements.length; i++) {
 	continue;
     }
 
+    nb_diffs++;
     e.style.color = 'red';
+}
+
+if (nb_diffs == 0) {
+    var moderation_title_div = document.getElementById('id_moderation_form_titles');
+
+    moderation_title_div.style.display = 'none';
 }
 
 </script>
