@@ -10,13 +10,13 @@
   <div class="card" style="overflow:visible;">
     <div class="card-header" id="heading_{{ formset.id }}">
       <h5 class="mb-0">
-        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_{{ formset.id }}" aria-expanded="false" aria-controls="collapse_{{ formset.id }}">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_{{ formset.id }}" aria-expanded="true" aria-controls="collapse_{{ formset.id }}">
           {{ formset.title }}
         </button>
       </h5>
     </div>
 
-    <div id="collapse_{{ formset.id }}" class="collapse" aria-labelledby="heading_{{ formset.id }}" data-parent="#formset_accordion">
+    <div id="collapse_{{ formset.id }}" class="show" aria-labelledby="heading_{{ formset.id }}" data-parent="#formset_accordion">
       <div class="card-body">
 	{% include 'lgc/formset_template.html' %}
       </div>
