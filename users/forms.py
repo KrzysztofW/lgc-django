@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from users import models as user_models
 from django.utils.translation import ugettext as _
+
 User = get_user_model()
 
 class UserCreateForm(UserCreationForm):

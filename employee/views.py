@@ -289,6 +289,10 @@ def moderation(request, *args, **kwargs):
     ChildrenFormSet = modelformset_factory(employee_models.Child,
                                            form=employee_forms.ChildCreateForm2,
                                            can_delete=True)
+    DocumentFormSet = modelformset_factory(lgc_models.Document,
+                                           form=employee_forms.DocumentFormSet,
+                                           can_delete=False, extra=0)
+
     context = {
         'title': 'Moderation', 'person_form': person_form, 'object': employee_obj,
         'formsets': [], 'formsets_form': None,
@@ -299,6 +303,18 @@ def moderation(request, *args, **kwargs):
         person_common_view.copy_related_object(employee_obj.user.person_user_set,
                                                employee_obj, employee_obj)
         save_employee_obj(request, employee_obj)
+
+        for doc in employee_obj.user.person_user_set.document_set.all():
+            if doc.deleted:
+                doc.deleted = False
+                doc.save()
+            elif doc.added:
+                try:
+                    lgc_models.delete_person_doc(employee_obj.user.person_user_set, doc)
+                    doc.delete()
+                except Exception as e:
+                    log.error(e)
+                    messages.error(self.request, _('Cannot remove user files.'))
 
         messages.success(request, _('Moderation has been rejected.'))
         return redirect('employee-moderations')
@@ -312,8 +328,8 @@ def moderation(request, *args, **kwargs):
         employee_form.helper = FormHelper()
         employee_form.helper.form_tag = False
         employee_form.helper.form_id = 'employee_form_id'
-
         context['employee_form'] = employee_form
+
         if request.POST.get('children-TOTAL_FORMS', '') != '':
             set_formset(request, context, ChildrenFormSet, None, pchildren,
                         _('Children'), 'children', 'children_id')
@@ -343,6 +359,17 @@ def moderation(request, *args, **kwargs):
             employee_obj.user.person_user_set.save()
             save_formset(employee_obj, formset)
 
+        for doc in employee_obj.user.person_user_set.document_set.all():
+            if doc.deleted:
+                try:
+                    lgc_models.delete_person_doc(employee_obj.user.person_user_set, doc)
+                except Exception as e:
+                    log.error(e)
+                    messages.error(self.request, _('Cannot remove user files.'))
+            elif doc.added:
+                doc.added = False
+                doc.save()
+
         messages.success(request, _('Moderation successfully submitted.'))
         return redirect('employee-moderations')
 
@@ -350,6 +377,12 @@ def moderation(request, *args, **kwargs):
                                                                 prefix='emp')
     employee_form.helper = FormHelper()
     employee_form.helper.form_tag = False
+    doc_qs = lgc_models.Document.objects.filter(person=employee_obj.user.person_user_set)
+    doc_qs = doc_qs.filter(added=True)|doc_qs.filter(deleted=True)
+
+    if len(doc_qs):
+        context['docs'] = DocumentFormSet(queryset=doc_qs, prefix='docs')
+        context['doc_download_url'] = 'lgc-download-file'
 
     echildren = employee_models.Child.objects.filter(person=employee_obj)
     if objs_diff(echildren.all(), pchildren):

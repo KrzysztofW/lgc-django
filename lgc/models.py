@@ -698,6 +698,8 @@ class Document(models.Model):
     description = models.CharField(_('Description'), max_length=50, default='')
     person = models.ForeignKey(Person, on_delete=models.CASCADE,
                                related_name='document_set')
+    deleted = models.BooleanField(_('Deletion Requested'), default=False)
+    added = models.BooleanField(_('Added'), default=False)
 
     @property
     def filename(self):

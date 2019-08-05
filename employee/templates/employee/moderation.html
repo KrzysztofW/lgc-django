@@ -32,6 +32,14 @@
     {% if formsets_form %}
     {% crispy formsets_form %}
     {% endif %}
+    {% if docs %}
+    <div class="form-row">
+      <div class="form-group col-md-10">
+	{% include 'employee/document_momderation_form.html' %}
+      </div>
+    </div>
+    {% endif %}
+
     <div class="form-group">
       <button class="btn btn-outline-info" type="submit">
 	{% trans "Accept" %}
@@ -96,6 +104,19 @@ if (nb_diffs == 0) {
     moderation_title_div.style.display = 'none';
 }
 
+function validate_reject_checkbox(checkbox, added) {
+    var msg;
+
+    if (!checkbox.checked)
+	return;
+
+    if (added == 'True')
+	msg = "{% trans 'This file will be deleted.' %}";
+    else
+	msg = "{% trans 'This file will not be deleted.' %}";
+
+    alert(msg);
+}
 </script>
 
 {% endblock javascript %}

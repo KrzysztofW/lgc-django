@@ -88,3 +88,11 @@ class ModerationEmployeeUpdateForm(EmployeeUpdateForm):
     class Meta:
         model = employee_models.Employee
         exclude = ['modified_by', 'updated', 'user', 'is_private']
+
+class DocumentFormSet(forms.ModelForm):
+    id = forms.CharField(required=True, widget=forms.HiddenInput())
+    reject = forms.BooleanField(required=False, label=_('Reject change'))
+
+    class Meta:
+        model = lgc_models.Document
+        fields = ['id', 'description', 'description', 'added', 'deleted', 'reject' ]

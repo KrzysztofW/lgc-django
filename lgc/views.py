@@ -841,7 +841,11 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             else:
                 emp_obj = self.get_object()
                 obj = emp_obj.user.person_user_set
-            context['docs'] = DocumentFormSet(prefix='docs', queryset=lgc_models.Document.objects.filter(person=obj))
+
+            doc_qs = lgc_models.Document.objects.filter(person=obj)
+            if type(self.object).__name__ == 'Employee':
+                doc_qs = doc_qs.filter(deleted=False)
+            context['docs'] = DocumentFormSet(prefix='docs', queryset=doc_qs)
             context['process'] = lgc_models.PersonProcess.objects.filter(person=obj)
             if self.request.user.role in user_models.get_internal_roles():
                 invoices = self.object.invoice_set.filter(type=lgc_models.INVOICE)
@@ -1220,7 +1224,11 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             person = self.object.user.person_user_set
 
         doc, deleted_docs = self.get_doc_forms()
-        docs = lgc_models.Document.objects.filter(person=person)
+
+        if type(self.object) == employee_models.Employee:
+            docs = lgc_models.Document.objects.filter(person=person, deleted=False)
+        else:
+            docs = lgc_models.Document.objects.filter(person=person)
 
         if self.is_update and self.object.user != None:
             form.instance.user = self.object.user
@@ -1265,6 +1273,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 doc.instance.description = doc.cleaned_data['description']
                 doc.instance.person = person
                 doc.instance.uploaded_by = self.request.user
+                if type(self.object) == employee_models.Employee:
+                    doc.instance.added = True
                 doc.save()
 
             self.set_employee_data(form, formsets)
@@ -1273,13 +1283,17 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 for d in deleted_docs.deleted_forms:
                     if d.instance.id == None:
                         continue
-                    try:
-                        lgc_models.delete_person_doc(form.instance, d.instance)
-                    except Exception as e:
-                        messages.error(self.request,
-                                       _('Cannot delete the file `%(filename)s`')%{
-                                           'filename':d.instance.filename})
-                        log.error(e)
+                    if type(self.object) != employee_models.Employee:
+                        try:
+                            lgc_models.delete_person_doc(form.instance, d.instance)
+                        except Exception as e:
+                            messages.error(self.request,
+                                           _('Cannot delete the file `%(filename)s`')%{
+                                               'filename':d.instance.filename})
+                            log.error(e)
+                    else:
+                        d.instance.deleted = True
+                        d.instance.save()
 
         messages.success(self.request, self.success_message)
         return http.HttpResponseRedirect(self.get_success_url())

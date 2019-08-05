@@ -1,0 +1,67 @@
+{% load formset_tags %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{{ docs.management_form }}
+{% if docs|length %}
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card">
+      <div class="card-header">
+	<div class="float-left">
+	  {% trans 'File(s) to moderate' %}
+	</div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+	<table class="table table-striped table-bordered table-hover">
+	  <thead>
+	    <tr>
+	      <th scope="col">{% trans "File name" %}</th>
+	      <th scope="col">{% trans "Description" %}</th>
+	      <th scope="col">{% trans "File size" %}</th>
+	      <th scope="col">{% trans "Added" %}</th>
+	      <th scope="col">{% trans "Deleted" %}</th>
+	      <th scope="col">{% trans "Reject change" %}
+		<a href=""></a>
+	      </th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for item in docs %}
+	    <tr>
+	      <td>
+		<a href={% url doc_download_url item.instance.id %}>
+		  {{ item.instance.filename }}
+		</a>
+	      </td>
+	      <td>{{ item.instance.description }}</td>
+	      <td>
+		{% if item.instance.file_exists %}
+		{{ item.instance.document.size|filesizeformat }}
+		{% else %}
+		<div class="alert alert-danger" role="alert">
+		{% trans 'File does not exist!' %}
+		</div>
+		{% endif %}
+	      </td>
+	      <td class="lgc_no-wrap">
+		{% if item.instance.added %}
+		<i class="fa fa-fw fa-check lgc-sorting-muted"></i>
+		{% endif %}
+	      </td>
+	      <td class="lgc_no-wrap">
+		{% if item.instance.deleted %}
+		<i class="fa fa-fw fa-check lgc-sorting-muted"></i>
+		{% endif %}
+	      </td>
+	      <td>{{ item.id }}<input type="checkbox" name="docs-{{ forloop.counter0 }}-reject" id="id_docs-0-reject" onclick="validate_reject_checkbox(this, '{{ item.instance.added }}');"></td>
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
