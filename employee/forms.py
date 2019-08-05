@@ -50,16 +50,6 @@ class ChildCreateForm2(lgc_forms.ChildCreateForm):
         model = employee_models.Child
         exclude = ['person', 'expiration', 'person_child']
 
-class ExpirationForm(lgc_forms.ExpirationForm):
-    class Meta:
-        model = employee_models.Expiration
-        fields = ['type', 'start_date', 'end_date', 'enabled']
-
-class SpouseExpirationForm(lgc_forms.SpouseExpirationForm):
-    class Meta:
-        model = employee_models.Expiration
-        fields = ['type', 'start_date', 'end_date', 'enabled']
-
 class ModerationPersonCreateForm(lgc_forms.PersonCreateForm):
     active_tab = None
     responsible = None

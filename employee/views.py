@@ -304,6 +304,14 @@ def moderation(request, *args, **kwargs):
                                                employee_obj, employee_obj)
         save_employee_obj(request, employee_obj)
 
+        person_common_view.clear_related_objects(employee_obj.employee_set.all())
+        for child in employee_obj.user.person_user_set.child_set.all():
+            emp_child = employee_models.Child()
+            person_common_view.copy_related_object(child, emp_child, emp_child)
+            emp_child.person = employee_obj
+            emp_child.person_child = child
+            emp_child.save()
+
         for doc in employee_obj.user.person_user_set.document_set.all():
             if doc.deleted:
                 doc.deleted = False

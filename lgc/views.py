@@ -1012,7 +1012,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 self.copy_related_object(form.instance,
                                          form.instance.employee_child_set,
                                          form.instance)
-                form.instance.employee_child_set.person_id = employee.id
+                form.instance.employee_child_set.person = employee
                 form.instance.employee_child_set.expiration = form.instance.expiration
                 form.instance.employee_child_set.save()
 
