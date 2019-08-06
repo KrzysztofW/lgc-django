@@ -82,7 +82,8 @@ class ModerationEmployeeUpdateForm(EmployeeUpdateForm):
 class DocumentFormSet(forms.ModelForm):
     id = forms.CharField(required=True, widget=forms.HiddenInput())
     reject = forms.BooleanField(required=False, label=_('Reject change'))
+    description = forms.CharField(required=False, label=_('Description'))
 
     class Meta:
         model = lgc_models.Document
-        fields = ['id', 'description', 'description', 'added', 'deleted', 'reject' ]
+        fields = ['id', 'description', 'added', 'deleted', 'reject' ]

@@ -148,6 +148,8 @@ def set_formset(request, context, form_class, queryset, person_objs, title,
                 prefix, id):
     if request.method == 'POST':
         formset = form_class(request.POST, prefix=prefix)
+        if not formset.is_valid():
+            raise Exception('Invalid formset')
     else:
         formset = form_class(queryset=queryset, prefix=prefix)
         for form in formset.forms:
@@ -271,6 +273,31 @@ def save_formset(employee_obj, formset):
         form.instance.person_child = person_child
         form.instance.save()
 
+def handle_docs_formset(request, docs, employee_obj):
+    if not docs:
+        return 0
+
+    for doc_form in docs.forms:
+        try:
+            doc = lgc_models.Document.objects.get(id=doc_form.instance.id)
+        except:
+            messages.error(request, _('Moderation failed.'))
+            log.error('moderation of employee %d failed', employee_obj.id)
+            return -1
+
+        if ((not doc_form.cleaned_data['reject'] and doc.deleted)
+            or
+            (doc_form.cleaned_data['reject'] and doc.added)):
+            try:
+                lgc_models.delete_person_doc(employee_obj.user.person_user_set,
+                                             doc_form.instance)
+            except Exception as e:
+                log.error(e)
+                messages.error(request, _('Cannot remove user files.'))
+        else:
+            doc_form.save()
+    return 0
+
 @login_required
 def moderation(request, *args, **kwargs):
     if request.user.role not in user_models.get_internal_roles():
@@ -304,7 +331,7 @@ def moderation(request, *args, **kwargs):
                                                employee_obj, employee_obj)
         save_employee_obj(request, employee_obj)
 
-        person_common_view.clear_related_objects(employee_obj.employee_set.all())
+        person_common_view.clear_related_objects(employee_obj.employee_child_set.all())
         for child in employee_obj.user.person_user_set.child_set.all():
             emp_child = employee_models.Child()
             person_common_view.copy_related_object(child, emp_child, emp_child)
@@ -319,7 +346,6 @@ def moderation(request, *args, **kwargs):
             elif doc.added:
                 try:
                     lgc_models.delete_person_doc(employee_obj.user.person_user_set, doc)
-                    doc.delete()
                 except Exception as e:
                     log.error(e)
                     messages.error(self.request, _('Cannot remove user files.'))
@@ -338,48 +364,54 @@ def moderation(request, *args, **kwargs):
         employee_form.helper.form_id = 'employee_form_id'
         context['employee_form'] = employee_form
 
-        if request.POST.get('children-TOTAL_FORMS', '') != '':
-            set_formset(request, context, ChildrenFormSet, None, pchildren,
-                        _('Children'), 'children', 'children_id')
+        docs = None
+        valid = True
+        if request.POST.get('docs-TOTAL_FORMS'):
+            docs = DocumentFormSet(request.POST, prefix='docs')
+            if not docs.is_valid():
+                messages.error(request, _('Invalid document form.'))
+                valid = False
+
+        if request.POST.get('children-TOTAL_FORMS'):
+            try:
+                set_formset(request, context, ChildrenFormSet, None, pchildren,
+                            _('Children'), 'children', 'children_id')
+            except:
+                messages.error(request, _('Invalid children form'))
+                valid = False
             set_formsets_form(context)
 
         if not check_form(request, context, employee_obj, employee_form, this_url):
-            return render(request, 'employee/moderation.html', context)
+            messages.error(request, _('Invalid form.'))
+            valid = False
 
-        old_person = lgc_models.Person()
-        lgc_models.copy_doc_path_attributes(employee_obj.user.person_user_set,
-                                            old_person)
+        if valid:
+            if len(context['formsets']):
+                formset = context['formsets'][0]
+            else:
+                formset = None
 
-        person_common_view.copy_related_object(employee_form.instance,
-                                               employee_obj.user.person_user_set,
-                                               employee_form.instance)
-        employee_obj.user.person_user_set.version += 1
+            if handle_docs_formset(request, docs, employee_obj) < 0:
+                return redirect('employee-moderations')
 
-        if len(context['formsets']):
-            formset = context['formsets'][0]
-        else:
-            formset = None
+            old_person = lgc_models.Person()
+            lgc_models.copy_doc_path_attributes(employee_obj.user.person_user_set,
+                                                old_person)
 
-        with transaction.atomic():
-            save_employee_obj(request, employee_form.instance)
-            lgc_models.rename_person_doc_dir(old_person,
-                                             employee_obj.user.person_user_set)
-            employee_obj.user.person_user_set.save()
-            save_formset(employee_obj, formset)
+            person_common_view.copy_related_object(employee_form.instance,
+                                                   employee_obj.user.person_user_set,
+                                                   employee_form.instance)
+            employee_obj.user.person_user_set.version += 1
 
-        for doc in employee_obj.user.person_user_set.document_set.all():
-            if doc.deleted:
-                try:
-                    lgc_models.delete_person_doc(employee_obj.user.person_user_set, doc)
-                except Exception as e:
-                    log.error(e)
-                    messages.error(self.request, _('Cannot remove user files.'))
-            elif doc.added:
-                doc.added = False
-                doc.save()
+            with transaction.atomic():
+                save_employee_obj(request, employee_form.instance)
+                lgc_models.rename_person_doc_dir(old_person,
+                                                 employee_obj.user.person_user_set)
+                employee_obj.user.person_user_set.save()
+                save_formset(employee_obj, formset)
 
-        messages.success(request, _('Moderation successfully submitted.'))
-        return redirect('employee-moderations')
+            messages.success(request, _('Moderation successfully submitted.'))
+            return redirect('employee-moderations')
 
     employee_form = employee_forms.ModerationEmployeeUpdateForm(instance=employee_obj,
                                                                 prefix='emp')
