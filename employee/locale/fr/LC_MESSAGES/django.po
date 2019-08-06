@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-01 16:45+0200\n"
+"POT-Creation-Date: 2019-08-06 16:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,6 +54,38 @@ msgstr ""
 msgid "Passport Expiry"
 msgstr "Expiration du passeport"
 
+#: forms.py:84 templates/employee/document_momderation_form.html:25
+msgid "Reject change"
+msgstr "Rejeter"
+
+#: forms.py:85 templates/employee/document_momderation_form.html:21
+msgid "Description"
+msgstr ""
+
+#: templates/employee/document_momderation_form.html:12
+msgid "File(s) to moderate"
+msgstr ""
+
+#: templates/employee/document_momderation_form.html:20
+msgid "File name"
+msgstr "Prénom"
+
+#: templates/employee/document_momderation_form.html:22
+msgid "File size"
+msgstr ""
+
+#: templates/employee/document_momderation_form.html:23
+msgid "Added"
+msgstr ""
+
+#: templates/employee/document_momderation_form.html:24
+msgid "Deleted"
+msgstr ""
+
+#: templates/employee/document_momderation_form.html:44
+msgid "File does not exist!"
+msgstr ""
+
 #: templates/employee/home.html:16
 msgid "My Case"
 msgstr "Mon dossier"
@@ -89,25 +121,33 @@ msgstr ""
 "    Mis à jour par %(firstname)s %(lastname)s (%(role)s) le %(mdate)s\n"
 "    "
 
-#: templates/employee/moderation.html:18
+#: templates/employee/moderation.html:19
 msgid "Current form:"
 msgstr "Le contenu actuel :"
 
-#: templates/employee/moderation.html:25
+#: templates/employee/moderation.html:26
 msgid "To be moderated:"
 msgstr "À modérer :"
 
-#: templates/employee/moderation.html:35
+#: templates/employee/moderation.html:45
 msgid "Accept"
 msgstr "Accepter"
 
-#: templates/employee/moderation.html:37
+#: templates/employee/moderation.html:47
 msgid "Are you sure to reject this moderation?"
 msgstr "Êtes-vous sûr de vouloir rejecter cette modération ?"
 
-#: templates/employee/moderation.html:38
-msgid "Reject"
-msgstr "Rejeter"
+#: templates/employee/moderation.html:48
+msgid "Reject all changes"
+msgstr ""
+
+#: templates/employee/moderation.html:114
+msgid "This file will be deleted."
+msgstr ""
+
+#: templates/employee/moderation.html:116
+msgid "This file will not be deleted."
+msgstr ""
 
 #: views.py:112
 msgid "First name"
@@ -136,19 +176,39 @@ msgstr ""
 "l'éditiez. <a href=\"%(url)s\">Recharger la page</a> pour continuer (vos "
 "modifications en cours seront perdues)."
 
-#: views.py:199
+#: views.py:201
 #, python-format
 msgid "Invalid %(title)s table."
 msgstr "Table %(title)s invalide."
 
-#: views.py:303
-msgid "Moderation has been rejected."
-msgstr ""
+#: views.py:284
+msgid "Moderation failed."
+msgstr "La modération a échouée."
 
-#: views.py:319 views.py:357
+#: views.py:296 views.py:351
+msgid "Cannot remove user files."
+msgstr "Impossible de supprimer le(s) ficher(s)"
+
+#: views.py:353
+msgid "Moderation has been rejected."
+msgstr "La modération a été rejectée."
+
+#: views.py:372
+msgid "Invalid document form."
+msgstr "Le formulaire des documents est invalide."
+
+#: views.py:378 views.py:430
 msgid "Children"
 msgstr "Enfants"
 
-#: views.py:346
+#: views.py:380
+msgid "Invalid children form"
+msgstr "Le formulaire des enfants est invalide."
+
+#: views.py:385
+msgid "Invalid form."
+msgstr "Le formulaire est invalide."
+
+#: views.py:413
 msgid "Moderation successfully submitted."
 msgstr "Modération prise en compte avec succès."

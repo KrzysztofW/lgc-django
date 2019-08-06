@@ -1219,7 +1219,15 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 form.instance.start_date = str(datetime.date.today())
             person = form.instance
         else:
-            form.instance.updated = True
+            form_changed = False
+            for cdata in form.changed_data:
+                if cdata == 'updated' or cdata == 'user' or cdata == 'active_tab':
+                    continue;
+                form_changed = True
+                break
+
+            if form_changed or formsets[0].has_changed():
+                form.instance.updated = True
             """self.object is valid as external users can only update the form."""
             person = self.object.user.person_user_set
 
