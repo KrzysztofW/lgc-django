@@ -190,6 +190,13 @@ function get_lgc_links() {
     }
 
     if (active_tab && typeof active_tab !== 'undefined') {
+	var url = new URL('https://lgc.example.com/' + document.location.search);
+	if (url && url !== 'undefined') {
+	    url = url.searchParams.get('tab');
+	    if (url && url !== 'undefined' && url != '')
+		active_tab.value = url;
+	}
+
 	var body_id = active_tab.value.substring(8);
 	var tab_body = document.getElementById(body_id);
 	var tab = document.getElementById(active_tab.value);

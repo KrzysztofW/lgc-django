@@ -43,11 +43,11 @@
 	  </thead>
 	  <tbody>
 	    {% for o in page_obj %}
-	    <tr data-href="{% if request.user.role != 'EM' %}{% url 'lgc-file' o.person.id %}{% else %}{% url 'employee-file' %}{% endif %}"
+	    <tr data-href="{% if request.user.role != 'EM' %}{% url 'lgc-file' o.person.id %}{% else %}{% url 'employee-file' %}?tab=lgc-tab-documents{% endif %}"
 		{% if not o.enabled %}
 		class="clickable-row table-secondary"
 		{% else %}
-		{% if today > o.end_date|date:"Y-m-d" %}
+		{% if today >= o.end_date|date:"Y-m-d" %}
 		class="clickable-row bg-danger"
 		{% else %}
 		class="clickable-row table-success"
