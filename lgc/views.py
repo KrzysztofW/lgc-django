@@ -2540,7 +2540,7 @@ def settings_view(request):
         form = lgc_forms.SettingsForm(request.POST)
         if form.is_valid():
             settings = form.save(commit=False)
-            settings.rate_eur = 1
+            settings.rate_EUR = 1
             settings.id = 1
             settings.save()
             messages.success(request, _('Settings successfully updated'))
@@ -2550,7 +2550,7 @@ def settings_view(request):
         slen = lgc_models.Settings.objects.count()
         if slen == 0:
             settings = lgc_models.Settings()
-            settings.rate_eur = 1
+            settings.rate_EUR = 1
             settings.save()
         elif slen == 1:
             settings = lgc_models.Settings.objects.all()[0]
@@ -2564,14 +2564,14 @@ def settings_view(request):
                 css_class='form-group col-md-1'),
             css_class='form-row'),
         Div(
-            Div('rate_eur', css_class='form-group col-md-1 bg-info'),
-            Div('rate_usd', css_class='form-group col-md-1'),
-            Div('rate_cad', css_class='form-group col-md-1'),
-            Div('rate_gbp', css_class='form-group col-md-1'),
+            Div('rate_EUR', css_class='form-group col-md-1 bg-info'),
+            Div('rate_USD', css_class='form-group col-md-1'),
+            Div('rate_CAD', css_class='form-group col-md-1'),
+            Div('rate_GBP', css_class='form-group col-md-1'),
             css_class='form-row'),
         HTML('<button class="btn btn-outline-info" type="submit">' +
         _('Update') + '</button>'))
-    form.fields['rate_eur'].widget.attrs['readonly'] = True
+    form.fields['rate_EUR'].widget.attrs['readonly'] = True
 
     context = {
         'title': _('Settings'),
@@ -2790,7 +2790,7 @@ def get_revenue(start_date, end_date, currency):
 def get_this_year_revenue():
     end_date = datetime.date.today()
     start_date = end_date.replace(day=1)
-    currencies = { 'eur', 'usd', 'cad', 'gbp' }
+    currencies = { 'EUR', 'USD', 'CAD', 'GBP' }
     year_revenue = []
 
     for i in range(start_date.month, 0, -1):

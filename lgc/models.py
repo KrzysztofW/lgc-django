@@ -17,10 +17,22 @@ log = logging.getLogger('lgc')
 User = get_user_model()
 
 class Currencies(models.Model):
-    rate_eur = models.FloatField('EUR', default=0)
-    rate_usd = models.FloatField('USD', default=0)
-    rate_cad = models.FloatField('CAD', default=0)
-    rate_gbp = models.FloatField('GBP', default=0)
+    rate_EUR = models.FloatField('EUR', default=0)
+    rate_USD = models.FloatField('USD', default=0)
+    rate_CAD = models.FloatField('CAD', default=0)
+    rate_GBP = models.FloatField('GBP', default=0)
+    currency = 'EUR'
+
+    @property
+    def rate(self):
+        attr = 'rate_' + self.currency
+        if hasattr(self, attr):
+            return getattr(self, attr)
+        return 0
+
+    @classmethod
+    def set_currency(cls, currency):
+        cls.currency = currency
 
     class Meta:
         abstract = True

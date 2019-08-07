@@ -63,10 +63,10 @@
     });
 
 {% if settings %}
-    var devises = {"CAD": {{ settings.rate_cad|unlocalize }},
-		   "EUR": {{ settings.rate_eur|unlocalize }},
-		   "GBP": {{ settings.rate_gbp|unlocalize }},
-		   "USD": {{ settings.rate_usd|unlocalize }},
+    var devises = {"CAD": {{ settings.rate_CAD|unlocalize }},
+		   "EUR": {{ settings.rate_EUR|unlocalize }},
+		   "GBP": {{ settings.rate_GBP|unlocalize }},
+		   "USD": {{ settings.rate_USD|unlocalize }},
 		  };
 {% endif %}
 

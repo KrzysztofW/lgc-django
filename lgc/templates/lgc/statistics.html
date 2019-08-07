@@ -229,7 +229,7 @@
  config = {
    data: data,
    xkey: 'm',
-   ykeys: ['eur', 'usd', 'cad', 'gbp'],
+   ykeys: ['EUR', 'USD', 'CAD', 'GBP'],
    labels: ['Euro', 'Dollar', '{% trans "Canadian dollar" %}',
 	    '{% trans "Pound" %}'],
    fillOpacity: 0.6,
@@ -249,10 +249,10 @@ year_revenue = Morris.Bar(config);
 last_month_revenue_donut = Morris.Donut({
   element: 'last-month-donut',
   data: [
-    {label: "EUR", value: {{ year_revenue.1.2.eur|unlocalize }}},
-    {label: "Dollar", value: {{ year_revenue.1.2.usd|unlocalize }}},
-    {label: "CAD", value: {{ year_revenue.1.2.cad|unlocalize }}},
-    {label: "GBP", value: {{ year_revenue.1.2.gbp|unlocalize }}}
+    {label: "EUR", value: {{ year_revenue.1.2.EUR|unlocalize }}},
+    {label: "Dollar", value: {{ year_revenue.1.2.USD|unlocalize }}},
+    {label: "CAD", value: {{ year_revenue.1.2.CAD|unlocalize }}},
+    {label: "GBP", value: {{ year_revenue.1.2.GBP|unlocalize }}}
   ]
  });
 

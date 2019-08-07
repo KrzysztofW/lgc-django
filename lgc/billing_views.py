@@ -1206,10 +1206,10 @@ class InvoiceItemCommonView(BillingTestLocalUser):
             aria_expanded = "false"
 
         if self.model == lgc_models.Item:
-            rate_div = Div(Div('rate_eur', css_class='form-group col-md-1'),
-                           Div('rate_usd', css_class='form-group col-md-1'),
-                           Div('rate_cad', css_class='form-group col-md-1'),
-                           Div('rate_gbp', css_class='form-group col-md-1'),
+            rate_div = Div(Div('rate_EUR', css_class='form-group col-md-1'),
+                           Div('rate_USD', css_class='form-group col-md-1'),
+                           Div('rate_CAD', css_class='form-group col-md-1'),
+                           Div('rate_GBP', css_class='form-group col-md-1'),
                            css_class='form-row')
         else:
             rate_div = Div(Div('rate', css_class='form-group col-md-1'),
@@ -1252,16 +1252,13 @@ class InvoiceItemCommonView(BillingTestLocalUser):
             context['type'] = 'disbursement'
             if lgc_models.Settings.objects.count() == 0:
                 settings = lgc_models.Settings()
-                settings.rate_eur = 1
+                settings.rate_EUR = 1
                 settings.save()
 
             context['settings'] = lgc_models.Settings.objects.all()[0]
             return context
 
-        for obj in context['object_list']:
-            attr = 'rate_' + currency.lower()
-            if hasattr(obj, attr):
-                obj.rate = getattr(obj, attr)
+        lgc_models.Item.set_currency(currency)
         context['type'] = 'item'
         return context
 
