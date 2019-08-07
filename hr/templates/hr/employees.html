@@ -22,7 +22,7 @@
   </thead>
   <tbody>
     {% for obj in object_list %}
-    <tr data-href="{% url update_url obj.id %}"
+    <tr data-href={% if obj.employee_user_set %}{% url 'hr-employee-file' obj.employee_user_set.id %}{% endif %}
 	{% if obj.status == 'P' %}
 	class="clickable-row table-warning"
 	{% elif obj.status == 'A' %}
@@ -39,11 +39,6 @@
 	{% trans "Pending" %}
 	{% elif obj.status == 'A' %}
 	{% trans "Accepted" %}
-	{% if obj.employee_user_set %}
-	<a href="{% url 'hr-employee-file' obj.employee_user_set.id %}">
-	  ({% trans 'View file' %})
-	</a>
-	{% endif %}
 	{% else %}
 	{% trans "Refused" %}
 	{% endif %}
