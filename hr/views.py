@@ -156,7 +156,7 @@ class UpdateAccountByHR(CommonAccountByHR, UpdateView):
                                                self.object.id)
 class PersonUpdateView(lgc_views.PersonUpdateView):
     model = employee_models.Employee
-    title = _('Employee File')
+    title = ugettext_lazy('Employee File')
 
     def get_success_url(self):
         return reverse_lazy('hr-employee-file', kwargs={'pk':self.object.id})
