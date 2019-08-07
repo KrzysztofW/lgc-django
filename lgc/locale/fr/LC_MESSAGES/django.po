@@ -2091,7 +2091,7 @@ msgstr "Nouveau compte RH"
 
 #: views.py:2447
 msgid "Initiate account"
-msgstr "Initier un compte RH"
+msgstr "Initier un compte"
 
 #: views.py:2454
 msgid "HR account successfully updated"
