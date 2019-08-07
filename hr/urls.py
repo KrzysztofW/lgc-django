@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from lgc import views as lgc_views
 
 urlpatterns = [
     path('expirations/', views.hr_expirations, name='hr-expirations'),
@@ -11,4 +12,5 @@ urlpatterns = [
          name='hr-update-account'),
     path('delete/<int:pk>', views.HRDeleteAccountView.as_view(),
          name='hr-delete-account'),
+    path('download/<int:pk>/', lgc_views.download_file, name='hr-download-file'),
 ]

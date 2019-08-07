@@ -107,23 +107,24 @@ def home(request):
 def tables(request):
     return render(request, 'lgc/tables.html', {'title':'Tables'})
 
+def user_access_test(request, obj_user):
+    if request.user.role in user_models.get_internal_roles():
+        return True
+
+    """ Employee check """
+    if request.user.role == user_models.ROLE_EMPLOYEE:
+        return obj_user == request.user
+
+    """ HR check """
+    if request.user.role in user_models.get_hr_roles():
+        return obj_user in request.user.hr_employees.all()
+
+    return False
+
 class UserTest(UserPassesTestMixin):
     def test_func(self):
-        if self.request.user.role in user_models.get_internal_roles():
-            return True
-
         self.object = self.get_object()
-        """ Employee check """
-        if (self.request.user.role == user_models.ROLE_EMPLOYEE and
-            self.object.user == self.request.user):
-            return True
-
-        """ HR check """
-        if (self.request.user.role in user_models.get_hr_roles() and
-            self.object.user in self.request.user.hr_employees.all()):
-            return True
-
-        return False
+        return user_access_test(self.request, self.object.user)
 
 class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
     template_name = 'lgc/sub_generic_list_with_search_form.html'
@@ -799,7 +800,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         context['formsets'] = self.get_person_formsets()
         model = self.get_model(self.object)
         if model == employee_models:
-            context['doc_download_url'] = 'employee-download-file'
+            if self.request.user.role in user_models.get_hr_roles():
+                context['doc_download_url'] = 'hr-download-file'
+            else:
+                context['doc_download_url'] = 'employee-download-file'
         else:
             context['doc_download_url'] = 'lgc-download-file'
 
@@ -2661,8 +2665,7 @@ def download_file(request, *args, **kwargs):
     except:
         raise Http404
 
-    if (request.user.role not in user_models.get_internal_roles() and
-        doc.person.user and doc.person.user.id != request.user.id):
+    if not user_access_test(request, doc.person.user):
         return http.HttpResponseForbidden()
 
     file_path = os.path.join(settings.MEDIA_ROOT, doc.document.name)
