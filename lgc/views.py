@@ -1280,6 +1280,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
             if 'responsible' in form.changed_data:
                 session_cache_del(self.request.session, 'process_progress')
 
+            update_form = False
             if doc.cleaned_data['document'] != None:
                 doc.instance = lgc_models.Document()
                 doc.instance.document = doc.cleaned_data['document']
@@ -1288,6 +1289,7 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 doc.instance.uploaded_by = self.request.user
                 if type(self.object) == employee_models.Employee:
                     doc.instance.added = True
+                    update_form = True
                 doc.save()
 
             self.set_employee_data(form, formsets)
@@ -1307,6 +1309,11 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                     else:
                         d.instance.deleted = True
                         d.instance.save()
+                        update_form = True
+
+            if update_form:
+                form.instance.updated = True
+                form.save()
 
         messages.success(self.request, self.success_message)
         return http.HttpResponseRedirect(self.get_success_url())
