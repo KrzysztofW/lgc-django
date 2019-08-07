@@ -888,6 +888,32 @@ class Client(AbstractClient):
     billing_city = models.CharField(_('City'), max_length=50, blank=True)
     billing_country = CountryField(_('Country'), blank=True)
 
+    @property
+    def get_company(self):
+        if self.billing_company:
+            return self.billing_company
+        return self.company
+    @property
+    def get_address(self):
+        if self.billing_address:
+            return self.billing_address
+        return self.address
+    @property
+    def get_post_code(self):
+        if self.billing_post_code:
+            return self.billing_post_code
+        return self.post_code
+    @property
+    def get_city(self):
+        if self.billing_city:
+            return self.billing_city
+        return self.city
+    @property
+    def get_country(self):
+        if self.billing_country:
+            return self.billing_country
+        return self.country
+
     class Meta:
         unique_together = ('first_name', 'last_name', 'company')
 

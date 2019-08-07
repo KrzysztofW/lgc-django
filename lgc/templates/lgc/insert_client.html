@@ -17,7 +17,7 @@
           </thead>
           <tbody>
 	    {% for obj in object_list %}
-            <tr onclick="insert('{{ obj.id }}', '{{ obj.first_name|urlencode }}', '{{ obj.last_name|urlencode }}', '{{ obj.company|urlencode }}', '{% if obj.siret %}{{ obj.siret }}{% endif %}', '{{ obj.address|urlencode }}', '{{ obj.post_code }}', '{{ obj.city|urlencode }}', '{{ obj.country.name|urlencode }}');">
+            <tr onclick="insert('{{ obj.id }}', '{{ obj.first_name|urlencode }}', '{{ obj.last_name|urlencode }}', '{{ obj.get_company|urlencode }}', '{% if obj.siret %}{{ obj.siret }}{% endif %}', '{{ obj.get_address|urlencode }}', '{{ obj.get_post_code }}', '{{ obj.get_city|urlencode }}', '{{ obj.get_country.name|urlencode }}');">
 	      <td>{{ obj.id }}</td>
 	      <td>{{ obj.first_name }}</td>
 	      <td>{{ obj.last_name }}</td>

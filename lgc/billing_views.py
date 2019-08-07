@@ -741,12 +741,11 @@ class InvoiceCommonView(BillingTestLocalUser):
         return len(self.form_diff) or formsets_diff
 
     def set_client_billing_addr(self, client, invoice):
-        if client.billing_address:
-            invoice.company = client.billing_company
-            invoice.address = client.billing_address
-            invoice.post_code = client.billing_post_code
-            invoice.city = client.billing_city
-            invoice.country = client.billing_country
+            invoice.company = client.get_company
+            invoice.address = client.get_address
+            invoice.post_code = client.get_post_code
+            invoice.city = client.get_city
+            invoice.country = client.get_country
 
     def form_valid(self, form):
         if self.object:
@@ -1144,18 +1143,9 @@ def invoice_insert_client(request):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
 
-    object_list = []
-    for obj in lgc_models.Client.objects.all():
-        if obj.billing_address:
-            obj.company = obj.billing_company
-            obj.address = obj.billing_address
-            obj.post_code = obj.billing_post_code
-            obj.city = obj.billing_city
-            obj.country = obj.billing_country
-        object_list.append(obj)
     context = {
         'title': _('Insert Client'),
-        'object_list': object_list,
+        'object_list': lgc_models.Client.objects.all(),
     }
     return render(request, 'lgc/insert_client.html', context)
 
