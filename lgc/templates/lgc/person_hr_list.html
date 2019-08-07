@@ -1,0 +1,33 @@
+{% load i18n %}
+{% trans "Click here to manage this person's account profile: " %}
+<a href="{% url 'lgc-account' object.user.id %}">{% trans 'update profile' %}</a><br><br>
+
+<div class="form-row">
+<div class="panel panel-default">
+  <div class="panel-heading">{% trans 'HR list' %}</div>
+  <div class="panel-body">
+    <table id="client_id" class="display table table-striped table-bordered table-hover" style="width:100%">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>{% trans 'First Name' %}</th>
+          <th>{% trans 'Last Name' %}</th>
+          <th>{% trans 'Company' %}</th>
+          <th>E-mail</th>
+        </tr>
+      </thead>
+      <tbody>
+	{% for obj in hr_list %}
+        <tr class="clickable-row" data-href="{% url 'lgc-hr' obj.id %}">
+	  <td>{{ obj.id }}</td>
+	  <td>{{ obj.first_name }}</td>
+	  <td>{{ obj.last_name }}</td>
+	  <td>{{ obj.company }}</td>
+	  <td>{{ obj.email }}</td>
+        </tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>

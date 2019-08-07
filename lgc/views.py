@@ -401,16 +401,14 @@ def local_user_get_person_form_layout(user, form, action, obj,
     if obj:
         external_profile = LgcTab(_('Account Profile'))
         if obj.user:
-            html = (_("Click here to manage this person's account profile: ") +
-                    '&nbsp;<a href="' +
-                    str(reverse_lazy('lgc-account', kwargs={'pk': obj.user.id})) +
-                    '">' + _('update profile') + '</a><br><br>')
+            elem = HTML(get_template(CURRENT_DIR, 'lgc/person_hr_list.html'))
         else:
-            html = (_('The profile for this person does not exist. Follow this link to create it: ') +
+            elem = (_('The profile for this person does not exist. Follow this link to create it: ') +
                     '&nbsp;<a href="' +
                     str(reverse_lazy('lgc-account-link', kwargs={'pk': obj.id})) +
                     '">' + _('create profile') + '</a><br><br>')
-        external_profile.append(Div(HTML(html), css_class='form-row'))
+            elem = Div(HTML(elem), css_class='form-row')
+        external_profile.append(elem)
 
     if obj:
         process_tab = LgcTab(_('Processes'))
@@ -450,7 +448,7 @@ def local_user_get_person_form_layout(user, form, action, obj,
     if obj and user.is_staff:
         layout.append(HTML('&nbsp;<a href="' +
                            str(reverse_lazy('lgc-file-delete', kwargs={'pk': obj.id})) +
-                           '"class="btn btn-outline-info">' +
+                           '" class="btn btn-outline-info">' +
                            _('Delete') + '</a>'))
     form.helper.layout = layout
     return form
@@ -838,6 +836,9 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         if self.object:
             if self.request.user.role in user_models.get_internal_roles():
                 obj = self.object
+                if (hasattr(self.object, 'user') and
+                    hasattr(self.object.user, 'hr_employees')):
+                    context['hr_list'] = self.object.user.hr_employees.all()
             else:
                 emp_obj = self.get_object()
                 obj = emp_obj.user.person_user_set

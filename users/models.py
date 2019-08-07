@@ -135,8 +135,7 @@ class User(AbstractUser):
     status = models.CharField(max_length=2, choices=USER_STATUS_CHOICES,
                               default=USER_STATUS_PENDING)
     responsible = models.ManyToManyField("self", blank=True)
-    hr_employees = models.ManyToManyField("self", blank=True,
-                                          related_name='hr_employee_set')
+    hr_employees = models.ManyToManyField("self", blank=True)
     language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES,
                                 default=EN)
     company = models.CharField(max_length=50, blank=True)
