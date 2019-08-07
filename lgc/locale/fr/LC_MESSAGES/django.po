@@ -416,12 +416,12 @@ msgstr "Responsables"
 
 #: forms.py:143
 msgid "Send new token"
-msgstr "Envoyer un nouveau jetton"
+msgstr "Envoyer un nouveau jeton"
 
 #: forms.py:144
 msgid "Send authentication token allowing to choose a new password."
 msgstr ""
-"Envoyer un jetton d'authentification pour permettre à l'utilisateur de "
+"Envoyer un jeton d'authentification pour permettre à l'utilisateur de "
 "choisir un nouveau mot de passe."
 
 #: forms.py:160
@@ -856,7 +856,7 @@ msgstr "Adresse personnelle en France"
 
 #: models.py:547 models.py:879
 msgid "Local Phone Number"
-msgstr "Numéro de télépone en France"
+msgstr "Numéro de téléphone en France"
 
 #: models.py:551
 msgid "Foreign Address"
@@ -1223,7 +1223,7 @@ msgstr ""
 
 #: templates/lgc/dropdown_menu_complete.html:48
 msgid "See All Moderations"
-msgstr "Afficher toutes les moderations"
+msgstr "Afficher toutes les modérations"
 
 #: templates/lgc/dropdown_menu_complete.html:54
 msgid "No pending moderations"
@@ -1662,7 +1662,7 @@ msgstr "Utilisateurs internes"
 
 #: templates/lgc/statistics.html:74
 msgid "External Users"
-msgstr "Utilisateurs exernes"
+msgstr "Utilisateurs externes"
 
 #: templates/lgc/statistics.html:103
 msgid "Expirations count"
@@ -1745,7 +1745,7 @@ msgstr "Profile utilisateur"
 msgid ""
 "The profile for this person does not exist. Follow this link to create it: "
 msgstr ""
-"Le compte utilisateur de cette personne n'existe pas. Cliquez sur ce lient "
+"Le compte utilisateur de cette personne n'existe pas. Cliquez sur ce lien "
 "pour le créer :"
 
 #: views.py:409
@@ -2017,7 +2017,7 @@ msgstr "ID fiche"
 
 #: views.py:2025
 msgid "Processes ready to invoice"
-msgstr "Procédures prête à facturer."
+msgstr "Procédures prêtes à facturer"
 
 #: views.py:2053
 msgid "Pending Processes"
@@ -2042,7 +2042,7 @@ msgstr "La page comporte des erreurs"
 
 #: views.py:2256
 msgid "Employee Accounts"
-msgstr "Comptes des salariés"
+msgstr "Comptes salariés"
 
 #: views.py:2289
 msgid "Account successfully updated"

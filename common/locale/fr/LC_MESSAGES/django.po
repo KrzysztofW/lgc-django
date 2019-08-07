@@ -46,7 +46,7 @@ msgstr[0] ""
 "      "
 msgstr[1] ""
 "\n"
-"      %(entries)s élements\n"
+"      %(entries)s éléments\n"
 "      "
 
 #: templates/common/pagination_buttons.html:19

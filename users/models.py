@@ -136,9 +136,9 @@ class User(AbstractUser):
                               default=USER_STATUS_PENDING)
     responsible = models.ManyToManyField("self", blank=True)
     hr_employees = models.ManyToManyField("self", blank=True)
-    language = models.CharField(max_length=2, choices=LANGUAGE_CHOICES,
+    language = models.CharField(_('Language'), max_length=2, choices=LANGUAGE_CHOICES,
                                 default=EN)
-    company = models.CharField(max_length=50, blank=True)
+    company = models.CharField(_('Company'), max_length=50, blank=True)
 
     def __str__(self):
         if self.first_name != '' or self.last_name != '':
