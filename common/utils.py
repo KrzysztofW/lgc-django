@@ -20,6 +20,7 @@ from pathlib import Path
 
 MSG_TPL_DIR = 'msg_tpls'
 CURRENT_DIR = Path(__file__).parent
+ms_email_domains = ['hotmail', 'outlook', 'live', 'msg', 'passport']
 
 def must_be_staff(view_func):
     @wraps(view_func)
@@ -116,6 +117,14 @@ def lgc_send_email(obj, action, from_user):
         translation.activate(prev_lang)
         return
 
+    email_hostname = obj.email.split("@", 1)[1]
+    email_hostname = email_hostname.split(".", 1)[0]
+
+    if email_hostname in ms_email_domains:
+        logo_url = settings.SITE_URL + '/static/lgc/images/mail_logo.png'
+    else:
+        logo_url = get_template(CURRENT_DIR, 'common/' + 'logo_inline_image.txt')
+
     tpl_txt = tpl + '.txt'
     tpl_html = tpl + '.html'
     msg_tpl = Template(get_template(CURRENT_DIR, 'common/' + tpl_txt)).render(Context())
@@ -130,10 +139,12 @@ def lgc_send_email(obj, action, from_user):
 
     from_name = from_user.first_name + ' ' + from_user.last_name
     msg = msg_tpl.substitute(PERSON_NAME=name, URL=settings.SITE_URL,
-                             TOKEN_URL=token_url, PERSON_IN_CHARGE=from_name)
+                             TOKEN_URL=token_url, PERSON_IN_CHARGE=from_name,
+                             LOGO_URL=logo_url)
     msg_html = msg_tpl_html.substitute(PERSON_NAME=name, URL=settings.SITE_URL,
                                        TOKEN_URL=token_url,
-                                       PERSON_IN_CHARGE=from_name)
+                                       PERSON_IN_CHARGE=from_name,
+                                       LOGO_URL=logo_url)
     to = name + '<' + obj.email + '>'
 
     ret = send_mail(subject, msg, from_name + ' <' + from_user.email + '>',
