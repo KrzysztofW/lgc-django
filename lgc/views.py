@@ -2703,7 +2703,8 @@ def expirations_filter_objs(request, objs):
     if not expires:
         request.GET = request.GET.copy()
         request.GET['expires'] = settings.EXPIRATIONS_NB_DAYS
-        request.GET['user'] = request.user.id
+        if request.user.role not in user_models.get_hr_roles():
+            request.GET['user'] = request.user.id
         if (request.user.role in user_models.get_internal_roles() and
             request.user.role != user_models.ROLE_NONE):
             objs = objs.filter(person__responsible=request.user)

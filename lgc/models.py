@@ -721,7 +721,8 @@ class Document(models.Model):
     def file_exists(self):
         return os.path.isfile(self.document.path)
 
-class ExpirationCommon(models.Model):
+class Expiration(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
     label = _('Visas / Residence Permits / Work Permits')
     type = models.CharField(max_length=7, default='', choices=EXPIRATION_CHOICES + EXPIRATION_CHOICES_DCEM)
     start_date = models.DateField(null=True, default=None)
@@ -731,12 +732,6 @@ class ExpirationCommon(models.Model):
     def clean(self, model_class=None):
         check_dates(self.start_date, self.end_date, self.label)
         return super().clean()
-
-    class Meta:
-        abstract = True
-
-class Expiration(ExpirationCommon):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
 class ArchiveBox(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)

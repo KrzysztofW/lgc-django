@@ -237,3 +237,11 @@ def lgc_truncatewords(value, arg):
     except ValueError:  # Invalid literal for int().
         return value  # Fail silently.
     return Truncator(value).words(length, html=True, truncate='')
+
+@register.simple_tag
+def expiration_get_user_url(user, person):
+    if user.role == user_models.ROLE_EMPLOYEE:
+        return reverse_lazy('employee-file') + '?tab=lgc-tab-documents'
+    if user.role in user_models.get_hr_roles():
+        return reverse_lazy('hr-employee-file', kwargs={'pk':person.user.employee_user_set.id})
+    return reverse_lazy('lgc-file', kwargs={'pk': person.id})

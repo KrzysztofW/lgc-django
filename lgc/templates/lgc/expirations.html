@@ -42,8 +42,10 @@
 	    {% get_table_th _('Expiration Date') 'end_date' order_by order_params %}
 	  </thead>
 	  <tbody>
+	    {% load custom_tags %}
 	    {% for o in page_obj %}
-	    <tr data-href="{% if request.user.role != 'EM' %}{% url 'lgc-file' o.person.id %}{% else %}{% url 'employee-file' %}?tab=lgc-tab-documents{% endif %}"
+	    {% expiration_get_user_url request.user o.person as get_user_url %}
+	    <tr data-href="{{ get_user_url }}"
 		{% if not o.enabled %}
 		class="clickable-row table-secondary"
 		{% else %}
