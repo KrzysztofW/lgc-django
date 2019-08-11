@@ -1,0 +1,61 @@
+{% load i18n %}<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <meta name="generator" content="LibreOffice 6.0.7.3 (Linux)"/>
+    <meta name="author" content="office"/>
+    <meta name="created" content="2019-03-01T16:05:00"/>
+    <meta name="changedby" content="office"/>
+    <meta name="changed" content="2019-06-06T14:35:00"/>
+    <style type="text/css">
+      @page { size: 215.9mm 279.4mm; margin: 25.4mm }
+      p { margin-bottom: 2.47mm; direction: ltr; color: #000000; line-height: 115%; orphans: 2; widows: 2 }
+      p.western { font-family: "Calibri", sans-serif; font-size: 11pt; so-language: en-US }
+      p.cjk { font-family: "Calibri", sans-serif; font-size: 11pt }
+      p.ctl { font-family: "Times New Roman", serif; font-size: 11pt; so-language: ar-SA }
+      a:link { color: #0000ff }
+    </style>
+  </head>
+  <body lang="fr-FR" text="#000000" link="#0000ff" dir="ltr">
+    <p lang="en-US" class="western" align="justify" style="margin-bottom: 3.53mm">
+      <font face="Arial, sans-serif">
+	<span lang="fr-FR">{% trans 'Dear ${PERSON_NAME}' %},</span>
+      </font>
+    </p>
+    <p lang="en-US" class="western" align="justify" style="margin-bottom: 3.53mm">
+      <font face="Arial, sans-serif">
+	{% blocktrans %}
+	Following your request, we confirm that your &quot;LGC&quot; account has been deleted in accordance
+	with Article 17.1 of the General Data Protection Regulation (GDPR) on
+	the Right to Erasure (&quot;Right to be Forgotten&quot;).
+	{% endblocktrans %}
+    </font></p>
+    <p lang="en-US" class="western" align="justify" style="margin-bottom: 3.53mm">
+      <font face="Arial, sans-serif">
+	{% trans 'Your personal data will no longer be accessible.' %}</font></p>
+    <p lang="en-US" class="western" align="justify" style="margin-bottom: 3.53mm">
+      <font face="Arial, sans-serif">
+	{% trans 'If this is an error, please contact me.' %}</font></p>
+    <p lang="en-US" class="western" align="justify" style="margin-bottom: 3.53mm">
+      <font face="Arial, sans-serif">{% trans 'Best regards' %},</font></p>
+    <p lang="en-US" class="western" align="justify" style="margin-bottom: 3.53mm">
+      <br/>
+    </p>
+    <p lang="en-US" class="western" style="margin-bottom: 3.53mm"> <font face="Arial, sans-serif">
+	${PERSON_IN_CHARGE}</font></p>
+    <p class="western" style="margin-bottom: 3.53mm"><font face="Arial, sans-serif">
+	Office</font></p>
+    <p class="western" style="margin-bottom: 3.53mm"><font face="Arial, sans-serif">
+	Address</font></p>
+    <p class="western" style="margin-bottom: 3.53mm"><font face="Arial, sans-serif">
+	London</font></p>
+    <p class="western" style="margin-bottom: 3.53mm"><font face="Arial, sans-serif">Tel :
+	+00 (0) 1 23 34 45 56</font></p>
+    <p class="western" lang="en-US" style="margin-bottom: 3.53mm"><font color="#0000ff"><u><a href="http://www.example.com/"><font face="Arial, sans-serif"><span lang="fr-FR">www.example.com</span></font></a></u></font><font face="Arial, sans-serif"><span lang="fr-FR">
+      </span></font>
+    </p>
+    <p lang="fr-FR" style="margin-bottom: 3.53mm"><font color="#0070c0"><img src="https://lgc.example.com/static/lgc/images/mail_logo.png" name="Image2" align="bottom" width="125" height="70" border="0"/>
+    </font></p>
+  </body>
+</html>

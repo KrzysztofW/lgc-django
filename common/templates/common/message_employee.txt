@@ -1,0 +1,29 @@
+{% extends 'common/message_hr.txt' %}{% load i18n %}{% block how_to_complete_the_form %}
+    * {% trans 'How to complete your on-line form?' %}
+{% blocktrans %}
+1. Once you have selected your password, please connect using your email
+address and your password.
+
+2. On the home page, select « My case »
+
+3. Proceed to fill out the forms using your personal information.
+You must confirm at least the following information in order validate the
+questionnaire:
+{% endblocktrans %}
+    * {% trans 'Last Name' %}
+    * {% trans 'First Name' %}
+    * {% trans 'Email' %}
+    * {% trans 'Date of Birth' %}
+{% blocktrans %}
+The field « Foreigner ID » corresponds to the 10 digit number written on the
+middle right side of your residence permit or on the OFII validation documents.
+If you do not hold a French residence permit yet, please ignore this field.
+
+4. Once the questionnaire has been filled out, please click on « update » in
+the lower part of the page. You will be able to amend or update the information
+on this form at any time during our assistance.
+
+5. You may upload all the documents that we will ask you to provide throughout
+your process on the thumbnail « Documents ». This is also where you will find a
+copy of the documents we wish to share with you.
+{% endblocktrans %}{% endblock how_to_complete_the_form %}

@@ -13,11 +13,13 @@ from django.core.mail import send_mail
 from django.http import Http404
 from functools import wraps
 from users.models import INTERNAL_ROLE_CHOICES
-from string import Template
+from string import Template as string_template
+from django.template import Context, Template
 from common import lgc_types
 from pathlib import Path
 
 MSG_TPL_DIR = 'msg_tpls'
+CURRENT_DIR = Path(__file__).parent
 
 def must_be_staff(view_func):
     @wraps(view_func)
@@ -96,13 +98,7 @@ def queue_request(req_type, action, id, form, relations = None):
     with open(filename, "w") as f:
         f.write(s + "\n")
 
-def read_template(filename):
-    path = os.path.join(settings.BASE_DIR, 'common', MSG_TPL_DIR, filename)
-    with open(path, 'r', encoding='utf-8') as template_file:
-        template_file_content = template_file.read()
-    return Template(template_file_content)
-
-def lgc_send_email(obj, action, from_name=''):
+def lgc_send_email(obj, action, from_user):
     prev_lang = translation.get_language()
     lang = obj.language.lower()
     translation.activate(lang)
@@ -120,24 +116,30 @@ def lgc_send_email(obj, action, from_name=''):
         translation.activate(prev_lang)
         return
 
-    translation.activate(prev_lang)
-    tpl_txt = tpl + '_' + lang + '.txt'
-    tpl_html = tpl + '_' + lang + '.html'
-    msg_tpl = read_template(tpl_txt)
-    msg_tpl_html = read_template(tpl_html)
+    tpl_txt = tpl + '.txt'
+    tpl_html = tpl + '.html'
+    msg_tpl = Template(get_template(CURRENT_DIR, 'common/' + tpl_txt)).render(Context())
+    msg_tpl_html = Template(get_template(CURRENT_DIR, 'common/' + tpl_html)).render(Context())
+
+    msg_tpl = string_template(msg_tpl)
+    msg_tpl_html = string_template(msg_tpl_html)
 
     name = obj.first_name + ' ' + obj.last_name
-    url = reverse_lazy('user-token')[3:]
-    url = settings.SITE_URL + '/' + lang + url + '?token=' + obj.token
+    token_url = reverse_lazy('user-token')[3:]
+    token_url = settings.SITE_URL + '/' + lang + token_url + '?token=' + obj.token
 
-    msg = msg_tpl.substitute(PERSON_NAME=name, URL=url,
-                             PERSON_IN_CHARGE=from_name)
-    msg_html = msg_tpl_html.substitute(PERSON_NAME=name, URL=url,
+    from_name = from_user.first_name + ' ' + from_user.last_name
+    msg = msg_tpl.substitute(PERSON_NAME=name, URL=settings.SITE_URL,
+                             TOKEN_URL=token_url, PERSON_IN_CHARGE=from_name)
+    msg_html = msg_tpl_html.substitute(PERSON_NAME=name, URL=settings.SITE_URL,
+                                       TOKEN_URL=token_url,
                                        PERSON_IN_CHARGE=from_name)
     to = name + '<' + obj.email + '>'
 
-    ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
+    ret = send_mail(subject, msg, from_name + ' <' + from_user.email + '>',
                     [to], html_message=msg_html)
+
+    translation.activate(prev_lang)
     if ret != 1:
         raise RuntimeError('cannot send email')
 

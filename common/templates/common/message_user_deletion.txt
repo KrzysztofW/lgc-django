@@ -1,18 +1,17 @@
- 
-Dear ${PERSON_NAME},
- 
+{% load i18n %}{% trans 'Dear ${PERSON_NAME}' %},
+{% blocktrans %}
 Following your request, we confirm that your "LGC" account has been deleted
 in accordance with Article 17.1 of the General Data Protection Regulation
 (GDPR) on the Right to Erasure ("Right to be Forgotten").
- 
-Your personal data will no longer be accessible.
-If this is an error, please contact me.
-Best regards,
- 
+{% endblocktrans %}
+{% trans 'Your personal data will no longer be accessible.' %}
+{% trans 'If this is an error, please contact me.' %}
+{% trans 'Best regards' %},
+
 ${PERSON_IN_CHARGE}
 Office
 34 Address
  London
 Tel : +00 (0) 1 23 34 45 56
 www.example.com
- 
+
