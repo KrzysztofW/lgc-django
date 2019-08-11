@@ -1,8 +1,9 @@
 {% extends 'common/message_hr.html' %}{% load i18n %}{% block how_to_complete_the_form %}
     <ul>
-      <li/>
+      <li>
       <p lang="en-US" class="western" style="margin-bottom: 3.53mm; line-height: 115%">
 	<font color="#0070c0"><b>{% trans 'How to complete your on-line form?' %}</b></font></p>
+      </li>
     </ul>
     {% blocktrans %}
 
@@ -17,10 +18,10 @@ questionnaire:
 
     {% endblocktrans %}
     <ul>
-      <li/>{% trans 'Last Name' %}<br>
-      <li/>{% trans 'First Name' %}<br>
-      <li/>Email<br>
-      <li/>{% trans 'Date of Birth' %}<br>
+      <li>{% trans 'Last Name' %}</li><br>
+      <li>{% trans 'First Name' %}</li><br>
+      <li>Email</li><br>
+      <li>{% trans 'Date of Birth' %}</li><br>
     </ul>
     {% blocktrans %}
 
