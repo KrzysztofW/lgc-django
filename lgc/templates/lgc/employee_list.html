@@ -115,7 +115,9 @@ function addEmployee() {
 	    {% if forloop.last %}
 	    {% if form.hidden_fields.0.value %}
 	    <td>
+	      {% if is_editable %}
 	      <input id="array_del" class="btn btn-light" value="X" onclick="removeEmployee(this, {{ forloop.parentloop.counter0 }})" type="button" name="">
+	      {% endif %}
 	    </td>
 	    {% endif %}
 	    {% endif %}
@@ -126,7 +128,8 @@ function addEmployee() {
       </table>
     </div>
   </div>
-    <div class="row">
+  {% if is_editable %}
+  <div class="row">
     <div class="col-sm-12 col-md-6">
       <div class="dataTables_filter">
 	<input type="hidden" id="search" ajax-search="{% url 'lgc-insert-employee' %}" delim="break" value="">
@@ -142,5 +145,5 @@ function addEmployee() {
       </label>
     </div>
   </div>
-
+  {% endif %}
 </div>

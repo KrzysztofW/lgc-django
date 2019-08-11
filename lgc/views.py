@@ -2141,15 +2141,16 @@ def get_hr_account_form(form, action, uid, new_token=False):
     else:
         form.helper.layout = get_account_layout(Layout(), new_token, is_hr=True)
 
-    form.helper.layout.append(
-        HTML('<button class="btn btn-outline-info" type="submit">' +
-             str(action) + '</button>'))
-    if uid:
+    if action:
         form.helper.layout.append(
-            HTML(' <a href="{% url "lgc-hr-delete" ' + str(uid) +
-                 '%}" class="btn btn-outline-danger">' + str(delete_str) +
-                 '</a>')
-        )
+            HTML('<button class="btn btn-outline-info" type="submit">' +
+                 str(action) + '</button>'))
+        if uid:
+            form.helper.layout.append(
+                HTML(' <a href="{% url "lgc-hr-delete" ' + str(uid) +
+                     '%}" class="btn btn-outline-danger">' + str(delete_str) +
+                     '</a>')
+            )
 
     return form
 
@@ -2322,7 +2323,12 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
         form = super().get_form(form_class=self.form_class)
 
         if self.is_hr:
-            return get_hr_account_form(form, self.form_name, self.object.id,
+            """Do not show 'update' and 'delete' buttons for person not in charge"""
+            if self.request.user in self.object.responsible.all():
+                action = self.form_name
+            else:
+                action = None
+            return get_hr_account_form(form, action, self.object.id,
                                        new_token=True)
         return get_account_form(form, self.form_name, self.object.id,
                                 is_staff=self.request.user.is_staff,
@@ -2435,7 +2441,6 @@ class DeleteAccount(AccountView, DeleteView):
 
 class HRView(LoginRequiredMixin):
     req_type = lgc_types.ReqType.HR
-    template_name = 'lgc/generic_form_with_formsets.html'
     model = User
     success_url = 'lgc-hr'
     delete_url = 'lgc-hr-delete'
@@ -2471,6 +2476,11 @@ class HRUpdateView(HRView, UpdateAccount, UserPassesTestMixin):
         context['formset_add_text'] = _('Add an employee')
         EmployeeFormSet = formset_factory(lgc_forms.HREmployeeForm,
                                           extra=0, can_delete=True)
+
+        if self.request.user in self.object.responsible.all():
+            context['is_editable'] = True
+        else:
+            context['is_editable'] = False
 
         set_active_tab(self, context)
         if self.request.POST:
