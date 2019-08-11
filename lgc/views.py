@@ -1177,6 +1177,11 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                     return super().form_invalid(form)
 
         if self.object:
+            if form.instance.is_private and self.object.user.hr_employees.count():
+                messages.error(self.request,
+                               _('The private field cannot be set as HRs are linked with this file.'))
+                return super().form_invalid(form)
+
             if (self.request.user.role in user_models.get_internal_roles() and
                 self.object.state != lgc_models.FILE_STATE_CLOSED and
                 form.cleaned_data['state'] == lgc_models.FILE_STATE_CLOSED and
@@ -2607,7 +2612,7 @@ def ajax_insert_employee_view(request):
         return http.HttpResponseForbidden()
 
     term = request.GET.get('term', '')
-    users = user_models.get_employee_user_queryset()
+    users = user_models.get_employee_user_queryset().filter(person_user_set__is_private=False)
     employees = users.filter(first_name__istartswith=term)|users.filter(last_name__istartswith=term)|users.filter(email__istartswith=term)
     employees = employees[:10]
 
