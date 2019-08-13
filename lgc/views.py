@@ -121,11 +121,14 @@ def user_access_test(request, obj_user):
     if request.user.role in user_models.get_internal_roles():
         return True
 
-    """ Employee check """
+    if obj_user == None:
+        return False
+
+    """Employee check"""
     if request.user.role == user_models.ROLE_EMPLOYEE:
         return obj_user == request.user
 
-    """ HR check """
+    """HR check"""
     if request.user.role in user_models.get_hr_roles():
         return obj_user in request.user.hr_employees.all()
 
@@ -133,7 +136,10 @@ def user_access_test(request, obj_user):
 
 class UserTest(UserPassesTestMixin):
     def test_func(self):
-        self.object = self.get_object()
+        try:
+            self.object = self.get_object()
+        except:
+            return user_access_test(self.request, None)
         return user_access_test(self.request, self.object.user)
 
 class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
