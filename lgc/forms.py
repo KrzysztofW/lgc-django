@@ -20,8 +20,13 @@ empty_select = (('', '----'),)
 
 def datepicker_set_widget_attrs(obj, field, attrs=None, tpl=None):
     if translation.get_language() == 'fr':
-        obj.fields[field].widget = DatePickerInput(format='%d/%m/%Y',
-                                                   attrs=attrs)
+        obj.fields[field].widget = DatePickerInput(
+            options={
+                "format": "DD/MM/YYYY",
+                "locale": "fr",
+            },
+            attrs=attrs
+        )
     else:
         obj.fields[field].widget = DatePickerInput(format='%m/%d/%Y',
                                                    attrs=attrs)
