@@ -2662,7 +2662,6 @@ def ajax_file_search_view(request):
 
     objs = lgc_models.Person.objects
     all_objs = []
-    print('term:', term)
 
     ajax_file_search_find_exact_objs(objs, term, all_objs)
     eterm = term + ' '

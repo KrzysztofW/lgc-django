@@ -39,6 +39,7 @@
 	    {% get_table_th _('First name') 'first_name' order_by order_params %}
 	    {% get_table_th _('Last name') 'last_name' order_by order_params %}
 	    {% get_table_th _('Home entity') 'person__home_entity' order_by order_params %}
+	    {% get_table_th _('Host entity') 'person__host_entity' order_by order_params %}
 	    {% get_table_th _('Expiration Date') 'end_date' order_by order_params %}
 	  </thead>
 	  <tbody>
@@ -66,6 +67,7 @@
 	      <td>{{ o.person.first_name }}</td>
 	      <td>{{ o.person.last_name }}</td>
 	      <td>{{ o.person.home_entity }}</td>
+	      <td>{{ o.person.host_entity }}</td>
 	      <td>{{ o.end_date }}</td>
 	    </tr>
 	    {% endfor %}
