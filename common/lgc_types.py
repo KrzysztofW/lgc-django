@@ -28,3 +28,4 @@ class MsgType(Enum):
     NEW_EM = 1,
     NEW_HR = 2,
     DEL = 3,
+    PW_RST = 4,

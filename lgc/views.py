@@ -54,14 +54,24 @@ delete_str = ugettext_lazy('Delete')
 User = get_user_model()
 CURRENT_DIR = Path(__file__).parent
 
-def token_generator():
+def token_generator(pw_rst=False):
     size = 64
     chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
 
     while True:
         r = ''.join(random.choice(chars) for _ in range(size))
+
+        """set the token type in the 7th byte"""
+        b = (ord(r[7]) & 0xFE) | pw_rst
+        r = r[:6] + chr(b) + r[7:]
+
         if len(User.objects.filter(token=r)) == 0:
             return r
+
+def is_token_pw_rst(token):
+    if len(token) < 64:
+        return False
+    return ord(token[7]) & 1
 
 def save_active_tab(obj):
     obj.request.session['active_tab'] = obj.request.POST.get('active_tab')
@@ -1354,8 +1364,7 @@ def send_delete_email(request, user, success_msg):
     if (request.method == 'POST' and request.POST.get('inform_person') and
         request.POST['inform_person'] == 'on'):
         try:
-            lgc_send_email(user, lgc_types.MsgType.DEL,
-                           request.user.first_name + ' ' + request.user.last_name)
+            lgc_send_email(user, lgc_types.MsgType.DEL, request.user)
         except Exception as e:
             messages.error(request, _('Cannot send email to `%(email)s` (%(err)s)')%{
                 'email':user.email, 'err': str(e)
@@ -2249,7 +2258,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             else:
                 type = lgc_types.MsgType.NEW_EM
             try:
-                lgc_send_email(self.object, type)
+                lgc_send_email(self.object, type, self.request.user)
             except Exception as e:
                 messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
                     'email':self.object.email,
@@ -2390,7 +2399,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             else:
                 type = lgc_types.MsgType.NEW_EM
             try:
-                lgc_send_email(self.object, type)
+                lgc_send_email(self.object, type, self.request.user)
             except Exception as e:
                 messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
                     'email':self.object.email,

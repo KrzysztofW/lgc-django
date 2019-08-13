@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-11 11:15+0200\n"
+"POT-Creation-Date: 2019-08-12 21:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "How to complete your on-line form?"
 msgstr "Comment compléter le formulaire en ligne ?"
 
-#: templates/common/message_employee.html:7
+#: templates/common/message_employee.html:8
 msgid ""
 "\n"
 "\n"
@@ -51,22 +51,22 @@ msgstr ""
 "\n"
 "    "
 
-#: templates/common/message_employee.html:20
+#: templates/common/message_employee.html:21
 #: templates/common/message_employee.txt:13
 msgid "Last Name"
 msgstr "Nom"
 
-#: templates/common/message_employee.html:21
+#: templates/common/message_employee.html:22
 #: templates/common/message_employee.txt:14
 msgid "First Name"
 msgstr "Prénom"
 
-#: templates/common/message_employee.html:23
+#: templates/common/message_employee.html:24
 #: templates/common/message_employee.txt:16
 msgid "Date of Birth"
 msgstr "Date de naissance"
 
-#: templates/common/message_employee.html:25
+#: templates/common/message_employee.html:26
 msgid ""
 "\n"
 "\n"
@@ -234,7 +234,7 @@ msgstr ""
 msgid "How to activate my account on-line?"
 msgstr "Comment activer votre compte sur notre plate-forme ?"
 
-#: templates/common/message_hr.html:49
+#: templates/common/message_hr.html:50
 #, python-brace-format
 msgid ""
 "\n"
@@ -257,11 +257,11 @@ msgstr ""
 "\n"
 "    "
 
-#: templates/common/message_hr.html:61 templates/common/message_hr.txt:27
+#: templates/common/message_hr.html:62 templates/common/message_hr.txt:27
 msgid "How to connect yourself on our platform after activating your account?"
 msgstr "Comment vous connecter à notre plate-forme après l’activation ?"
 
-#: templates/common/message_hr.html:63
+#: templates/common/message_hr.html:65
 #, python-brace-format
 msgid ""
 "\n"
@@ -303,7 +303,7 @@ msgstr ""
 "\n"
 "    "
 
-#: templates/common/message_hr.html:92 templates/common/message_hr.txt:47
+#: templates/common/message_hr.html:94 templates/common/message_hr.txt:47
 msgid ""
 "In case of any difficulties with the activation your account, kindly contact "
 "the following address:"
@@ -510,13 +510,50 @@ msgstr "Afficher"
 msgid "entries"
 msgstr "éléments"
 
-#: utils.py:113 utils.py:116
+#: utils.py:114 utils.py:117
 msgid "Creation of your LGC account"
 msgstr "Création de votre compte LGC"
 
-#: utils.py:119
+#: utils.py:120
 msgid "Confirmation - your “my KWA” account has been deleted"
 msgstr "Confirmation de la suppression de compte LGC"
+
+#: utils.py:123
+msgid "Confirm it's you to access your LGC account"
+msgstr "Veuillez confirmer votre identité pour pouvoir accéder à votre compte LGC"
+
+#: utils.py:124
+#, python-format
+msgid ""
+"\n"
+"        Hi %(firstname)s %(lastname)s,\n"
+"\n"
+"\n"
+"        It looks like you’re having trouble signing into your account.\n"
+"\n"
+"\n"
+"        Please follow this link: %(token)s\n"
+"        to verify your identity and access your account. (It’s only good for "
+"%(expiry)d hours.)\n"
+"\n"
+"\n"
+"        If you don’t recognize this activity, please contact us "
+"(contact@example.com)\n"
+"        "
+msgstr ""
+"\n"
+"        Bonjour %(firstname)s %(lastname)s,\n"
+"\n"
+"        Il semble que vous ne puissiez pas vous connecter à votre compte.\n"
+"\n"
+"        Suivez ce lien : %(token)s\n"
+"        pour vérifier votre identité et accéder à "
+"votre compte. (Valable pendant %(expiry)d heures seulement.)\n"
+"\n"
+"\n"
+"        Si vous ne reconnaissez pas cette activité, contactez-nous "
+"(contact@example.com)\n"
+"        "
 
 #: validators.py:5
 msgid "Numbers and special characters are not allowed."

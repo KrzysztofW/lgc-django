@@ -1,4 +1,5 @@
-from common.utils import pagination, must_be_staff
+from common.utils import pagination, lgc_send_email, must_be_staff
+from common import lgc_types
 from django.http import Http404, HttpResponseForbidden
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
@@ -16,7 +17,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from . import forms as user_forms
 from lgc import models as lgc_models
-from lgc.views import token_generator
+from lgc import views as lgc_views
 from django.views.generic import (ListView, DetailView, CreateView,
                                   UpdateView, DeleteView)
 from django.contrib.auth.hashers import check_password
@@ -301,7 +302,7 @@ class LoginView(authLoginView):
         if (self.request.user.password_last_update == None or
             self.request.user.password_last_update + timedelta(days=settings.AUTH_PASSWORD_EXPIRY) < timezone.now().date()):
             messages.error(self.request, _('Your password has expired. Please choose a new one'))
-            token = token_generator()
+            token = lgc_views.token_generator()
             self.request.user.token = token
             self.request.user.token_date = timezone.now()
             self.request.user.save()
@@ -356,6 +357,47 @@ def __ajax_view(request, users):
     }
     return render(request, 'users/search.html', context)
 
+def reset_password(request):
+    title = _('Reset your password')
+    context = {
+        'title': title,
+    }
+
+    if request.method != 'POST':
+        return render(request, 'users/forgotten_password.html')
+
+    username = request.POST.get('username')
+    if not username:
+        return render(request, 'users/forgotten_password.html')
+    try:
+        user = User.objects.get(email=username)
+    except:
+        messages.error(request, _("The email does not match any account."))
+        return render(request, 'users/forgotten_password.html')
+
+    if user.is_active == False:
+        messages.error(request, _('This account is not active.'))
+        return render(request, 'users/forgotten_password.html')
+    try:
+        user.token = lgc_views.token_generator(pw_rst=True)
+        user.token_date = timezone.now()
+        user.save()
+
+        lgc_send_email(user, lgc_types.MsgType.PW_RST, None)
+    except Exception as e:
+        messages.error(request, _('Cannot send email to `%(email)s` (%(err)s)')%{
+            'email':user.email,
+            'err': str(e)
+        })
+        return render(request, 'users/forgotten_password.html')
+
+    messages.success(request, _('We sent an email to %(email)s with a link to help verify it is you. The link is valid for %(expiry)s hours.')%{
+        'email':username,
+        'expiry':settings.AUTH_TOKEN_EXPIRY
+    })
+
+    return redirect('user-login')
+
 def handle_auth_token(request):
     title = _("Welcome to LGC")
     token = request.GET.get('token', '')
@@ -366,19 +408,17 @@ def handle_auth_token(request):
     if token == '':
         return render(request, 'users/token_bad.html', context)
 
-    user = user_models.get_hr_user_queryset().filter(token=token)
-    if len(user) == 0:
-        user = user_models.get_employee_user_queryset().filter(token=token)
-        if len(user) == 0:
-            return render(request, 'users/token_bad.html', context)
+    try:
+        user = User.objects.get(token=token)
+    except:
+        return render(request, 'users/token_bad.html', context)
 
-    user = user.get()
-    if user == None or user.token_date + timedelta(hours=settings.AUTH_TOKEN_EXPIRY) < timezone.now():
+    if user.token_date + timedelta(hours=settings.AUTH_TOKEN_EXPIRY) < timezone.now():
         return render(request, 'users/token_bad.html', context)
 
     context['user'] = user
     if request.method == 'POST':
-        if user.password == '':
+        if user.password == '' or lgc_views.is_token_pw_rst(token):
             form = user_forms.UserPasswordUpdateForm(request.POST, instance=user)
         else:
             form = user_forms.UserForcePasswordUpdateForm(request.POST, instance=user)
@@ -388,7 +428,7 @@ def handle_auth_token(request):
         if not form.is_valid() or terms != '1':
             return render(request, 'users/token.html', context)
 
-        if user.password != '':
+        if user.password != '' and not lgc_views.is_token_pw_rst(token):
             if not check_password(form.cleaned_data['current_password'], form.instance.password):
                 messages.error(request, _('The current password does not match.'))
                 return render(request, 'users/token.html', context)
@@ -416,7 +456,7 @@ def handle_auth_token(request):
                              'firstname':user.first_name, 'lastname':user.last_name})
         return redirect('user-login')
     else:
-        if user.password == '':
+        if user.password == '' or lgc_views.is_token_pw_rst(token):
             form = user_forms.UserPasswordUpdateForm()
         else:
             form = user_forms.UserForcePasswordUpdateForm()

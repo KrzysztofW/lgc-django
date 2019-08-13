@@ -100,9 +100,15 @@ def queue_request(req_type, action, id, form, relations = None):
         f.write(s + "\n")
 
 def lgc_send_email(obj, action, from_user):
+    name = obj.first_name + ' ' + obj.last_name
+    to = name + '<' + obj.email + '>'
+
     prev_lang = translation.get_language()
     lang = obj.language.lower()
     translation.activate(lang)
+
+    token_url = reverse_lazy('user-token')[3:]
+    token_url = settings.SITE_URL + '/' + lang + token_url + '?token=' + obj.token
 
     if action == lgc_types.MsgType.NEW_EM:
         subject = _('Creation of your LGC account')
@@ -113,6 +119,28 @@ def lgc_send_email(obj, action, from_user):
     elif action == lgc_types.MsgType.DEL:
         subject = _('Confirmation - your “my KWA” account has been deleted')
         tpl = 'message_user_deletion'
+    elif action == lgc_types.MsgType.PW_RST:
+        subject = _("Confirm it's you to access your LGC account")
+        msg = _("""
+        Hi %(firstname)s %(lastname)s,\n
+
+        It looks like you're having trouble signing into your account.\n
+
+        Please follow this link: %(token)s
+        to verify your identity and access your account. (It's only good for %(expiry)d hours.)\n
+
+        If you don't recognize this activity, please contact us (contact@example.com)
+        """)%{'firstname':obj.first_name,
+              'lastname':obj.last_name,
+              'token': token_url,
+              'expiry':settings.AUTH_TOKEN_EXPIRY}
+        ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
+                        [to])
+
+        translation.activate(prev_lang)
+        if ret != 1:
+            raise RuntimeError('cannot send email')
+        return
     else:
         translation.activate(prev_lang)
         return
@@ -133,10 +161,6 @@ def lgc_send_email(obj, action, from_user):
     msg_tpl = string_template(msg_tpl)
     msg_tpl_html = string_template(msg_tpl_html)
 
-    name = obj.first_name + ' ' + obj.last_name
-    token_url = reverse_lazy('user-token')[3:]
-    token_url = settings.SITE_URL + '/' + lang + token_url + '?token=' + obj.token
-
     from_name = from_user.first_name + ' ' + from_user.last_name
     msg = msg_tpl.substitute(PERSON_NAME=name, URL=settings.SITE_URL,
                              TOKEN_URL=token_url, PERSON_IN_CHARGE=from_name,
@@ -145,7 +169,6 @@ def lgc_send_email(obj, action, from_user):
                                        TOKEN_URL=token_url,
                                        PERSON_IN_CHARGE=from_name,
                                        LOGO_URL=logo_url)
-    to = name + '<' + obj.email + '>'
 
     ret = send_mail(subject, msg, from_name + ' <' + from_user.email + '>',
                     [to], html_message=msg_html)

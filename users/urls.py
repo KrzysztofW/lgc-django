@@ -6,6 +6,7 @@ from .views import UserListView, UserDeleteView
 urlpatterns = [
     path('login/', views.LoginView.as_view(template_name='users/login.html'),
          name='user-login'),
+    path('reset-pw/', views.reset_password, name='user-reset-pw'),
     path('logout/', views.logout_then_login_with_msg, name='user-logout'),
     path('create/', views.UserCreateView.as_view(), name='user-create'),
     path('list/', UserListView.as_view(), name='user-list'),
