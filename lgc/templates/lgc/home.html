@@ -15,7 +15,7 @@
 	<div class="row">
 	  <div class="col-xs-5">
 	    <div class="text-center lgc_big_icon">
-	      <i class="fas fa-user-plus fa-5x text-primary"></i>
+	      <a href="{% url 'lgc-account-create' %}"><i class="fas fa-user-plus fa-5x text-primary"></i></a>
 	    </div>
 	  </div>
 	  <div class="col-xs-7">
@@ -41,7 +41,7 @@
 	<div class="row">
 	  <div class="col-xs-5">
 	    <div class="text-center lgc_big_icon">
-	      <i class="fas fa-user-friends fa-5x text-primary"></i>
+	      <a href="{% url 'lgc-accounts' %}?options=pending"><i class="fas fa-user-friends fa-5x text-primary"></i></a>
 	    </div>
 	  </div>
 	  <div class="col-xs-7">
@@ -67,7 +67,7 @@
 	<div class="row">
 	  <div class="col-xs-5">
 	    <div class="text-center lgc_big_icon">
-	      <i class="fas fa-user-friends fa-5x text-primary"></i>
+	      <a href="{% url 'lgc-hr-accounts' %}?options=pending"><i class="fas fa-user-friends fa-5x text-primary"></i></a>
 	    </div>
 	  </div>
 	  <div class="col-xs-7">
@@ -95,7 +95,7 @@
 	<div class="row">
 	  <div class="col-xs-5">
 	    <div class="text-center lgc_big_icon">
-	      <i class="far fa-copy fa-5x text-success"></i>
+	      <a href="{% url 'lgc-files' %}"><i class="far fa-copy fa-5x text-success"></i></a>
 	    </div>
 	  </div>
 	  <div class="col-xs-7">
@@ -121,7 +121,7 @@
 	<div class="row">
 	  <div class="col-xs-5">
 	    <div class="text-center lgc_big_icon">
-	      <i class="far fa-bell fa-5x {% if nb_expirations %}text-danger{% else %}text-success{% endif %}"></i>
+	      <a href="{% url 'lgc-expirations' %}"><i class="far fa-bell fa-5x {% if nb_expirations %}text-danger{% else %}text-success{% endif %}"></i></a>
 	    </div>
 	  </div>
 	  <div class="col-xs-7">
@@ -148,7 +148,7 @@
 	<div class="row">
 	  <div class="col-xs-5">
 	    <div class="text-center lgc_big_icon">
-	      <i class="fa fa-money-bill fa-5x text-primary"></i>
+	      <a href="{% url 'lgc-invoices' %}?state=T"><i class="fa fa-money-bill fa-5x text-primary"></i></a>
 	    </div>
 	  </div>
 	  <div class="col-xs-7">
