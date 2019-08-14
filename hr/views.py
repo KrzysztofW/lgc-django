@@ -263,15 +263,36 @@ class HRDeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         self.object.save()
         return redirect('hr-employees')
 
+def get_expirations_form(request):
+    if len(request.GET):
+        form = hr_forms.ExpirationSearchForm(request.GET)
+    else:
+        form = hr_forms.ExpirationSearchForm()
+        form.fields['expires'].initial = settings.EXPIRATIONS_NB_DAYS
+    form.helper = FormHelper()
+    form.helper.form_method = 'get'
+    form.helper.layout = Layout(
+        Div(
+            Div('first_name', css_class='form-group col-md-3'),
+            Div('last_name', css_class='form-group col-md-3'),
+            Div('expires', css_class='form-group col-md-3'),
+            css_class='form-row'),
+        Div(
+            Div('show_disabled', css_class='form-group col-md-3 lgc_aligned_checkbox'),
+            Div('show_expired', css_class='form-group col-md-3 lgc_aligned_checkbox'),
+            Div(HTML('<button class="btn btn-outline-info" type="submit">' +
+                     str(_('Search')) + '</button>')),
+            css_class='form-row'),
+    )
+
+    return form
+
 @login_required
 def hr_expirations(request):
     if request.user.role not in user_models.get_hr_roles():
         return http.HttpResponseForbidden()
 
-    form = lgc_views.get_expirations_form(request)
-    form.fields['user'].label = _('Employee')
-    form.fields['user'].queryset = User.objects.filter(id__in=request.user.hr_employees.all())
-
+    form = get_expirations_form(request)
     persons = []
     for u in request.user.hr_employees.all():
         if hasattr(u, 'person_user_set'):

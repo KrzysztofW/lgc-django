@@ -398,7 +398,6 @@ class ExpirationSearchForm(forms.Form):
     show_expired = forms.BooleanField(required=False, label=_("Show expired"),
                                       widget=forms.CheckboxInput(attrs={'onchange':'form.submit();'}))
 
-
     class Meta:
         fields = '__all__'
 

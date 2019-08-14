@@ -30,3 +30,17 @@ class EmployeeSearchForm(forms.Form):
     host_entity = forms.CharField(required=False, label=_('Host Entity'))
     first_name = forms.CharField(required=False, label=_('First Name'))
     last_name = forms.CharField(required=False, label=_('Last Name'))
+
+class ExpirationSearchForm(forms.Form):
+    first_name = forms.CharField(required=False, label=_('First Name'))
+    last_name = forms.CharField(required=False, label=_('Last Name'))
+    expires = forms.IntegerField(required=False, label=_('Expires in days'),
+                                 min_value=0, max_value=10000,
+                                 widget=forms.NumberInput(attrs={'onchange':'form.submit();'}))
+    show_disabled = forms.BooleanField(required=False, label=_('Show disabled'),
+                                       widget=forms.CheckboxInput(attrs={'onchange':'form.submit();'}))
+    show_expired = forms.BooleanField(required=False, label=_("Show expired"),
+                                      widget=forms.CheckboxInput(attrs={'onchange':'form.submit();'}))
+
+    class Meta:
+        fields = '__all__'
