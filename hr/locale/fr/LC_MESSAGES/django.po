@@ -32,7 +32,7 @@ msgstr "État"
 
 #: templates/hr/employees.html:20
 msgid "Created"
-msgstr "Date création"
+msgstr "Date de création"
 
 #: templates/hr/employees.html:39
 msgid "Pending"
