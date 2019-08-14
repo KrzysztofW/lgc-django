@@ -165,7 +165,6 @@ class PersonCommonListView(LoginRequiredMixin, UserTest, ListView):
         context['update_url'] = self.update_url
         context['ajax_search_url'] = self.ajax_search_url
         context['search_url'] = self.search_url
-
         context['item_url'] = 'lgc-file'
         context['header_values'] = [('id', 'ID', 'is_private',
                                      '<i>(' + str(_('private')) + ')</i>'),
@@ -287,11 +286,9 @@ class PersonListView(PersonCommonListView):
         order_by = self.get_ordering()
         objs = self.match_extra_terms(lgc_models.Person.objects)
 
-        if not term:
-            return objs.order_by(order_by)
-
-        objs = (objs.filter(email=term)|objs.filter(first_name=term)|
-                objs.filter(last_name=term))
+        if term:
+            objs = (objs.filter(email=term)|objs.filter(first_name=term)|
+                    objs.filter(last_name=term))
         return objs.order_by(order_by)
 
     def get_search_form(self):

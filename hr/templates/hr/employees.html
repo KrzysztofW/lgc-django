@@ -1,21 +1,33 @@
 {% extends "lgc/generic_list.html" %}
 {% load i18n %}
 {% load crispy_forms_tags %}
-{% load custom_tags %}
 
 {% block search_bar %}
+{% if search_form %}
+  {% if page_obj.paginator.num_pages and page_obj.paginator.count > 10 %}
+    <div class="col-xs-2" style="width:80px;">
+      {% include "common/pagination_header.html" %}
+    </div>
+  {% else %}
+    {% include "common/pagination_header.html" %}
+  {% endif %}
+{% else %}
   <div class="col-sm-6">
     {% include "common/pagination_header.html" %}
   </div>
+{% endif %}
 {% endblock %}
 
 {% block body %}
+{% load custom_tags %}
 <table class="table table-striped table-bordered table-hover">
   <thead>
     <tr>
       {% get_table_th _('First name') 'first_name' order_by order_params %}
       {% get_table_th _('Last name') 'last_name' order_by order_params %}
       {% get_table_th 'E-mail' 'email' order_by order_params %}
+      {% get_table_th _('Home Entity') 'last_name' order_by order_params %}
+      {% get_table_th _('Host Entity') 'last_name' order_by order_params %}
       {% get_table_th _('Status') 'status' order_by order_params %}
       {% get_table_th _('Created') 'date_joined' order_by order_params %}
     </tr>
@@ -34,6 +46,8 @@
       <td>{{ obj.first_name }}</td>
       <td>{{ obj.last_name }}</td>
       <td>{{ obj.email }}</td>
+      <td>{{ obj.employee_user_set.home_entity }}</td>
+      <td>{{ obj.employee_user_set.host_entity }}</td>
       <td>
 	{% if obj.status == 'P' %}
 	{% trans "Pending" %}

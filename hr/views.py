@@ -172,22 +172,59 @@ class HRPersonListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_paginate_by(self, queryset):
         return self.request.GET.get('paginate', '10')
 
+    def get_search_form(self):
+        if len(self.request.GET):
+            form = hr_forms.EmployeeSearchForm(self.request.GET)
+        else:
+            form = hr_forms.EmployeeSearchForm()
+
+        form.helper = FormHelper()
+        form.helper.form_tag = False
+        form.helper.form_method = 'get'
+        form.helper.layout = Layout(
+            Div(
+                Div('first_name', css_class='form-group col-md-2'),
+                Div('last_name', css_class='form-group col-md-2'),
+                Div('home_entity', css_class='form-group col-md-2'),
+                Div('host_entity', css_class='form-group col-md-2'),
+                css_class='form-row'),
+        )
+        return form
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_url'] = reverse_lazy('hr-employees')
         context['title'] = _('Employees')
         context['update_url'] = 'hr-update-account'
+        context['item_url'] = 'hr-employee-file'
+        context['search_form'] = self.get_search_form()
 
         return pagination(self.request, context, reverse_lazy('hr-employees'))
 
     def test_func(self):
         return self.request.user.role in user_models.get_hr_roles()
 
-    def get_queryset(self):
-        term = self.request.GET.get('term', '')
+    def match_extra_terms(self, objs):
+        first_name = self.request.GET.get('first_name')
+        last_name = self.request.GET.get('last_name')
+        email = self.request.GET.get('email')
+        home_entity = self.request.GET.get('home_entity')
+        host_entity = self.request.GET.get('host_entity')
 
+        if home_entity:
+            objs = objs.filter(employee_user_set__home_entity__istartswith=home_entity)
+        if host_entity:
+            objs = objs.filter(employee_user_set__host_entity__istartswith=host_entity)
+        if first_name:
+            objs = objs.filter(first_name__istartswith=first_name)
+        if last_name:
+            objs = objs.filter(last_name__istartswith=last_name)
+        return objs
+
+    def get_queryset(self):
+        term = self.request.GET.get('term')
         order_by = self.get_ordering()
-        objs = self.request.user.hr_employees.exclude(status__in=user_models.get_user_deleted_statuses())
+        objs = self.match_extra_terms(self.request.user.hr_employees.exclude(status__in=user_models.get_user_deleted_statuses()))
 
         if term:
             objs = (objs.filter(email__istartswith=term)|

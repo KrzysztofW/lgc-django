@@ -38,7 +38,7 @@
 
 	  <div class="row">
 	    {% block search_bar %}{% endblock %}
-	    <div {% if search_form %}class="col-md-3 "{% else %}class="col-sm-12 col-md-6"{% endif %} {% if page_obj.paginator.num_pages > 1 %}style="top:15px;"{% endif %}>
+	    <div {% if search_form %}class="col-md-3 "{% else %}class="col-sm-12 col-md-6"{% endif %} {% if page_obj.paginator.num_pages %}style="top:15px;"{% endif %}>
 	      {% if not dont_show_search_bar %}
 	      <div class="dataTables_filter">
 		<div class="input-group custom-search-form">

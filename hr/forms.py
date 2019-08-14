@@ -24,3 +24,9 @@ class HRInitiateEmployeeAccountForm(lgc_forms.InitiateAccountForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'language',
                   'new_token', 'is_active']
+
+class EmployeeSearchForm(forms.Form):
+    home_entity = forms.CharField(required=False, label=_('Home Entity'))
+    host_entity = forms.CharField(required=False, label=_('Host Entity'))
+    first_name = forms.CharField(required=False, label=_('First Name'))
+    last_name = forms.CharField(required=False, label=_('Last Name'))
