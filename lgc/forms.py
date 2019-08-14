@@ -9,6 +9,7 @@ from . import models as lgc_models
 from users import models as user_models
 from django.contrib.auth import get_user_model
 from django_countries.fields import CountryField
+from django.utils import timezone
 from crispy_forms.layout import Field
 
 class LgcRadio(Field):
@@ -112,7 +113,7 @@ class PersonCreateForm(forms.ModelForm):
 
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_active_local_user_queryset(),
                                                  label=_('Person in charge'))
-    start_date = forms.DateField(label=_('Start Date'))
+    start_date = forms.DateField(label=_('Start Date'), initial=timezone.now())
     local_address = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 80, 'onchange':'auto_complete_region(this);'}),
                                     label=_('Home Address in France'))
 
