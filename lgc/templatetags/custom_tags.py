@@ -87,7 +87,8 @@ def get_process_progress(request):
 
 @register.simple_tag
 def get_pending_moderations(request):
-    objs = employee_models.Employee.objects.filter(updated=True)
+    objs = employee_models.Employee.objects.select_related('user').filter(updated=True, user__person_user_set__responsible=request.user)
+
     res = {
         'objs': objs[:10],
         'nb_items': len(objs),
