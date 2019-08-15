@@ -63,6 +63,13 @@ def token_generator(pw_rst=False):
 
         """set the token type in the 7th byte"""
         b = (ord(r[7]) & 0xFE) | pw_rst
+
+        """allow only letters and numbers"""
+        if b > 90 and b < 97 or b > 122:
+            b -= 10
+        elif b < 65:
+            b += 10
+
         r = r[:6] + chr(b) + r[7:]
 
         if len(User.objects.filter(token=r)) == 0:
