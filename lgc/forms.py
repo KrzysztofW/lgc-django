@@ -146,7 +146,7 @@ class PersonCreateForm(forms.ModelForm):
 class InitiateAccountForm(forms.ModelForm):
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_consultant_queryset(), label=_('Persons in charge'))
     new_token = forms.BooleanField(required=False, initial=True,
-                                   label=_('Send new token'),
+                                   label=_('Send invitation'),
                                    help_text=_('Send authentication token allowing to choose a new password.'))
 
     def __init__(self, *args, **kwargs):
