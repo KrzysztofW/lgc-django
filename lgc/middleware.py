@@ -2,9 +2,15 @@ from django.utils.deprecation import MiddlewareMixin
 from users import models as user_models
 from django.core.exceptions import PermissionDenied
 import re, os, logging
+from datetime import datetime, timedelta
 from django.db import connection
+from django.contrib import messages
+from django.conf import settings
+from django.contrib.auth import logout
+from django.utils.translation import ugettext as _
 
 log = logging.getLogger('sql')
+user_log = logging.getLogger('user')
 
 allowed_urls = [
     '/', '/favicon.ico', '/user/login',  '/user/auth/', '/user/logout/',
@@ -12,8 +18,31 @@ allowed_urls = [
     '/user/delete-profile/',
 ]
 
+def check_session_expiration(request):
+    if not request.user.is_authenticated:
+        return
+
+    if 'no_session_expiry' in request.session:
+        return
+
+    current_datetime = datetime.now()
+    if ('last_login' in request.session):
+        last_login = datetime.strptime(request.session['last_login'],
+                                       "%Y-%m-%d %H:%M:%S")
+        last = current_datetime - last_login
+        if last.seconds > settings.SESSION_EXPIRATION:
+            messages.error(request, _('Your session has expired.'))
+            user_log.info('session expired from: {ip}'.format(
+                ip=request.META.get('REMOTE_ADDR'))
+            )
+            logout(request)
+    else:
+        request.session['last_login'] = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
 class UserRolesCheck(MiddlewareMixin):
     def process_request(self, request):
+        check_session_expiration(request)
+
         if not hasattr(request.user, 'role'):
             return
 

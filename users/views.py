@@ -271,10 +271,6 @@ class LoginView(authLoginView):
             if url_next in urls:
                 return context
 
-        messages.error(self.request, _('Your session has expired.'))
-        log.info('session expired from: {ip}'.format(
-            ip=self.request.META.get('REMOTE_ADDR'))
-        )
         return context
 
     def redirect_language(self):
@@ -291,10 +287,7 @@ class LoginView(authLoginView):
 
         for subnet in settings.ALLOWED_SESSION_NOTIMEOUT_SUBNETS:
             if ip in IPv4Network(subnet):
-                found = True
                 break
-        if not found:
-            self.request.session.set_expiry(settings.SESSION_EXPIRATION)
 
         if self.request.user.role in user_models.get_internal_roles():
             return self.redirect_language()
