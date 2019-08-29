@@ -24,7 +24,7 @@ msgstr "Prénom"
 
 #: forms.py:10 forms.py:12
 msgid "As per passport"
-msgstr ""
+msgstr "Comme indiqué sur le passeport"
 
 #: forms.py:11
 msgid "Last Name"
@@ -191,7 +191,7 @@ msgstr "Impossible de supprimer le(s) ficher(s)"
 
 #: views.py:353
 msgid "Moderation has been rejected."
-msgstr "La modération a été rejectée."
+msgstr "La modération a été rejetée."
 
 #: views.py:372
 msgid "Invalid document form."

@@ -367,7 +367,7 @@ msgstr "Indique si cette fiche est privée (un RH ne peut pas y accéder)."
 
 #: forms.py:105 forms.py:107
 msgid "As per passport"
-msgstr ""
+msgstr "Comme indiqué sur le passeport"
 
 #: forms.py:110 forms.py:188 models.py:511 models.py:534
 #: templates/lgc/custom_table.html:16 views.py:173
