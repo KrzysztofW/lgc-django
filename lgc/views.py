@@ -2063,14 +2063,24 @@ class PersonProcessReadyListView(PersonProcessListView):
     search_url = reverse_lazy('lgc-person-processes-ready')
     item_url = 'lgc-person-process'
     objs = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.objs = lgc_models.PersonProcess.objects.filter(invoice_alert=True)
+    pending_list = False
 
     def get_queryset(self, *args, **kwargs):
-        objs = self.objs
-        for p in self.objs.all():
+        if self.pending_list:
+            if self.request.user.billing or self.request.user.is_staff:
+                objs = lgc_models.PersonProcess.objects.filter(active=True)
+            else:
+                objs = lgc_models.PersonProcess.objects.filter(person__responsible=self.request.user,
+                                                               active=True)
+        else:
+            if self.request.user.billing or self.request.user.is_staff:
+                objs = lgc_models.PersonProcess.objects.filter(person__responsible=self.request.user,
+                                                               invoice_alert=True)
+            else:
+                objs = lgc_models.PersonProcess.objects.filter(invoice_alert=True)
+
+        objs2 = objs
+        for p in objs2.all():
             if p.invoice_set.filter(type=lgc_models.INVOICE).count() > 0:
                 objs = objs.exclude(id=p.id)
 
@@ -2088,10 +2098,7 @@ class PersonProcessPendingListView(PersonProcessReadyListView):
     title = ugettext_lazy('Pending Processes')
     model = lgc_models.PersonProcess
     search_url = reverse_lazy('lgc-person-processes-pending')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.objs = lgc_models.PersonProcess.objects.filter(active=True)
+    pending_list = True
 
 def get_account_layout(layout, new_token, is_hr=False, is_active=False):
     div = Div(css_class='form-row');
