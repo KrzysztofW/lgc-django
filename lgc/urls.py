@@ -105,8 +105,13 @@ urlpatterns = [
          name='lgc-credit-notes-search-ajax'),
     path('invoice-create/', billing_views.InvoiceCreateView.as_view(),
          name='lgc-invoice-create'),
-    path('insert-client/', billing_views.invoice_insert_client,
+
+    path('client-insert/', billing_views.InvoiceClientCreateView.as_view(),
          name='lgc-insert-client'),
+    path('client-insert/<int:pk>/', billing_views.InvoiceClientUpdateView.as_view(),
+         name='lgc-update-client'),
+    path('client-delete/<int:pk>/', billing_views.invoice_client_delete_view,
+         name='lgc-delete-client'),
 
     path('item-insert/', billing_views.InvoiceItemCreateView.as_view(),
          name='lgc-insert-item'),

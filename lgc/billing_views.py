@@ -1170,6 +1170,9 @@ class InvoiceItemCommonView(BillingTestLocalUser):
         return url + params
 
     def form_valid(self, form):
+        if self.model == lgc_models.Client:
+            return super().form_valid(form)
+
         if self.object:
             _str = _('Item %(item)s successfully updated.'%
                      {'item':form.instance.title})
@@ -1184,11 +1187,15 @@ class InvoiceItemCommonView(BillingTestLocalUser):
         form = self.get_form()
         return super().form_invalid(form)
 
-    def get_form(self):
+    def get_form(self, form_class=lgc_forms.ClientCreateForm):
         if self.model == lgc_models.Item:
             form_class = lgc_forms.ItemForm
-        else:
+        elif self.model == lgc_models.Disbursement:
             form_class = lgc_forms.DisbursementForm
+        elif self.model == lgc_models.Client:
+            return super().get_form(form_class=lgc_forms.ClientCreateForm)
+        else:
+            raise Http404
         title = _('Edit item')
         form = super().get_form(form_class=form_class)
         form.helper = FormHelper()
@@ -1269,6 +1276,88 @@ class InvoiceItemUpdateView(InvoiceItemCommonView, UpdateView):
     title = ugettext_lazy('Update Item')
     edit_expanded = True
 
+class InvoiceClientCommonView(InvoiceItemCommonView):
+    model = lgc_models.Client
+    template_name = 'lgc/insert_client.html'
+    delete_url = 'lgc-delete-client'
+    update_url = 'lgc-update-client'
+    success_url = 'lgc-insert-client'
+
+    def form_valid(self, form):
+        if self.object:
+            _str = _('Client successfully updated.')
+        else:
+            _str = _('Client successfully created.')
+        messages.success(self.request, _str)
+        return super().form_valid(form)
+
+    def get_form(self):
+        form_class = lgc_forms.ClientCreateForm
+        title = _('Edit Client')
+        form = super().get_form(form_class=form_class)
+        form.helper = FormHelper()
+        if self.object == None:
+            action = _('Add')
+        else:
+            action = _('Update')
+            title += ' Id: ' + str(self.object.id)
+
+        if self.edit_expanded:
+            body_class = "collapse show"
+            aria_expanded = "true"
+        else:
+            body_class = "collapse"
+            aria_expanded = "false"
+
+        form.helper.layout = Layout(
+            Div(
+                Div(
+                    Div(
+                        HTML('<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_item" aria-expanded="' + aria_expanded + '" aria-controls="collapse_item">' + title + '</button>'),
+                        css_class='card-header', id='heading_item'),
+                    Div(
+                        Div(
+                            Div(Div('first_name', css_class='form-group col-md-2'),
+                                Div('last_name', css_class='form-group col-md-2'),
+                                Div('company', css_class='form-group col-md-2'),
+                                Div('email', css_class='form-group col-md-2'),
+                                css_class='form-row'),
+                            Div(Div('phone_number', css_class='form-group col-md-2'),
+                                Div('cell_phone_number', css_class='form-group col-md-2'),
+                                Div('siret', css_class='form-group col-md-2'),
+                                Div('vat', css_class='form-group col-md-2'),
+                                css_class='form-row'),
+                            Div(Div('address', css_class='form-group col-md-2'),
+                                Div('post_code', css_class='form-group col-md-2'),
+                                Div('city', css_class='form-group col-md-2'),
+                                Div('country', css_class='form-group col-md-2'),
+                                css_class='form-row'),
+                            Div(Div(HTML('<hr><h5>'+ _('Billing Address') +'</h5>'),
+                                    css_class='form-group col-md-8'),
+                                css_class='form-row'),
+                            Div(Div('billing_address', css_class='form-group col-md-2'),
+                                Div('billing_post_code', css_class='form-group col-md-2'),
+                                Div('billing_city', css_class='form-group col-md-2'),
+                                Div('billing_country', css_class='form-group col-md-2'),
+                                css_class='form-row'),
+                            Div(Div(HTML('<button class="btn btn-outline-info" type="submit">' + action + '</button>'),
+                                    css_class="form-group col-md-1"),
+                                css_class="form-row"),
+                            css_class='card-body'),
+                        css_class=body_class, id='collapse_item', arialabelledby='heading_item', dataparent='#item_accordion'),
+                    css_class='card', style='overflow:visible;'),
+                css_class="accordion", id="item_accordion"
+            ),
+        )
+        return form
+
+class InvoiceClientCreateView(InvoiceClientCommonView, CreateView):
+    title = ugettext_lazy('Insert Client')
+
+class InvoiceClientUpdateView(InvoiceClientCommonView, UpdateView):
+    title = ugettext_lazy('Update Client')
+    edit_expanded = True
+
 class InvoiceDisbursementCommon():
     model = lgc_models.Disbursement
     delete_url = 'lgc-delete-disbursement'
@@ -1301,8 +1390,11 @@ def __invoice_item_delete_view(request, model, url, pk=None):
     obj = obj[0]
     obj.delete()
     params = get_url_params(request)
-    messages.success(request, _('Item %(item)s successfully deleted.'%
-                                {'item':obj.title}))
+    if model == lgc_models.Client:
+        messages.success(request, _('Client successfully deleted.'))
+    else:
+        messages.success(request, _('Item %(item)s successfully deleted.'%
+                                    {'item':obj.title}))
     return redirect(url + params)
 
 def invoice_item_delete_view(request, pk=None):
@@ -1312,6 +1404,10 @@ def invoice_item_delete_view(request, pk=None):
 def invoice_disbursement_delete_view(request, pk=None):
     url = reverse_lazy('lgc-insert-disbursement')
     return __invoice_item_delete_view(request, lgc_models.Disbursement, url, pk)
+
+def invoice_client_delete_view(request, pk=None):
+    url = reverse_lazy('lgc-insert-client')
+    return __invoice_item_delete_view(request, lgc_models.Client, url, pk)
 
 @login_required
 def generate_invoice_from_quote(request, pk):
