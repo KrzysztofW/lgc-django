@@ -101,10 +101,8 @@ class PersonCreateForm(forms.ModelForm):
     is_private = forms.BooleanField(required=False, initial=False,
                                     label=_('Is private'),
                                     help_text=_('Designates whether this file is private (a HR cannot access this file).'))
-    first_name = forms.CharField(required=False, label=_('First Name'),
-                                 help_text=_('As per passport'))
-    last_name = forms.CharField(required=False, label=_('Last Name'),
-                                 help_text=_('As per passport'))
+    first_name = forms.CharField(label=_('First Name'), help_text=_('As per passport'))
+    last_name = forms.CharField(label=_('Last Name'), help_text=_('As per passport'))
     email = forms.EmailField(required=False)
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
     birth_date = forms.DateField(label=_('Birth Date'), required=False)
