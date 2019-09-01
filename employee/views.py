@@ -406,6 +406,9 @@ def moderation(request, *args, **kwargs):
                 save_employee_obj(request, employee_form.instance)
                 lgc_models.rename_person_doc_dir(old_person,
                                                  employee_obj.user.person_user_set)
+                employee_obj.user.first_name = employee_form.instance.first_name
+                employee_obj.user.last_name = employee_form.instance.last_name
+                employee_obj.user.save()
                 employee_obj.user.person_user_set.save()
                 save_formset(employee_obj, formset)
 
