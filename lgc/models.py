@@ -289,7 +289,7 @@ CONSULATE_CHOICES = (
     ('ES', "Espagne"),
     ('AE', "Émirats Arabes Unis"),
     ('EC', "Équateur"),
-    ('US', "États-unis"),
+    ('US', "États-Unis"),
     ('GH', "Ghana"),
     ('HU', "Hongrie"),
     ('IN', "Inde"),
