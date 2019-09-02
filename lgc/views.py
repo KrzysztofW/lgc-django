@@ -343,7 +343,46 @@ class PersonListView(PersonCommonListView):
         context['search_form'] = self.get_search_form()
         return context
 
-def local_user_get_person_form_layout(user, form, action, obj,
+def get_spouse_information_div(request, form):
+    expand = 'false'
+    show = ''
+
+    for f in ('spouse_first_name', 'spouse_last_name', 'spouse_birth_date',
+              'spouse_citizenship', 'spouse_passport_expiry',
+              'spouse_passport_nationality'):
+        attr = getattr(form.instance, f)
+        if f in form.errors or (attr != None and attr != ''):
+            expand = 'true'
+            show = ' show'
+            break
+
+    return Div(
+        Div(
+            Div(
+                Div(
+                    Div(
+                        HTML('<h5 class="mb-0"><button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_spouse_accordion_id" aria-expanded="' + expand + '" aria-controls="collapse_spouse_accordion_id">' + str(_('Spouse information')) + '</button></h5>'),
+                        css_class='card-header',
+                        id='heading_spouse_accordion_id'),
+                    HTML('<div class="collapse' + show + '" id="collapse_spouse_accordion_id" aria-labelledby="heading_spouse_accordion_id" data-parent="#spouse_accordion">'),
+                    Div(
+                        Div(Div('spouse_first_name', css_class='form-group col-md-3'),
+                            Div('spouse_last_name', css_class='form-group col-md-3'),
+                            Div('spouse_birth_date', css_class='form-group col-md-3'),
+                            css_class='form-row'),
+                        Div(Div('spouse_citizenship', css_class='form-group col-md-3'),
+                            Div('spouse_passport_expiry', css_class='form-group col-md-3'),
+                            Div('spouse_passport_nationality', css_class='form-group col-md-3'),
+                            css_class='form-row'),
+                        css_class='card-body'),
+                    HTML('</div>'),
+                    css_class='card', style="overflow:visible;"),
+                css_class='accordion', id='spouse_accordion'),
+            css_class='col-md-10'),
+        css_class='form-row'
+    )
+
+def local_user_get_person_form_layout(request, form, action, obj,
                                       completed_processes):
     external_profile = None
     form.helper = FormHelper()
@@ -386,19 +425,6 @@ def local_user_get_person_form_layout(user, form, action, obj,
             Div('foreign_phone_number', css_class='form-group col-md-3'),
             Div('foreign_country', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div(HTML('<h5>' + _('Spouse information') +
-                     '</h5><hr>'), css_class='form-group col-md-9'),
-            css_class='form-row'),
-        Div(Div('spouse_first_name', css_class='form-group col-md-3'),
-            Div('spouse_last_name', css_class='form-group col-md-3'),
-            Div('spouse_birth_date', css_class='form-group col-md-3'),
-            css_class='form-row'),
-        Div(Div('spouse_citizenship', css_class='form-group col-md-3'),
-            Div('spouse_passport_expiry', css_class='form-group col-md-3'),
-            Div('spouse_passport_nationality', css_class='form-group col-md-3'),
-            css_class='form-row'),
-        Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
-            css_class='form-row'),
         Div(Div('prefecture', css_class='form-group col-md-3'),
             Div('subprefecture', css_class='form-group col-md-3'),
             Div('direccte', css_class='form-group col-md-3'),
@@ -406,6 +432,7 @@ def local_user_get_person_form_layout(user, form, action, obj,
         Div(Div('consulate', css_class='form-group col-md-3'),
             Div('jurisdiction', css_class='form-group col-md-3'),
             css_class='form-row'),
+        get_spouse_information_div(request, form),
     )
 
     info_tab.append(Div(Div(HTML(get_template(CURRENT_DIR,
@@ -466,7 +493,7 @@ def local_user_get_person_form_layout(user, form, action, obj,
     layout = Layout(tab_holder)
     layout.append(HTML('<button class="btn btn-outline-info" type="submit" onclick="return person_form_check();">' +
                        action + '</button>'))
-    if obj and user.is_staff:
+    if obj and request.user.is_staff:
         layout.append(HTML('&nbsp;<a href="' +
                            str(reverse_lazy('lgc-file-delete', kwargs={'pk': obj.id})) +
                            '" class="btn btn-outline-info">' +
@@ -474,7 +501,7 @@ def local_user_get_person_form_layout(user, form, action, obj,
     form.helper.layout = layout
     return form
 
-def employee_user_get_person_form_layout(form, action, obj):
+def employee_user_get_person_form_layout(request, form, action, obj):
     external_profile = None
     form.helper = FormHelper()
     form.helper.form_tag = False
@@ -510,17 +537,7 @@ def employee_user_get_person_form_layout(form, action, obj):
             Div('foreign_phone_number', css_class='form-group col-md-3'),
             Div('foreign_country', css_class='form-group col-md-3'),
             css_class='form-row'),
-        Div(Div(HTML('<h5>' + _('Spouse information') +
-                     '</h5><hr>'), css_class='form-group col-md-9'),
-            css_class='form-row'),
-        Div(Div('spouse_first_name', css_class='form-group col-md-3'),
-            Div('spouse_last_name', css_class='form-group col-md-3'),
-            Div('spouse_birth_date', css_class='form-group col-md-3'),
-            css_class='form-row'),
-        Div(Div('spouse_citizenship', css_class='form-group col-md-3'),
-            Div('spouse_passport_expiry', css_class='form-group col-md-3'),
-            Div('spouse_passport_nationality', css_class='form-group col-md-3'),
-            css_class='form-row'),
+        get_spouse_information_div(request, form),
         Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
             css_class='form-row'),
     )
@@ -545,14 +562,14 @@ def employee_user_get_person_form_layout(form, action, obj):
     form.helper.layout = layout
     return form
 
-def get_person_form_layout(cur_user, form, action, obj,
+def get_person_form_layout(request, form, action, obj,
                            completed_processes=None):
-    if cur_user.role in user_models.get_internal_roles():
-        return local_user_get_person_form_layout(cur_user, form, action, obj,
+    if request.user.role in user_models.get_internal_roles():
+        return local_user_get_person_form_layout(request, form, action, obj,
                                                  completed_processes)
-    if (cur_user.role == user_models.ROLE_EMPLOYEE or
-        cur_user.role in user_models.get_hr_roles()):
-        return employee_user_get_person_form_layout(form, action, obj)
+    if (request.user.role == user_models.ROLE_EMPLOYEE or
+        request.user.role in user_models.get_hr_roles()):
+        return employee_user_get_person_form_layout(request, form, action, obj)
     return None
 
 def hr_add_employee(form_data, user_object):
@@ -1351,9 +1368,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
         form = super().get_form(form_class=form_class)
 
         if not self.is_update:
-            return get_person_form_layout(self.request.user, form,
-                                          _('Create'), None)
-        return get_person_form_layout(self.request.user, form, _('Update'),
+            return get_person_form_layout(self.request, form, _('Create'), None)
+        return get_person_form_layout(self.request, form, _('Update'),
                                       self.object,
                                       lgc_models.PersonProcess.objects.filter(person=self.object.id, active=False))
 
