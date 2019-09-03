@@ -100,10 +100,34 @@ def queue_request(req_type, action, id, form, relations = None):
         f.write(s + "\n")
 
 def lgc_send_email(obj, action, from_user):
+    prev_lang = translation.get_language()
+    if action == lgc_types.MsgType.MODERATION:
+        lang = from_user.language.lower()
+        translation.activate(lang)
+
+        subject = _("Moderation required")
+        msg = _("""
+Hi,\n
+The file %(url)s has been modified by %(firstname)s %(lastname)s.
+Your attention is required. Follow this link to moderate it: %(murl)s\n
+Best Regards.
+        """)%{'url':settings.SITE_URL + '/file/' + str(obj.user.person_user_set.id),
+              'firstname':obj.modified_by.first_name,
+              'lastname':obj.modified_by.last_name,
+              'murl': settings.SITE_URL + '/emp/moderation/' + str(obj.id)}
+
+        name = from_user.first_name + ' ' + from_user.last_name
+        to = name + ' <' + from_user.email + '>'
+        ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
+                        [to])
+        translation.activate(prev_lang)
+        if ret != 1:
+            raise RuntimeError('cannot send email')
+        return
+
     name = obj.first_name + ' ' + obj.last_name
     to = name + '<' + obj.email + '>'
 
-    prev_lang = translation.get_language()
     lang = obj.language.lower()
     translation.activate(lang)
 

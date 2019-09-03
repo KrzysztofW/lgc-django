@@ -6,56 +6,10 @@
 {% now "Y-m-d" as today %}
 {% get_notification_menu request as notifs %}
 {% get_process_progress request as process_progress %}
-{% get_pending_moderations request as moderations %}
 
 <ul class="nav navbar-nav ml-md-auto flex-row navbar-top-links bg-light">
 
   {% include 'lgc/dropdown_menu_lang.html' %}
-
-  <!-- moderations -->
-  <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle nav-link" data-toggle="dropdown" href="#" role="button"
-       aria-haspopup="true" aria-expanded="false">
-      <i class="far fa-comments fa-fw"></i>
-      {% if moderations.nb_items > 0 and moderations.nb_items < 100 %}
-      <span class="notification">{{ moderations.nb_items }}</span>
-      {% elif moderations.nb_items > 100 %}
-      <span class="notification">+99</span>
-      {% endif %}
-    </a>
-    <div class="dropdown-menu dropdown-menu-right dropdown-alerts" style="width:400px;">
-
-      {% for o in moderations.objs %}
-      <a class="dropdown-item" href="{% url 'employee-moderation' o.id %}">
-        <div>
-          <i class="fa fa-exclamation fa-fw"></i>
-	  {% with name=o.first_name|add:' '|add:o.last_name line_length=o.first_name %}
-	  {{ name|truncatechars:20 }}
-	  {% endwith %}
-	  <span class="float-right text-muted small">
-	    {% blocktrans with update_time=o.modification_date|timesince %}
-	    updated {{ update_time }} ago
-	    {% endblocktrans %}
-	  </span>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
-      {% endfor %}
-
-      {% if moderations.nb_items %}
-      <a class="dropdown-item see-more text-center" href="{% url 'employee-moderations' %}">
-        <strong>
-	  {% trans 'See All Moderations' %}
-	</strong>
-        <i class="fa fa-angle-right"></i>
-      </a>
-      {% else %}
-      <strong class="dropdown-item see-more text-center">
-	{% trans 'No pending moderations' %}
-      </strong>
-      {% endif %}
-    </div>
-  </li>
 
   <!-- process progress -->
   <li class="nav-item dropdown">

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-06 16:16+0200\n"
+"POT-Creation-Date: 2019-09-03 11:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -141,13 +141,25 @@ msgstr "Êtes-vous sûr de vouloir rejecter cette modération ?"
 msgid "Reject all changes"
 msgstr ""
 
-#: templates/employee/moderation.html:114
+#: templates/employee/moderation.html:74
 msgid "This file will be deleted."
 msgstr ""
 
-#: templates/employee/moderation.html:116
+#: templates/employee/moderation.html:76
 msgid "This file will not be deleted."
 msgstr ""
+
+#: templates/employee/moderation_done.html:6
+msgid "Page already moderated"
+msgstr "Modération déjà effectuée"
+
+#: templates/employee/moderation_done.html:7
+msgid "Go to the user's page"
+msgstr "Voir la paged du salarié"
+
+#: templates/employee/moderation_done.html:8
+msgid "See other pending moderations"
+msgstr "Voir les autres modérations"
 
 #: views.py:112
 msgid "First name"
@@ -185,30 +197,30 @@ msgstr "Table %(title)s invalide."
 msgid "Moderation failed."
 msgstr "La modération a échouée."
 
-#: views.py:296 views.py:351
+#: views.py:296 views.py:357
 msgid "Cannot remove user files."
 msgstr "Impossible de supprimer le(s) ficher(s)"
 
-#: views.py:353
+#: views.py:359
 msgid "Moderation has been rejected."
 msgstr "La modération a été rejetée."
 
-#: views.py:372
+#: views.py:377
 msgid "Invalid document form."
 msgstr "Le formulaire des documents est invalide."
 
-#: views.py:378 views.py:430
+#: views.py:383 views.py:438
 msgid "Children"
 msgstr "Enfants"
 
-#: views.py:380
+#: views.py:385
 msgid "Invalid children form"
 msgstr "Le formulaire des enfants est invalide."
 
-#: views.py:385
+#: views.py:390
 msgid "Invalid form."
 msgstr "Le formulaire est invalide."
 
-#: views.py:413
+#: views.py:421
 msgid "Moderation successfully submitted."
 msgstr "Modération prise en compte avec succès."

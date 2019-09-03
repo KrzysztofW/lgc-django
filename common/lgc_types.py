@@ -29,3 +29,4 @@ class MsgType(Enum):
     NEW_HR = 2,
     DEL = 3,
     PW_RST = 4,
+    MODERATION = 5,

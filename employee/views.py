@@ -304,6 +304,12 @@ def moderation(request, *args, **kwargs):
         return http.HttpResponseForbidden()
 
     employee_obj = get_moderation_object(**kwargs)
+    if employee_obj.updated == False:
+        context = {
+            'title': 'Moderation', 'object': employee_obj
+        }
+        return render(request, 'employee/moderation_done.html', context)
+
     formsets = []
     person_form = employee_forms.ModerationPersonCreateForm(instance=employee_obj.user.person_user_set,
                                                             prefix='pers')

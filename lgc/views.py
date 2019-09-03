@@ -1357,6 +1357,13 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 form.instance.updated = True
                 form.save()
 
+            if form.instance.updated and type(self.object) == employee_models.Employee:
+                for u in self.object.user.person_user_set.responsible.all():
+                    try:
+                        lgc_send_email(self.object, lgc_types.MsgType.MODERATION, u)
+                    except Exception as e:
+                        log.error(e)
+
         messages.success(self.request, self.success_message)
         return http.HttpResponseRedirect(self.get_success_url())
 

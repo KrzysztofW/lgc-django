@@ -85,16 +85,6 @@ def get_process_progress(request):
     session_cache_add(request.session, 'process_progress', res, 60)
     return res
 
-@register.simple_tag
-def get_pending_moderations(request):
-    objs = employee_models.Employee.objects.select_related('user').filter(updated=True, user__person_user_set__responsible=request.user)
-
-    res = {
-        'objs': objs[:10],
-        'nb_items': len(objs),
-    }
-    return res
-
 def normalize_value(obj, key, val):
     if val == None or (val == False and type(val).__name__ == 'bool'):
         return ''
