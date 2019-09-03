@@ -31,3 +31,4 @@ class MsgType(Enum):
     PW_RST = 4,
     MODERATION = 5,
     DEL_REQ = 6,
+    HR_INIT_ACCOUNT = 7,

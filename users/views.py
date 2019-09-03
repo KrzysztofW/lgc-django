@@ -120,10 +120,10 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixi
     def test_func(self):
         return self.request.user.is_staff
 
-def notify_user_deletion(obj):
-    for u in obj.person_user_set.responsible.all():
+def notify_user_deletion(user):
+    for u in user.responsible.all():
         try:
-            lgc_send_email(obj, lgc_types.MsgType.DEL_REQ, u)
+            lgc_send_email(user, lgc_types.MsgType.DEL_REQ, u)
         except Exception as e:
             log.error(e)
 

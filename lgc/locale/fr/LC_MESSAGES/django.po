@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-03 15:02+0200\n"
+"POT-Creation-Date: 2019-09-03 18:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,7 +45,7 @@ msgstr "Adresse de facturation"
 
 #: billing_views.py:165 billing_views.py:999 billing_views.py:1205
 #: billing_views.py:1302 templates/lgc/person_process.html:31 views.py:1379
-#: views.py:2357 views.py:2649
+#: views.py:2374 views.py:2667
 msgid "Update"
 msgstr "Mettre à jour"
 
@@ -1280,7 +1280,7 @@ msgstr "Il n'y a pas de notifications en cours"
 msgid "User Profile"
 msgstr "Mon profile"
 
-#: templates/lgc/dropdown_menu_users.html:12 views.py:2653
+#: templates/lgc/dropdown_menu_users.html:12 views.py:2671
 msgid "Settings"
 msgstr "Configuration"
 
@@ -1534,7 +1534,7 @@ msgstr "Rechercher les fiches ..."
 msgid "External accounts"
 msgstr "Comptes externes"
 
-#: templates/lgc/menu_complete.html:34 views.py:2190 views.py:2366
+#: templates/lgc/menu_complete.html:34 views.py:2190 views.py:2383
 msgid "Employees"
 msgstr "Salariés"
 
@@ -1579,7 +1579,7 @@ msgstr "Modèles"
 msgid "Ready for invoicing"
 msgstr "À facturer"
 
-#: templates/lgc/menu_complete.html:121 views.py:2980
+#: templates/lgc/menu_complete.html:121 views.py:2998
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -1874,10 +1874,10 @@ msgstr "Fiche créée avec succès."
 msgid "File successfully updated"
 msgstr "Fiche mise à jour avec succès."
 
-#: views.py:1402 views.py:2303 views.py:2444
+#: views.py:1402 views.py:2319 views.py:2461
 #, python-format
 msgid "Cannot send email to `%(email)s` (%(err)s)"
-msgstr "L'envoi de l'mail à %(email)s a échoué (%(err)s)"
+msgstr "L'envoi de l'email à %(email)s a échoué (%(err)s)"
 
 #: views.py:1412
 msgid "Delete File"
@@ -1888,7 +1888,7 @@ msgstr "Supprimer fiche"
 msgid "%(obj_name)s of %(firstname)s %(lastname)s deleted successfully."
 msgstr "%(obj_name)s de %(firstname)s %(lastname)s supprimée avec succès."
 
-#: views.py:1451 views.py:2485
+#: views.py:1451 views.py:2503
 msgid "Cannot remove user files."
 msgstr "Les documents de cet utilisateur ne peuvent pas être supprimés."
 
@@ -2048,32 +2048,32 @@ msgstr "Compte créé avec succès."
 msgid "Create access"
 msgstr "Créer un compte utilisateur"
 
-#: views.py:2264
+#: views.py:2280
 #, python-format
 msgid "Cannot link with a non-existent file `%s'"
 msgstr "La fiche correspondante n'existe pas `%s'"
 
-#: views.py:2318 views.py:2452
+#: views.py:2335 views.py:2470
 msgid "There are errors on the page"
 msgstr "La page comporte des erreurs"
 
-#: views.py:2322
+#: views.py:2339
 msgid "Employee Accounts"
 msgstr "Comptes salariés"
 
-#: views.py:2355
+#: views.py:2372
 msgid "Account successfully updated"
 msgstr "Compte mis à jour avec succès."
 
-#: views.py:2356
+#: views.py:2373
 msgid "Update Account"
 msgstr "Modifier compte utilisateur"
 
-#: views.py:2367 views.py:2530
+#: views.py:2384 views.py:2548
 msgid "Add an employee"
 msgstr "Ajouter un salarié"
 
-#: views.py:2392
+#: views.py:2409
 msgid ""
 "The status cannot be set to active as the user has not accepted our terms "
 "and condiftions yet."
@@ -2081,76 +2081,76 @@ msgstr ""
 "Le compte ne peut pas être acitvé tant que l'utilisateur n'a pas accepté nos "
 "conditions d'utilisation."
 
-#: views.py:2408
+#: views.py:2425
 msgid "Deleted status cannot be set."
 msgstr "Le status 'supprimé' n'est pas sélectionnable."
 
-#: views.py:2456
+#: views.py:2474
 msgid "Account"
 msgstr "Compte"
 
-#: views.py:2457
+#: views.py:2475
 msgid "Delete Account"
 msgstr "Supprimer compte utilisateur"
 
-#: views.py:2473
+#: views.py:2491
 #, python-format
 msgid "Account of `%(firstname)s %(lastname)s' deleted successfully."
 msgstr "Compte de `%(firstname)s %(lastname)s' supprimé avec succès."
 
-#: views.py:2515
+#: views.py:2533
 msgid "New HR account successfully created"
 msgstr "Compte RH créé avec succès."
 
-#: views.py:2516
+#: views.py:2534
 msgid "New HR account"
 msgstr "Nouveau compte RH"
 
-#: views.py:2517
+#: views.py:2535
 msgid "Initiate account"
 msgstr "Initier un compte"
 
-#: views.py:2524
+#: views.py:2542
 msgid "HR account successfully updated"
 msgstr "Compte RH mis à jour avec succès."
 
-#: views.py:2525
+#: views.py:2543
 msgid "Update HR"
 msgstr "Mettre à jour compte RH"
 
-#: views.py:2574
+#: views.py:2592
 msgid "Invalid Employee table"
 msgstr "La table des salariés est invalide"
 
-#: views.py:2588
+#: views.py:2606
 #, python-format
 msgid "Unknown employee ID `%s'"
 msgstr "ID `%s' du salarié est inconnu"
 
-#: views.py:2591
+#: views.py:2609
 msgid "Employee's e-mail cannot be empty"
 msgstr "E-mail du salarié ne peut pas être vide"
 
-#: views.py:2598
+#: views.py:2616
 msgid "HR accounts"
 msgstr "Comptes RH"
 
-#: views.py:2606
+#: views.py:2624
 msgid "HR account"
 msgstr "Compte RH"
 
-#: views.py:2607
+#: views.py:2625
 msgid "Delete HR account"
 msgstr "Supprimer un compte RH"
 
-#: views.py:2622
+#: views.py:2640
 msgid "Settings successfully updated"
 msgstr "Configuration mise à jour avec succès"
 
-#: views.py:2624
+#: views.py:2642
 msgid "Cannot save"
 msgstr "Impossible de sauvegarder"
 
-#: views.py:2639
+#: views.py:2657
 msgid "Currencies"
 msgstr "Devises"

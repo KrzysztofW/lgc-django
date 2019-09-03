@@ -18,6 +18,7 @@ from django.views.generic import (ListView, DetailView, CreateView, UpdateView,
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from lgc import models as lgc_models, views as lgc_views
+from users import views as user_views
 from employee import models as employee_models
 from . import forms as hr_forms
 from lgc.forms import LgcTab
@@ -69,12 +70,6 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
                 Div('email', css_class='form-group col-md-4'),
                 Div('language', css_class='form-group col-md-4'),
                 css_class='form-row'),
-            Div(
-                Div('is_active', css_class='form-group col-md-4'),
-                css_class='form-row'),
-            Div(
-                Div('new_token', css_class='form-group col-md-4'),
-                css_class='form-row'),
             HTML('<button class="btn btn-outline-info" type="submit">' +
                  str(action) + '</button>')
         )
@@ -112,27 +107,30 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
                                                self.uid)
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
         form.instance.role = user_models.ROLE_EMPLOYEE
-        if form.cleaned_data['new_token']:
-            form.instance.token = lgc_views.token_generator()
-            form.instance.token_date = timezone.now()
-            try:
-                lgc_send_email(self.object, lgc_types.MsgType.NEW_EM)
-            except Exception as e:
-                messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
-                    'email':self.object.email,
-                    'err': str(e)
-                })
-                return super().form_invalid(form)
-
         self.object = form.save()
 
         if not self.is_update:
+            err_showed = False
+            form.instance.hr = self.request.user
+
+            for u in self.request.user.responsible.all():
+                try:
+                    lgc_send_email(form.instance,
+                                   lgc_types.MsgType.HR_INIT_ACCOUNT, u)
+                except Exception as e:
+                    if err_showed:
+                        continue
+                    messages.error(self.request,
+                                   _('Cannot send the request of the account creation. Please contact the KWA team.'))
+                    log.error(e)
+                    err_showed = True
+
             form.instance.responsible.set(self.request.user.responsible.all())
             self.request.user.hr_employees.add(self.object)
 
-        return super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return redirect(self.get_success_url())
 
 class InitiateAccountByHR(CommonAccountByHR, CreateView):
     success_message = ugettext_lazy('New account successfully initiated')
@@ -261,7 +259,7 @@ class HRDeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(self.request, success_message)
         self.object.status = user_models.USER_STATUS_DELETED_BY_HR
         self.object.save()
-        lgc_views.notify_user_deletion(self.object)
+        user_views.notify_user_deletion(self.object)
         return redirect('hr-employees')
 
 def get_expirations_form(request):

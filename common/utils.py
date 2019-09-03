@@ -1,4 +1,5 @@
 from django.utils.formats import get_format
+from django.utils.html import urlencode
 from datetime import datetime
 from django.utils import translation
 from django.utils.translation import ugettext as _
@@ -105,13 +106,14 @@ def lgc_send_email(obj, action, from_user):
         lang = from_user.language.lower()
         translation.activate(lang)
 
-        subject = _("LGC account deletion request")
-        msg = _("""
-Hi,\n
+        subject = _("LGC Account deletion request")
+        msg = _(
+"""Hi,\n
 The account of %(firstname)s %(lastname)s is requested for deletion.
-Your attention is required. Follow this link to accept it or refuse it: %(url)s\n
+Follow this link to accept it or refuse it: %(url)s\n
 Best Regards.
-        """)%{'firstname':obj.first_name,
+"""
+        )%{'firstname':obj.first_name,
               'lastname':obj.last_name,
               'url': settings.SITE_URL + '/account/' + str(obj.id)}
 
@@ -123,22 +125,48 @@ Best Regards.
         if ret != 1:
             raise RuntimeError('cannot send email')
         return
-    elif action == lgc_types.MsgType.MODERATION:
+    if action == lgc_types.MsgType.MODERATION:
         lang = from_user.language.lower()
         translation.activate(lang)
 
-        subject = _("Moderation required")
-        msg = _("""
-Hi,\n
+        subject = _("LGC Moderation required")
+        msg = _(
+"""Hi,\n
 The file %(url)s has been modified by %(firstname)s %(lastname)s.
-Your attention is required. Follow this link to moderate it: %(murl)s\n
+Follow this link to moderate it: %(murl)s\n
 Best Regards.
-        """)%{'url':settings.SITE_URL + '/file/' + str(obj.user.person_user_set.id),
+"""
+        )%{'url':settings.SITE_URL + '/file/' + str(obj.user.person_user_set.id),
               'firstname':obj.modified_by.first_name,
               'lastname':obj.modified_by.last_name,
               'murl': settings.SITE_URL + '/emp/moderation/' + str(obj.id)}
 
         name = from_user.first_name + ' ' + from_user.last_name
+        to = name + ' <' + from_user.email + '>'
+        ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
+                        [to])
+        translation.activate(prev_lang)
+        if ret != 1:
+            raise RuntimeError('cannot send email')
+        return
+    if action == lgc_types.MsgType.HR_INIT_ACCOUNT:
+        lang = from_user.language.lower()
+        translation.activate(lang)
+
+        subject = _("LGC Case initiation")
+        msg = _(
+"""Hi,\n
+The HR %(firstname)s %(lastname)s has initiated a new case.
+Follow this link to accept it: %(url)s\n
+Best Regards.
+"""
+        )%{'firstname':obj.hr.first_name,
+           'lastname':obj.hr.last_name,
+           'url': settings.SITE_URL + str(reverse_lazy('lgc-account',
+                                                       kwargs={'pk':obj.id}))
+        }
+
+        name = obj.hr.first_name + ' ' + obj.hr.last_name
         to = name + ' <' + from_user.email + '>'
         ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
                         [to])

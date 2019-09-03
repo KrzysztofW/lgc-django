@@ -2257,7 +2257,23 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
         if self.is_hr:
             return get_hr_account_form(form, self.form_name, None,
                                        new_token=True)
-        return get_account_form(form, self.form_name, None, new_token=True)
+        form = get_account_form(form, self.form_name, None, new_token=True)
+        if self.request.method == 'GET':
+            hrid = self.request.GET.get('hr')
+
+            try:
+                hr = User.objects.get(id=hrid)
+            except:
+                hr = None
+
+            form.fields['first_name'].initial = self.request.GET.get('fn')
+            form.fields['last_name'].initial = self.request.GET.get('ln')
+            form.fields['email'].initial = self.request.GET.get('e')
+            form.fields['language'].initial = self.request.GET.get('l')
+            if hr:
+                form.fields['responsible'].initial = hr.responsible.all()
+
+        return form
 
     def return_non_existant(self, form, pk):
         messages.error(self.request,
@@ -2304,6 +2320,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
                     'email':self.object.email,
                     'err': str(e)
                 })
+                log.error(e)
         ret = super().form_valid(form)
         self.object = form.save()
         if p:
@@ -2445,6 +2462,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
                     'email':self.object.email,
                     'err': str(e)
                 })
+                log.error(e)
                 return super().form_invalid(form)
         return super().form_valid(form)
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-03 11:33+0200\n"
+"POT-Creation-Date: 2019-09-03 18:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,31 +18,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: forms.py:29 templates/hr/employees.html:29
+#: forms.py:28 templates/hr/employees.html:29
 msgid "Home Entity"
 msgstr "Société d'origine"
 
-#: forms.py:30 templates/hr/employees.html:30
+#: forms.py:29 templates/hr/employees.html:30
 msgid "Host Entity"
 msgstr "Société d'accueil"
 
-#: forms.py:31 forms.py:35
+#: forms.py:30 forms.py:34
 msgid "First Name"
 msgstr "Prénom"
 
-#: forms.py:32 forms.py:36
+#: forms.py:31 forms.py:35
 msgid "Last Name"
 msgstr "Nom"
 
-#: forms.py:37
+#: forms.py:36
 msgid "Expires in days"
 msgstr "Expirations"
 
-#: forms.py:40
+#: forms.py:39
 msgid "Show disabled"
 msgstr "Afficher inactives"
 
-#: forms.py:42
+#: forms.py:41
 msgid "Show expired"
 msgstr "Afficher expirées"
 
@@ -83,7 +83,7 @@ msgid "Go"
 msgstr "Afficher"
 
 #: templates/hr/home.html:44 templates/hr/menu_hr_admin.html:13
-#: templates/hr/menu_hr_simple.html:12 views.py:197
+#: templates/hr/menu_hr_simple.html:12 views.py:185
 msgid "Employees"
 msgstr "Salariés"
 
@@ -100,7 +100,7 @@ msgstr "Expirations"
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: templates/hr/menu_hr_admin.html:19 views.py:139
+#: templates/hr/menu_hr_admin.html:19 views.py:127
 msgid "Initiate an account"
 msgstr "Initier un compte"
 
@@ -108,43 +108,43 @@ msgstr "Initier un compte"
 msgid "Account list"
 msgstr "Comptes"
 
-#: views.py:123
-msgid "Cannot send email to `%(email)s` (%(err)s)"
-msgstr "L'envoi de l'mail à %(email)s a échoué (%(err)s)"
+#: views.py:118
+msgid "Cannot initialize the new account. Please contact the KWA team."
+msgstr "Impossible d'initier le nouveau compte. Merci de contacter l'équipe KWA."
 
-#: views.py:138
+#: views.py:126
 msgid "New account successfully initiated"
 msgstr "Nouveau compte créé avec succès"
 
-#: views.py:140
+#: views.py:128
 msgid "Initiate account"
 msgstr "Initier un dossier"
 
-#: views.py:148
+#: views.py:136
 msgid "Account successfully updated"
 msgstr "Compte mis à jour avec succès"
 
-#: views.py:149
+#: views.py:137
 msgid "Update Account"
 msgstr "Modifier compte"
 
-#: views.py:150
+#: views.py:138
 msgid "Update"
 msgstr "Modifier"
 
-#: views.py:159
+#: views.py:147
 msgid "Employee File"
 msgstr "Fiche du salarié"
 
-#: views.py:240
+#: views.py:228
 msgid "Delete Account"
 msgstr "Supprimer compte"
 
-#: views.py:258
+#: views.py:246
 #, python-format
 msgid "Account of %(first_name)s %(last_name)s successfully deleted."
 msgstr "Compte de %(first_name)s %(last_name)s supprimé avec succès."
 
-#: views.py:284
+#: views.py:273
 msgid "Search"
 msgstr "Rechercher"
