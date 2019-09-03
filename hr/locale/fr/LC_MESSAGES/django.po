@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-16 15:59+0200\n"
+"POT-Creation-Date: 2019-09-03 11:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,35 +18,59 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: templates/hr/employees.html:16
+#: forms.py:29 templates/hr/employees.html:29
+msgid "Home Entity"
+msgstr "Société d'origine"
+
+#: forms.py:30 templates/hr/employees.html:30
+msgid "Host Entity"
+msgstr "Société d'accueil"
+
+#: forms.py:31 forms.py:35
+msgid "First Name"
+msgstr "Prénom"
+
+#: forms.py:32 forms.py:36
+msgid "Last Name"
+msgstr "Nom"
+
+#: forms.py:37
+msgid "Expires in days"
+msgstr "Expirations"
+
+#: forms.py:40
+msgid "Show disabled"
+msgstr "Afficher inactives"
+
+#: forms.py:42
+msgid "Show expired"
+msgstr "Afficher expirées"
+
+#: templates/hr/employees.html:26
 msgid "First name"
 msgstr "Prénom"
 
-#: templates/hr/employees.html:17
+#: templates/hr/employees.html:27
 msgid "Last name"
 msgstr "Nom"
 
-#: templates/hr/employees.html:19
+#: templates/hr/employees.html:31
 msgid "Status"
 msgstr "État"
 
-#: templates/hr/employees.html:20
+#: templates/hr/employees.html:32
 msgid "Created"
 msgstr "Date de création"
 
-#: templates/hr/employees.html:39
+#: templates/hr/employees.html:53
 msgid "Pending"
 msgstr "En cours"
 
-#: templates/hr/employees.html:41
+#: templates/hr/employees.html:55
 msgid "Accepted"
 msgstr "Accepté"
 
-#: templates/hr/employees.html:44
-msgid "View file"
-msgstr "Afficher fiche"
-
-#: templates/hr/employees.html:48
+#: templates/hr/employees.html:57
 msgid "Refused"
 msgstr "Refusé"
 
@@ -59,7 +83,7 @@ msgid "Go"
 msgstr "Afficher"
 
 #: templates/hr/home.html:44 templates/hr/menu_hr_admin.html:13
-#: templates/hr/menu_hr_simple.html:12 views.py:178
+#: templates/hr/menu_hr_simple.html:12 views.py:197
 msgid "Employees"
 msgstr "Salariés"
 
@@ -85,8 +109,6 @@ msgid "Account list"
 msgstr "Comptes"
 
 #: views.py:123
-#, fuzzy, python-format
-#| msgid "Cannot send email to %(email)s (%(err)s)"
 msgid "Cannot send email to `%(email)s` (%(err)s)"
 msgstr "L'envoi de l'mail à %(email)s a échoué (%(err)s)"
 
@@ -114,15 +136,15 @@ msgstr "Modifier"
 msgid "Employee File"
 msgstr "Fiche du salarié"
 
-#: views.py:203
+#: views.py:240
 msgid "Delete Account"
 msgstr "Supprimer compte"
 
-#: views.py:221
+#: views.py:258
 #, python-format
 msgid "Account of %(first_name)s %(last_name)s successfully deleted."
 msgstr "Compte de %(first_name)s %(last_name)s supprimé avec succès."
 
-#: views.py:235
-msgid "Employee"
-msgstr "Salarié"
+#: views.py:284
+msgid "Search"
+msgstr "Rechercher"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-12 21:38+0200\n"
+"POT-Creation-Date: 2019-09-03 11:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: forms.py:36
+msgid "Current password"
+msgstr "Changer le mot de passe"
+
+#: forms.py:40
+msgid "New password"
+msgstr "Changer le mot de passe"
 
 #: models.py:9
 msgid "English"
@@ -102,13 +110,21 @@ msgstr "Supprimer"
 msgid "Change password"
 msgstr "Changer le mot de passe"
 
+#: templates/users/forgotten_password.html:21
+msgid "Enter your email address"
+msgstr "Saisissez l'adresse e-mail associés à votre compte"
+
+#: templates/users/forgotten_password.html:29 templates/users/login.html:29
+msgid "E-mail"
+msgstr "E-mail"
+
+#: templates/users/forgotten_password.html:32
+msgid "Send"
+msgstr "Envoyer"
+
 #: templates/users/login.html:21
 msgid "Please Sign In"
 msgstr "Connectez-vous"
-
-#: templates/users/login.html:29 templates/users/reset_password.html:29
-msgid "E-mail"
-msgstr "E-mail"
 
 #: templates/users/login.html:32
 msgid "Password"
@@ -122,7 +138,7 @@ msgstr "Se rappeler de moi"
 msgid "Login"
 msgstr "Se connecter"
 
-#: templates/users/login.html:43 views.py:361
+#: templates/users/login.html:43 views.py:357
 msgid "Reset your password"
 msgstr "Réinitialiser votre mot de passe"
 
@@ -137,14 +153,6 @@ msgstr "Mettre à jour"
 #: templates/users/profile.html:10
 msgid "Profile Info"
 msgstr "Informations du profile"
-
-#: templates/users/reset_password.html:21
-msgid "Enter your email address"
-msgstr "Saisissez l'adresse e-mail associés à votre compte"
-
-#: templates/users/reset_password.html:32
-msgid "Send"
-msgstr "Envoyer"
 
 #: templates/users/token.html:30
 msgid "Welcome"
@@ -248,15 +256,11 @@ msgstr "Mon profile utilisateur"
 msgid "Your account profile has been updated"
 msgstr "Votre profile utilisateur a été mis à jour"
 
-#: views.py:274
-msgid "Your session has expired."
-msgstr "Votre session a expirée."
-
-#: views.py:304
+#: views.py:300
 msgid "Your password has expired. Please choose a new one"
 msgstr "Votre mot de passe a expiré. Merci d'en créer un nouveau"
 
-#: views.py:328
+#: views.py:324
 msgid ""
 "Your account is no longer active, please contact your Office "
 "consultant."
@@ -264,35 +268,45 @@ msgstr ""
 "Votre compte n’est plus actif, veuillez contacter votre consultant  "
 "Office."
 
-#: views.py:339
+#: views.py:335
 msgid "You were successfully logged-out."
 msgstr "Vous avez été déconnecté."
 
-#: views.py:375
+#: views.py:371
 msgid "The email does not match any account."
 msgstr "L'email ne correspond à aucun compte actif."
 
-#: views.py:379
+#: views.py:375
 msgid "This account is not active."
 msgstr "Ce compte n'est pas active."
 
-#: views.py:388
+#: views.py:384
 #, python-format
 msgid "Cannot send email to `%(email)s` (%(err)s)"
 msgstr "Impossible d'envoyer un email à `%(email)s` (%(err)s)"
 
-#: views.py:394
+#: views.py:390
 #, python-format
 msgid ""
 "We sent an email to %(email)s with a link to help verify it is you. The link "
 "is valid for %(expiry)s hours."
-msgstr "Pour confirmer votre identité, nous avons renvoyé un e-mail contenant un lien à l'adresse %(email)s. Le lien est valide pendant %(expiry)s heures."
+msgstr ""
+"Pour confirmer votre identité, nous avons renvoyé un e-mail contenant un "
+"lien à l'adresse %(email)s. Le lien est valide pendant %(expiry)s heures."
 
-#: views.py:402
+#: views.py:398
 msgid "Welcome to LGC"
 msgstr "Bienvenue sur le site Office"
 
-#: views.py:444
+#: views.py:429
+msgid "The current password does not match."
+msgstr "L'email ne correspond à aucun compte actif."
+
+#: views.py:433
+msgid "The new password and the old one must be different."
+msgstr "Le nouveau mot de passe et l'ancien doivent être différents."
+
+#: views.py:451
 #, python-format
 msgid "The password for %(firstname)s %(lastname)s has been successfully set"
 msgstr "Le mot de passe de %(firstname)s %(lastname)s a été pris en compte"
