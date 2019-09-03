@@ -120,6 +120,13 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixi
     def test_func(self):
         return self.request.user.is_staff
 
+def notify_user_deletion(obj):
+    for u in obj.person_user_set.responsible.all():
+        try:
+            lgc_send_email(obj, lgc_types.MsgType.DEL_REQ, u)
+        except Exception as e:
+            log.error(e)
+
 class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
     template_name = 'users/confirm_delete.html'
@@ -155,6 +162,8 @@ class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         obj.is_active = False
         obj.status = user_models.USER_STATUS_DELETED_BY_EMPLOYEE
         obj.save()
+        notify_user_deletion(obj)
+
         return redirect('user-logout')
 
 @login_required

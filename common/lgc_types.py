@@ -30,3 +30,4 @@ class MsgType(Enum):
     DEL = 3,
     PW_RST = 4,
     MODERATION = 5,
+    DEL_REQ = 6,

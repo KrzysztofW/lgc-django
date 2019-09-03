@@ -142,7 +142,9 @@ class PersonCreateForm(forms.ModelForm):
         exclude = ['creation_date', 'modified_by', 'modification_date']
 
 class InitiateAccountForm(forms.ModelForm):
-    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}), queryset=user_models.get_consultant_queryset(), label=_('Persons in charge'))
+    responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}),
+                                                 queryset=user_models.get_consultant_queryset(),
+                                                 label=_('Persons in charge of the account'))
     new_token = forms.BooleanField(required=False, initial=True,
                                    label=_('Send invitation'),
                                    help_text=_('Send authentication token allowing to choose a new password.'))

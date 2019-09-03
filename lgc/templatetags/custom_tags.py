@@ -21,9 +21,7 @@ def get_notification_menu(request):
     res = {}
     compare_date = timezone.now().date() + datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS)
     expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user, enabled=True, end_date__lte=compare_date).order_by('end_date').exclude(end_date__lte=timezone.now().date())
-    deletion_requests = User.objects.filter(status__in=user_models.get_user_deleted_statuses())
     res['expirations'] = expirations[:10]
-    res['deletion_requests'] = deletion_requests[:5]
     res['today'] = timezone.now().date()
     res['pcnt'] = 0
 
@@ -33,7 +31,7 @@ def get_notification_menu(request):
         res['ready_to_invoice'] = processes
         res['pcnt'] += processes.count()
 
-    res['nb_items'] = len(expirations) + len(deletion_requests) + res['pcnt']
+    res['nb_items'] = len(expirations) + res['pcnt']
     if request.user.billing and request.user.show_invoice_notifs:
         invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE)
         res['ready_invoices'] = invoices[:10]

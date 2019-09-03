@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-12 21:45+0200\n"
+"POT-Creation-Date: 2019-09-03 15:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -510,34 +510,85 @@ msgstr "Afficher"
 msgid "entries"
 msgstr "éléments"
 
-#: utils.py:114 utils.py:117
+#: utils.py:108
+msgid "LGC account deletion request"
+msgstr "LGC suppression de compte demandée"
+
+#: utils.py:109
+#, python-format
+msgid ""
+"\n"
+"Hi,\n"
+"\n"
+"The account of %(firstname)s %(lastname)s is requested for deletion.\n"
+"Your attention is required. Follow this link to accept it or refuse it: "
+"%(url)s\n"
+"\n"
+"Best Regards.\n"
+"        "
+msgstr ""
+"\n"
+"Bonjour,\n"
+"\n"
+"La suppresion du compte de %(firstname)s %(lastname)s a été demandée.\n"
+"Votre attention est requise. Cliquez sur le lien suivant pour l'accepter ou la refuser: %(url)s\n"
+"\n"
+"Cordialment.\n"
+"        "
+
+#: utils.py:130
+msgid "Moderation required"
+msgstr "Modération requise"
+
+#: utils.py:131
+#, python-format
+msgid ""
+"\n"
+"Hi,\n"
+"\n"
+"The file %(url)s has been modified by %(firstname)s %(lastname)s.\n"
+"Your attention is required. Follow this link to moderate it: %(murl)s\n"
+"\n"
+"Best Regards.\n"
+"        "
+msgstr ""
+"\n"
+"Bonjour,\n"
+"\n"
+"La fiche %(url)s a été modifiée par %(firstname)s %(lastname)s.\n"
+"Votre attention est requise. Cliquez sur le lien suivant pour modérer cette fiche: %(murl)s\n"
+"\n"
+"Cordialment.\n"
+"        "
+
+#: utils.py:160 utils.py:163
 msgid "Creation of your LGC account"
 msgstr "Création de votre compte LGC"
 
-#: utils.py:120
+#: utils.py:166
 msgid "Confirmation - your “my KWA” account has been deleted"
 msgstr "Confirmation de la suppression de compte LGC"
 
-#: utils.py:123
+#: utils.py:169
 msgid "Confirm it's you to access your LGC account"
-msgstr "Veuillez confirmer votre identité pour pouvoir accéder à votre compte LGC"
+msgstr ""
+"Veuillez confirmer votre identité pour pouvoir accéder à votre compte LGC"
 
-#: utils.py:124
-#, python-format
+#: utils.py:170
 msgid ""
 "\n"
 "        Hi %(firstname)s %(lastname)s,\n"
 "\n"
 "\n"
-"        It looks like you’re having trouble signing into your account.\n"
+"        It looks like you're having trouble signing into your account.\n"
 "\n"
 "\n"
 "        Please follow this link: %(token)s\n"
-"        to verify your identity and access your account. (It’s only good for "
+"        to verify your identity and access your account. (It's only good for "
 "%(expiry)d hours.)\n"
 "\n"
 "\n"
-"        If you don’t recognize this activity, please contact us "
+"        If you don't recognize this activity, please contact us "
 "(contact@example.com)\n"
 "        "
 msgstr ""
@@ -547,8 +598,8 @@ msgstr ""
 "        Il semble que vous ne puissiez pas vous connecter à votre compte.\n"
 "\n"
 "        Suivez ce lien : %(token)s\n"
-"        pour vérifier votre identité et accéder à "
-"votre compte. (Valable pendant %(expiry)d heures seulement.)\n"
+"        pour vérifier votre identité et accéder à votre compte. (Valable "
+"pendant %(expiry)d heures seulement.)\n"
 "\n"
 "\n"
 "        Si vous ne reconnaissez pas cette activité, contactez-nous "

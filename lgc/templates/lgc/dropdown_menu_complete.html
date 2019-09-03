@@ -90,22 +90,6 @@
       <div class="dropdown-divider"></div>
       {% endfor %}
 
-      {% for r in notifs.deletion_requests %}
-      <a class="dropdown-item" href="{% url 'lgc-account' r.id %}">
-        <div>
-	  {# needed &nbsp; for far icon #}
-          &nbsp;<i class="far fa-trash-alt"></i>&nbsp;
-	  {% with name=r.first_name|add:' '|add:r.last_name line_length=r.first_name %}
-	  {{ name|truncatechars:19 }}
-	  {% endwith %}
-	  <span class="float-right text-muted small">
-	    {% trans 'Deletion requested' %}
-	  </span>
-        </div>
-      </a>
-      <div class="dropdown-divider"></div>
-      {% endfor %}
-
       {% for p in notifs.ready_to_invoice %}
       <a class="dropdown-item" href="{% url 'lgc-person-process' p.id %}">
         <div>

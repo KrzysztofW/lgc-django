@@ -261,6 +261,7 @@ class HRDeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(self.request, success_message)
         self.object.status = user_models.USER_STATUS_DELETED_BY_HR
         self.object.save()
+        lgc_views.notify_user_deletion(self.object)
         return redirect('hr-employees')
 
 def get_expirations_form(request):

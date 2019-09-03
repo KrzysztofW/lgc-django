@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-03 11:33+0200\n"
+"POT-Creation-Date: 2019-09-03 15:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,19 +22,19 @@ msgstr ""
 msgid "Clients"
 msgstr "Clients"
 
-#: billing_views.py:105 forms.py:92 forms.py:104 forms.py:184 models.py:528
+#: billing_views.py:105 forms.py:92 forms.py:104 forms.py:186 models.py:528
 #: templates/lgc/insert_client.html:20 templates/lgc/person_hr_list.html:13
 #: views.py:178
 msgid "First Name"
 msgstr "Prénom"
 
-#: billing_views.py:106 forms.py:93 forms.py:105 forms.py:461 models.py:531
+#: billing_views.py:106 forms.py:93 forms.py:105 forms.py:463 models.py:531
 #: templates/lgc/insert_client.html:21 templates/lgc/person_hr_list.html:14
 #: views.py:179
 msgid "Last Name"
 msgstr "Nom"
 
-#: billing_views.py:107 forms.py:465 models.py:872 models.py:892 models.py:1017
+#: billing_views.py:107 forms.py:467 models.py:872 models.py:892 models.py:1017
 #: templates/lgc/insert_client.html:22 templates/lgc/person_hr_list.html:15
 msgid "Company"
 msgstr "Société"
@@ -101,25 +101,25 @@ msgstr "Exporter en CSV"
 msgid "The number of selected invoices is greater than 4000."
 msgstr "Le nombre de factures sélectionnées est supérieur à 4000."
 
-#: billing_views.py:483 forms.py:502
+#: billing_views.py:483 forms.py:504
 msgid "Employee Name"
 msgstr "Nom du salarié"
 
-#: billing_views.py:484 forms.py:503
+#: billing_views.py:484 forms.py:505
 msgid "Company / Client"
 msgstr "Société / Client"
 
-#: billing_views.py:485 forms.py:419 models.py:1009
+#: billing_views.py:485 forms.py:421 models.py:1009
 #: templates/lgc/document_form.html:30 templates/lgc/file_invoice_list.html:20
 msgid "Date"
 msgstr "Date"
 
-#: billing_views.py:486 billing_views.py:646 billing_views.py:699 forms.py:508
+#: billing_views.py:486 billing_views.py:646 billing_views.py:699 forms.py:510
 #: templates/lgc/insert_invoice_item.html:14
 msgid "Items"
 msgstr "Dilligences"
 
-#: billing_views.py:487 forms.py:497
+#: billing_views.py:487 forms.py:499
 msgid "Total (+VAT)"
 msgstr "Total TTC"
 
@@ -136,7 +136,7 @@ msgid "Delete Invoice"
 msgstr "Supprimer la facture"
 
 #: billing_views.py:538 billing_views.py:1045 models.py:932
-#: templates/lgc/dropdown_menu_complete.html:125
+#: templates/lgc/dropdown_menu_complete.html:109
 msgid "Invoice"
 msgstr "Facture"
 
@@ -149,7 +149,7 @@ msgstr "Facture %(name)s supprimée avec succès."
 msgid "Invalid Item table"
 msgstr "La tables des dilligences est invalide"
 
-#: billing_views.py:651 billing_views.py:702 forms.py:510
+#: billing_views.py:651 billing_views.py:702 forms.py:512
 #: templates/lgc/billing_totals.html:19
 msgid "Disbursements"
 msgstr "Débours"
@@ -324,7 +324,7 @@ msgstr "Inactif"
 msgid "Immigration Process"
 msgstr "Procédure d'immigration"
 
-#: forms.py:62 forms.py:540 forms.py:570 models.py:612 models.py:1025
+#: forms.py:62 forms.py:542 forms.py:572 models.py:612 models.py:1025
 msgid "State"
 msgstr "État"
 
@@ -352,11 +352,11 @@ msgstr "Consulat"
 msgid "Jurisdiction"
 msgstr "Juridiction"
 
-#: forms.py:85 forms.py:114 forms.py:207 models.py:610
+#: forms.py:85 forms.py:114 forms.py:209 models.py:610
 msgid "Start Date"
 msgstr "Date de début"
 
-#: forms.py:86 forms.py:208
+#: forms.py:86 forms.py:210
 msgid "End Date"
 msgstr "Date de fin"
 
@@ -384,7 +384,7 @@ msgstr "Indique si cette fiche est privée (un RH ne peut pas y accéder)."
 msgid "As per passport"
 msgstr "Comme indiqué sur le passeport"
 
-#: forms.py:108 forms.py:186 models.py:511 models.py:534
+#: forms.py:108 forms.py:188 models.py:511 models.py:534
 #: templates/lgc/custom_table.html:16 views.py:180
 msgid "Birth Date"
 msgstr "Date de naissance"
@@ -397,7 +397,7 @@ msgstr "Adresse de la société d'origine"
 msgid "Host Entity Address"
 msgstr "Adresse de la société d'accueil"
 
-#: forms.py:113 forms.py:380 forms.py:542 models.py:608
+#: forms.py:113 forms.py:382 forms.py:544 models.py:608
 msgid "Person in charge"
 msgstr "Responsable"
 
@@ -421,333 +421,337 @@ msgstr "Créer une procédure active"
 msgid "Foreign country"
 msgstr "Pays d'origine"
 
-#: forms.py:127 forms.py:187 models.py:513 models.py:538
+#: forms.py:127 forms.py:189 models.py:513 models.py:538
 msgid "Passport Expiry"
 msgstr "Expiration du passeport"
 
-#: forms.py:145 forms.py:513
-msgid "Persons in charge"
-msgstr "Responsables"
-
 #: forms.py:147
+msgid "Persons in charge of the account"
+msgstr "Responsables du compte LGC"
+
+#: forms.py:149
 msgid "Send invitation"
 msgstr "Envoyer une invitation"
 
-#: forms.py:148
+#: forms.py:150
 msgid "Send authentication token allowing to choose a new password."
 msgstr ""
 "Envoyer un jeton d'authentification pour permettre à l'utilisateur de "
 "choisir un nouveau mot de passe."
 
-#: forms.py:164
+#: forms.py:166
 msgid "Is admin"
 msgstr "Admin"
 
-#: forms.py:165
+#: forms.py:167
 msgid "This HR user can initiate new cases"
 msgstr "Cet utilisateur RH peut initier de nouveaux dossiers"
 
-#: forms.py:188 models.py:745
+#: forms.py:190 models.py:745
 msgid "Passport nationality"
 msgstr "Nationalité passeport"
 
-#: forms.py:190
+#: forms.py:192
 msgid "VLTS-TS/DCEM Expiry"
 msgstr "Expiration VLTS-TS/DCEM"
 
-#: forms.py:191 models.py:730 views.py:796
+#: forms.py:193 models.py:730 views.py:796
 msgid "Enabled"
 msgstr "Actif"
 
-#: forms.py:237 models.py:738
+#: forms.py:239 models.py:738
 msgid "Number"
 msgstr "Numéro"
 
-#: forms.py:245 models.py:769 templates/lgc/menu_complete.html:105
+#: forms.py:247 models.py:769 templates/lgc/menu_complete.html:105
 msgid "Stages"
 msgstr "Étapes"
 
-#: forms.py:270
+#: forms.py:272
 msgid "Specific stage French name"
 msgstr "Nom français de l'étape spécifique"
 
-#: forms.py:272
+#: forms.py:274
 msgid "Specific stage English name"
 msgstr "Nom anglais de l'étape spécifique"
 
-#: forms.py:280
+#: forms.py:282
 msgid "Delete process"
 msgstr "Supprimer cette procédure"
 
-#: forms.py:286
+#: forms.py:288
 msgid "No action"
 msgstr "Pas d'action"
 
-#: forms.py:287
+#: forms.py:289
 msgid "Delete last stage"
 msgstr "Supprimer la dernière étape"
 
-#: forms.py:288
+#: forms.py:290
 msgid "Add specific stage"
 msgstr "Ajouter une étape spécifique"
 
-#: forms.py:291
+#: forms.py:293
 msgid "Validate stage"
 msgstr "Valider une étape"
 
-#: forms.py:295
+#: forms.py:297
 msgid "Completed"
 msgstr "Marquer comme complété"
 
-#: forms.py:299 forms.py:330 forms.py:339
+#: forms.py:301 forms.py:332 forms.py:341
 msgid "Action:"
 msgstr "Action"
 
-#: forms.py:357
+#: forms.py:359
 msgid "French name"
 msgstr "Nom français"
 
-#: forms.py:358
+#: forms.py:360
 msgid "English name"
 msgstr "Nom anglais"
 
-#: forms.py:365
+#: forms.py:367
 msgid "File*"
 msgstr "Fichier*"
 
-#: forms.py:366
+#: forms.py:368
 msgid "Description*"
 msgstr "Description*"
 
-#: forms.py:384
+#: forms.py:386
 msgid "Expiration Type"
 msgstr "Type d'expiration"
 
-#: forms.py:391
+#: forms.py:393
 msgid "Expires in days"
 msgstr "Jours avant expiration"
 
-#: forms.py:394
+#: forms.py:396
 msgid "Show disabled"
 msgstr "Afficher inactives"
 
-#: forms.py:396
+#: forms.py:398
 msgid "Show expired"
 msgstr "Afficher expirées"
 
-#: forms.py:405
+#: forms.py:407
 msgid "Apply my changes anyway."
 msgstr "Soumettre mes modifications malgré tout."
 
-#: forms.py:406
+#: forms.py:408
 msgid "Discard all my changes and redisplay."
 msgstr "Abandonner mes modifications et recharger la page."
 
-#: forms.py:412
+#: forms.py:414
 msgid "Choose an action:"
 msgstr "Choisir une action :"
 
-#: forms.py:417 forms.py:452 models.py:991
+#: forms.py:419 forms.py:454 models.py:991
 msgid "Invoice Date"
 msgstr "Date de facturation"
 
-#: forms.py:418 forms.py:458 models.py:992
+#: forms.py:420 forms.py:460 models.py:992
 msgid "Modification Date"
 msgstr "Date de modification"
 
-#: forms.py:427 models.py:1024
+#: forms.py:429 models.py:1024
 msgid "Include Various Expenses"
 msgstr "Inclure les frais divers"
 
-#: forms.py:429
+#: forms.py:431
 #, python-format
 msgid "(Phone, mail...) 5% of the services limited to 100."
 msgstr "(Téléphone, télécopie, courrier) 5% des prestations plafonné à 100."
 
-#: forms.py:433 forms.py:485 forms.py:605 models.py:710 models.py:1022
+#: forms.py:435 forms.py:487 forms.py:607 models.py:710 models.py:1022
 #: models.py:1029 models.py:1282 models.py:1304 models.py:1332
 #: templates/lgc/document_form.html:25
 msgid "Description"
 msgstr "Description"
 
-#: forms.py:453
+#: forms.py:455
 msgid "Payment Date"
 msgstr "Date de paiement"
 
-#: forms.py:459 forms.py:517
+#: forms.py:461 forms.py:519
 msgid "Validation Date"
 msgstr "Date de validation"
 
-#: forms.py:460
+#: forms.py:462
 msgid "Client ID"
 msgstr "ID client"
 
-#: forms.py:464
+#: forms.py:466
 msgid "Client VAT"
 msgstr "TVA client"
 
-#: forms.py:466
+#: forms.py:468
 msgid "Client Address"
 msgstr "Adresse client"
 
-#: forms.py:467
+#: forms.py:469
 msgid "Client City"
 msgstr "Ville client"
 
-#: forms.py:468
+#: forms.py:470
 msgid "Client Country"
 msgstr "Pays client"
 
-#: forms.py:469 models.py:996
+#: forms.py:471 models.py:996
 msgid "Payment Option"
 msgstr "Mode de réglement"
 
-#: forms.py:471
+#: forms.py:473
 msgid "PO Date"
 msgstr "Date PO"
 
-#: forms.py:472
+#: forms.py:474
 msgid "PO Last Name"
 msgstr "Nom PO"
 
-#: forms.py:473
+#: forms.py:475
 msgid "PO First Name"
 msgstr "Prénom PO"
 
-#: forms.py:474
+#: forms.py:476
 msgid "PO Email"
 msgstr "Email PO"
 
-#: forms.py:475
+#: forms.py:477
 msgid "PO rate"
 msgstr "Montant PO"
 
-#: forms.py:476 forms.py:545 models.py:999 models.py:1291
+#: forms.py:478 forms.py:547 models.py:999 models.py:1291
 #: templates/lgc/insert_invoice_item.html:23
 msgid "Currency"
 msgstr "Devise"
 
-#: forms.py:477
+#: forms.py:479
 msgid "Language"
 msgstr "Langue"
 
-#: forms.py:478
+#: forms.py:480
 msgid "Company Option"
 msgstr "Société"
 
-#: forms.py:479 forms.py:505 templates/lgc/file_invoice_list.html:19
+#: forms.py:481 forms.py:507 templates/lgc/file_invoice_list.html:19
 #: views.py:1633 views.py:1665 views.py:1831
 msgid "Process"
 msgstr "Procédure"
 
-#: forms.py:480 forms.py:571 models.py:1027
+#: forms.py:482 forms.py:573 models.py:1027
 msgid "Already Paid"
 msgstr "Déjà réglé"
 
-#: forms.py:481
+#: forms.py:483
 msgid "Various Expenses"
 msgstr "Frais divers"
 
-#: forms.py:482
+#: forms.py:484
 msgid "Various Expenses No VAT"
 msgstr "Frais divers HT"
 
-#: forms.py:483
+#: forms.py:485
 msgid "Various_expenses (+VAT)"
 msgstr "Frais divers TTC"
 
-#: forms.py:484
+#: forms.py:486
 msgid "Validated"
 msgstr "Validées"
 
-#: forms.py:486
+#: forms.py:488
 msgid "To Be Done"
 msgstr "À facturer"
 
-#: forms.py:487
+#: forms.py:489
 msgid "Disbursements No VAT"
 msgstr "Débours HT"
 
-#: forms.py:488 forms.py:511
+#: forms.py:490 forms.py:513
 msgid "Disbursements (+VAT)"
 msgstr "Débours TTC"
 
-#: forms.py:490
+#: forms.py:492
 msgid "Disbursements No Vat No Various Expenses"
 msgstr "Débours HT sans frais divers"
 
-#: forms.py:492
+#: forms.py:494
 msgid "Disbursements (+VAT) No Various Expenses"
 msgstr "Débours TTC avec frais divers"
 
-#: forms.py:493
+#: forms.py:495
 msgid "Items No VAT"
 msgstr "Dilligences HT"
 
-#: forms.py:494 forms.py:509
+#: forms.py:496 forms.py:511
 msgid "Items (+VAT)"
 msgstr "Dilligences TTC"
 
-#: forms.py:495
+#: forms.py:497
 msgid "Total No VAT"
 msgstr "Total HT"
 
-#: forms.py:496 forms.py:598 models.py:1298 models.py:1317
+#: forms.py:498 forms.py:600 models.py:1298 models.py:1317
 #: templates/lgc/billing_total_template.html:12
 msgid "VAT"
 msgstr "TVA"
 
-#: forms.py:504
+#: forms.py:506
 msgid "Home / Host Entity"
 msgstr "Société d'origine / d'accueil"
 
-#: forms.py:516
+#: forms.py:515
+msgid "Persons in charge"
+msgstr "Responsables"
+
+#: forms.py:518
 msgid "Remaining Balance"
 msgstr "Restant dû"
 
-#: forms.py:518 templates/lgc/file_invoice_list.html:23
+#: forms.py:520 templates/lgc/file_invoice_list.html:23
 msgid "Status"
 msgstr "État"
 
-#: forms.py:536
+#: forms.py:538
 msgid "From Date"
 msgstr "à partir de"
 
-#: forms.py:537
+#: forms.py:539
 msgid "To Date"
 msgstr "jusqu'à"
 
-#: forms.py:550
+#: forms.py:552
 msgid "CSV Export"
 msgstr "Export en CSV"
 
-#: forms.py:555
+#: forms.py:557
 msgid "Displayed Columns"
 msgstr "Colonnes affichées"
 
-#: forms.py:577
+#: forms.py:579
 msgid "If this state is set, the invoice will not be editable anymore"
 msgstr "Si cet état est choisi, la facture ne sera plus modifiable."
 
-#: forms.py:586 forms.py:588 models.py:882 models.py:893
+#: forms.py:588 forms.py:590 models.py:882 models.py:893
 msgid "Address"
 msgstr "Adresse"
 
-#: forms.py:596 models.py:1297 models.py:1316
+#: forms.py:598 models.py:1297 models.py:1316
 msgid "Quantity"
 msgstr "Quantité"
 
-#: forms.py:603 models.py:1015 models.py:1283 models.py:1315
+#: forms.py:605 models.py:1015 models.py:1283 models.py:1315
 #: templates/lgc/insert_invoice_item.html:22
 msgid "Rate"
 msgstr "Montant"
 
-#: forms.py:608 models.py:1032 templates/lgc/billing_totals.html:21
+#: forms.py:610 models.py:1032 templates/lgc/billing_totals.html:21
 #: templates/lgc/file_invoice_list.html:22
 msgid "Total"
 msgstr "Total"
 
-#: forms.py:631 models.py:1299
+#: forms.py:633 models.py:1299
 msgid "20% margin"
 msgstr "marge 20%"
 
@@ -1081,7 +1085,6 @@ msgid "All"
 msgstr "Tous"
 
 #: templates/lgc/accounts.html:23 templates/lgc/custom_table.html:53
-#: templates/lgc/dropdown_menu_complete.html:102
 msgid "Deletion requested"
 msgstr "Suppression demandée"
 
@@ -1249,27 +1252,27 @@ msgstr "expirés"
 msgid "expires in"
 msgstr "expire dans"
 
-#: templates/lgc/dropdown_menu_complete.html:115
+#: templates/lgc/dropdown_menu_complete.html:99
 msgid "Ready to invoice"
 msgstr "prête à facturer"
 
-#: templates/lgc/dropdown_menu_complete.html:127
+#: templates/lgc/dropdown_menu_complete.html:111
 msgid "is ready"
 msgstr "prête"
 
-#: templates/lgc/dropdown_menu_complete.html:135
+#: templates/lgc/dropdown_menu_complete.html:119
 msgid "See all expirations"
 msgstr "Afficher toutes les expirations"
 
-#: templates/lgc/dropdown_menu_complete.html:141
+#: templates/lgc/dropdown_menu_complete.html:125
 msgid "See all ready processes"
 msgstr "Afficher toutes les procédures prêtes"
 
-#: templates/lgc/dropdown_menu_complete.html:147
+#: templates/lgc/dropdown_menu_complete.html:131
 msgid "See all ready invoices"
 msgstr "Afficher toutes les factures prêtes"
 
-#: templates/lgc/dropdown_menu_complete.html:153
+#: templates/lgc/dropdown_menu_complete.html:137
 msgid "There are no pending notifications"
 msgstr "Il n'y a pas de notifications en cours"
 
