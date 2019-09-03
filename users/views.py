@@ -274,6 +274,9 @@ class LoginView(authLoginView):
         return context
 
     def redirect_language(self):
+        next_url = self.request.GET.get('next')
+        if next_url:
+            return redirect(next_url)
         return redirect('lgc-home')
 
     def form_valid(self, form):
