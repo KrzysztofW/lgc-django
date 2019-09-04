@@ -292,13 +292,13 @@ class LoginView(authLoginView):
         form = super().form_valid(form)
         ip = self.request.META.get('REMOTE_ADDR')
         ip = IPv4Address(ip)
-        found = False
 
         translation.activate(self.request.user.language)
         self.request.session[translation.LANGUAGE_SESSION_KEY] = self.request.user.language
 
         for subnet in settings.ALLOWED_SESSION_NOTIMEOUT_SUBNETS:
             if ip in IPv4Network(subnet):
+                self.request.session['no_session_expiry'] = True
                 break
 
         if self.request.user.role in user_models.get_internal_roles():
