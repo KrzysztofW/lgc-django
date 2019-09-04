@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-03 18:05+0200\n"
+"POT-Creation-Date: 2019-09-04 15:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -83,7 +83,7 @@ msgid "Go"
 msgstr "Afficher"
 
 #: templates/hr/home.html:44 templates/hr/menu_hr_admin.html:13
-#: templates/hr/menu_hr_simple.html:12 views.py:185
+#: templates/hr/menu_hr_simple.html:12 views.py:195
 msgid "Employees"
 msgstr "Salariés"
 
@@ -100,7 +100,7 @@ msgstr "Expirations"
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: templates/hr/menu_hr_admin.html:19 views.py:127
+#: templates/hr/menu_hr_admin.html:19 views.py:137
 msgid "Initiate an account"
 msgstr "Initier un compte"
 
@@ -108,43 +108,46 @@ msgstr "Initier un compte"
 msgid "Account list"
 msgstr "Comptes"
 
-#: views.py:118
-msgid "Cannot initialize the new account. Please contact the KWA team."
-msgstr "Impossible d'initier le nouveau compte. Merci de contacter l'équipe KWA."
+#: views.py:125
+msgid ""
+"Cannot send the request of the account creation. Please contact the KWA team."
+msgstr ""
+"Impossible d'envoyer la requête d'initiation du nouveau compte. Merci de "
+"contacter l'équipe KWA."
 
-#: views.py:126
+#: views.py:136
 msgid "New account successfully initiated"
 msgstr "Nouveau compte créé avec succès"
 
-#: views.py:128
+#: views.py:138
 msgid "Initiate account"
 msgstr "Initier un dossier"
 
-#: views.py:136
+#: views.py:146
 msgid "Account successfully updated"
 msgstr "Compte mis à jour avec succès"
 
-#: views.py:137
+#: views.py:147
 msgid "Update Account"
 msgstr "Modifier compte"
 
-#: views.py:138
+#: views.py:148
 msgid "Update"
 msgstr "Modifier"
 
-#: views.py:147
+#: views.py:157
 msgid "Employee File"
 msgstr "Fiche du salarié"
 
-#: views.py:228
+#: views.py:238
 msgid "Delete Account"
 msgstr "Supprimer compte"
 
-#: views.py:246
+#: views.py:256
 #, python-format
 msgid "Account of %(first_name)s %(last_name)s successfully deleted."
 msgstr "Compte de %(first_name)s %(last_name)s supprimé avec succès."
 
-#: views.py:273
+#: views.py:283
 msgid "Search"
 msgstr "Rechercher"

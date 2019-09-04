@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-03 18:05+0200\n"
+"POT-Creation-Date: 2019-09-04 15:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -515,6 +515,7 @@ msgid "LGC Account deletion request"
 msgstr "LGC suppression de compte demandée"
 
 #: utils.py:111
+#, python-format
 msgid ""
 "Hi,\n"
 "\n"
@@ -535,6 +536,7 @@ msgid "LGC Moderation required"
 msgstr "LGC Modération requise"
 
 #: utils.py:134
+#, python-format
 msgid ""
 "Hi,\n"
 "\n"
@@ -555,6 +557,7 @@ msgid "LGC Case initiation"
 msgstr ""
 
 #: utils.py:158
+#, python-format
 msgid ""
 "Hi,\n"
 "\n"
@@ -570,20 +573,20 @@ msgstr ""
 "\n"
 "Cordialment.\n"
 
-#: utils.py:192 utils.py:195
+#: utils.py:188 utils.py:191
 msgid "Creation of your LGC account"
 msgstr "Création de votre compte LGC"
 
-#: utils.py:198
-msgid "Confirmation - your “my KWA” account has been deleted"
+#: utils.py:194
+msgid "Confirmation - your LGC account has been deleted"
 msgstr "Confirmation de la suppression de compte LGC"
 
-#: utils.py:201
+#: utils.py:197
 msgid "Confirm it's you to access your LGC account"
 msgstr ""
 "Veuillez confirmer votre identité pour pouvoir accéder à votre compte LGC"
 
-#: utils.py:202
+#: utils.py:198
 #, python-format
 msgid ""
 "\n"

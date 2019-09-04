@@ -21,7 +21,7 @@ from pathlib import Path
 
 MSG_TPL_DIR = 'msg_tpls'
 CURRENT_DIR = Path(__file__).parent
-ms_email_domains = ['hotmail', 'outlook', 'live', 'msg', 'passport']
+ext_images_email_domains = ['hotmail', 'outlook', 'live', 'msg', 'passport', 'gmail']
 
 def must_be_staff(view_func):
     @wraps(view_func)
@@ -191,7 +191,7 @@ Best Regards.
         subject = _('Creation of your LGC account')
         tpl = 'message_hr'
     elif action == lgc_types.MsgType.DEL:
-        subject = _('Confirmation - your “my KWA” account has been deleted')
+        subject = _('Confirmation - your LGC account has been deleted')
         tpl = 'message_user_deletion'
     elif action == lgc_types.MsgType.PW_RST:
         subject = _("Confirm it's you to access your LGC account")
@@ -222,7 +222,7 @@ Best Regards.
     email_hostname = obj.email.split("@", 1)[1]
     email_hostname = email_hostname.split(".", 1)[0]
 
-    if email_hostname in ms_email_domains:
+    if email_hostname in ext_images_email_domains:
         logo_url = settings.SITE_URL + '/static/lgc/images/mail_logo.png'
     else:
         logo_url = get_template(CURRENT_DIR, 'common/' + 'logo_inline_image.txt')
