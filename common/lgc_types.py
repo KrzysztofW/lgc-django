@@ -32,3 +32,5 @@ class MsgType(Enum):
     MODERATION = 5,
     DEL_REQ = 6,
     HR_INIT_ACCOUNT = 7,
+    PROC_ALERT = 8,
+    INVOICE_ALERT = 9,

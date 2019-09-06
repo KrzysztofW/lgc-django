@@ -2036,6 +2036,7 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 form.instance.invoice_alert = True
 
         form.instance.version += 1
+        form.instance.modification_date = timezone.now()
         session_cache_del(self.request.session, 'process_progress')
         if send_notif:
             user_views.notify_user(self.object.person, self.object,

@@ -100,10 +100,67 @@ def queue_request(req_type, action, id, form, relations = None):
     with open(filename, "w") as f:
         f.write(s + "\n")
 
-def lgc_send_email(obj, action, from_user):
+def lgc_send_email(obj, action, from_to_user, cc=None):
     prev_lang = translation.get_language()
+
+    if action == lgc_types.MsgType.INVOICE_ALERT:
+        # obj == Invoice
+        lang = from_to_user.language.lower()
+        translation.activate(lang)
+
+        subject = _("LGC remainder for ready invoice")
+        msg = _(
+"""Hi,\n
+The invoice %(id)d is ready. Follow this link to see it: %(url)s\n
+Best Regards.
+"""
+        )%{'id':obj.number,
+           'url': settings.SITE_URL + str(reverse_lazy('lgc-invoice',
+                                                       kwargs={'pk':obj.id}))
+           }
+
+        name = from_to_user.first_name + ' ' + from_to_user.last_name
+        to = [name + ' <' + from_to_user.email + '>']
+        if cc:
+            to += cc
+        ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
+                        to)
+        translation.activate(prev_lang)
+        if ret != 1:
+            raise RuntimeError('cannot send email')
+        return
+
+    if action == lgc_types.MsgType.PROC_ALERT:
+        # obj == PersonProcess
+        lang = from_to_user.language.lower()
+        translation.activate(lang)
+
+        subject = _("LGC Process ready to invoice")
+        msg = _(
+"""Hi,\n
+The process of %(firstname)s %(lastname)s is ready to invoice.
+Follow this link to see it: %(url)s\n
+Best Regards.
+"""
+        )%{'firstname':obj.person.first_name,
+           'lastname':obj.person.last_name,
+           'url': settings.SITE_URL + str(reverse_lazy('lgc-person-process',
+                                                       kwargs={'pk':obj.id}))
+           }
+
+        name = from_to_user.first_name + ' ' + from_to_user.last_name
+        to = [name + ' <' + from_to_user.email + '>']
+        if cc:
+            to += cc
+        ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
+                        to)
+        translation.activate(prev_lang)
+        if ret != 1:
+            raise RuntimeError('cannot send email')
+        return
+
     if action == lgc_types.MsgType.DEL_REQ:
-        lang = from_user.language.lower()
+        lang = from_to_user.language.lower()
         translation.activate(lang)
 
         subject = _("LGC Account deletion request")
@@ -114,11 +171,13 @@ Follow this link to accept it or refuse it: %(url)s\n
 Best Regards.
 """
         )%{'firstname':obj.first_name,
-              'lastname':obj.last_name,
-              'url': settings.SITE_URL + '/account/' + str(obj.id)}
+           'lastname':obj.last_name,
+           'url': settings.SITE_URL + str(reverse_lazy('lgc-account',
+                                                       kwargs={'pk':obj.id}))
+           }
 
-        name = from_user.first_name + ' ' + from_user.last_name
-        to = name + ' <' + from_user.email + '>'
+        name = from_to_user.first_name + ' ' + from_to_user.last_name
+        to = name + ' <' + from_to_user.email + '>'
         ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
                         [to])
         translation.activate(prev_lang)
@@ -126,7 +185,7 @@ Best Regards.
             raise RuntimeError('cannot send email')
         return
     if action == lgc_types.MsgType.MODERATION:
-        lang = from_user.language.lower()
+        lang = from_to_user.language.lower()
         translation.activate(lang)
 
         subject = _("LGC Moderation required")
@@ -141,8 +200,8 @@ Best Regards.
               'lastname':obj.modified_by.last_name,
               'murl': settings.SITE_URL + '/emp/moderation/' + str(obj.id)}
 
-        name = from_user.first_name + ' ' + from_user.last_name
-        to = name + ' <' + from_user.email + '>'
+        name = from_to_user.first_name + ' ' + from_to_user.last_name
+        to = name + ' <' + from_to_user.email + '>'
         ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
                         [to])
         translation.activate(prev_lang)
@@ -150,7 +209,7 @@ Best Regards.
             raise RuntimeError('cannot send email')
         return
     if action == lgc_types.MsgType.HR_INIT_ACCOUNT:
-        lang = from_user.language.lower()
+        lang = from_to_user.language.lower()
         translation.activate(lang)
 
         subject = _("LGC Case initiation")
@@ -167,7 +226,7 @@ Best Regards.
         }
 
         name = obj.hr.first_name + ' ' + obj.hr.last_name
-        to = name + ' <' + from_user.email + '>'
+        to = name + ' <' + from_to_user.email + '>'
         ret = send_mail(subject, msg, 'Office <no-reply@example.com>',
                         [to])
         translation.activate(prev_lang)
@@ -235,7 +294,7 @@ Best Regards.
     msg_tpl = string_template(msg_tpl)
     msg_tpl_html = string_template(msg_tpl_html)
 
-    from_name = from_user.first_name + ' ' + from_user.last_name
+    from_name = from_to_user.first_name + ' ' + from_to_user.last_name
     msg = msg_tpl.substitute(PERSON_NAME=name, URL=settings.SITE_URL,
                              TOKEN_URL=token_url, PERSON_IN_CHARGE=from_name,
                              LOGO_URL=logo_url)
@@ -244,7 +303,7 @@ Best Regards.
                                        PERSON_IN_CHARGE=from_name,
                                        LOGO_URL=logo_url)
 
-    ret = send_mail(subject, msg, from_name + ' <' + from_user.email + '>',
+    ret = send_mail(subject, msg, from_name + ' <' + from_to_user.email + '>',
                     [to], html_message=msg_html)
 
     translation.activate(prev_lang)
