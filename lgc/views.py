@@ -34,7 +34,7 @@ from crispy_forms.bootstrap import (
 from pathlib import Path
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
-from users import models as user_models
+from users import models as user_models, views as user_views
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.conf import settings
@@ -1357,12 +1357,10 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                 form.instance.updated = True
                 form.save()
 
-            if form.instance.updated and type(self.object) == employee_models.Employee:
-                for u in self.object.user.person_user_set.responsible.all():
-                    try:
-                        lgc_send_email(self.object, lgc_types.MsgType.MODERATION, u)
-                    except Exception as e:
-                        log.error(e)
+            if (type(self.object) == employee_models.Employee and
+                form.instance.updated):
+                user_views.notify_user(self.object.user, self.object,
+                                       lgc_types.MsgType.MODERATION)
 
         messages.success(self.request, self.success_message)
         return http.HttpResponseRedirect(self.get_success_url())
@@ -1928,6 +1926,8 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
         return None
 
     def form_valid(self, form):
+        send_notif = False
+
         if self.object:
             self.object = self.get_object()
             if self.object.version != form.instance.version:
@@ -1971,10 +1971,13 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                                                         next_process_stage.name_en,
                                                         next_process_stage)
                 if not form.instance.no_billing:
+                    invoice_alert_saved = self.object.invoice_alert
                     if len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0:
                         form.instance.invoice_alert = next_process_stage.invoice_alert|self.object.invoice_alert
                     if not self.object.invoice_alert and self.object.is_process_complete():
                         form.instance.invoice_alert = True
+                    if not invoice_alert_saved and form.instance.invoice_alert:
+                        send_notif = True
 
             else:
                 messages.error(self.request, _('The next stage does not exist.'))
@@ -2034,6 +2037,9 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
 
         form.instance.version += 1
         session_cache_del(self.request.session, 'process_progress')
+        if send_notif:
+            user_views.notify_user(self.object.person, self.object,
+                                   lgc_types.MsgType.PROC_ALERT)
         return super().form_valid(form)
 
 class PersonProcessListView(ProcessListView):

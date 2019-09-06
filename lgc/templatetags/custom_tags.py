@@ -23,20 +23,8 @@ def get_notification_menu(request):
     expirations = lgc_models.Expiration.objects.filter(person__responsible=request.user, enabled=True, end_date__lte=compare_date).order_by('end_date').exclude(end_date__lte=timezone.now().date())
     res['expirations'] = expirations[:10]
     res['today'] = timezone.now().date()
-    res['pcnt'] = 0
 
-    if request.user.role == user_models.ROLE_CONSULTANT:
-        processes = lgc_models.PersonProcess.objects.filter(person__responsible=request.user, invoice_alert=True)
-
-        res['ready_to_invoice'] = processes
-        res['pcnt'] += processes.count()
-
-    res['nb_items'] = len(expirations) + res['pcnt']
-    if request.user.billing and request.user.show_invoice_notifs:
-        invoices = lgc_models.Invoice.objects.filter(state=lgc_models.INVOICE_STATE_TOBEDONE)
-        res['ready_invoices'] = invoices[:10]
-        res['nb_items'] += len(invoices)
-
+    res['nb_items'] = len(expirations)
     return res
 
 @register.simple_tag
