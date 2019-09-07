@@ -1278,7 +1278,7 @@ msgstr "Il n'y a pas de notifications en cours"
 
 #: templates/lgc/dropdown_menu_users.html:9
 msgid "User Profile"
-msgstr "Mon profile"
+msgstr "Mon profil"
 
 #: templates/lgc/dropdown_menu_users.html:12 views.py:2671
 msgid "Settings"
@@ -1608,11 +1608,11 @@ msgstr "Annuler"
 
 #: templates/lgc/person_hr_list.html:2
 msgid "Click here to manage this person's account profile: "
-msgstr "Cliquez ici pour afficher le profile de cet utilisateur"
+msgstr "Cliquez ici pour afficher le profil de cet utilisateur"
 
 #: templates/lgc/person_hr_list.html:3
 msgid "update profile"
-msgstr "mettre à jour le profile"
+msgstr "mettre à jour le profil"
 
 #: templates/lgc/person_hr_list.html:7
 msgid "HR list"
@@ -1752,7 +1752,7 @@ msgstr "Informations"
 
 #: views.py:450
 msgid "Account Profile"
-msgstr "Profile utilisateur"
+msgstr "Profil utilisateur"
 
 #: views.py:454
 msgid ""
@@ -1763,7 +1763,7 @@ msgstr ""
 
 #: views.py:457
 msgid "create profile"
-msgstr "créer le profile"
+msgstr "créer le profil"
 
 #: views.py:488 views.py:555
 msgid "Documents"

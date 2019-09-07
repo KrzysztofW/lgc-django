@@ -587,13 +587,13 @@ msgstr ""
 "Bonjour,\n"
 "\n"
 "La fiche %(url)s a été modifiée par %(firstname)s %(lastname)s.\n"
-"Cliquez sur le lien suivant pour modérer cette fiche: %(murl)s\n"
+"Cliquez sur le lien suivant pour la modérer: %(murl)s\n"
 "\n"
 "Cordialment.\n"
 
 #: utils.py:215
 msgid "LGC Case initiation"
-msgstr ""
+msgstr "LGC initiation de dossier"
 
 #: utils.py:217
 #, python-format
@@ -607,8 +607,8 @@ msgid ""
 msgstr ""
 "Bonjour,\n"
 "\n"
-"La suppresion du compte de %(firstname)s %(lastname)s a été demandée.\n"
-"Cliquez sur le lien suivant pour l'accepter ou la refuser: %(url)s\n"
+"Le RH %(firstname)s %(lastname)s vient d'initier un nouveau dossier.\n"
+"Cliquez sur le lien suivant pour l'accepter ou le refuser: %(url)s\n"
 "\n"
 "Cordialment.\n"
 
