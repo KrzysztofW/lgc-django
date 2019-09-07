@@ -442,6 +442,7 @@ def local_user_get_person_form_layout(request, form, action, obj,
     info_tab.append(Div(Div('comments', css_class='form-group col-md-3'),
                         Div('state', css_class='form-group col-md-3'),
                         Div('start_date', css_class='form-group col-md-3'),
+                        Div('today_date'),
                         css_class='form-row'))
 
     tab_holder = TabHolder(info_tab)

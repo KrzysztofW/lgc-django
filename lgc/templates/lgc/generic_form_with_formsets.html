@@ -115,6 +115,9 @@ $(document).ready(function () {
 
     $(a).attr('onClick','return form_changed();');
   });
+  if ($('#id_start_date').val() == "") {
+      $('#id_start_date').val($('#id_today_date').val());
+  }
 });
 
 function person_form_check() {
