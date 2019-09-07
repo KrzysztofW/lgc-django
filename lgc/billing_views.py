@@ -1571,3 +1571,109 @@ def download_receipt_file(request, *args, **kwargs):
         res['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
         return res
     raise Http404
+
+class InvoiceReminderListView(BillingTest, ListView):
+    template_name = 'lgc/sub_generic_list.html'
+    model = lgc_models.InvoiceReminder
+    title = ugettext_lazy('Invoice Reminders')
+    create_url = reverse_lazy('lgc-billing-reminder-create')
+    item_url = 'lgc-billing-reminder'
+    this_url = reverse_lazy('lgc-billing-reminders')
+    search_url = reverse_lazy('lgc-billing-reminders')
+
+    def test_func(self):
+        return self.request.user.billing
+
+    def get_ordering(self):
+        return self.request.GET.get('order_by', 'id')
+
+    def get_paginate_by(self, queryset):
+        return self.request.GET.get('paginate', '10')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        context['create_url'] = self.create_url
+        context['item_url'] = self.item_url
+        context['header_values'] = [
+            ('id', 'ID'), ('name', _('Name')), ('number_of_days', _('Days')),
+            ('is_active', _('Enabled')),
+        ]
+        return pagination(self.request, context, self.this_url)
+
+    def get_queryset(self):
+        term = self.request.GET.get('term')
+        order_by = self.get_ordering()
+
+        if not term:
+            return self.model.objects.order_by(order_by)
+        objs = lgc_models.InvoiceReminder.objects.filter(name__istartswith=term)
+        return objs.order_by(order_by)
+
+class InvoiceReminderCreateView(BillingTest, SuccessMessageMixin, CreateView):
+    model = lgc_models.InvoiceReminder
+    success_message = ugettext_lazy('Invoice Reminder successfully created')
+    template_name = 'lgc/generic_form.html'
+    success_url = reverse_lazy('lgc-billing-reminder-create')
+    title = ugettext_lazy('New Invoice Reminder')
+    fields = '__all__'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        return context
+
+    def test_func(self):
+        return self.request.user.billing
+
+    def get_form(self, form_class=lgc_forms.InvoiceReminderForm):
+        return super().get_form(form_class=form_class)
+
+class InvoiceReminderUpdateView(BillingTest, SuccessMessageMixin, UpdateView):
+    model = lgc_models.InvoiceReminder
+    success_message = ugettext_lazy('Invoice Reminder successfully updated')
+    success_url = 'lgc-billing-reminder'
+    template_name = 'lgc/generic_form.html'
+    title = ugettext_lazy('Invoice Reminder')
+    delete_url = 'lgc-billing-reminder-delete'
+    fields = '__all__'
+
+    def get_success_url(self):
+        self.object = self.get_object()
+        return reverse_lazy(self.success_url, kwargs={'pk':self.object.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        context['delete_url'] = reverse_lazy(self.delete_url,
+                                             kwargs={'pk':self.object.id})
+        return context
+
+    def test_func(self):
+        return self.request.user.billing
+
+    def get_form(self, form_class=lgc_forms.InvoiceReminderForm):
+        return super().get_form(form_class=form_class)
+
+class InvoiceReminderDeleteView(BillingTest, DeleteView):
+    model = lgc_models.InvoiceReminder
+    template_name = 'lgc/process_confirm_delete.html'
+    success_message = ugettext_lazy('Invoice Reminder successfully deleted')
+    success_url = reverse_lazy('lgc-billing-reminders')
+    title = ugettext_lazy('Delete Invoice Reminder')
+    cancel_url = 'lgc-billing-reminder'
+    obj_name = ugettext_lazy('Invoice Reminder')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        context['cancel_url'] = reverse_lazy(self.cancel_url,
+                                             kwargs={'pk':self.object.id})
+        return context
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, args, kwargs)
+
+    def test_func(self):
+        return self.request.user.billing
