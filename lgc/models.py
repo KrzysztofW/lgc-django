@@ -612,7 +612,7 @@ class Person(PersonInfo):
     state = models.CharField(_('State'), max_length=3,
                              default=FILE_STATE_ACTIVE,
                              choices=FILE_STATE_CHOICES)
-    comments = models.TextField(_('Comments'), max_length=100, default='',
+    comments = models.TextField(_('Comments'), max_length=200, default='',
                                 blank=True)
 
     class Meta:
@@ -1281,7 +1281,7 @@ class Invoice(AbstractClient):
 class DisbursementCommon(models.Model):
     id = models.AutoField(primary_key=True)
     disbursement_id = models.CharField(_('ID'), default='', max_length=9)
-    description = models.TextField(_('Description'), max_length=50)
+    description = models.TextField(_('Description'), max_length=100)
     rate = models.FloatField(_('Rate'), default=0)
 
     class Meta:
@@ -1303,7 +1303,7 @@ class InvoiceDisbursement(DisbursementCommon):
 class ItemCommon(models.Model):
     id = models.AutoField(primary_key=True)
     item_id = models.CharField(_('ID'), default='', max_length=9)
-    description = models.TextField(_('Description'), max_length=50)
+    description = models.TextField(_('Description'), max_length=100)
     class Meta:
         abstract = True
 
@@ -1346,6 +1346,6 @@ class DisbursementDocument(models.Model):
 class InvoiceReminder(models.Model):
     name = models.CharField(max_length=50, default='', unique=True)
     number_of_days = models.PositiveIntegerField(default=30)
-    template_en = models.CharField(max_length=50, default='')
-    template_fr = models.CharField(max_length=50, default='')
+    template_en = models.CharField(max_length=2000, default='')
+    template_fr = models.CharField(max_length=2000, default='')
     is_active = models.BooleanField(_('Enabled'), default=True)
