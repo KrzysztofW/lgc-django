@@ -938,7 +938,7 @@ class InvoiceCommonView(BillingTestLocalUser):
                     css_class='form-row'),
                 Div(Div(HTML('<hr>'), css_class='form-group col-md-8'),
                     css_class='form-row'),
-                css_class='collapse', id='collapsePO'),
+                css_class='collapse show', id='collapsePO'),
             Div(
                 Div('invoice_date', css_class='form-group col-md-2'),
                 Div('modification_date', css_class='form-group col-md-2'),
