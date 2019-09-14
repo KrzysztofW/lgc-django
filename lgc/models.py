@@ -1346,6 +1346,8 @@ class DisbursementDocument(models.Model):
 class InvoiceReminder(models.Model):
     name = models.CharField(max_length=50, default='', unique=True)
     number_of_days = models.PositiveIntegerField(default=30)
+    subject_en = models.CharField(max_length=50)
+    subject_fr = models.CharField(max_length=50)
     template_en = models.CharField(max_length=2000, default='')
     template_fr = models.CharField(max_length=2000, default='')
     enabled = models.BooleanField(_('Enabled'), default=True)

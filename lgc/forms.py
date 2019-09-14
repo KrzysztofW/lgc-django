@@ -420,6 +420,10 @@ class InvoiceCreateForm(forms.ModelForm):
     invoice_date = forms.DateField(label=_('Invoice Date'))
     modification_date = forms.DateField(required=False, label=_('Modification Date'))
     po_date = forms.DateField(required=False, label=_('Date'))
+    po_email = forms.EmailField(label=_('PO email'))
+    po_first_name = forms.CharField(label=_('First Name'))
+    po_last_name = forms.CharField(label=_('Last Name'))
+
     version = forms.IntegerField(min_value=0, widget=forms.HiddenInput(),
                                  initial=0)
     client = forms.ModelChoiceField(queryset=lgc_models.Client.objects,
