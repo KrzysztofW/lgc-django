@@ -1348,4 +1348,4 @@ class InvoiceReminder(models.Model):
     number_of_days = models.PositiveIntegerField(default=30)
     template_en = models.CharField(max_length=2000, default='')
     template_fr = models.CharField(max_length=2000, default='')
-    is_active = models.BooleanField(_('Enabled'), default=True)
+    enabled = models.BooleanField(_('Enabled'), default=True)

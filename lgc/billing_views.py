@@ -816,7 +816,7 @@ class InvoiceCommonView(BillingTestLocalUser):
             changes_action = None
 
         form.instance.modified_by = self.request.user
-        form.instance.modification_date = timezone.now()
+        form.instance.last_modified_date = timezone.now()
 
         for formset in formsets:
             if not formset.is_valid():
@@ -1597,7 +1597,7 @@ class InvoiceReminderListView(BillingTest, ListView):
         context['item_url'] = self.item_url
         context['header_values'] = [
             ('id', 'ID'), ('name', _('Name')), ('number_of_days', _('Days')),
-            ('is_active', _('Enabled')),
+            ('enabled', _('Enabled')),
         ]
         return pagination(self.request, context, self.this_url)
 

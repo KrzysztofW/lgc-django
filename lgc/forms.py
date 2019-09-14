@@ -662,7 +662,7 @@ class SettingsForm(forms.ModelForm):
 
 class InvoiceReminderForm(forms.ModelForm):
     name = forms.CharField(label=_('Name'))
-    number_of_days = forms.IntegerField(min_value=1, initial=30, label=_('Nomber of days'))
+    number_of_days = forms.IntegerField(min_value=1, initial=30, label=_('Number of days'))
     template_fr = forms.CharField(label=_('French mail template'),
                                      widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}))
     template_en = forms.CharField(label=_('English mail template'),
