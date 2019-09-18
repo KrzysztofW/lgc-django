@@ -41,13 +41,13 @@ class Settings(Currencies):
     pass
 
 PROCESS_CHOICES_DEPRECATED = (
-    ('CBE', 'Z Carte bleue européenne'),
-    ('COM', 'Z Commerçant'),
-    ('COT', 'Z Compétences et talents'),
-    ('DET', 'Z Détachement'),
-    ('SED', 'Z SEM détaché'),
-    ('SES', 'Z SEM salarié'),
-    ('TIR', 'Z TIR'),
+    ('CBE', 'ex - Carte bleue européenne'),
+    ('COM', 'ex - Commerçant'),
+    ('COT', 'ex - Compétences et talents'),
+    ('DET', 'ex - Détachement'),
+    ('SED', 'ex - SEM détaché'),
+    ('SES', 'ex - SEM salarié'),
+    ('TIR', 'ex - TIR'),
 )
 
 PROCESS_CHOICES = (
