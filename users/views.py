@@ -100,9 +100,6 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixi
     success_message = _('User successfully updated.')
 
     def get_success_url(self):
-        self.object = self.get_object()
-        if not self.object.is_staff:
-            return reverse_lazy('lgc-home')
         return reverse_lazy('user', kwargs={'pk':self.object.id})
 
     def get_context_data(self, **kwargs):
