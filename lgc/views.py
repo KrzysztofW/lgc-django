@@ -40,11 +40,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from common import lgc_types
-import string
-import random
-import datetime
-import os
-import logging
+import string, random, datetime, os, logging
 
 log = logging.getLogger('lgc')
 
@@ -2918,18 +2914,28 @@ def stats_view(request):
     if request.user.role not in user_models.get_internal_roles():
         return http.HttpResponseForbidden()
 
+    nb_files = lgc_models.Person.objects.count()
+    nb_active_files = lgc_models.Person.objects.filter(state=lgc_models.FILE_STATE_ACTIVE).count()
+    nb_internal_users = user_models.get_all_local_user_queryset().count()
+    nb_external_users = user_models.get_external_user_queryset().count()
+
     user_stats = []
     users = user_models.get_local_user_queryset().filter(is_superuser=False, is_active=True).order_by('first_name')
     compare_date = (timezone.now().date() +
                     datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
     for u in users:
         active_files = u.person_resp_set.filter(state=lgc_models.FILE_STATE_ACTIVE).count()
+        if active_files:
+            active_files_percent = round((active_files / nb_active_files) * 100)
+        else:
+            active_files_percent = 0
         expirations = lgc_models.Expiration.objects.filter(enabled=True, person__responsible=u, end_date__lte=compare_date).exclude(end_date__lte=timezone.now().date())
         wp = (expirations.filter(type=lgc_models.EXPIRATION_TYPE_WP)|
               expirations.filter(type=lgc_models.EXPIRATION_TYPE_SWP)).count()
         rp = expirations.exclude(type=lgc_models.EXPIRATION_TYPE_WP).exclude(type=lgc_models.EXPIRATION_TYPE_SWP).count()
 
-        user_stats.append((u, u.person_resp_set.count(), active_files, wp, rp))
+        user_stats.append((u, u.person_resp_set.count(), active_files,
+                           active_files_percent, wp, rp))
 
     context = session_cache_get(request.session, 'stats')
     if context:
@@ -2962,11 +2968,6 @@ def stats_view(request):
             }
             cons_juri_list.append(element)
         crossed_list.append(cons_juri_list)
-
-    nb_files = lgc_models.Person.objects.count()
-    nb_active_files = lgc_models.Person.objects.filter(state=lgc_models.FILE_STATE_ACTIVE).count()
-    nb_internal_users = user_models.get_all_local_user_queryset().count()
-    nb_external_users = user_models.get_external_user_queryset().count()
 
     nb_max = max(nb_files, nb_active_files, nb_internal_users,
                  nb_external_users)
