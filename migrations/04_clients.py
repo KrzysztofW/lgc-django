@@ -11,6 +11,7 @@ try:
     lgc_v5 = lgc_5_connect()
 except Exception as e:
     print(e)
+    print('exiting...')
     exit()
 
 cursor4 = lgc_4_1.cursor()
@@ -27,10 +28,14 @@ while row is not None:
 
     if row[14]:
         country = row[14].lower()
+        found = False
         for c in country_mapping:
             if country in c or c in country:
                 country = country_mapping[c]
+                found = True
                 break
+        if not found:
+            print('cannot map country `{}` (id:{}'.format(country, row[0]))
     else:
         country = ''
     if row[19]:
@@ -83,6 +88,7 @@ while row is not None:
             print('duplicated client id:', row[0], 'first_name:', row[3], 'last_name:',
                   row[2], 'company:', row[10])
         else:
-            print("Failed inserting record into client table {}".format(error))
+            print("Failed inserting record (id:{}) into client table {}".format(row[0], error))
+            print('exiting...')
             exit()
     row = cursor4.fetchone()

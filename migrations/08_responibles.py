@@ -13,6 +13,7 @@ try:
     lgc_v5_user = lgc_5_connect()
 except Exception as e:
     print(e)
+    print('exiting...')
     exit()
 
 cursor4 = lgc_4_1.cursor()
@@ -34,6 +35,7 @@ while row is not None:
         row_user = cursor5_user.fetchall()
         if row_user == None or len(row_user) != 1:
             print('user:', row[1], 'cannot find the corresponding user')
+            print('exiting...')
             exit()
 
     row_user = row_user[0]
@@ -54,5 +56,6 @@ while row is not None:
             print('Failed inserting record into lgc_person_responsible table, nom:', row[1])
             print(sql_insert_query%(insert_tuple))
             print("{}".format(error))
+            print('exiting...')
             exit()
     row = cursor4.fetchone()

@@ -316,6 +316,7 @@ citizenship_mapping = {
     'nigériane':'NG',
     'nigérianne':'NG',
     'nigérienne':'NG',
+    'nigerienne':'NG',
     'norvégienne':'NO',
     'norvegienne':'NO',
     'nz':'NZ',
@@ -464,6 +465,7 @@ try:
 
 except Exception as e:
     print(e)
+    print('exiting...')
     exit()
 
 cursor4 = lgc_4_1.cursor()
@@ -599,10 +601,16 @@ while row is not None:
 
     if row[6]:
         citizenship = row[6].lower()
+        found = False
         for c in citizenship_mapping:
             if citizenship in c or c in citizenship:
                 citizenship = citizenship_mapping[c]
+                found = True
                 break
+        if not found:
+            print("failed to convert citizenship `%s' id:%d"%(row[6], row[0]))
+            print('exiting...')
+            exit(1)
     else:
         citizenship = ''
     if row[43]:
@@ -652,6 +660,7 @@ while row is not None:
                   row[1])
         else:
             print("{}".format(error))
+            print('exiting...')
             exit()
 
     # import VLS-TS expiration
@@ -671,6 +680,7 @@ while row is not None:
         #print(sql_insert_query%insert_tuple)
         print('Failed inserting VLS-TS record into expiration table, id:', row[0])
         print("{}".format(error))
+        print('exiting...')
         exit()
 
     row = cursor4.fetchone()

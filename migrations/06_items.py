@@ -20,6 +20,7 @@ try:
     lgc_v5_invoice = lgc_5_connect()
 except Exception as e:
     print(e)
+    print('exiting...')
     exit()
 
 cursor4 = lgc_4_1.cursor()
@@ -34,6 +35,7 @@ while row is not None:
     row_tarif = cursor4_tarif.fetchone()
     if row_tarif == None or len(row_tarif) == 0:
         print('id diligence:', row[0], 'cannot find the corresponding tarif_dill')
+        print('exiting...')
         exit()
 
     sql_insert_query = """INSERT INTO `lgc_item`
@@ -51,6 +53,7 @@ while row is not None:
         #print(sql_insert_query%insert_tuple)
         print('Failed inserting record into lgc_item table, id:', row[0])
         print("{}".format(error))
+        print('exiting...')
         exit()
     row = cursor4.fetchone()
 
@@ -74,6 +77,7 @@ while row is not None:
         #print(sql_insert_query%insert_tuple)
         print('Failed inserting record into lgc_disbursement table, id:', row[0])
         print("{}".format(error))
+        print('exiting...')
         exit()
     row = cursor4.fetchone()
 
@@ -84,8 +88,12 @@ while row is not None:
     cursor5_invoice.execute('select id from lgc_invoice where number=%d'%(row[2]))
     row_invoice = cursor5_invoice.fetchone()
     if row_invoice == None or len(row_invoice) == 0:
+        if row[2] == 16239: # checked, it's ok
+            row = cursor4.fetchone()
+            continue
         print('id operation_facture:', row[0], 'invoice number:', row[2],
               'cannot find the corresponding invoice')
+        print('exiting...')
         exit()
 
     sql_insert_query = """INSERT INTO `lgc_invoiceitem`
@@ -104,6 +112,7 @@ while row is not None:
         print(sql_insert_query%insert_tuple)
         print('Failed inserting record into lgc_invoiceitem table, id_op:', row[3])
         print("{}".format(error))
+        print('exiting...')
         exit()
     row = cursor4.fetchone()
 
@@ -116,6 +125,7 @@ while row is not None:
     if row_invoice == None or len(row_invoice) == 0:
         print('id operation_facture:', row[0], 'invoice number:', row[2],
               'cannot find the corresponding invoice')
+        print('exiting...')
         exit()
 
     if row[8]:
@@ -139,6 +149,7 @@ while row is not None:
         print(sql_insert_query%insert_tuple)
         print('Failed inserting record into lgc_invoicedisbursement table, id_op:', row[3])
         print("{}".format(error))
+        print('exiting...')
         exit()
     row = cursor4.fetchone()
 

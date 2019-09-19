@@ -12,6 +12,7 @@ try:
     lgc_v5 = lgc_5_connect()
 except Exception as e:
     print(e)
+    print('exiting...')
     exit()
 
 cursor4 = lgc_4_1.cursor()

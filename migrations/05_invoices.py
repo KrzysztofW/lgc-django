@@ -16,6 +16,7 @@ try:
     lgc_v5 = lgc_5_connect()
 except Exception as e:
     print(e)
+    print('exiting...')
     exit()
 
 cursor4 = lgc_4_1.cursor()
@@ -117,13 +118,18 @@ while row is not None:
     row_fp = cursor_fp.fetchone()
     if row_fp == None or len(row_fp) == 0:
         print('id fact:', row[0], 'cannot find the corresponding facture_personne')
+        print('exiting...')
         exit()
     id_personne = row_fp[1]
 
     cursor_p.execute("SELECT * FROM personne where id=%d"%(id_personne))
     row_p = cursor_p.fetchone()
     if row_p == None or len(row_p) == 0:
+        if row[0] == 16239: # checked, it's ok
+            row = cursor4.fetchone()
+            continue
         print('id fact:', row[0], 'cannot find the corresponding person')
+        print('exiting...')
         exit()
 
     payment_option = row[15]
@@ -244,9 +250,11 @@ while row is not None:
                 lgc_v5.commit()
             except:
                 print("{}".format(error))
+                print('exiting...')
                 exit()
         else:
             print('Failed inserting record into invoice table, id:', row[0])
             print("{}".format(error))
+            print('exiting...')
             exit()
     row = cursor4.fetchone()

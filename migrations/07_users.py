@@ -12,6 +12,7 @@ try:
     lgc_v5 = lgc_5_connect()
 except Exception as e:
     print(e)
+    print('exiting...')
     exit()
 
 cursor4 = lgc_4_1.cursor()
@@ -99,6 +100,7 @@ while row is not None:
         print(sql_insert_query%insert_tuple)
         print('Failed inserting record into users_user table, nom:', row[1])
         print("{}".format(error))
+        print('exiting...')
         exit()
     row = cursor4.fetchone()
 

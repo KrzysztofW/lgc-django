@@ -12,6 +12,7 @@ try:
     lgc_v5 = lgc_5_connect()
 except Exception as e:
     print(e)
+    print('exiting...')
     exit()
 
 cursor4 = lgc_4_1.cursor()
@@ -33,6 +34,7 @@ while row is not None:
         #print(sql_insert_query%insert_tuple)
         print('Failed inserting apt record into expiration table, id:', row[0])
         print("{}".format(error))
+        print('exiting...')
         exit()
     row = cursor4.fetchone()
 
@@ -118,6 +120,7 @@ while row is not None:
             #print(sql_insert_query%insert_tuple)
             print('Failed inserting child record into expiration table (DCEM), id:', row[0])
             print("{}".format(error))
+            print('exiting...')
             exit()
         expiration_id = cursor5.lastrowid
     else:

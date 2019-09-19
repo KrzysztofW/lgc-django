@@ -111,6 +111,8 @@ client_country_mapping = {
     "ireland":'IE',
     "kingdom of bahrain":'BH',
     "united kongdom":'UK',
+    "United Kindgdom":'UK',
+    "united kindgdom":'UK',
     "china":'CN',
     "belgique":'BE',
     "deutschland":'DE',
