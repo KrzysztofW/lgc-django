@@ -2126,7 +2126,8 @@ class PersonProcessPendingListView(PersonProcessReadyListView):
     search_url = reverse_lazy('lgc-person-processes-pending')
     pending_list = True
 
-def get_account_layout(layout, new_token, is_hr=False, is_active=False):
+def get_account_layout(layout, new_token, is_hr=False, is_active=False,
+                       initial=False):
     div = Div(css_class='form-row');
     if is_hr:
         layout.append(Div('active_tab'))
@@ -2141,6 +2142,12 @@ def get_account_layout(layout, new_token, is_hr=False, is_active=False):
         hr_div = Div('company', css_class='form-group col-md-3')
     else:
         hr_div = None
+    if initial:
+        row_div = Div(
+            Div('home_entity', css_class='form-group col-md-3'),
+            Div('host_entity', css_class='form-group col-md-3'),
+            css_class='form-row')
+        layout.append(row_div)
 
     layout.append(
         Div(
@@ -2170,8 +2177,12 @@ def get_account_layout(layout, new_token, is_hr=False, is_active=False):
 
 def get_account_form(form, action, uid, is_staff=False, new_token=False):
     form.helper = FormHelper()
+    if uid != None:
+        initial=False
+    else:
+        initial=True
     form.helper.layout = get_account_layout(Layout(), new_token, is_hr=False,
-                                            is_active=uid)
+                                            is_active=uid, initial=initial)
 
     form.helper.layout.append(
         HTML('<button class="btn btn-outline-info" type="submit">' +
@@ -2293,6 +2304,27 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             raise ValueError('invalid person ID')
         return p
 
+    def check_person_exists(self, obj):
+        objs = lgc_models.Person.objects.filter(first_name=obj.first_name,
+                                                last_name=obj.last_name,
+                                                home_entity=obj.home_entity,
+                                                host_entity=obj.host_entity,
+                                                is_private=False)
+        if objs.count() > 0:
+            messages.error(self.request,
+                           _('A similar file (id: %(id)d) already exists.')%{
+                               'id':objs[0].id
+                           })
+            return True
+
+        if (obj.email and
+            lgc_models.Person.objects.filter(email=obj.email).count() > 0):
+            messages.error(self.request,
+                           'A file with this email address already exists.')
+            return True
+
+        return False
+
     def form_valid(self, form):
         try:
             p = self.get_person()
@@ -2300,6 +2332,11 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
             return self.return_non_existant(form, self.kwargs.get('pk', ''))
 
         self.object = form.save(commit=False)
+        self.object.home_entity = form.cleaned_data['home_entity']
+        self.object.host_entity = form.cleaned_data['host_entity']
+        if self.check_person_exists(self.object):
+            return super().form_invalid(form)
+
         form.instance.is_active = True
 
         if self.is_hr:
@@ -2393,7 +2430,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             context['file_url'] = reverse_lazy('lgc-file', kwargs={'pk':self.object.person_user_set.id})
         return context
 
-    def get_form(self, form_class=lgc_forms.InitiateAccountForm):
+    def get_form(self, form_class=lgc_forms.UpdateAccountForm):
         form = super().get_form(form_class=self.form_class)
 
         if self.is_hr:

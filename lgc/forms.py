@@ -142,7 +142,7 @@ class PersonCreateForm(forms.ModelForm):
         model = lgc_models.Person
         exclude = ['creation_date', 'modified_by', 'modification_date']
 
-class InitiateAccountForm(forms.ModelForm):
+class UpdateAccountForm(forms.ModelForm):
     responsible = forms.ModelMultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control'}),
                                                  queryset=user_models.get_consultant_queryset(),
                                                  label=_('Persons in charge of the account'))
@@ -161,6 +161,16 @@ class InitiateAccountForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'language',
                   'responsible', 'new_token', 'is_active', 'status']
+
+class InitiateAccountForm(UpdateAccountForm):
+    home_entity = forms.CharField(required=False, label=_('Home Entity'))
+    host_entity = forms.CharField(required=False, label=_('Host Entity'))
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'language',
+                  'responsible', 'new_token', 'is_active', 'status',
+                  'home_entity', 'host_entity']
 
 class InitiateHRForm(InitiateAccountForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
