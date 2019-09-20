@@ -331,6 +331,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Div('dates', css_class='form-group col-md-3') if self.invoice_type != lgc_models.QUOTATION else None,
                 Div('sdate', css_class='form-group col-md-3'),
                 Div('edate', css_class='form-group col-md-3'),
+                total_div,
                 css_class='form-row'),
             Div(
                 cols_div, csv_div, csv_html, css_class='form-row'),

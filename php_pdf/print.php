@@ -151,7 +151,7 @@ function get_month($lang, $nb)
 function get_mode($lang, $mode) {
 	if ($lang == "FR") {
 		switch ($mode) {
-		case "TR":
+		case "BT":
 			return "virement";
 			break;
 		case "CB":
@@ -171,8 +171,8 @@ function get_mode($lang, $mode) {
 		}
 	} else if ($lang == "EN") {
 		switch ($mode) {
-		case "TR":
-			return "transfer";
+		case "BT":
+			return "bank transfer";
 			break;
 		case "CB":
 			return "credit card";
@@ -266,6 +266,8 @@ if (! $resultat) {
 $row = mysqli_fetch_assoc($resultat);
 if ($row['type'] == 'C')
 	$prefix = 'AV';
+else if ($row['type'] == 'Q')
+        $prefix = 'DE';
 else
 	$prefix = 'FA';
 
