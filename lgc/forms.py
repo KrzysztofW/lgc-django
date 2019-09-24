@@ -463,6 +463,27 @@ class InvoiceCreateForm(forms.ModelForm):
         exclude = ['modified_by', 'person', 'process', 'type', 'id', 'number',
                    'state', 'already_paid', 'credit_note']
 
+class QuotationCreateForm(InvoiceCreateForm):
+    state = forms.ChoiceField(label=_('State'), required=False,
+                              choices=lgc_models.QUOTATION_STATE_CHOICES)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['po_first_name'].required = False
+        self.fields['po_last_name'].required = False
+        self.fields['po_email'].required = False
+
+    class Meta:
+        model = lgc_models.Invoice
+        exclude = ['modified_by', 'person', 'process', 'type', 'id', 'number',
+                   'already_paid', 'credit_note']
+
+class QuotationUpdateForm(QuotationCreateForm):
+    number = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
+    class Meta:
+        model = lgc_models.Invoice
+        exclude = ['modified_by', 'person', 'process', 'type', 'id',
+                   'already_paid', 'credit_note']
+
 INVOICE_SEARCH_DATE_INVOICE = 'I'
 INVOICE_SEARCH_DATE_PAY = 'P'
 INVOICE_SEARCH_DATE_CHOICES = (
@@ -583,8 +604,8 @@ class InvoiceSearchForm(forms.Form):
 
 class InvoiceUpdateForm(InvoiceCreateForm):
     number = forms.IntegerField(min_value=1, widget=forms.HiddenInput())
-    state = forms.ChoiceField(required=False,
-                              label=_('State'))
+    state = forms.ChoiceField(label=_('State'), required=False,
+                              choices=lgc_models.INVOICE_STATE_CHOICES)
     already_paid = forms.DecimalField(required=False, label=_('Already Paid'),
                                       min_value=0, widget=forms.NumberInput(attrs={'class':'form-control lgc_pull-right', 'onchange':'return compute_invoice();', 'step': "0.01"}), initial=0)
     total = forms.DecimalField(initial=0, max_digits=8, decimal_places=2,

@@ -64,6 +64,10 @@
 <a href="{% url 'lgc-invoice' person_process.get_invoice.id %}" class="btn btn-outline-info">
   {% trans "Show invoice" %}</a>
 {% endif %}
+{% if person_process.get_credit_note %}
+<a href="{% url 'lgc-invoice' person_process.get_credit_note.id %}" class="btn btn-outline-info">
+  {% trans "Show credit note" %}</a>
+{% endif %}
 {% if person_process.get_quotation %}
   <a href="{% url 'lgc-invoice' person_process.get_quotation.id %}" class="btn btn-outline-info">
   {% trans "Show quotation" %}</a>

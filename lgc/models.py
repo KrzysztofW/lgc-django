@@ -946,6 +946,7 @@ INVOICE_STATE_TOBEDONE = 'T'
 INVOICE_STATE_DONE = 'D'
 INVOICE_STATE_PENDING = 'P'
 INVOICE_STATE_PAID = 'V'
+INVOICE_STATE_QUOTATION_SEEN = 'Q'
 
 INVOICE_STATE_CHOICES = (
     (INVOICE_STATE_PENDING, _('Pending')),
@@ -954,6 +955,12 @@ INVOICE_STATE_CHOICES = (
     (INVOICE_STATE_CANCELED, _('Canceled')),
     (INVOICE_STATE_PAID, _('Paid')),
 )
+QUOTATION_STATE_CHOICES = (
+    (INVOICE_STATE_PENDING, _('Pending')),
+    (INVOICE_STATE_QUOTATION_SEEN, _('Seen')),
+)
+INVOICE_ALL_CHOICES = INVOICE_STATE_CHOICES + QUOTATION_STATE_CHOICES
+
 INVOICE_PAYMENT_CHOICES = (
     ('', '---------'),
     ('CB', _('Credit card')),
@@ -1025,7 +1032,7 @@ class Invoice(AbstractClient):
                                            blank=True)
     various_expenses = models.BooleanField(_('Include Various Expenses'), default=False)
     state = models.CharField(_('State'), max_length=1, default=INVOICE_STATE_PENDING,
-                             choices=INVOICE_STATE_CHOICES)
+                             choices=INVOICE_ALL_CHOICES)
     already_paid = models.DecimalField(_('Already Paid'), default=0, max_digits=8,
                                        decimal_places=2)
     already_paid_desc = models.CharField(_('Description'), max_length=50, blank=True)

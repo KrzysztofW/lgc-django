@@ -164,6 +164,18 @@
       </a>
       <div class="dropdown-divider"></div>
       {% endfor %}
+      {% for i in notifs.ready_quotations %}
+      <a class="dropdown-item" href="{% url 'lgc-invoice' i.id %}">
+        <div>
+          <i class="fa fa-money-bill-alt fa-fw"></i>
+	  {% trans 'Quotation' %} {{ i.number }}
+	  <span class="float-right text-muted small">
+	    {% trans 'has been generated' %}
+	  </span>
+        </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      {% endfor %}
       {% for i in notifs.ready_invoices %}
       <a class="dropdown-item" href="{% url 'lgc-invoice' i.id %}">
         <div>

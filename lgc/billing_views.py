@@ -878,9 +878,9 @@ class InvoiceCommonView(BillingTestLocalUser):
                     doc.save()
 
             if form.instance.type == lgc_models.CREDIT:
-                self.success_message = _('Credit Note successfully updated.')
+                self.success_message = self.credit_note_success_message
             elif form.instance.type == lgc_models.QUOTATION:
-                self.success_message = _('Quotation successfully updated.')
+                self.success_message = self.quote_success_message
             elif person_process:
                 person_process.invoice_alert = False
                 person_process.save()
@@ -891,12 +891,22 @@ class InvoiceCommonView(BillingTestLocalUser):
         return super().form_invalid(form)
 
     def get_form(self, form_class=lgc_forms.InvoiceCreateForm):
-        form = super().get_form(form_class=form_class)
+        if self.object:
+            if self.object.type == lgc_models.INVOICE:
+                form = super().get_form(form_class=form_class)
+            else:
+                form = super().get_form(form_class=lgc_forms.QuotationUpdateForm)
+        else:
+            if self.request.GET.get('quote') == '1':
+                form = super().get_form(form_class=lgc_forms.QuotationCreateForm)
+            else:
+                form = super().get_form(form_class=form_class)
         form.helper = FormHelper()
         form.helper.form_tag = False
         gen_invoice_html = None
         gen_credit_note_html = None
         gen_pdf_html = None
+        state_div = None
 
         if self.object:
             state_div = Div('state', css_class='form-group col-md-2')
@@ -908,7 +918,8 @@ class InvoiceCommonView(BillingTestLocalUser):
                                          '" class="btn btn-outline-info">' +
                                          _('Generate invoice') + '</a>'))
             elif (self.object.type == lgc_models.INVOICE and
-                  self.object.state == lgc_models.INVOICE_STATE_PAID and
+                  (self.object.state == lgc_models.INVOICE_STATE_PAID or
+                   self.object.state == lgc_models.INVOICE_STATE_DONE) and
                   self.object.process and
                   self.object.process.get_credit_note == None):
                 gen_credit_note_html = HTML(('&nbsp;<a href="' +
@@ -921,8 +932,6 @@ class InvoiceCommonView(BillingTestLocalUser):
                                      str(reverse_lazy('lgc-billing-pdf',
                                                       kwargs={'pk':self.object.id})) +
                                      '" class="btn btn-outline-info">PDF</a>'))
-        else:
-            state_div = None
         layout = Layout(
             Div('version'), Div('client_update'), Div('client'), Div('total'),
             HTML(get_template(CURRENT_DIR, 'lgc/billing_template.html')),
@@ -1019,7 +1028,6 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
     title = ugettext_lazy('New Invoice')
     success_message = ugettext_lazy('Invoice successfully created.')
     quote_success_message = ugettext_lazy('Quotation successfully created.')
-    credit_note_success_message = ugettext_lazy('Credit note successfully created.')
 
     def get_context_data(self, **kwargs):
         if self.request.GET.get('quote') == '1':
@@ -1045,6 +1053,8 @@ class InvoiceCreateView(InvoiceCommonView, SuccessMessageMixin, CreateView):
 class InvoiceUpdateView(InvoiceCommonView, SuccessMessageMixin, UpdateView):
     title = ugettext_lazy('Invoice')
     success_message = ugettext_lazy('Invoice successfully updated.')
+    quote_success_message = ugettext_lazy('Quotation successfully updated.')
+    credit_note_success_message = ugettext_lazy('Credit note successfully updated.')
 
     def test_func(self):
         if not super().test_func():
