@@ -1906,24 +1906,25 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 return None
         return None
 
-    def get_previous_process_stage(self, process_stages, process_stage):
-        if process_stage == None or len(process_stages.all()) == 1:
-            return process_stages.first()
-        process_stages = process_stages.all()
+    def has_alert(self, person_process_stages, process):
+        if person_process_stages == None:
+            return False
 
-        length = len(process_stages)
+        process_common = ProcessCommonView()
+        process_stages = process_common.get_ordered_stages(process)
+        if len(process_stages) == 0:
+            return False
+
         pos = 0
-        for s in process_stages:
-            if s.id != process_stage.id:
-                pos += 1
+        for s in person_process_stages.all():
+            if s.is_specific:
                 continue
-            if pos == length:
-                return process_stages[pos - 1]
-        return None
+            if process_stages[pos].invoice_alert:
+                return True
+            pos += 1
+        return pos == len(process_stages)
 
     def form_valid(self, form):
-        send_notif = False
-
         if self.object:
             self.object = self.get_object()
             if self.object.version != form.instance.version:
@@ -1941,8 +1942,6 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
             hasattr(self.object, 'invoice') and self.object.invoice):
             messages.error(self.request, _('This process has already an invoice'))
             return super().form_invalid(form)
-        if form.cleaned_data['no_billing']:
-            form.instance.invoice_alert = False
 
         specific_stage_form, stage_form = self.get_stage_forms()
         if not specific_stage_form.is_valid() or not stage_form.is_valid():
@@ -1966,15 +1965,6 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                                                         next_process_stage.name_fr,
                                                         next_process_stage.name_en,
                                                         next_process_stage)
-                if not form.instance.no_billing:
-                    invoice_alert_saved = self.object.invoice_alert
-                    if len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0:
-                        form.instance.invoice_alert = next_process_stage.invoice_alert|self.object.invoice_alert
-                    if not self.object.invoice_alert and self.object.is_process_complete():
-                        form.instance.invoice_alert = True
-                    if not invoice_alert_saved and form.instance.invoice_alert:
-                        send_notif = True
-
             else:
                 messages.error(self.request, _('The next stage does not exist.'))
                 return super().form_invalid(form)
@@ -1985,11 +1975,6 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
                 return super().form_invalid(form)
             last_stage.delete()
             last_stage = self.get_last_person_process_stage(self.object.stages)
-            if (not form.instance.no_billing and
-                last_stage and last_stage.process_stage and
-                len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0):
-                self.object.invoice_alert = last_stage.process_stage.invoice_alert
-
         elif action == lgc_forms.PROCESS_STAGE_DELETE_PROCESS:
             last_stage = self.get_last_person_process_stage(self.object.stages)
             if last_stage != None:
@@ -2026,17 +2011,22 @@ class PersonProcessUpdateView(LoginRequiredMixin, UserPassesTestMixin,
             form.instance.active = False
             super().form_valid(form)
             return redirect('lgc-file', self.object.person.id)
-        else:
-            if (not form.instance.invoice_alert and
-                'invoice_alert' in form.changed_data):
-                form.instance.invoice_alert = True
 
         form.instance.version += 1
         form.instance.modification_date = timezone.now()
         session_cache_del(self.request.session, 'process_progress')
-        if send_notif:
-            user_views.notify_user(self.object.person, self.object,
-                                   lgc_types.MsgType.PROC_ALERT)
+        if form.instance.no_billing:
+            form.instance.invoice_alert = False
+            return super().form_valid(form)
+
+        if len(form.instance.invoice_set.filter(type=lgc_models.INVOICE)) == 0:
+            form.instance.invoice_alert = self.has_alert(self.object.stages, self.object.process)
+        if not self.object.invoice_alert:
+            if self.object.is_process_complete():
+                form.instance.invoice_alert = True
+            if form.instance.invoice_alert:
+                user_views.notify_user(self.object.person, self.object,
+                                       lgc_types.MsgType.PROC_ALERT)
         return super().form_valid(form)
 
 class PersonProcessListView(ProcessListView):
