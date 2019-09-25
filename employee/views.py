@@ -367,6 +367,7 @@ def moderation(request, *args, **kwargs):
         )
         employee_form.helper = FormHelper()
         employee_form.helper.form_tag = False
+        employee_form.helper.form_id = 'employee_form_id'
         context['employee_form'] = employee_form
 
         docs = None
