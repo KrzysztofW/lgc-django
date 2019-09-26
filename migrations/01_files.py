@@ -625,7 +625,7 @@ while row is not None:
     `spouse_citizenship`, `spouse_passport_expiry`, `local_address`, `local_phone_number`, `foreign_address`,
     `foreign_country`, `foreign_phone_number`, `modification_date`, `info_process`, `work_permit`,
     `start_date`, `state`, `comments`, `version`, `creation_date`,
-    `prefecture`, `subprefecture`, `consulate`, `direccte`, `jurisdiction`,
+    `prefecture`, `subprefecture`, `consulate`, `direccte`,
     `is_private`)
     values (
     %s, %s, %s, %s, %s,
@@ -634,7 +634,7 @@ while row is not None:
     %s, %s, %s, %s, %s,
     %s, %s, %s, %s, %s,
     %s, %s, %s, %s, %s,
-    %s, %s, %s, %s, %s,
+    %s, %s, %s, %s,
     %s
     )"""
 
@@ -644,7 +644,7 @@ while row is not None:
                     '', row[18], em(row[30]), phone, em(row[24]),
                     '', f_phone, formatted_date, proc, 0,
                     row[43], state, comments, 0, creation_date,
-                    '', '', '', '', '',
+                    '', '', '', '',
                     0
     )
 

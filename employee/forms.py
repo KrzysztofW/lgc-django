@@ -61,7 +61,7 @@ class ModerationPersonCreateForm(lgc_forms.PersonCreateForm):
     class Meta:
         model = lgc_models.Person
         exclude = ['modified_by', 'modification_date', 'creation_date', 'id', 'user',
-                   'prefecture', 'subprefecture', 'consulate', 'direccte', 'jurisdiction',
+                   'prefecture', 'subprefecture', 'consulate', 'direccte',
                    'info_process', 'responsible', 'start_date', 'state', 'comments',
                    'is_private', 'work_permit']
 

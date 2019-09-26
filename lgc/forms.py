@@ -79,9 +79,6 @@ class PersonSearchForm(forms.Form):
     direccte = forms.ChoiceField(required=False, label='DIRECCTE',
                                  choices=lgc_models.DIRECCTE_CHOICES,
                                  widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
-    jurisdiction = forms.ChoiceField(required=False, label=_('Jurisdiction'),
-                                     choices=lgc_models.JURISDICTION_SPECIFIQUE_CHOICES,
-                                     widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
     start_date = forms.CharField(required=False, label=_('Start Date'))
     end_date = forms.CharField(required=False, label=_('End Date'))
     process_state = forms.ChoiceField(required=False, label=_('Process State'),
@@ -123,7 +120,7 @@ class PersonCreateForm(forms.ModelForm):
                                           label=_('Create an active process'))
     foreign_country = CountryField().formfield(label=_('Foreign country'),
                                                required=False,
-                                               widget=forms.Select(attrs={'onchange':'auto_complete_jurisdiction(this);'}))
+                                               widget=forms.Select(attrs={'onchange':'auto_complete_consulate(this);'}))
     passport_expiry = forms.DateField(required=False,
                                       label=_('Passport Expiry'))
     version = forms.IntegerField(min_value=0, widget=forms.HiddenInput(),

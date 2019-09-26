@@ -234,7 +234,6 @@ function select_tab(elem) {
 var prefecture_select = [];
 var subprefecture_select = [];
 var direccte_select = [];
-var jurisdiction_select = [];
 var consulate_select = [];
 
 function __fill_select(selectobject, array) {
@@ -246,13 +245,11 @@ function fill_selects() {
     var prefecture = document.getElementById("id_prefecture");
     var subprefecture = document.getElementById("id_subprefecture");
     var direccte = document.getElementById("id_direccte");
-    var jurisdiction = document.getElementById("id_jurisdiction");
     var consulate = document.getElementById("id_consulate");
 
     __fill_select(prefecture, prefecture_select);
     __fill_select(subprefecture, subprefecture_select);
     __fill_select(direccte, direccte_select);
-    __fill_select(jurisdiction, jurisdiction_select);
     __fill_select(consulate, consulate_select);
 }
 
@@ -304,7 +301,7 @@ function auto_complete_region(elem) {
 	build_selects(post_code[0]);
 }
 
-function auto_complete_jurisdiction(elem) {
+function auto_complete_consulate(elem) {
     if (elem.value == '')
 	return;
 
@@ -315,20 +312,11 @@ function auto_complete_jurisdiction(elem) {
     if (!country || country.length == 0)
 	return;
 
-    var jurisdiction = document.getElementById("id_jurisdiction");
-    empty_select(jurisdiction);
-
-    for (var i = 0; i < jurisdiction_select.length; i++) {
-	c = jurisdiction_select[i].value.substr(0, 2);
-	if (c && c == country)
-	    jurisdiction.appendChild(jurisdiction_select[i]);
-    }
-
     var consulate = document.getElementById("id_consulate");
     empty_select(consulate);
 
     for (var i = 0; i < consulate_select.length; i++) {
-	c = consulate_select[i].value;
+	c = consulate_select[i].value.substr(0, 2);
 	if (c && c == country)
 	    consulate.appendChild(consulate_select[i]);
     }

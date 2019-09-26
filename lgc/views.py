@@ -220,7 +220,6 @@ class PersonListView(PersonCommonListView):
         subprefecture = self.request.GET.get('subprefecture')
         consulate = self.request.GET.get('consulate')
         direccte = self.request.GET.get('direccte')
-        jurisdiction = self.request.GET.get('jurisdiction')
         start_date = self.request.GET.get('start_date')
         end_date = self.request.GET.get('end_date')
         process_state = self.request.GET.get('process_state')
@@ -263,8 +262,6 @@ class PersonListView(PersonCommonListView):
             objs = objs.filter(consulate__exact=consulate)
         if direccte:
             objs = objs.filter(direccte__exact=direccte)
-        if jurisdiction:
-            objs = objs.filter(jurisdiction__exact=jurisdiction)
 
         if start_date and end_date:
             objs = objs.filter(start_date__range=[utils.parse_date(start_date),
@@ -317,18 +314,15 @@ class PersonListView(PersonCommonListView):
                 css_class='form-row'),
             Div(
                 Div('consulate', css_class='form-group col-md-3'),
-                Div('jurisdiction', css_class='form-group col-md-3'),
                 Div('start_date', css_class='form-group col-md-3'),
                 Div('end_date', css_class='form-group col-md-3'),
+                Div('process_state', css_class='form-group col-md-3'),
                 css_class='form-row'),
             Div(
                 Div('info_process', css_class='form-group col-md-3'),
                 Div('state', css_class='form-group col-md-3'),
                 Div('consultant', css_class='form-group col-md-3'),
                 Div('jurist', css_class='form-group col-md-3'),
-                css_class='form-row'),
-            Div(
-                Div('process_state', css_class='form-group col-md-3'),
                 css_class='form-row'),
         )
         return form
@@ -425,7 +419,6 @@ def local_user_get_person_form_layout(request, form, action, obj,
             Div('direccte', css_class='form-group col-md-3'),
             css_class='form-row'),
         Div(Div('consulate', css_class='form-group col-md-3'),
-            Div('jurisdiction', css_class='form-group col-md-3'),
             css_class='form-row'),
         get_spouse_information_div(request, form),
     )
