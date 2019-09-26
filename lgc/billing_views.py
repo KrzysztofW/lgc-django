@@ -1454,8 +1454,8 @@ def generate_invoice_from_quote(request, pk):
             item.invoice = quote
             item.save()
 
-    messages.success(request, _('Invoice %(id)d has been successfully created.'%
-                                {'id':quote.number}))
+    messages.success(request, _('Invoice %(id)d has been successfully created.')%
+                     {'id':quote.number})
     return redirect('lgc-invoice', quote.id)
 
 @login_required
@@ -1488,8 +1488,8 @@ def generate_credit_note_from_invoice(request, pk):
     invoice.total = 0
     invoice.save()
 
-    messages.success(request, _('Credit Note %(id)d has been successfully created.'%
-                                {'id':invoice.number}))
+    messages.success(request, _('Credit Note %(id)d has been successfully created.')%
+                     {'id':invoice.number})
     return redirect('lgc-invoice', invoice.id)
 
 @login_required
