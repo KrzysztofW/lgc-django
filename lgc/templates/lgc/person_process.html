@@ -44,9 +44,9 @@
   {% endif %}
 
   {% if not object.no_billing and not object.get_invoice %}
-  <a href="{% url 'lgc-invoice-create' %}?pid={{ object.person.id }}&proc_id={{ object.id }}" class="btn btn-outline-info">{% trans "Generate invoice" %}</a>
+  <a href="{% url 'lgc-invoice-create' %}?pid={{ object.person.id }}&proc_id={{ object.id }}" class="btn btn-outline-info">{% trans "Create invoice" %}</a>
   {% if not object.get_quotation %}
-  <a href="{% url 'lgc-invoice-create' %}?pid={{ object.person.id }}&proc_id={{ object.id }}&quote=1" class="btn btn-outline-info">{% trans "Generate quotation" %}</a>
+  <a href="{% url 'lgc-invoice-create' %}?pid={{ object.person.id }}&proc_id={{ object.id }}&quote=1" class="btn btn-outline-info">{% trans "Create quotation" %}</a>
   {% endif %}
   {% endif %}
 

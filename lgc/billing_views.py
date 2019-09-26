@@ -916,7 +916,7 @@ class InvoiceCommonView(BillingTestLocalUser):
                                          str(reverse_lazy('lgc-gen-invoice',
                                                           kwargs={'pk':self.object.id})) +
                                          '" class="btn btn-outline-info">' +
-                                         _('Generate invoice') + '</a>'))
+                                         _('Create invoice') + '</a>'))
             elif (self.object.type == lgc_models.INVOICE and
                   (self.object.state == lgc_models.INVOICE_STATE_PAID or
                    self.object.state == lgc_models.INVOICE_STATE_DONE) and
@@ -926,7 +926,7 @@ class InvoiceCommonView(BillingTestLocalUser):
                                              str(reverse_lazy('lgc-gen-credit-note',
                                                               kwargs={'pk':self.object.id})) +
                                              '" class="btn btn-outline-info">' +
-                                             _('Generate Credit Note') + '</a>'))
+                                             _('Create Credit Note') + '</a>'))
             if self.request.user.billing:
                 gen_pdf_html = HTML(('&nbsp;<a href="' +
                                      str(reverse_lazy('lgc-billing-pdf',
@@ -1454,7 +1454,7 @@ def generate_invoice_from_quote(request, pk):
             item.invoice = quote
             item.save()
 
-    messages.success(request, _('Invoice %(id)d has been successfully generated'%
+    messages.success(request, _('Invoice %(id)d has been successfully created.'%
                                 {'id':quote.number}))
     return redirect('lgc-invoice', quote.id)
 
@@ -1488,7 +1488,7 @@ def generate_credit_note_from_invoice(request, pk):
     invoice.total = 0
     invoice.save()
 
-    messages.success(request, _('Credit Note %(id)d has been successfully generated'%
+    messages.success(request, _('Credit Note %(id)d has been successfully created.'%
                                 {'id':invoice.number}))
     return redirect('lgc-invoice', invoice.id)
 
