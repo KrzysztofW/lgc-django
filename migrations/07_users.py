@@ -76,6 +76,10 @@ while row is not None:
         role = 'JU'
     else:
         role = ''
+    if row[14] == 'on':
+        is_active = 1
+    else:
+        is_active = 0
     if row[4] == 'on':
         is_staff = 1
     else:
@@ -89,7 +93,7 @@ while row is not None:
     else:
         show_invoice_notifs = 0
     insert_tuple = ('', 0, row[1], row[0], is_staff,
-                    1, formatted_date, row[5], role, billing,
+                    is_active, formatted_date, row[5], role, billing,
                     '', 'A', 'FR', '', show_invoice_notifs)
 
     try:
