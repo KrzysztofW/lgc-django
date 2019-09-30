@@ -1000,7 +1000,7 @@ class Invoice(AbstractClient):
                                      validators=[validators.alpha], blank=True)
     po_last_name = models.CharField(_('Last name'), max_length=50,
                                     validators=[validators.alpha], blank=True)
-    po_email = models.EmailField('Email', max_length=60, null=True, blank=True)
+    po_email = models.EmailField('Email', max_length=80, null=True, blank=True)
     po_rate = models.FloatField(_('Rate'), null=True, blank=True)
 
     company_option = models.CharField(_('Company'), max_length=1, default='L',
