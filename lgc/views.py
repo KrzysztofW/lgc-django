@@ -1634,7 +1634,7 @@ class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
         if self.model == lgc_models.Process:
             context['available_stages'] = self.get_available_stages(self.object.stages)
             context['stages'] = self.get_ordered_stages(self.object)
-        if (not self.request.user.is_staff or
+        if (not self.request.user.is_staff and
             self.request.user.role != user_models.ROLE_CONSULTANT):
             context['read_only'] = True
         return context
