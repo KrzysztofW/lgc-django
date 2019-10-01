@@ -338,7 +338,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         )
         return form
 
-    def match_extra_terms(self, objs):
+    def match_extra_terms(self, objs, term):
         number = self.request.GET.get('number')
         state = self.request.GET.get('state')
         currency = self.request.GET.get('currency')
@@ -348,17 +348,23 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         dates = self.request.GET.get('dates')
         total = self.request.GET.get('total')
         do_range_total = False
+        search_query = str(term)
 
         if number:
             objs = objs.filter(number=number)
+            search_query += number
         if state:
             objs = objs.filter(state=state)
+            search_query += state
         if currency:
             objs = objs.filter(currency=currency)
+            search_query += currency
         if total:
             objs = objs.filter(total=total)
+            search_query += total
         if responsible:
             o = User.objects.filter(id=responsible)
+            search_query += responsible
             if len(o):
                 objs = objs.filter(person__responsible__in=o)
         if dates == lgc_forms.INVOICE_SEARCH_DATE_INVOICE:
@@ -384,7 +390,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         if do_range_total:
             key = start_date + end_date
             val = session_cache_get(self.request.session, key)
-            if val:
+            if val and val['search_query'] == search_query:
                 self.eur = val['eur']
                 self.usd = val['usd']
                 self.cad = val['cad']
@@ -425,6 +431,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 'usd': self.usd.copy(),
                 'cad': self.cad.copy(),
                 'gbp': self.gbp.copy(),
+                'search_query': search_query,
             }
             session_cache_add(self.request.session, key, cache_val, 1)
 
@@ -437,23 +444,23 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             objs = self.objs.filter(person__responsible=self.request.user)
         else:
             objs = self.objs
-        objs = self.match_extra_terms(objs)
 
         if term == '':
-            return objs.order_by(order_by)
-        objs = (objs.filter(person__first_name__istartswith=term)|
-                objs.filter(person__last_name__istartswith=term)|
-                objs.filter(person__home_entity__istartswith=term)|
-                objs.filter(person__host_entity__istartswith=term)|
-                objs.filter(first_name__istartswith=term)|
-                objs.filter(last_name__istartswith=term)|
-                objs.filter(company__istartswith=term))
-        try:
-            term_int = int(term)
-            objs = objs.filter(number=term_int)
-        except:
-            pass
-
+            objs = objs.order_by(order_by)
+        else:
+            objs = (objs.filter(person__first_name__istartswith=term)|
+                    objs.filter(person__last_name__istartswith=term)|
+                    objs.filter(person__home_entity__istartswith=term)|
+                    objs.filter(person__host_entity__istartswith=term)|
+                    objs.filter(first_name__istartswith=term)|
+                    objs.filter(last_name__istartswith=term)|
+                    objs.filter(company__istartswith=term))
+            try:
+                term_int = int(term)
+                objs = objs.filter(number=term_int)
+            except:
+                pass
+        objs = self.match_extra_terms(objs, term)
         return objs.order_by(order_by)
 
     def get_ordering(self):
