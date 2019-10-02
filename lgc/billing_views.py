@@ -351,8 +351,15 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         search_query = str(term)
 
         if number:
-            objs = objs.filter(number=number)
-            search_query += number
+            number = number.lower().strip('fa')
+            number = number.strip('av')
+            number = number.strip('de')
+            try:
+                nb = int(number)
+                objs = objs.filter(number=nb)
+                search_query += number
+            except:
+                return objs.none()
         if state:
             objs = objs.filter(state=state)
             search_query += state
