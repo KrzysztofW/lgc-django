@@ -1872,7 +1872,7 @@ msgstr "Enfants"
 
 #: views.py:671
 msgid "Invalid Children table"
-msgstr "Le formaire des enfants n'est pas valide"
+msgstr "Le formulaire des enfants n'est pas valide"
 
 #: views.py:676
 msgid "Invalid Visas / Residence Permits / Work Permits table"

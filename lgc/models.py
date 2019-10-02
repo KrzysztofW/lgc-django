@@ -304,7 +304,7 @@ CONSULATE_CHOICES = (
     ('SND', "Dakar (Sénégal)"),
     ('SGS', "Singapour (Singapour)"),
     ('SES', "Stockholm (Suède)"),
-    ('CHG', "Génève (Suisse)"),
+    ('CHG', "Genève (Suisse)"),
     ('CHZ', "Zurich (Suisse)"),
     ('TWT', "Taipei (Taïwan)"),
     ('TZD', "Dar Es Salaam (Tanzanie)"),
