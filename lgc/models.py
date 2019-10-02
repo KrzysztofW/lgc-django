@@ -470,13 +470,13 @@ def get_expiration_list():
 def get_spouse_expiration_list():
     return [(i[0]) for i in PERSON_SPOUSE_EXPIRATIONS_CHOICES]
 
-FILE_STATE_ACTIVE  = 'A'
-FILE_STATE_PENDING = 'P'
+FILE_STATE_ACTIVE = 'A'
+FILE_STATE_INACTIVE  = 'I'
 FILE_STATE_CLOSED  = 'C'
 
 FILE_STATE_CHOICES = (
+    (FILE_STATE_INACTIVE, _('Inactive')),
     (FILE_STATE_ACTIVE, _('Active')),
-    (FILE_STATE_PENDING, _('Pending')),
     (FILE_STATE_CLOSED, _('Closed')),
 )
 
