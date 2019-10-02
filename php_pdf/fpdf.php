@@ -596,6 +596,17 @@ function AcceptPageBreak()
 	return $this->AutoPageBreak;
 }
 
+function convert_txt($txt)
+{
+        $chars = array("é", "ç", "à", "è", "ê", "ô", "â", "ù", "û", "ï", "ä", "ë", "ö", "ü", "É", "È", "Ç", "Ô", "Ê", "Â", "Ù", "Û", "Ï", "Ä", "Ë", "Ö", "Ü", "°");
+        foreach ($chars as $c) {
+                if (strstr($txt, $c)) {
+                        $txt = iconv('utf-8', 'cp1252', $txt);
+                }
+        }
+        return $txt;
+}
+
 function Cell($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=false, $link='')
 {
 	// Output a cell
@@ -644,8 +655,7 @@ function Cell($w, $h=0, $txt='', $border=0, $ln=0, $align='', $fill=false, $link
 	}
 	if($txt!=='')
 	{
-		$txt = iconv('utf-8', 'cp1252', $txt);
-
+		$txt = $this->convert_txt($txt);
 		if($align=='R')
 			$dx = $w-$this->cMargin-$this->GetStringWidth($txt);
 		elseif($align=='C')
