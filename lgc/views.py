@@ -1203,7 +1203,8 @@ class PersonCommonView(LoginRequiredMixin, UserTest, SuccessMessageMixin):
                     return super().form_invalid(form)
 
         if self.object:
-            if form.instance.is_private and self.object.user.hr_employees.count():
+            if (form.instance.is_private and self.object.user and
+                self.object.user.hr_employees.count()):
                 messages.error(self.request,
                                _('The private field cannot be set as HRs are linked with this file.'))
                 return super().form_invalid(form)
