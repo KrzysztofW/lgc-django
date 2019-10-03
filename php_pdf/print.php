@@ -425,18 +425,7 @@ if (! empty($file_id)) {
 		$pdf->Cell(0, 10, $resp_msg[$lang] . " $str");
 	}
 }
-
-$pdf->Ln(10);
-
-/* description */
-$pieces = explode("\n", $row['invoice_description']);
-
-foreach ($pieces as $val => $key) {
-	$pdf->Cell(25, 10, "$key", 0, 0, 'L');
-	$pdf->Ln(4);
-}
-$pdf->Ln(5);
-
+$pdf->Ln(15);
 
 /* diligences */
 
