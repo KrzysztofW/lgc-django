@@ -1489,6 +1489,9 @@ def ajax_process_search_view(request):
     return __ajax_process_stage_search_view(request, lgc_models.Process)
 
 class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
+    template_name = 'lgc/process.html'
+    model = lgc_models.Process
+
     def test_func(self):
         if self.request.user.role not in user_models.get_internal_roles():
             return False
@@ -1507,7 +1510,10 @@ class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
 
     def get_available_stages(self, selected_stages):
         available_stages = []
+        billing_stages = []
         for s in lgc_models.ProcessStage.objects.all():
+            if s.invoice_alert:
+                billing_stages.append(s)
             if selected_stages == None:
                 available_stages.append(s)
                 continue
@@ -1518,7 +1524,7 @@ class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
                     break
             if present == False:
                 available_stages.append(s)
-        return available_stages
+        return available_stages, billing_stages
 
     def form_valid(self, form):
         if self.model != lgc_models.Process:
@@ -1538,7 +1544,6 @@ class ProcessCommonView(LoginRequiredMixin, UserPassesTestMixin):
 
 class ProcessListView(ProcessCommonView, ListView):
     template_name = 'lgc/sub_generic_list.html'
-    model = lgc_models.Process
     title = ugettext_lazy('Processes')
     create_url = reverse_lazy('lgc-process-create')
     item_url = 'lgc-process'
@@ -1593,9 +1598,7 @@ class ProcessListView(ProcessCommonView, ListView):
         return pagination(self.request, context, self.this_url)
 
 class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
-    model = lgc_models.Process
     success_message = ugettext_lazy('Process successfully created')
-    template_name = 'lgc/process.html'
     success_url = reverse_lazy('lgc-process-create')
     title = ugettext_lazy('New Process')
 
@@ -1603,7 +1606,9 @@ class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = self.title
         if self.model == lgc_models.Process:
-            context['available_stages'] = lgc_models.ProcessStage.objects.all()
+            stages = self.get_available_stages(None)
+            context['available_stages'] = stages[0]
+            context['billing_stages'] = stages[1]
         return context
 
     def test_func(self):
@@ -1614,10 +1619,8 @@ class ProcessCreateView(ProcessCommonView, SuccessMessageMixin, CreateView):
         return super().get_form(form_class=form_class)
 
 class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
-    model = lgc_models.Process
     success_message = ugettext_lazy('Process successfully updated')
     success_url = 'lgc-process'
-    template_name = 'lgc/process.html'
     title = ugettext_lazy('Process')
     delete_url = 'lgc-process-delete'
     fields = '__all__'
@@ -1633,7 +1636,9 @@ class ProcessUpdateView(ProcessCommonView, SuccessMessageMixin, UpdateView):
             context['delete_url'] = reverse_lazy(self.delete_url,
                                                  kwargs={'pk':self.object.id})
         if self.model == lgc_models.Process:
-            context['available_stages'] = self.get_available_stages(self.object.stages)
+            stages = self.get_available_stages(self.object.stages)
+            context['available_stages'] = stages[0]
+            context['billing_stages'] = stages[1]
             context['stages'] = self.get_ordered_stages(self.object)
         if (not self.request.user.is_staff and
             self.request.user.role != user_models.ROLE_CONSULTANT):
