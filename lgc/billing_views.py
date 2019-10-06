@@ -374,6 +374,8 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             search_query += responsible
             if len(o):
                 objs = objs.filter(person__responsible__in=o)
+
+        search_query += str(dates)
         if dates == lgc_forms.INVOICE_SEARCH_DATE_INVOICE:
             if start_date and end_date:
                 do_range_total = True
