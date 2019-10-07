@@ -309,7 +309,7 @@ CONSULATE_CHOICES = (
     ('TWT', "Taipei (Taïwan)"),
     ('TZD', "Dar Es Salaam (Tanzanie)"),
     ('TNT', "Tunis (Tunisie)"),
-    ('TRI', "Istanboul (Turquie)"),
+    ('TRI', "Istanbul (Turquie)"),
     ('TRA', "Ankara (Turquie)"),
     ('UAK', "Kiev (Ukraine)"),
     ('VNH', "Ho Chi Minh Ville (Vietnam)"),
