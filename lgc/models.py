@@ -525,6 +525,8 @@ class PersonInfo(models.Model):
                                               default=None)
     spouse_passport_nationality = CountryField(_('Passport Nationality'),
                                                blank=True, null=True)
+    spouse_foreigner_id = models.BigIntegerField(_('Foreigner ID'), blank=True, null=True,
+                                                 validators=[MinValueValidator(0)])
 
     local_address = models.TextField(_('Local Address'), max_length=100,
                                      default='', blank=True)

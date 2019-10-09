@@ -338,7 +338,7 @@ def get_spouse_information_div(request, form):
 
     for f in ('spouse_first_name', 'spouse_last_name', 'spouse_birth_date',
               'spouse_citizenship', 'spouse_passport_expiry',
-              'spouse_passport_nationality'):
+              'spouse_passport_nationality', 'spouse_foreigner_id'):
         attr = getattr(form.instance, f)
         if f in form.errors or (attr != None and attr != ''):
             expand = 'true'
@@ -362,6 +362,8 @@ def get_spouse_information_div(request, form):
                         Div(Div('spouse_citizenship', css_class='form-group col-md-3'),
                             Div('spouse_passport_expiry', css_class='form-group col-md-3'),
                             Div('spouse_passport_nationality', css_class='form-group col-md-3'),
+                            css_class='form-row'),
+                        Div(Div('spouse_foreigner_id', css_class='form-group col-md-3'),
                             css_class='form-row'),
                         css_class='card-body'),
                     HTML('</div>'),
