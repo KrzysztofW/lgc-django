@@ -2171,7 +2171,7 @@ msgstr ""
 
 #: views.py:2454
 msgid "Deleted status cannot be set."
-msgstr "Le status 'supprimé' n'est pas sélectionnable."
+msgstr "Le statut 'supprimé' n'est pas sélectionnable."
 
 #: views.py:2503
 msgid "Account"
