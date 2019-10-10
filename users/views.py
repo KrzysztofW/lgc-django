@@ -119,11 +119,7 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UserPassesTestMixi
 
 def notify_user(user, obj, msg_type, cc=None):
     for u in user.responsible.all():
-        if 'example.com' in u.email:
-            print('oh no not again:', u.email)
-            continue
         try:
-            print('sending email to:', u.email)
             lgc_send_email(obj, msg_type, u, cc)
         except Exception as e:
             log.error(e)
