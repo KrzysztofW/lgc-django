@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-10 10:55+0200\n"
+"POT-Creation-Date: 2019-10-11 09:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -478,8 +478,8 @@ msgid "Is admin"
 msgstr "Admin"
 
 #: forms.py:175
-msgid "This HR user can initiate new cases"
-msgstr "Cet utilisateur RH peut initier de nouveaux dossiers"
+msgid "This HR user can create new accounts"
+msgstr "Cet utilisateur RH peut créer de nouveaux comptes"
 
 #: forms.py:198 models.py:727
 msgid "Passport nationality"
@@ -1542,8 +1542,8 @@ msgid "Dashboard"
 msgstr "Tableau de bord"
 
 #: templates/lgc/home.html:23
-msgid "Initiate a case"
-msgstr "Initier un dossier"
+msgid "Create an account"
+msgstr "Créer un compte"
 
 #: templates/lgc/home.html:32 templates/lgc/home.html:165
 msgid "Go"
@@ -2207,8 +2207,8 @@ msgid "New HR account"
 msgstr "Nouveau compte RH"
 
 #: views.py:2566
-msgid "Initiate account"
-msgstr "Initier un compte"
+msgid "Create account"
+msgstr "Créer un compte"
 
 #: views.py:2573
 msgid "HR account successfully updated"

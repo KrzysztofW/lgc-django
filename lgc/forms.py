@@ -159,7 +159,7 @@ class UpdateAccountForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'email', 'language',
                   'responsible', 'new_token', 'is_active', 'status']
 
-class InitiateAccountForm(UpdateAccountForm):
+class CreateAccountForm(UpdateAccountForm):
     home_entity = forms.CharField(required=False, label=_('Home Entity'))
     host_entity = forms.CharField(required=False, label=_('Host Entity'))
 
@@ -169,10 +169,10 @@ class InitiateAccountForm(UpdateAccountForm):
                   'responsible', 'new_token', 'is_active', 'status',
                   'home_entity', 'host_entity']
 
-class InitiateHRForm(InitiateAccountForm):
+class CreateHRForm(CreateAccountForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())
     is_admin = forms.BooleanField(required=False, label=_('Is admin'),
-                                  help_text=_('This HR user can initiate new cases'))
+                                  help_text=_('This HR user can create new accounts'))
 
     class Meta:
         model = User

@@ -15,7 +15,7 @@ User = get_user_model()
 
 empty_select = (('', '----'),)
 
-class HRInitiateEmployeeAccountForm(lgc_forms.InitiateAccountForm):
+class HRCreateEmployeeAccountForm(lgc_forms.CreateAccountForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['responsible'].required = False

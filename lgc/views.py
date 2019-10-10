@@ -2222,7 +2222,7 @@ class AccountView(LoginRequiredMixin, UserPassesTestMixin):
     update_url = 'lgc-account'
     cancel_url = 'lgc-account'
     list_url = reverse_lazy('lgc-accounts')
-    form_class = lgc_forms.InitiateAccountForm
+    form_class = lgc_forms.CreateAccountForm
     is_hr = False
 
     class Meta:
@@ -2231,7 +2231,7 @@ class AccountView(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.request.user.role in user_models.get_internal_roles()
 
-class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
+class CreateAccount(AccountView, SuccessMessageMixin, CreateView):
     success_message = ugettext_lazy('New account successfully created')
     title = ugettext_lazy('Create access')
     form_name = ugettext_lazy('Create access')
@@ -2256,7 +2256,7 @@ class InitiateAccount(AccountView, SuccessMessageMixin, CreateView):
 
         return context
 
-    def get_form(self, form_class=lgc_forms.InitiateAccountForm):
+    def get_form(self, form_class=lgc_forms.CreateAccountForm):
         form = super().get_form(form_class=self.form_class)
 
         if self.is_hr:
@@ -2551,7 +2551,7 @@ class HRView(LoginRequiredMixin):
     update_url = 'lgc-hr'
     cancel_url = 'lgc-hr'
     list_url = reverse_lazy('lgc-hr-accounts')
-    form_class = lgc_forms.InitiateHRForm
+    form_class = lgc_forms.CreateHRForm
     is_hr = True
 
     class Meta:
@@ -2560,10 +2560,10 @@ class HRView(LoginRequiredMixin):
     def test_func(self):
         return self.request.user.role in user_models.get_internal_roles()
 
-class HRCreateView(HRView, InitiateAccount):
+class HRCreateView(HRView, CreateAccount):
     success_message = ugettext_lazy('New HR account successfully created')
     title = ugettext_lazy('New HR account')
-    form_name = ugettext_lazy('Initiate account')
+    form_name = ugettext_lazy('Create account')
 
     def test_func(self):
         return (self.request.user.role == user_models.ROLE_CONSULTANT or

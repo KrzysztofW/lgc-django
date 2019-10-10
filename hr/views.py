@@ -59,7 +59,7 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
     cancel_url = 'hr-update-account'
     list_url = reverse_lazy('hr-employees')
 
-    def hr_admin_get_initiate_form(self, form, action, uid):
+    def hr_admin_get_create_form(self, form, action, uid):
         form.helper = FormHelper()
         form.helper.layout = Layout(
             Div(
@@ -90,7 +90,7 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
             self.object = self.get_object()
             return self.object in self.request.user.hr_employees.all()
         except:
-            """ only the HR admin can initiate new cases """
+            """ only the HR admin can create new accounts """
             return self.request.user.role == user_models.ROLE_HR_ADMIN
 
     def get_success_url(self):
@@ -101,9 +101,9 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
         context['title'] = self.title
         return context
 
-    def get_form(self, form_class=hr_forms.HRInitiateEmployeeAccountForm):
+    def get_form(self, form_class=hr_forms.HRCreateEmployeeAccountForm):
         form = super().get_form(form_class=form_class)
-        return self.hr_admin_get_initiate_form(form, self.submit_button_label,
+        return self.hr_admin_get_create_form(form, self.submit_button_label,
                                                self.uid)
 
     def form_valid(self, form):
@@ -132,15 +132,15 @@ class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
         messages.success(self.request, self.success_message)
         return redirect(self.get_success_url())
 
-class InitiateAccountByHR(CommonAccountByHR, CreateView):
-    success_message = ugettext_lazy('New account successfully initiated')
-    title = ugettext_lazy('Initiate an account')
-    submit_button_label = ugettext_lazy('Initiate account')
+class CreateAccountByHR(CommonAccountByHR, CreateView):
+    success_message = ugettext_lazy('New account successfully created')
+    title = ugettext_lazy('Create an account')
+    submit_button_label = ugettext_lazy('Create account')
 
-    def get_form(self, form_class=hr_forms.HRInitiateEmployeeAccountForm):
+    def get_form(self, form_class=hr_forms.HRCreateEmployeeAccountForm):
         form = super().get_form(form_class=form_class)
-        return self.hr_admin_get_initiate_form(form, self.submit_button_label,
-                                               None)
+        return self.hr_admin_get_create_form(form, self.submit_button_label,
+                                             None)
 
 class UpdateAccountByHR(CommonAccountByHR, UpdateView):
     success_message = ugettext_lazy('Account successfully updated')
@@ -148,10 +148,10 @@ class UpdateAccountByHR(CommonAccountByHR, UpdateView):
     submit_button_label = ugettext_lazy('Update')
     is_update = True
 
-    def get_form(self, form_class=hr_forms.HRInitiateEmployeeAccountForm):
+    def get_form(self, form_class=hr_forms.HRCreateEmployeeAccountForm):
         form = super().get_form(form_class=form_class)
-        return self.hr_admin_get_initiate_form(form, self.submit_button_label,
-                                               self.object.id)
+        return self.hr_admin_get_create_form(form, self.submit_button_label,
+                                             self.object.id)
 class PersonUpdateView(lgc_views.PersonUpdateView):
     model = employee_models.Employee
     title = ugettext_lazy('Employee File')

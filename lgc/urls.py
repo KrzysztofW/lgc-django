@@ -20,10 +20,10 @@ urlpatterns = [
     path('file-search/ajax/', views.ajax_file_search_view,
          name='lgc-file-search-ajax'),
 
-    path('account-create/', views.InitiateAccount.as_view(), name='lgc-account-create'),
+    path('account-create/', views.CreateAccount.as_view(), name='lgc-account-create'),
     path('account-list/', views.Accounts.as_view(), name='lgc-accounts'),
     path('account/<int:pk>/', views.UpdateAccount.as_view(), name='lgc-account'),
-    path('account-link/<int:pk>/', views.InitiateAccount.as_view(),
+    path('account-link/<int:pk>/', views.CreateAccount.as_view(),
          name='lgc-account-link'),
     path('account-delete/<int:pk>', views.DeleteAccount.as_view(),
          name='lgc-account-delete'),

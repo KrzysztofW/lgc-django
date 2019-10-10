@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-04 15:23+0200\n"
+"POT-Creation-Date: 2019-10-10 15:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,9 +74,9 @@ msgstr "Accepté"
 msgid "Refused"
 msgstr "Refusé"
 
-#: templates/hr/home.html:17
-msgid "Initiate a case"
-msgstr "Initier un dossier"
+#: templates/hr/home.html:17 templates/hr/menu_hr_admin.html:19 views.py:137
+msgid "Create an account"
+msgstr "Créer un compte"
 
 #: templates/hr/home.html:26
 msgid "Go"
@@ -100,10 +100,6 @@ msgstr "Expirations"
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: templates/hr/menu_hr_admin.html:19 views.py:137
-msgid "Initiate an account"
-msgstr "Initier un compte"
-
 #: templates/hr/menu_hr_admin.html:22
 msgid "Account list"
 msgstr "Comptes"
@@ -116,12 +112,12 @@ msgstr ""
 "contacter l'équipe KWA."
 
 #: views.py:136
-msgid "New account successfully initiated"
+msgid "New account successfully created"
 msgstr "Nouveau compte créé avec succès"
 
 #: views.py:138
-msgid "Initiate account"
-msgstr "Initier un dossier"
+msgid "Create account"
+msgstr "Créer un compte"
 
 #: views.py:146
 msgid "Account successfully updated"
@@ -148,6 +144,6 @@ msgstr "Supprimer compte"
 msgid "Account of %(first_name)s %(last_name)s successfully deleted."
 msgstr "Compte de %(first_name)s %(last_name)s supprimé avec succès."
 
-#: views.py:283
+#: views.py:284
 msgid "Search"
 msgstr "Rechercher"
