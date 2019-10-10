@@ -134,7 +134,7 @@
       </div>
     </div>
 
-    {% if request.user.billing %}
+    {% if year_revenue %}
     <div class="form-row">
       <div class="form-group col-md-6">
 	<div id="div_id_first_name" class="form-group text-center">
@@ -223,7 +223,7 @@
 {% endblock %}
 {% block javascript %}
 <script>
-{% if request.user.billing %}
+{% if year_revenue %}
  var data = [
    {% for month in year_revenue reversed %}
    { m: '{{ month.0 }}',

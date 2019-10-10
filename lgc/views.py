@@ -3043,6 +3043,10 @@ def stats_view(request):
         nb_internal_users_level = 0
         nb_external_users_level = 0
 
+    if request.user.billing:
+        this_year_revenue = get_this_year_revenue()
+    else:
+        this_year_revenue = None
     context = {
         'title': _('Statistics'),
         'nb_files': nb_files,
@@ -3058,7 +3062,7 @@ def stats_view(request):
         'crossed_list': crossed_list,
         'active_files_no_jurists': active_files_no_jurists,
         'expirations': lgc_models.Expiration.objects.filter(enabled=True).exclude(end_date__lte=timezone.now().date()).count(),
-        'year_revenue': get_this_year_revenue() if request.user.billing else None,
+        'year_revenue': this_year_revenue,
         'nb_processes': lgc_models.Process.objects.count(),
     }
 
