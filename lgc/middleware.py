@@ -55,11 +55,19 @@ class UserRolesCheck(MiddlewareMixin):
                 return
 
         if request.user.role == user_models.ROLE_EMPLOYEE:
+            if request.user.billing or request.user.is_staff or request.user.is_superuser:
+                user_log.error('privilege escalation detected for user %s',
+                               request.user.email)
+                raise PermissionDenied
             if re.search("^/((en)|(fr))/emp/.*$", request.path) == None:
                 raise PermissionDenied
             return
 
         if request.user.role in user_models.get_hr_roles():
+            if request.user.billing or request.user.is_staff or request.user.is_superuser:
+                user_log.error('privilege escalation detected for user %s',
+                               request.user.email)
+                raise PermissionDenied
             if (re.search("^/((en)|(fr))/hr/.*$", request.path) == None and
                 re.search("^/((en)|(fr))/file/.*", request.path) == None):
                 raise PermissionDenied
