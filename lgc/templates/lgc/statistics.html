@@ -211,6 +211,11 @@
 	{% endfor %}
       </tr>
       {% endfor %}
+      <tr><td>{% trans 'Files without jurists' %}</td>
+	{% for cnt in active_files_no_jurists %}
+	<td class="lgc_no-wrap lgc_pull-right">{{ cnt }}%</td>
+	{% endfor %}
+      </tr>
 </tbody>
 </table>
 </div>

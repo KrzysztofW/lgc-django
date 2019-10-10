@@ -2951,8 +2951,10 @@ def stats_view(request):
     users = user_models.get_local_user_queryset().filter(is_superuser=False, is_active=True).order_by('first_name')
     compare_date = (timezone.now().date() +
                     datetime.timedelta(days=settings.EXPIRATIONS_NB_DAYS))
+    nb_active_files_per_user = {}
     for u in users:
         active_files = u.person_resp_set.filter(state=lgc_models.FILE_STATE_ACTIVE).count()
+        nb_active_files_per_user[u.email] = active_files
         if active_files:
             active_files_percent = round((active_files / nb_active_files) * 100)
         else:
@@ -2975,6 +2977,7 @@ def stats_view(request):
     crossed_list = []
     consultants = users.filter(role__exact=user_models.ROLE_CONSULTANT,
                                is_active=True)
+    active_files_no_jurists = []
     for j in users.filter(role__exact=user_models.ROLE_JURIST, is_active=True):
         persons = j.person_resp_set.get_queryset().filter(state=lgc_models.FILE_STATE_ACTIVE)
         cons_juri_list = []
@@ -2995,6 +2998,16 @@ def stats_view(request):
                 'count': person.count(),
             }
             cons_juri_list.append(element)
+
+            if hasattr(c, 'cnt'):
+                continue
+            prsns = c.person_resp_set.get_queryset().filter(state=lgc_models.FILE_STATE_ACTIVE).exclude(responsible__role=user_models.ROLE_JURIST)
+            c.cnt = prsns.count()
+            if nb_active_files_per_user[c.email]:
+                cnt = (c.cnt / nb_active_files_per_user[c.email]) * 100
+            else:
+                cnt = 0
+            active_files_no_jurists.append(round(cnt))
         crossed_list.append(cons_juri_list)
 
     nb_max = max(nb_files, nb_active_files, nb_internal_users,
@@ -3043,6 +3056,7 @@ def stats_view(request):
 
         'nb_hr': user_models.get_hr_user_queryset().count(),
         'crossed_list': crossed_list,
+        'active_files_no_jurists': active_files_no_jurists,
         'expirations': lgc_models.Expiration.objects.filter(enabled=True).exclude(end_date__lte=timezone.now().date()).count(),
         'year_revenue': get_this_year_revenue() if request.user.billing else None,
         'nb_processes': lgc_models.Process.objects.count(),
