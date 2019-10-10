@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-10 09:56+0200\n"
+"POT-Creation-Date: 2019-10-10 10:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1037,7 +1037,7 @@ msgstr "Euro"
 msgid "Dollar"
 msgstr "Dollar"
 
-#: models.py:923 templates/lgc/statistics.html:239
+#: models.py:923 templates/lgc/statistics.html:255
 msgid "Pound"
 msgstr "Livre"
 
@@ -1653,7 +1653,7 @@ msgstr "Modèles"
 msgid "Ready for invoicing"
 msgstr "À facturer"
 
-#: templates/lgc/menu_complete.html:124 views.py:3047
+#: templates/lgc/menu_complete.html:124 views.py:3051
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -1744,7 +1744,7 @@ msgstr "Général"
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: templates/lgc/statistics.html:32 templates/lgc/statistics.html:167
+#: templates/lgc/statistics.html:32 templates/lgc/statistics.html:178
 msgid "Total Files"
 msgstr "Nombre de fiches"
 
@@ -1760,55 +1760,63 @@ msgstr "Utilisateurs internes"
 msgid "External Users"
 msgstr "Utilisateurs externes"
 
-#: templates/lgc/statistics.html:103
+#: templates/lgc/statistics.html:102
 msgid "Expirations count"
 msgstr "Nombre d'expirations"
 
-#: templates/lgc/statistics.html:104
+#: templates/lgc/statistics.html:103
 msgid "All active expirations"
 msgstr "Nombre d'expirations actives"
 
-#: templates/lgc/statistics.html:124
+#: templates/lgc/statistics.html:123
 msgid "Total processes"
 msgstr "Nombre de procédures"
 
-#: templates/lgc/statistics.html:125
+#: templates/lgc/statistics.html:124
 msgid "Currently supported processes"
 msgstr "Procédures supportées"
 
-#: templates/lgc/statistics.html:141
+#: templates/lgc/statistics.html:140
 msgid "This year revenue"
 msgstr "Chiffre d'affaire de l'année en cours"
 
-#: templates/lgc/statistics.html:148
+#: templates/lgc/statistics.html:147
 msgid "Last month revenue"
 msgstr "Chiffre d'affaire du mois dernier"
 
-#: templates/lgc/statistics.html:162
+#: templates/lgc/statistics.html:163
+msgid "Per User"
+msgstr "Par Utilisateur"
+
+#: templates/lgc/statistics.html:166
+msgid "Crossed Table"
+msgstr "Tableau Croisé"
+
+#: templates/lgc/statistics.html:171
 msgid "Per user statistics"
 msgstr "Statistiques par utilisateur"
 
-#: templates/lgc/statistics.html:168
+#: templates/lgc/statistics.html:179
 msgid "Total Active Files"
 msgstr "Nombre de fiches actives"
 
-#: templates/lgc/statistics.html:169
+#: templates/lgc/statistics.html:180
 msgid "Pending Work Permits"
 msgstr "Nombre d'APT non relancées"
 
-#: templates/lgc/statistics.html:170
+#: templates/lgc/statistics.html:181
 msgid "Pending Residence Permits"
 msgstr "Nombre de CS non relancées"
 
-#: templates/lgc/statistics.html:187
+#: templates/lgc/statistics.html:200
 msgid "Crossed table of active files"
 msgstr "Statistiques croisées des fiches actives"
 
-#: templates/lgc/statistics.html:214
+#: templates/lgc/statistics.html:227
 msgid "Files without jurists"
 msgstr "Fiches sans juristes"
 
-#: templates/lgc/statistics.html:238
+#: templates/lgc/statistics.html:254
 msgid "Canadian dollar"
 msgstr "Dollar canadien"
 
