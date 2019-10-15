@@ -529,8 +529,6 @@ def employee_user_get_person_form_layout(request, form, action, obj):
             Div('foreign_country', css_class='form-group col-md-3'),
             css_class='form-row'),
         get_spouse_information_div(request, form),
-        Div(Div(HTML('<hr>'), css_class='form-group col-md-9'),
-            css_class='form-row'),
     )
 
     info_tab.append(Div(Div(HTML(get_template(CURRENT_DIR,
