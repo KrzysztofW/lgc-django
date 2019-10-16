@@ -43,3 +43,25 @@ class ExpirationSearchForm(forms.Form):
 
     class Meta:
         fields = '__all__'
+
+class InitiateCaseForm(forms.Form):
+    first_name = forms.CharField(label=_('Given Name of the employee (as per passport)'))
+    last_name = forms.CharField(label=_('Surname of the employee (as per passport)'))
+    citizenship = CountryField().formfield(label=_('Citizenship'))
+    address = forms.CharField(label=_('Work location in France (company name and detailed address)'),
+                              widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}))
+    start_date = forms.CharField(required=False, label=_('Intended start date'))
+    expected_assignment = forms.CharField(required=False, label=_('Expected assignment or contract duration'))
+
+    hr_contact = forms.CharField(label=_('HR contact for the case'))
+    dependents = forms.BooleanField(required=False, initial=False,
+                                    label=_('Dependents yes/no'))
+    email = forms.EmailField(label=_("Assignee's email address"))
+    assistance_type = forms.CharField(label=_('Type of assistance required'))
+    comments = forms.CharField(label=_('Comments and additional information on the case'),
+                               help_text=_('For non applicable information please indicate "NA"'),
+                               widget=forms.Textarea(attrs={'rows': 3, 'cols': 80}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        lgc_forms.datepicker_set_widget_attrs(self, 'start_date')

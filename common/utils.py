@@ -1,9 +1,11 @@
 from django.utils.formats import get_format
 from django.utils.html import urlencode
 from datetime import datetime
+from django.template.defaultfilters import date as _date
 from django.utils import translation
 from django.utils.translation import ugettext as _
 from django.urls import reverse_lazy
+from django_countries.fields import Country
 import time
 import os
 import json
@@ -209,20 +211,58 @@ Best Regards.
             raise RuntimeError('cannot send email')
         return
     if action == lgc_types.MsgType.HR_INIT_ACCOUNT:
+        """Get the date in the HR user format"""
+        if translation.get_language() == 'fr':
+            start_date = datetime.strptime(obj.cleaned_data['start_date'],
+                                           '%d/%m/%Y')
+        else:
+            start_date = datetime.strptime(obj.cleaned_data['start_date'],
+                                           '%m/%d/%Y')
         lang = from_to_user.language.lower()
         translation.activate(lang)
+
+        citizenship = Country(obj.cleaned_data['citizenship']).name
+        dependents = 'yes' if obj.cleaned_data['dependents'] else 'no'
+
+        """Convert the date to the user's format"""
+        if lang == 'fr':
+            start_date = _date(start_date, "d F Y")
+        else:
+            start_date = _date(start_date, "F d, Y")
 
         subject = _("LGC Case initiation")
         msg = _(
 """Hi,\n
-The HR %(firstname)s %(lastname)s has initiated a new case.
-Follow this link to accept it: %(url)s\n
+The HR %(hr_firstname)s %(hr_lastname)s has initiated a new case.
+See below the detailed information:
+\n
+Given Name of the employee: %(first_name)s,\n
+Surname of the employee: %(last_name)s,\n
+Citizenship: %(citizenship)s,\n
+Work location in France: %(address)s,\n
+Intended start date: %(start_date)s,\n
+Expected assignment or contract duration: %(expected_assignment)s,\n
+HR contact for the case: %(hr_contact)s,\n
+Dependents: %(dependents)s,\n
+Assignee's email address: %(email)s,\n
+Type of assistance required: %(assistance_type)s,\n
+Comments and additional information:\n%(comments)s
+\n
 Best Regards.
 """
-        )%{'firstname':obj.hr.first_name,
-           'lastname':obj.hr.last_name,
-           'url': settings.SITE_URL + str(reverse_lazy('lgc-account',
-                                                       kwargs={'pk':obj.id}))
+        )%{'hr_firstname':obj.hr.first_name,
+           'hr_lastname':obj.hr.last_name,
+           'first_name': obj.cleaned_data['first_name'],
+           'last_name': obj.cleaned_data['last_name'],
+           'citizenship': citizenship,
+           'address': obj.cleaned_data['address'],
+           'start_date': start_date,
+           'expected_assignment': obj.cleaned_data['expected_assignment'],
+           'hr_contact': obj.cleaned_data['hr_contact'],
+           'dependents': dependents,
+           'email': obj.cleaned_data['email'],
+           'assistance_type': obj.cleaned_data['assistance_type'],
+           'comments': obj.cleaned_data['comments'],
         }
 
         name = obj.hr.first_name + ' ' + obj.hr.last_name

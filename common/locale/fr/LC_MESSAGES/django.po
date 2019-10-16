@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-09 16:35+0200\n"
+"POT-Creation-Date: 2019-10-17 17:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -722,11 +722,11 @@ msgstr "Afficher"
 msgid "entries"
 msgstr "éléments"
 
-#: utils.py:111
+#: utils.py:112
 msgid "LGC reminder for ready invoice"
 msgstr "LGC rappel de procédure prête à facturer"
 
-#: utils.py:113
+#: utils.py:114
 #, python-format
 msgid ""
 "Hi,\n"
@@ -742,11 +742,11 @@ msgstr ""
 "\n"
 "Cordialment.\n"
 
-#: utils.py:138
+#: utils.py:139
 msgid "LGC Process ready to invoice"
 msgstr "LGC procédure prête à facturer"
 
-#: utils.py:140
+#: utils.py:141
 #, python-format
 msgid ""
 "Hi,\n"
@@ -763,11 +763,11 @@ msgstr ""
 "\n"
 "Cordialment.\n"
 
-#: utils.py:166
+#: utils.py:167
 msgid "LGC Account deletion request"
 msgstr "LGC suppression de compte demandée"
 
-#: utils.py:168
+#: utils.py:169
 #, python-format
 msgid ""
 "Hi,\n"
@@ -784,11 +784,11 @@ msgstr ""
 "\n"
 "Cordialment.\n"
 
-#: utils.py:191
+#: utils.py:192
 msgid "LGC Moderation required"
 msgstr "LGC Modération requise"
 
-#: utils.py:193
+#: utils.py:194
 #, python-format
 msgid ""
 "Hi,\n"
@@ -805,41 +805,90 @@ msgstr ""
 "\n"
 "Cordialment.\n"
 
-#: utils.py:215
+#: utils.py:232
 msgid "LGC Case initiation"
 msgstr "LGC initiation de dossier"
 
-#: utils.py:217
+#: utils.py:234
 #, python-format
 msgid ""
 "Hi,\n"
 "\n"
-"The HR %(firstname)s %(lastname)s has initiated a new case.\n"
-"Follow this link to accept it: %(url)s\n"
+"The HR %(hr_firstname)s %(hr_lastname)s has initiated a new case.\n"
+"See below the detailed information:\n"
+"\n"
+"\n"
+"Given Name of the employee: %(first_name)s,\n"
+"\n"
+"Surname of the employee: %(last_name)s,\n"
+"\n"
+"Citizenship: %(citizenship)s,\n"
+"\n"
+"Work location in France: %(address)s,\n"
+"\n"
+"Intended start date: %(start_date)s,\n"
+"\n"
+"Expected assignment or contract duration: %(expected_assignment)s,\n"
+"\n"
+"HR contact for the case: %(hr_contact)s,\n"
+"\n"
+"Dependents: %(dependents)s,\n"
+"\n"
+"Assignee's email address: %(email)s,\n"
+"\n"
+"Type of assistance required: %(assistance_type)s,\n"
+"\n"
+"Comments and additional information:\n"
+"%(comments)s\n"
+"\n"
 "\n"
 "Best Regards.\n"
 msgstr ""
 "Bonjour,\n"
 "\n"
-"Le RH %(firstname)s %(lastname)s vient d'initier un nouveau dossier.\n"
-"Cliquez sur le lien suivant pour l'accepter ou le refuser: %(url)s\n"
+"Le RH %(hr_firstname)s %(hr_lastname)s a initié un nouveau dossier.\n"
+"Voir les détails ci dessous :\n"
 "\n"
-"Cordialment.\n"
+"\n"
+"Prénom du salarié : %(first_name)s,\n"
+"\n"
+"Nom du salarié : %(last_name)s,\n"
+"\n"
+"Nationalité : %(citizenship)s,\n"
+"\n"
+"Lieu de travail en France : %(address)s,\n"
+"\n"
+"Date de début souhaité : %(start_date)s,\n"
+"\n"
+"Durée de la mission ou du contrat : %(expected_assignment)s,\n"
+"\n"
+"Contact RH pour ce dossier : %(hr_contact)s,\n"
+"\n"
+"Famille accompagnante : %(dependents)s,\n"
+"\n"
+"Adresse email du salarié : %(email)s,\n"
+"\n"
+"Type d'assistance demandée : %(assistance_type)s,\n"
+"\n"
+"Commentaires et informations complémentaires sur le dossier : %(comments)s\n"
+"\n"
+"\n"
+"Cordialement.\n"
 
-#: utils.py:247 utils.py:250
+#: utils.py:286 utils.py:289
 msgid "Creation of your LGC account"
 msgstr "Création de votre compte LGC"
 
-#: utils.py:253
+#: utils.py:292
 msgid "Confirmation - your LGC account has been deleted"
 msgstr "Confirmation de la suppression de compte LGC"
 
-#: utils.py:256
+#: utils.py:295
 msgid "Confirm it's you to access your LGC account"
 msgstr ""
 "Veuillez confirmer votre identité pour pouvoir accéder à votre compte LGC"
 
-#: utils.py:257
+#: utils.py:296
 #, python-format
 msgid ""
 "\n"

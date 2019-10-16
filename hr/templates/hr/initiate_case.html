@@ -1,0 +1,26 @@
+{% extends "lgc/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block content %}
+
+<div class="content-section">
+  <p>{% trans 'We look forward to assisting you with a new French immigration file.' %}</p>
+  <p>{% trans 'To initiate a new case in our system please fill out the below information and validate your request by clicking "initiate a new case".' %}</p>
+  <hr>
+  <form method="POST">
+    {% csrf_token %}
+    <fieldset class="form-group">
+      {% crispy form %}
+    </fieldset>
+    <p>{% trans 'One of our consultants will open a case and contact you shortly in this regard.' %}</p>
+    <p>{% trans 'Thank you !' %}</p>
+    <p><small><i>(*) {% trans 'Mandatory information' %}</i></small></p>
+    <div class="form-group">
+      <button class="btn btn-outline-info" type="submit">
+	{% trans 'Initiate a new case' %}
+      </button>
+    </div>
+  </form>
+</div>
+
+{% endblock content %}

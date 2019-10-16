@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-10 15:36+0200\n"
+"POT-Creation-Date: 2019-10-17 17:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,6 +46,56 @@ msgstr "Afficher inactives"
 msgid "Show expired"
 msgstr "Afficher expirées"
 
+#: forms.py:48
+msgid "Given Name of the employee (as per passport)"
+msgstr "Prénom du salarié (comme indiqué sur son passeport)"
+
+#: forms.py:49
+msgid "Surname of the employee (as per passport)"
+msgstr "Nom du salarié (comme indiqué sur son passeport)"
+
+#: forms.py:50
+msgid "Citizenship"
+msgstr "Nationalité"
+
+#: forms.py:51
+msgid "Work location in France (company name and detailed address)"
+msgstr "Lieu de travail en France (nom de la société et adresse détaillée)"
+
+#: forms.py:53
+msgid "Intended start date"
+msgstr "Date de début souhaité"
+
+#: forms.py:54
+msgid "Expected assignment or contract duration"
+msgstr "Durée de la mission ou du contrat"
+
+#: forms.py:56
+msgid "HR contact for the case"
+msgstr "Contact RH pour ce dossier"
+
+#: forms.py:58
+msgid "Dependents yes/no"
+msgstr "Famille accompagnante oui/non"
+
+#: forms.py:59
+msgid "Assignee's email address"
+msgstr "Adresse email du salarié"
+
+#: forms.py:60
+msgid "Type of assistance required"
+msgstr "Type d'assistance demandée"
+
+#: forms.py:61
+msgid "Comments and additional information on the case"
+msgstr "Commentaires et informations complémentaires sur le dossier"
+
+#: forms.py:62
+msgid "For non applicable information please indicate \"NA\""
+msgstr ""
+"Si une information n'est pas applicable à la situation présentée, merci "
+"d'indiquer \"NA\""
+
 #: templates/hr/employees.html:26
 msgid "First name"
 msgstr "Prénom"
@@ -74,16 +124,15 @@ msgstr "Accepté"
 msgid "Refused"
 msgstr "Refusé"
 
-#: templates/hr/home.html:17 templates/hr/menu_hr_admin.html:19 views.py:137
-msgid "Create an account"
-msgstr "Créer un compte"
+#: templates/hr/home.html:17 views.py:53
+msgid "Initiate a case"
+msgstr "Initier un dossier"
 
 #: templates/hr/home.html:26
 msgid "Go"
 msgstr "Afficher"
 
-#: templates/hr/home.html:44 templates/hr/menu_hr_admin.html:13
-#: templates/hr/menu_hr_simple.html:12 views.py:195
+#: templates/hr/home.html:44 templates/hr/menu_hr.html:12 views.py:124
 msgid "Employees"
 msgstr "Salariés"
 
@@ -91,59 +140,68 @@ msgstr "Salariés"
 msgid "Show"
 msgstr "Afficher"
 
-#: templates/hr/home.html:70 templates/hr/menu_hr_admin.html:28
-#: templates/hr/menu_hr_simple.html:16
+#: templates/hr/home.html:70 templates/hr/menu_hr.html:16
 msgid "Expirations"
 msgstr "Expirations"
 
-#: templates/hr/menu_hr_admin.html:8 templates/hr/menu_hr_simple.html:8
+#: templates/hr/initiate_case.html:7
+msgid "We look forward to assisting you with a new French immigration file."
+msgstr ""
+"Nous sommes ravis de vous assister dans une nouvelle démarche d'immigration "
+"professionnelle pour la France."
+
+#: templates/hr/initiate_case.html:8
+msgid ""
+"To initiate a new case in our system please fill out the below information "
+"and validate your request by clicking \"initiate a new case\"."
+msgstr ""
+"Afin d'initier un nouveau dossier merci de compléter les informations ci-"
+"dessous et de valider votre demande en cliquant sur le bouton \"initier un "
+"dossier\"."
+
+#: templates/hr/initiate_case.html:15
+msgid ""
+"One of our consultants will open a case and contact you shortly in this "
+"regard."
+msgstr ""
+"L'un de nos consultants va ouvrir un dossier et vous contacter dans les plus "
+"brefs délais."
+
+#: templates/hr/initiate_case.html:16
+msgid "Thank you !"
+msgstr "Merci !"
+
+#: templates/hr/initiate_case.html:17
+msgid "Mandatory information"
+msgstr "Informations obligatoires"
+
+#: templates/hr/initiate_case.html:20
+msgid "Initiate a new case"
+msgstr "Initier un nouveau dossier"
+
+#: templates/hr/initiate_case_success.html:5
+msgid "Your request has been successfully submitted. Thank you."
+msgstr "Votre demande a été soumise avec succès. Merci."
+
+#: templates/hr/menu_hr.html:8
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: templates/hr/menu_hr_admin.html:22
-msgid "Account list"
-msgstr "Comptes"
+#: views.py:61
+msgid "Your request contains errors."
+msgstr "Votre demande comporte des erreurs."
 
-#: views.py:125
+#: views.py:71
 msgid ""
 "Cannot send the request of the account creation. Please contact the KWA team."
 msgstr ""
 "Impossible d'envoyer la requête d'initiation du nouveau compte. Merci de "
 "contacter l'équipe KWA."
 
-#: views.py:136
-msgid "New account successfully created"
-msgstr "Nouveau compte créé avec succès"
-
-#: views.py:138
-msgid "Create account"
-msgstr "Créer un compte"
-
-#: views.py:146
-msgid "Account successfully updated"
-msgstr "Compte mis à jour avec succès"
-
-#: views.py:147
-msgid "Update Account"
-msgstr "Modifier compte"
-
-#: views.py:148
-msgid "Update"
-msgstr "Modifier"
-
-#: views.py:157
+#: views.py:86
 msgid "Employee File"
 msgstr "Fiche du salarié"
 
-#: views.py:238
-msgid "Delete Account"
-msgstr "Supprimer compte"
-
-#: views.py:256
-#, python-format
-msgid "Account of %(first_name)s %(last_name)s successfully deleted."
-msgstr "Compte de %(first_name)s %(last_name)s supprimé avec succès."
-
-#: views.py:284
+#: views.py:181
 msgid "Search"
 msgstr "Rechercher"

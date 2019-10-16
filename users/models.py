@@ -100,16 +100,14 @@ class UserManager(BaseUserManager):
 USER_STATUS_PENDING = 'P'
 USER_STATUS_ACTIVE  = 'A'
 USER_STATUS_DELETED_BY_EMPLOYEE = 'DE'
-USER_STATUS_DELETED_BY_HR = 'DH'
 USER_STATUS_CHOICES = (
     (USER_STATUS_PENDING, _('Pending')),
     (USER_STATUS_ACTIVE, _('Active')),
     (USER_STATUS_DELETED_BY_EMPLOYEE, _('Deleted by employee')),
-    (USER_STATUS_DELETED_BY_HR, _('Deleted by HR')),
 )
 
 def get_user_deleted_statuses():
-    return [ USER_STATUS_DELETED_BY_EMPLOYEE, USER_STATUS_DELETED_BY_HR ]
+    return [ USER_STATUS_DELETED_BY_EMPLOYEE ]
 
 class User(AbstractUser):
     # changes email to unique and blank to false

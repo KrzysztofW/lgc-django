@@ -47,111 +47,40 @@ log = logging.getLogger('hr')
 
 User = get_user_model()
 
-class CommonAccountByHR(LoginRequiredMixin, UserPassesTestMixin,
-                        SuccessMessageMixin):
-    uid = None
-    template_name = 'lgc/generic_form_with_formsets.html'
-    model = User
-    is_update = False
-    success_url = 'hr-update-account'
-    delete_url = 'lgc-account-delete'
-    update_url = 'hr-update-account'
-    cancel_url = 'hr-update-account'
-    list_url = reverse_lazy('hr-employees')
-
-    def hr_admin_get_create_form(self, form, action, uid):
-        form.helper = FormHelper()
-        form.helper.layout = Layout(
-            Div(
-                Div('first_name', css_class='form-group col-md-4'),
-                Div('last_name', css_class='form-group col-md-4'),
-                css_class='form-row'),
-            Div(
-                Div('email', css_class='form-group col-md-4'),
-                Div('language', css_class='form-group col-md-4'),
-                css_class='form-row'),
-            HTML('<button class="btn btn-outline-info" type="submit">' +
-                 str(action) + '</button>')
-        )
-        if uid:
-            form.helper.layout.append(
-                HTML(' <a href="{% url "hr-delete-account" ' + str(uid) +
-                     '%}" class="btn btn-outline-danger">' +
-                     str(lgc_views.delete_str) +
-                     '</a>')
-            )
-        return form
-
-    def test_func(self):
-        if self.request.user.role not in user_models.get_hr_roles():
-            return False
-
-        try:
-            self.object = self.get_object()
-            return self.object in self.request.user.hr_employees.all()
-        except:
-            """ only the HR admin can create new accounts """
-            return self.request.user.role == user_models.ROLE_HR_ADMIN
-
-    def get_success_url(self):
-        return reverse_lazy('hr-update-account', kwargs={'pk':self.object.id})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = self.title
-        return context
-
-    def get_form(self, form_class=hr_forms.HRCreateEmployeeAccountForm):
-        form = super().get_form(form_class=form_class)
-        return self.hr_admin_get_create_form(form, self.submit_button_label,
-                                               self.uid)
-
-    def form_valid(self, form):
-        form.instance.role = user_models.ROLE_EMPLOYEE
-        self.object = form.save()
-
-        if not self.is_update:
-            err_showed = False
-            form.instance.hr = self.request.user
-
-            for u in self.request.user.responsible.all():
+@login_required
+def initiate_case(request):
+    context = {
+        'title': _('Initiate a case'),
+    }
+    if request.user.role != user_models.ROLE_HR_ADMIN:
+        return http.HttpResponseForbidden()
+    if request.method == 'POST':
+        failed = False
+        form = hr_forms.InitiateCaseForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, _('Your request contains errors.'))
+        else:
+            form.hr = request.user
+            for u in request.user.responsible.all():
                 try:
-                    lgc_send_email(form.instance,
-                                   lgc_types.MsgType.HR_INIT_ACCOUNT, u)
+                    lgc_send_email(form, lgc_types.MsgType.HR_INIT_ACCOUNT, u)
                 except Exception as e:
-                    if err_showed:
+                    if failed:
                         continue
-                    messages.error(self.request,
+                    messages.error(request,
                                    _('Cannot send the request of the account creation. Please contact the KWA team.'))
                     log.error(e)
-                    err_showed = True
+                    failed = True
 
-            form.instance.responsible.set(self.request.user.responsible.all())
-            self.request.user.hr_employees.add(self.object)
+        if not failed:
+            return render(request, 'hr/initiate_case_success.html', context)
+    else:
+        form = hr_forms.InitiateCaseForm()
+    form.helper = FormHelper()
+    form.helper.form_tag = False
+    context['form'] = form
+    return render(request, 'hr/initiate_case.html', context)
 
-        messages.success(self.request, self.success_message)
-        return redirect(self.get_success_url())
-
-class CreateAccountByHR(CommonAccountByHR, CreateView):
-    success_message = ugettext_lazy('New account successfully created')
-    title = ugettext_lazy('Create an account')
-    submit_button_label = ugettext_lazy('Create account')
-
-    def get_form(self, form_class=hr_forms.HRCreateEmployeeAccountForm):
-        form = super().get_form(form_class=form_class)
-        return self.hr_admin_get_create_form(form, self.submit_button_label,
-                                             None)
-
-class UpdateAccountByHR(CommonAccountByHR, UpdateView):
-    success_message = ugettext_lazy('Account successfully updated')
-    title = ugettext_lazy('Update Account')
-    submit_button_label = ugettext_lazy('Update')
-    is_update = True
-
-    def get_form(self, form_class=hr_forms.HRCreateEmployeeAccountForm):
-        form = super().get_form(form_class=form_class)
-        return self.hr_admin_get_create_form(form, self.submit_button_label,
-                                             self.object.id)
 class PersonUpdateView(lgc_views.PersonUpdateView):
     model = employee_models.Employee
     title = ugettext_lazy('Employee File')
@@ -230,38 +159,6 @@ class HRPersonListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                     objs.filter(last_name__istartswith=term))
 
         return objs.order_by(order_by)
-
-class HRDeleteAccountView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = User
-    template_name = 'lgc/person_confirm_delete.html'
-    success_url = reverse_lazy('hr-employees')
-    title = ugettext_lazy('Delete Account')
-    cancel_url = 'hr-update-account'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = self.title
-        context['cancel_url'] = reverse_lazy(self.cancel_url,
-                                             kwargs={'pk':self.object.id})
-        return context
-
-    def test_func(self):
-        self.object = self.get_object()
-        if self.request.user.role not in user_models.get_hr_roles():
-            return False
-        return self.object in self.request.user.hr_employees.all()
-
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        success_message = (_("Account of %(first_name)s %(last_name)s successfully deleted.")%
-                           {'first_name':self.object.first_name,
-                            'last_name':self.object.last_name})
-        messages.success(self.request, success_message)
-        self.object.status = user_models.USER_STATUS_DELETED_BY_HR
-        self.object.save()
-        user_views.notify_user(self.object, self.object,
-                               lgc_types.MsgType.DEL_REQ)
-        return redirect('hr-employees')
 
 def get_expirations_form(request):
     if len(request.GET):
