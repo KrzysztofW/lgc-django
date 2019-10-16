@@ -264,7 +264,8 @@ class ProcessStageForm(forms.ModelForm):
         fields = '__all__'
 
 class PersonProcessStageForm(forms.ModelForm):
-    stage_comments = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+    stage_comments = forms.CharField(label=_('Stage comments'), required=False,
+                                     widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
     id = forms.CharField(required=True, widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):

@@ -286,6 +286,7 @@ CONSULATE_CHOICES = (
     ('MKS', "Skopje (Macédoine)"),
     ('MYK', "Kuala Lumpur (Malaisie)"),
     ('MAT', "Tanger (Maroc)"),
+    ('MAC', "Casablanca (Maroc)"),
     ('MUP', "Port Louis (Maurice)"),
     ('MXM', "Mexico City (Mexique)"),
     ('NGL', "Lagos (Nigéria) "),
@@ -527,7 +528,6 @@ class PersonInfo(models.Model):
                                                blank=True, null=True)
     spouse_foreigner_id = models.BigIntegerField(_('Foreigner ID'), blank=True, null=True,
                                                  validators=[MinValueValidator(0)])
-
     local_address = models.TextField(_('Local Address'), max_length=100,
                                      default='', blank=True)
 
@@ -846,7 +846,8 @@ class PersonProcessStage(models.Model):
                                blank=True)
     is_specific = models.BooleanField(default=False)
     validation_date = models.DateField(blank=True, null=True)
-    stage_comments = models.TextField(max_length=100, default='', blank=True)
+    stage_comments = models.TextField(_('Stage comments'), max_length=100,
+                                      default='', blank=True)
 
 class AbstractClient(models.Model):
     first_name = models.CharField(_('First name'), max_length=50,

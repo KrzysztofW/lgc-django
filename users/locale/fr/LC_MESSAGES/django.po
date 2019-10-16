@@ -250,7 +250,7 @@ msgstr "Votre mot de passe a été modifié avec succès"
 
 #: views.py:228
 msgid "My Account Profile"
-msgstr "Mon profile utilisateur"
+msgstr "Mon profil utilisateur"
 
 #: views.py:245
 msgid "Your account profile has been updated"

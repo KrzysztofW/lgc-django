@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-03 11:33+0200\n"
+"POT-Creation-Date: 2019-10-16 11:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,11 +44,11 @@ msgstr "Adresse société d'accueil"
 
 #: forms.py:19
 msgid "Home Address in France"
-msgstr ""
+msgstr "Adresse en France"
 
 #: forms.py:20
 msgid "Home Address outside France"
-msgstr ""
+msgstr "Adresse à l'étranger"
 
 #: forms.py:23
 msgid "Passport Expiry"
@@ -60,11 +60,11 @@ msgstr "Rejeter"
 
 #: forms.py:85 templates/employee/document_momderation_form.html:21
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #: templates/employee/document_momderation_form.html:12
 msgid "File(s) to moderate"
-msgstr ""
+msgstr "Fiche(s) à modérer"
 
 #: templates/employee/document_momderation_form.html:20
 msgid "File name"
@@ -72,19 +72,19 @@ msgstr "Prénom"
 
 #: templates/employee/document_momderation_form.html:22
 msgid "File size"
-msgstr ""
+msgstr "Taille de fichier"
 
 #: templates/employee/document_momderation_form.html:23
 msgid "Added"
-msgstr ""
+msgstr "Ajouré"
 
 #: templates/employee/document_momderation_form.html:24
 msgid "Deleted"
-msgstr ""
+msgstr "Supprimé"
 
 #: templates/employee/document_momderation_form.html:44
 msgid "File does not exist!"
-msgstr ""
+msgstr "La fiche n'exste pas!"
 
 #: templates/employee/home.html:16
 msgid "My Case"
@@ -135,19 +135,19 @@ msgstr "Accepter"
 
 #: templates/employee/moderation.html:47
 msgid "Are you sure to reject this moderation?"
-msgstr "Êtes-vous sûr de vouloir rejecter cette modération ?"
+msgstr "Êtes-vous sûr de vouloir rejeter cette modération ?"
 
 #: templates/employee/moderation.html:48
 msgid "Reject all changes"
-msgstr ""
+msgstr "Rejeter tous les changements"
 
-#: templates/employee/moderation.html:74
+#: templates/employee/moderation.html:114
 msgid "This file will be deleted."
-msgstr ""
+msgstr "Ce fichier sera supprimé."
 
-#: templates/employee/moderation.html:76
+#: templates/employee/moderation.html:116
 msgid "This file will not be deleted."
-msgstr ""
+msgstr "Ce fichier ne sera pas supprimé. "
 
 #: templates/employee/moderation_done.html:6
 msgid "Page already moderated"
@@ -205,22 +205,22 @@ msgstr "Impossible de supprimer le(s) ficher(s)"
 msgid "Moderation has been rejected."
 msgstr "La modération a été rejetée."
 
-#: views.py:377
+#: views.py:378
 msgid "Invalid document form."
 msgstr "Le formulaire des documents est invalide."
 
-#: views.py:383 views.py:438
+#: views.py:384 views.py:439
 msgid "Children"
 msgstr "Enfants"
 
-#: views.py:385
+#: views.py:386
 msgid "Invalid children form"
 msgstr "Le formulaire des enfants est invalide."
 
-#: views.py:390
+#: views.py:391
 msgid "Invalid form."
 msgstr "Le formulaire est invalide."
 
-#: views.py:421
+#: views.py:422
 msgid "Moderation successfully submitted."
 msgstr "Modération prise en compte avec succès."
