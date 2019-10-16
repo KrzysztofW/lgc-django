@@ -141,6 +141,7 @@ EMAIL_HOST_USER = lgc_config['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = lgc_config['EMAIL_HOST_PASSWORD']
 EMAIL_USE_TLS = lgc_config['EMAIL_USE_TLS']
 ADMINS = [('John Doe', 'admin@example.com')]
+SERVER_EMAIL = 'no-reply@example.com'
 REMAINDER_RESP = []
 FIRST_REMAINDER_DELAY = 7
 SECOND_REMAINDER_DELAY = 14
