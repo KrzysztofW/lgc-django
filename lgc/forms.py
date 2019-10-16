@@ -277,9 +277,9 @@ class PersonProcessStageForm(forms.ModelForm):
         exclude = ['person_process', 'is_specific', 'process_stage']
 
 class PersonProcessSpecificStageForm(forms.Form):
-    name_fr = forms.CharField(required=False,
+    name_fr = forms.CharField(required=False, max_length=50,
                               label=_('Specific stage French name'))
-    name_en = forms.CharField(required=False,
+    name_en = forms.CharField(required=False, max_length=50,
                               label=_('Specific stage English name'))
 
     class Meta:
