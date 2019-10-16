@@ -1079,7 +1079,10 @@ class InvoiceUpdateView(InvoiceCommonView, SuccessMessageMixin, UpdateView):
             return True
 
         self.object = self.get_object()
-        return self.request.user in self.object.person.responsible.all()
+        if (self.object.state == lgc_models.INVOICE_STATE_PAID or
+            self.object.state == lgc_models.INVOICE_STATE_DONE):
+            return self.request.user in self.object.person.responsible.all()
+        return True
 
     def get_context_data(self, **kwargs):
         if self.object.type == lgc_models.QUOTATION:
