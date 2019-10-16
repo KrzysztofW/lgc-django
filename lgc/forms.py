@@ -489,7 +489,7 @@ INVOICE_SEARCH_DATE_CHOICES = (
     (INVOICE_SEARCH_DATE_PAY, _('Payment Date')),
 )
 INVOICE_SEARCH_CSV_CHOICES = (
-    ('number', 'ID'),
+    ('number', 'Code'),
     ('invoice_date', 'Date'),
     ('modification_date', _('Modification Date')),
     ('validation_date', _('Validation Date')),
