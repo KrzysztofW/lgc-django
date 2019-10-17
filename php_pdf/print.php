@@ -309,7 +309,7 @@ if ($lang == "FR") {
 		$pdf->Cell(0,10,"London, le $regs[3] ". get_month($lang, $regs[2]) . " $regs[1]",0,0,'R');
 } else if ($lang == "EN") {
 	if (preg_match("/^([1-2][0-9][0-9][0-9])-([0-1][0-9])-([0-3][0-9])$/", $row['invoice_date'], $regs))
-		$pdf->Cell(0,10,get_month($lang, $regs[2])." $regs[3], $regs[1]",0,0,'R');
+		$pdf->Cell(0,10, "$regs[3] ".get_month($lang, $regs[2])." $regs[1]",0,0,'R');
 }
 if ($lang == "FR") {
 	if (preg_match("/^([1-2][0-9][0-9][0-9])-([0-1][0-9])-([0-3][0-9])$/", $row['modification_date'], $regs)) {

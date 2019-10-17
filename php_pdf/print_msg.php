@@ -2,13 +2,13 @@
 include('countries.php');
 
 $note_honoraires_et_frais['FR'] = 'Note d\'honoraires et frais';
-$note_honoraires_et_frais['EN'] = 'Invoice for the legal services of Office, Esq.';
+$note_honoraires_et_frais['EN'] = 'Invoice for the legal services of Office';
 
 $devis['FR'] = 'Devis';
-$devis['EN'] = 'Quotation for the legal services of Office, Esq.';
+$devis['EN'] = 'Quotation for the legal services of Office';
 
 $avoir['FR'] = 'Avoir';
-$avoir['EN'] = 'Credit Note for the legal services of Office, Esq.';
+$avoir['EN'] = 'Credit Note for the legal services of Office';
 
 $autorisation['FR'] = 'Autorisation';
 $autorisation['EN'] = 'Attention';
