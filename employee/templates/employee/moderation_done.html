@@ -1,0 +1,12 @@
+{% extends "lgc/base.html" %}
+{% load i18n %}
+{% block content %}
+
+<div class="content-section">
+  <i>{% trans 'Page already moderated' %}.
+  <a href="{% url 'lgc-file' object.user.person_user_set.id %}">{% trans "Go to the user's page" %}.</a>
+  <a href="{% url 'employee-moderations' %}">{% trans 'See other pending moderations' %}</a>
+  </i>
+</div>
+
+{% endblock content %}
