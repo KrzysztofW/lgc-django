@@ -723,7 +723,7 @@ msgid "entries"
 msgstr "éléments"
 
 #: utils.py:111
-msgid "LGC remainder for ready invoice"
+msgid "LGC reminder for ready invoice"
 msgstr "LGC rappel de procédure prête à facturer"
 
 #: utils.py:113

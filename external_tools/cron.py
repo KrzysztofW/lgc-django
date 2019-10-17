@@ -19,9 +19,9 @@ from django.core.mail.message import EmailMessage
 from string import Template as string_template
 
 seven_day_diff = (datetime.today() -
-                  timedelta(days=settings.FIRST_REMAINDER_DELAY)).strftime("%Y-%m-%d")
+                  timedelta(days=settings.FIRST_REMINDER_DELAY)).strftime("%Y-%m-%d")
 fourteen_day_diff = (datetime.today() -
-                     timedelta(days=settings.SECOND_REMAINDER_DELAY)).strftime("%Y-%m-%d")
+                     timedelta(days=settings.SECOND_REMINDER_DELAY)).strftime("%Y-%m-%d")
 
 def send_alert(objs, alert_type, cc=None):
     for p in objs.all():
@@ -30,7 +30,7 @@ def send_alert(objs, alert_type, cc=None):
 """Process reminders"""
 for day_diff in seven_day_diff, fourteen_day_diff:
     if day_diff == fourteen_day_diff:
-        cc = settings.REMAINDER_RESP
+        cc = settings.REMINDER_RESP
     else:
         cc = []
 

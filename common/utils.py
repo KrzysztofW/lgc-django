@@ -108,7 +108,7 @@ def lgc_send_email(obj, action, from_to_user, cc=None):
         lang = from_to_user.language.lower()
         translation.activate(lang)
 
-        subject = _("LGC remainder for ready invoice")
+        subject = _("LGC reminder for ready invoice")
         msg = _(
 """Hi,\n
 The invoice %(id)d is ready. Follow this link to see it: %(url)s\n
