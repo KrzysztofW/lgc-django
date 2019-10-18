@@ -48,26 +48,10 @@
     })
 
     function submit_csv() {
-	var start_date_input = document.getElementById('id_sdate');
-	var end_date_input = document.getElementById('id_edate');
-	var cols_input = document.getElementById('id_csv');
-	var url = "{% url 'lgc-billing-csv' %}?";
-
-	if (start_date_input.value == '' || end_date_input.value == '') {
-	    alert("{% trans 'Choose a date range first' %}");
-	    return false;
-	}
-
-	{% if type == 'C' %}
-	url += 'cn=1&';
-	{% endif %}
-
-	url += 'start_date=' + start_date_input.value + '&end_date=' +
-	    end_date_input.value
-	for (i = 0; i < cols_input.length; i++)
-	    if (cols_input[i].selected)
-		url += '&cols=' + cols_input[i].value
-	window.location = url;
+      var is_csv = document.getElementById('id_is_csv');
+      is_csv.value = 1;
+      form.submit();
+      is_csv.value = 0;
     }
 
   </script>

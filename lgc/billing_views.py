@@ -322,6 +322,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         form.helper.form_method = 'get'
         form.helper.layout = Layout(
             Div(
+                Div('is_csv'),
                 Div('number', css_class='form-group col-md-3'),
                 Div('state', css_class='form-group col-md-3'),
                 resp_div,
@@ -477,6 +478,56 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_paginate_by(self, queryset):
         return self.request.GET.get('paginate', '10')
+
+    def csv_view(self, request):
+        if not self.request.user.billing:
+            return http.HttpResponseForbidden()
+
+        start_date = self.request.GET.get('sdate')
+        end_date = self.request.GET.get('edate')
+        if not start_date or not end_date:
+            raise Http404
+        if self.request.GET.get('cn'):
+            invoice_type = lgc_models.CREDIT
+        else:
+            invoice_type = lgc_models.INVOICE
+
+        self.objs = lgc_models.Invoice.objects.filter(type=invoice_type)
+        objs = self.get_queryset()
+        if len(objs) > 4000:
+            raise Http404('Too many objects')
+
+        csv = ''
+        param_list = []
+        dummy_invoice = lgc_models.Invoice()
+        for param in self.request.GET.getlist('csv'):
+            for c in lgc_forms.INVOICE_SEARCH_CSV_CHOICES:
+                if param == c[0] and hasattr(dummy_invoice, param):
+                    csv += c[1] + ';'
+                    param_list.append(c[0])
+                    break
+        csv += '\n'
+        for o in objs:
+            for param in param_list:
+                val = getattr(o, param)
+                if val == None:
+                    val = ''
+                elif type(val).__name__ == 'str':
+                    val = '"' + val + '"'
+                else:
+                    val = str(val).replace('.', ',')
+                csv += val + ';'
+            csv += '\n'
+
+        response = http.HttpResponse(content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="export.csv"'
+        response.write(csv)
+        return response
+
+    def get(self, request, *args, **kwargs):
+        if self.request.GET.get('is_csv') == '1':
+            return self.csv_view(request)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1534,53 +1585,6 @@ def billing_pdf_view(request, pk):
                            ' ' + str(invoice.id),
                            shell=True, stdout=subprocess.PIPE).stdout.read()
     response.write(pdf)
-    return response
-
-@login_required
-def billing_csv_view(request):
-    if not request.user.billing:
-        return http.HttpResponseForbidden()
-
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    if not start_date or not end_date:
-        raise Http404
-    if request.GET.get('cn'):
-        invoice_type = lgc_models.CREDIT
-    else:
-        invoice_type = lgc_models.INVOICE
-
-    objs = lgc_models.Invoice.objects.filter(type=invoice_type,
-                                             invoice_date__range=[common_utils.parse_date(start_date), common_utils.parse_date(end_date)])
-
-    if len(objs) > 4000:
-        raise Http404('Too many objects')
-
-    csv = ''
-    param_list = []
-    dummy_invoice = lgc_models.Invoice()
-    for param in request.GET.getlist('cols'):
-        for c in lgc_forms.INVOICE_SEARCH_CSV_CHOICES:
-            if param == c[0] and hasattr(dummy_invoice, param):
-                csv += c[1] + ';'
-                param_list.append(c[0])
-                break
-    csv += '\n'
-    for o in objs:
-        for param in param_list:
-            val = getattr(o, param)
-            if val == None:
-                val = ''
-            elif type(val).__name__ == 'str':
-                val = '"' + val + '"'
-            else:
-                val = str(val).replace('.', ',')
-            csv += val + ';'
-        csv += '\n'
-
-    response = http.HttpResponse(content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename="export.csv"'
-    response.write(csv)
     return response
 
 @login_required

@@ -581,6 +581,7 @@ class InvoiceSearchForm(forms.Form):
     currency = forms.ChoiceField(required=False, label=_('Currency'),
                                  choices=(('', '---------'),) + lgc_models.CURRENCY_CHOICES,
                                  widget=forms.Select(attrs={'class':'form-control', 'onchange':'form.submit();'}))
+    is_csv = forms.BooleanField(initial=False, widget=forms.HiddenInput())
     csv = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'class':'form-control', 'size': 13}),
                                     required=False,
                                     label=_('CSV Export'),
