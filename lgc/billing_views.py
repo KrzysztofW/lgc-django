@@ -301,13 +301,16 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         csv_html = None
 
         if self.invoice_type == lgc_models.QUOTATION:
+            form.fields['state'].choices = lgc_models.QUOTATION_STATE_CHOICES
             form.fields['cols'].choices = lgc_forms.QUOTATION_SEARCH_COLS_CHOICES
-        elif self.request.user.billing:
-            csv_div = Div('csv', css_class='form-group col-md-4')
-            csv_html = Div(Div(HTML('<label class="col-form-label">&nbsp;</label>'),
-                               Div(HTML('<a href="#" onclick="submit_csv();">' +
-                                        _('Export') + '</a>')),
-                               css_class="form-group"), css_class='form-group col-md-3')
+        else:
+            form.fields['state'].choices = lgc_models.INVOICE_STATE_CHOICES
+            if self.request.user.billing:
+                csv_div = Div('csv', css_class='form-group col-md-4')
+                csv_html = Div(Div(HTML('<label class="col-form-label">&nbsp;</label>'),
+                                   Div(HTML('<a href="#" onclick="submit_csv();">' +
+                                            _('Export') + '</a>')),
+                                   css_class="form-group"), css_class='form-group col-md-3')
 
         if self.request.user.billing:
             cols_div = Div('cols', css_class='form-group col-md-3')
