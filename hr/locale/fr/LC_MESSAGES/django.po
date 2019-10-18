@@ -64,7 +64,7 @@ msgstr "Lieu de travail en France (nom de la société et adresse détaillée)"
 
 #: forms.py:53
 msgid "Intended start date"
-msgstr "Date de début souhaité"
+msgstr "Date de début souhaitée"
 
 #: forms.py:54
 msgid "Expected assignment or contract duration"
