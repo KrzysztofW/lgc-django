@@ -48,7 +48,15 @@
     })
 
     function submit_csv() {
+      var start_date_input = document.getElementById('id_sdate');
+      var end_date_input = document.getElementById('id_edate');
       var is_csv = document.getElementById('id_is_csv');
+
+      if (start_date_input.value == '' || end_date_input.value == '') {
+        alert("{% trans 'Choose a date range first' %}");
+        return false;
+      }
+
       is_csv.value = 1;
       form.submit();
       is_csv.value = 0;
