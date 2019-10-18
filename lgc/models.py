@@ -1136,6 +1136,9 @@ class Invoice(AbstractClient):
         return total, vat
 
     def _get_various_expenses(self):
+        if not self.various_expenses:
+            return 0, 0
+
         self.set_total_items()
         if not hasattr(self, 'item_vat'):
             return 0, 0
