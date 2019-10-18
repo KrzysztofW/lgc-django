@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-17 17:40+0200\n"
+"POT-Creation-Date: 2019-10-18 15:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -722,31 +722,32 @@ msgstr "Afficher"
 msgid "entries"
 msgstr "éléments"
 
-#: utils.py:112
-msgid "LGC reminder for ready invoice"
-msgstr "LGC rappel de procédure prête à facturer"
+#: utils.py:113
+msgid "LGC reminder for an invoice"
+msgstr "LGC rappel de facture en cours"
 
-#: utils.py:114
+#: utils.py:115
 #, python-format
 msgid ""
 "Hi,\n"
 "\n"
-"The invoice %(id)d is ready. Follow this link to see it: %(url)s\n"
+"The invoice %(id)d has not been modified for too long. Follow this link to "
+"see it: %(url)s\n"
 "\n"
 "Best Regards.\n"
 msgstr ""
 "Bonjour,\n"
 "\n"
-"La facture %(id)d est prête.\n"
-"Cliquez sur le lien suivant pour la voir: %(url)s\n"
+"La facture %(id)d n'a pas été modifiée depuis longtemps. Cliquez sur le lien "
+"suivant pour la voir: %(url)s\n"
 "\n"
 "Cordialment.\n"
 
-#: utils.py:139
+#: utils.py:140
 msgid "LGC Process ready to invoice"
 msgstr "LGC procédure prête à facturer"
 
-#: utils.py:141
+#: utils.py:142
 #, python-format
 msgid ""
 "Hi,\n"
@@ -763,11 +764,11 @@ msgstr ""
 "\n"
 "Cordialment.\n"
 
-#: utils.py:167
+#: utils.py:168
 msgid "LGC Account deletion request"
 msgstr "LGC suppression de compte demandée"
 
-#: utils.py:169
+#: utils.py:170
 #, python-format
 msgid ""
 "Hi,\n"
@@ -784,11 +785,11 @@ msgstr ""
 "\n"
 "Cordialment.\n"
 
-#: utils.py:192
+#: utils.py:193
 msgid "LGC Moderation required"
 msgstr "LGC Modération requise"
 
-#: utils.py:194
+#: utils.py:195
 #, python-format
 msgid ""
 "Hi,\n"
@@ -805,11 +806,11 @@ msgstr ""
 "\n"
 "Cordialment.\n"
 
-#: utils.py:232
+#: utils.py:233
 msgid "LGC Case initiation"
 msgstr "LGC initiation de dossier"
 
-#: utils.py:234
+#: utils.py:235
 #, python-format
 msgid ""
 "Hi,\n"
@@ -875,20 +876,20 @@ msgstr ""
 "\n"
 "Cordialement.\n"
 
-#: utils.py:286 utils.py:289
+#: utils.py:287 utils.py:290
 msgid "Creation of your LGC account"
 msgstr "Création de votre compte LGC"
 
-#: utils.py:292
+#: utils.py:293
 msgid "Confirmation - your LGC account has been deleted"
 msgstr "Confirmation de la suppression de compte LGC"
 
-#: utils.py:295
+#: utils.py:296
 msgid "Confirm it's you to access your LGC account"
 msgstr ""
 "Veuillez confirmer votre identité pour pouvoir accéder à votre compte LGC"
 
-#: utils.py:296
+#: utils.py:297
 #, python-format
 msgid ""
 "\n"

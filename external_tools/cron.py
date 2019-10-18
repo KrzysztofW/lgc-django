@@ -41,7 +41,7 @@ for day_diff in seven_day_diff, fourteen_day_diff:
     send_alert(processes, lgc_types.MsgType.PROC_ALERT, cc)
 
     invoices = lgc_models.Invoice.objects.filter(last_modified_date__contains=day_diff,
-                                                 state=lgc_models.INVOICE_STATE_TOBEDONE)
+                                                 state=lgc_models.INVOICE_STATE_PENDING)
     send_alert(invoices, lgc_types.MsgType.INVOICE_ALERT, cc)
 
 
