@@ -861,9 +861,7 @@ class InvoiceCommonView(BillingTestLocalUser):
             pcv.copy_related_object(client, form.instance, client)
             self.set_client_billing_addr(client, form.instance)
 
-        if invoice:
-            form.instance.with_regard_to = invoice.with_regard_to
-        elif person:
+        if person and invoice == None:
             form.instance.with_regard_to = (
                 person.first_name + ' ' + person.last_name
             )

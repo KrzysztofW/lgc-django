@@ -454,7 +454,6 @@ class InvoiceCreateForm(forms.ModelForm):
         datepicker_set_widget_attrs(self, 'invoice_date')
         datepicker_set_widget_attrs(self, 'modification_date')
         datepicker_set_widget_attrs(self, 'po_date')
-        self.fields['with_regard_to'].widget.attrs['readonly'] = True
 
     class Meta:
         model = lgc_models.Invoice
