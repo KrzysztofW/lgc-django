@@ -311,6 +311,7 @@ class InvoiceListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                                    Div(HTML('<a href="#" onclick="submit_csv();">' +
                                             _('Export') + '</a>')),
                                    css_class="form-group"), css_class='form-group col-md-3')
+        form.fields['state'].choices = [('', '---------')] + form.fields['state'].choices
 
         if self.request.user.billing:
             cols_div = Div('cols', css_class='form-group col-md-3')
