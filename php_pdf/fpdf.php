@@ -598,7 +598,8 @@ function AcceptPageBreak()
 
 function convert_txt($txt)
 {
-        $chars = array("é", "ç", "à", "è", "ê", "ô", "â", "ù", "û", "ï", "ä", "ë", "ö", "ü", "É", "È", "Ç", "Ô", "Ê", "Â", "Ù", "Û", "Ï", "Ä", "Ë", "Ö", "Ü", "°");
+        // the first character in the array below is not a space but the euro sign
+        $chars = array("€", "é", "ç", "à", "è", "ê", "ô", "â", "ù", "û", "ï", "ä", "ë", "ö", "ü", "É", "È", "Ç", "Ô", "Ê", "Â", "Ù", "Û", "Ï", "Ä", "Ë", "Ö", "Ü", "°");
         foreach ($chars as $c) {
                 if (strstr($txt, $c)) {
                         $txt = iconv('utf-8', 'cp1252', $txt);
