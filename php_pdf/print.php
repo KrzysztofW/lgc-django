@@ -15,7 +15,6 @@ require('config.php');
 require("print_msg.php");
 include "facture_functions.php";
 
-
 $pdflog_file = "/tmp/pdf.log";
 $fh = fopen($pdflog_file, 'w') or die("can't open file");
 //foreach($_POST as $val => $key)  fwrite($fh, "$val => $key\n");
@@ -274,18 +273,6 @@ else
 $id_facture = $row['number'];
 $file_id = $row['person_id'];
 
-$sql = "select * from lgc_person where id=$file_id;";
-$res_person = mysqli_query($c, $sql);
-
-if (! $res_person) {
-	fwrite($fh, "impossible de s&eacute;lectionner fiche: ligne=".__LINE__."\n");
-	fwrite($fh, "$sql\n");
-	exit;
-}
-$row_person = mysqli_fetch_assoc($res_person);
-$with_regard_to_last_name = $row_person['last_name'];
-$with_regard_to_first_name = $row_person['first_name'];
-
 $pdf = new PDF();
 $pdf->set_date($row['invoice_date']);
 $pdf->SetMargins(20, 10, 20);
@@ -403,9 +390,9 @@ if (! empty($row['po'])) {
 	$pdf->Cell(0, 10, 'PO : ' . $row['po'], 0, 0, 'L');
 	$pdf->SetFont('Times','', 11);
 }
-if (! empty($with_regard_to_last_name)) {
+if (! empty($row['with_regard_to'])) {
 	$pdf->Ln(5);
-	$pdf->Cell(0, 10, $concernant_msg[$lang] . $with_regard_to_last_name . " ". $with_regard_to_first_name, 0, 0, 'L');
+	$pdf->Cell(0, 10, $concernant_msg[$lang] . $row['with_regard_to'], 0, 0, 'L');
 }
 
 if (! empty($file_id)) {
