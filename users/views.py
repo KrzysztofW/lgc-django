@@ -17,6 +17,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from . import forms as user_forms
 from lgc import models as lgc_models
+from employee import models as employee_models
 from lgc import views as lgc_views
 from django.views.generic import (ListView, DetailView, CreateView,
                                   UpdateView, DeleteView)
@@ -453,6 +454,15 @@ def handle_auth_token(request):
             p.user = form.instance
             p.save()
             p.responsible.set(form.instance.responsible.all())
+
+            e = employee_models.Employee()
+            e.first_name = form.instance.first_name
+            e.last_name = form.instance.last_name
+            e.email = form.instance.email
+            e.user = form.instance
+            e.modified_by = form.instance
+            e.save()
+
         messages.success(request,
                          _('The password for %(firstname)s %(lastname)s has been successfully set')%{
                              'firstname':user.first_name, 'lastname':user.last_name})
