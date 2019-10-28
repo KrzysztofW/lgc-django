@@ -162,12 +162,15 @@ class UpdateAccountForm(forms.ModelForm):
 class CreateAccountForm(UpdateAccountForm):
     home_entity = forms.CharField(required=False, label=_('Home Entity'))
     host_entity = forms.CharField(required=False, label=_('Host Entity'))
+    disabled = forms.BooleanField(required=False, initial=False,
+                                   label=_('Disabled account'),
+                                   help_text=_('If checked, the user will just have to accept the terms and conditions but their account will be disabled.'))
 
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'language',
                   'responsible', 'new_token', 'is_active', 'status',
-                  'home_entity', 'host_entity']
+                  'home_entity', 'host_entity', 'disabled']
 
 class CreateHRForm(CreateAccountForm):
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())

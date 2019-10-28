@@ -27,5 +27,6 @@ urlpatterns = [
     path('delete-profile/', views.profile_delete, name='user-profile-delete'),
 
     path('auth/', views.handle_auth_token, name='user-token'),
+
     path('debug-login/', views.debug_login, name='user-debug-login'),
 ]

@@ -286,6 +286,9 @@ Best Regards.
     if action == lgc_types.MsgType.NEW_EM:
         subject = _('Creation of your LGC account')
         tpl = 'message_employee'
+    elif action == lgc_types.MsgType.NEW_EM_DISABLED:
+        subject = _('Please accept the terms and conditions')
+        tpl = 'message_employee'
     elif action == lgc_types.MsgType.NEW_HR:
         subject = _('Creation of your LGC account')
         tpl = 'message_hr'
@@ -316,7 +319,7 @@ Best Regards.
         return
     else:
         translation.activate(prev_lang)
-        return
+        raise RuntimeError('Invalid action')
 
     email_hostname = obj.email.split("@", 1)[1]
     email_hostname = email_hostname.split(".", 1)[0]

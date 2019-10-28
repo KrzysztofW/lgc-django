@@ -2139,6 +2139,9 @@ def get_account_layout(layout, new_token, is_hr=False, is_active=False,
             row_div.append(Div('new_token', css_class='form-group col-md-3'))
         if is_hr:
             row_div.append(Div('is_admin', css_class='form-group col-md-3'))
+        elif initial:
+            row_div.append(Div('disabled', css_class='form-group col-md-3'))
+
     if is_active:
         row_div.append(Div('is_active', css_class='form-group col-md-3'))
 
@@ -2323,8 +2326,13 @@ class CreateAccount(AccountView, SuccessMessageMixin, CreateView):
             if self.is_hr:
                 type = lgc_types.MsgType.NEW_HR
             else:
-                type = lgc_types.MsgType.NEW_EM
+                if form.cleaned_data['disabled']:
+                    type = lgc_types.MsgType.NEW_EM_DISABLED
+                    form.instance.is_active = False
+                else:
+                    type = lgc_types.MsgType.NEW_EM
             try:
+                # add extra url parameters such as home|host entities
                 lgc_send_email(self.object, type, self.request.user)
             except Exception as e:
                 messages.error(self.request, _('Cannot send email to `%(email)s` (%(err)s)')%{
@@ -2462,6 +2470,7 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             form.instance.token = token_generator()
             form.instance.token_date = timezone.now()
             form.instance.password = ''
+
             if self.is_hr:
                 type = lgc_types.MsgType.NEW_HR
             else:

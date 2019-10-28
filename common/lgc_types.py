@@ -34,3 +34,4 @@ class MsgType(Enum):
     HR_INIT_ACCOUNT = 7,
     PROC_ALERT = 8,
     INVOICE_ALERT = 9,
+    NEW_EM_DISABLED = 10,

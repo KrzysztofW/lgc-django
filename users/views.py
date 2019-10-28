@@ -402,6 +402,55 @@ def reset_password(request):
 
     return redirect('user-login')
 
+def token_set_account(user, form=None):
+    user.token = ''
+    user.token_date = None
+    user.status = user_models.USER_STATUS_ACTIVE
+    user.password_last_update = timezone.now().date()
+
+    """This saves the user's password in form.cleaned_data['password1']"""
+    if form:
+        form.save()
+    else:
+        user.save()
+    if (user.role != user_models.ROLE_EMPLOYEE or
+        hasattr(user, 'person_user_set')):
+        return
+    p = lgc_models.Person()
+    p.first_name = user.first_name
+    p.last_name = user.last_name
+    p.email = user.email
+    p.modified_by = user
+    p.user = user
+    p.save()
+    p.responsible.set(user.responsible.all())
+
+    e = employee_models.Employee()
+    e.first_name = user.first_name
+    e.last_name = user.last_name
+    e.email = user.email
+    e.user = user
+    e.modified_by = user
+    e.save()
+
+def handle_auth_token_disabled_account(request, user):
+    title = _("Welcome to LGC")
+    tpl = 'users/token_disabled_account.html'
+    context = {
+        'title': title,
+        'user': user,
+    }
+
+    if request.method == 'POST':
+        if request.POST.get('terms') != '1':
+            messages.error(request,
+                           _('You must accept the terms and conditions.'))
+            return render(request, tpl, context)
+
+        token_set_account(user)
+        return render(request, 'users/token_disabled_account_success.html', context)
+    return render(request, tpl, context)
+
 def handle_auth_token(request):
     title = _("Welcome to LGC")
     token = request.GET.get('token', '')
@@ -419,6 +468,10 @@ def handle_auth_token(request):
 
     if user.token_date + timedelta(hours=settings.AUTH_TOKEN_EXPIRY) < timezone.now():
         return render(request, 'users/token_bad.html', context)
+
+    """Check if the account is really active"""
+    if not user.is_active:
+        return handle_auth_token_disabled_account(request, user)
 
     context['user'] = user
     if request.method == 'POST':
@@ -440,30 +493,8 @@ def handle_auth_token(request):
                 messages.error(request,
                                _('The new password and the old one must be different.'))
                 return render(request, 'users/token.html', context)
-        form.instance.token = ''
-        form.instance.token_date = None
-        form.instance.status = user_models.USER_STATUS_ACTIVE
-        form.instance.password_last_update = timezone.now().date()
-        form.save()
-        if (form.instance.role == user_models.ROLE_EMPLOYEE and
-            not hasattr(form.instance, 'person_user_set')):
-            p = lgc_models.Person()
-            p.first_name = form.instance.first_name
-            p.last_name = form.instance.last_name
-            p.email = form.instance.email
-            p.modified_by = form.instance
-            p.user = form.instance
-            p.save()
-            p.responsible.set(form.instance.responsible.all())
 
-            e = employee_models.Employee()
-            e.first_name = form.instance.first_name
-            e.last_name = form.instance.last_name
-            e.email = form.instance.email
-            e.user = form.instance
-            e.modified_by = form.instance
-            e.save()
-
+        token_set_account(form.instance, form)
         messages.success(request,
                          _('The password for %(firstname)s %(lastname)s has been successfully set')%{
                              'firstname':user.first_name, 'lastname':user.last_name})
