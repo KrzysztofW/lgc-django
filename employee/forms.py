@@ -6,9 +6,9 @@ from lgc import models as lgc_models
 from . import models as employee_models
 
 class EmployeeUpdateForm(forms.ModelForm):
-    first_name = forms.CharField(required=False, label=_('First Name'),
+    first_name = forms.CharField(label=_('First Name'),
                                  help_text=_('As per passport'))
-    last_name = forms.CharField(required=False, label=_('Last Name'),
+    last_name = forms.CharField(label=_('Last Name'),
                                  help_text=_('As per passport'))
 
     active_tab = forms.CharField(required=True, widget=forms.HiddenInput())

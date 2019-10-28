@@ -181,10 +181,10 @@ class CreateHRForm(CreateAccountForm):
                   'is_active', 'status']
 
 class HREmployeeForm(forms.Form):
-    id = forms.CharField(required=True, widget=forms.HiddenInput())
-    first_name = forms.CharField(required=True, widget=forms.HiddenInput())
-    last_name = forms.CharField(required=True, widget=forms.HiddenInput())
-    email = forms.EmailField(required=True, widget=forms.HiddenInput())
+    id = forms.CharField(widget=forms.HiddenInput())
+    first_name = forms.CharField(widget=forms.HiddenInput())
+    last_name = forms.CharField(widget=forms.HiddenInput())
+    email = forms.EmailField(required=False, widget=forms.HiddenInput())
 
 class ProcessForm(forms.Form):
     name = forms.ModelChoiceField(queryset=lgc_models.PersonProcess.objects.all())
