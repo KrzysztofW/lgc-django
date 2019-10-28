@@ -15,15 +15,6 @@ User = get_user_model()
 
 empty_select = (('', '----'),)
 
-class HRCreateEmployeeAccountForm(lgc_forms.CreateAccountForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['responsible'].required = False
-
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'language']
-
 class EmployeeSearchForm(forms.Form):
     home_entity = forms.CharField(required=False, label=_('Home Entity'))
     host_entity = forms.CharField(required=False, label=_('Host Entity'))

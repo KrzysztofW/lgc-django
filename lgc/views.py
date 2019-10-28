@@ -561,24 +561,6 @@ def get_person_form_layout(request, form, action, obj,
         return employee_user_get_person_form_layout(request, form, action, obj)
     return None
 
-def hr_add_employee(form_data, user_object):
-    if user_object == None:
-        return
-
-    user_object.hr_employees.clear()
-
-    if 'HR' not in form_data:
-        return
-    for i in form_data['HR']:
-        h = user_models.get_hr_user_queryset().filter(id=i.id)
-        if not h:
-            return
-        h = h.get()
-        if not h:
-            return
-        h.hr_employees.add(user_object.id)
-        h.save()
-
 class TemplateTimelineStages():
     is_done = False
     name = ''
