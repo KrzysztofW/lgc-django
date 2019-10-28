@@ -41,4 +41,3 @@ class UserForcePasswordUpdateForm(UserPasswordUpdateForm):
     class Meta:
         model = User
         fields = ['current_password', 'password1', 'password2']
-

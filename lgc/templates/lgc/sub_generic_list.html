@@ -3,9 +3,11 @@
 {% load crispy_forms_tags %}
 
 {% block search_bar %}
+{% if page_obj.paginator.num_pages > 1 %}
 <div class="col-sm-6">
   {% include "common/pagination_header.html" %}
 </div>
+{% endif %}
 {% endblock %}
 
 {% block body %}

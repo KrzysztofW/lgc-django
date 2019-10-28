@@ -151,7 +151,7 @@ class UpdateAccountForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['first_name'].required = True
         self.fields['last_name'].required = True
-        if self.fields.get('status', ''):
+        if self.fields.get('status') != None:
             self.fields['status'].required = False
 
     class Meta:

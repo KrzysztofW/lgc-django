@@ -104,7 +104,7 @@ function addEmployee() {
 	    {% for f in form.hidden_fields %}
 	    {% if form.hidden_fields.0.value %}
 	    <td>
-	      {{ f.value }}
+	      {% if f.value != None %}{{ f.value }}{% endif %}
 	      {% if f.errors %}
 	      <span class="invalid-feedback" style="display:inline;">
 		<strong>{{ f.errors.0 }}</strong>

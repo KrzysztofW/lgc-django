@@ -34,7 +34,7 @@
   </thead>
   <tbody>
     {% for obj in object_list %}
-    <tr data-href={% if obj.employee_user_set %}{% url 'hr-employee-file' obj.employee_user_set.id %}{% endif %}
+    <tr data-href="{% if obj.employee_user_set %}{% url 'hr-employee-file' obj.employee_user_set.id %}{% endif %}"
 	{% if obj.status == 'P' %}
 	class="clickable-row table-warning"
 	{% elif obj.status == 'A' %}
