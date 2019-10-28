@@ -317,12 +317,13 @@ class LoginView(authLoginView):
 
     def form_invalid(self, form):
         email = form.cleaned_data.get('username')
+        user = None
 
         if email:
             try:
                 user = User.objects.get(email=email)
             except:
-                user = None
+                pass
 
         if user:
             translation.activate(user.language)
