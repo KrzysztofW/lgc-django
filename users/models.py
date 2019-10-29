@@ -132,6 +132,7 @@ class User(AbstractUser):
     password_last_update = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=2, choices=USER_STATUS_CHOICES,
                               default=USER_STATUS_PENDING)
+    terms_opts = models.CharField(max_length=200, default="", blank=True)
     responsible = models.ManyToManyField("self", blank=True)
     hr_employees = models.ManyToManyField("self", blank=True)
     language = models.CharField(_('Language'), max_length=2, choices=LANGUAGE_CHOICES,

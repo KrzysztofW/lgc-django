@@ -30,8 +30,7 @@ from django.contrib.auth.signals import (user_logged_in, user_logged_out,
                                          user_login_failed)
 from django.dispatch import receiver
 from . import models as user_models
-import os
-import logging
+import os, logging, json
 
 log = logging.getLogger('user')
 User = get_user_model()
@@ -402,11 +401,16 @@ def reset_password(request):
 
     return redirect('user-login')
 
-def token_set_account(user, form=None):
+def token_set_account(request, user, form=None):
     user.token = ''
     user.token_date = None
     user.status = user_models.USER_STATUS_ACTIVE
     user.password_last_update = timezone.now().date()
+    user.terms_opts = json.dumps({
+        'date':str(timezone.now().strftime("%Y-%m-%d %H:%M:%S")),
+        'ip':request.META.get('REMOTE_ADDR'),
+        'agent':request.headers['User-Agent']
+    })
 
     """This saves the user's password in form.cleaned_data['password1']"""
     if form:
@@ -447,7 +451,7 @@ def handle_auth_token_disabled_account(request, user):
                            _('You must accept the terms and conditions.'))
             return render(request, tpl, context)
 
-        token_set_account(user)
+        token_set_account(request, user)
         return render(request, 'users/token_disabled_account_success.html', context)
     return render(request, tpl, context)
 
@@ -494,7 +498,7 @@ def handle_auth_token(request):
                                _('The new password and the old one must be different.'))
                 return render(request, 'users/token.html', context)
 
-        token_set_account(form.instance, form)
+        token_set_account(request, form.instance, form)
         messages.success(request,
                          _('The password for %(firstname)s %(lastname)s has been successfully set')%{
                              'firstname':user.first_name, 'lastname':user.last_name})
