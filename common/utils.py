@@ -287,8 +287,8 @@ Best Regards.
         subject = _('Creation of your LGC account')
         tpl = 'message_employee'
     elif action == lgc_types.MsgType.NEW_EM_DISABLED:
-        subject = _('Please accept the terms and conditions')
-        tpl = 'message_employee'
+        subject = _('The protection of personal data - LGC platform')
+        tpl = 'message_inactive_employee'
     elif action == lgc_types.MsgType.NEW_HR:
         subject = _('Creation of your LGC account')
         tpl = 'message_hr'

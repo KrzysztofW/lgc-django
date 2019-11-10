@@ -2474,7 +2474,11 @@ class UpdateAccount(AccountView, SuccessMessageMixin, UpdateView):
             if self.is_hr:
                 type = lgc_types.MsgType.NEW_HR
             else:
-                type = lgc_types.MsgType.NEW_EM
+                if not form.cleaned_data['is_active']:
+                    type = lgc_types.MsgType.NEW_EM_DISABLED
+                    form.instance.is_active = False
+                else:
+                    type = lgc_types.MsgType.NEW_EM
             try:
                 lgc_send_email(self.object, type, self.request.user)
             except Exception as e:

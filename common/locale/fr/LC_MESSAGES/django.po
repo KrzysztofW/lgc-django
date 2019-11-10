@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-18 15:27+0200\n"
+"POT-Creation-Date: 2019-10-30 13:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,6 +21,8 @@ msgstr ""
 #: templates/common/message_employee.html:25
 #: templates/common/message_employee.txt:1 templates/common/message_hr.html:25
 #: templates/common/message_hr.txt:1
+#: templates/common/message_inactive_employee.html:25
+#: templates/common/message_inactive_employee.txt:1
 #: templates/common/message_user_deletion.html:23
 #: templates/common/message_user_deletion.txt:1
 #, python-brace-format
@@ -245,9 +247,10 @@ msgstr ""
 #: templates/common/message_employee.html:133
 #: templates/common/message_employee.txt:75 templates/common/message_hr.html:88
 #: templates/common/message_hr.txt:44
+#: templates/common/message_inactive_employee.html:53
 msgid ""
-"In case of any difficulties with the activation your account, kindly contact "
-"the following address:"
+"In case of any difficulties with the activation of your account, kindly "
+"contact the following address:"
 msgstr ""
 "En cas de problème lié à l’activation de votre compte, merci debien vouloir "
 "contacter l’adresse suivante :"
@@ -619,6 +622,89 @@ msgstr ""
 "et de la finalité du traitement de vos données personnelles.\n"
 "\n"
 
+#: templates/common/message_inactive_employee.html:26
+#, python-brace-format
+msgid ""
+"\n"
+"Our law firm has been appointed to assist you with your immigration "
+"formalities in France.<br><br>\n"
+"We will be dealing with your personal data on a secured platform.<br><br>\n"
+"Our firm pays special attention to the processing of your personal data."
+"<br><br>\n"
+"Within the framework of our assistance, you will be invited to give your "
+"consent for the collect and use of your personal data.<br>\n"
+"You will clearly be informed of which personal data will be collected and "
+"for which finality.<br>\n"
+"To consent to the collect of your personal data, kindly follow <a href="
+"\"${TOKEN_URL}\">this link</a> to visit the page.<br><br>\n"
+"On this page, you will find the information concerning the personal data "
+"which will be collected and which will be the aim of their use.<br><br>\n"
+"\n"
+"Thank you.\n"
+"    <br><br>\n"
+"\n"
+"    "
+msgstr ""
+"\n"
+"Notre Cabinet est mandaté afin de vous assister dans vos formalités "
+"d'immigration en France.<br><br>\n"
+"Nous serons amenés à traiter vos données personnelles sur une plate-forme "
+"sécurisée.<br><br>\n"
+"Notre Cabinet porte une attention particulière au respect du traitement de "
+"vos données personnelles.<br><br>\n"
+"Dans le cadre de notre assistance, vous êtes amené à consentir à la collecte "
+"de certaines de vos données personnelles.<br><br>\n"
+"Vous serez clairement informé des données personnelles qui seront "
+"collectées, et de la finalité du traitement de vos données personnelles."
+"<br>\n"
+"\n"
+"Pour consentir au recueil de vos données personnelles, merci de bien vouloir "
+"suivre <a href=\"${TOKEN_URL}\">ce lien</a>.<br>\n"
+"Sur cette page, vous trouverez les informations concernant vos données "
+"personnelles qui seront collectées ainsi que leur utilisation.<br><br>\n"
+"\n"
+"Merci.\n"
+"    <br><br>\n"
+"\n"
+"    "
+
+#: templates/common/message_inactive_employee.txt:3
+#, python-brace-format
+msgid ""
+"\n"
+"Our law firm has been appointed to assist you with your immigration "
+"formalities in France.\n"
+"We will be dealing with your personal data on a secured platform.\n"
+"Our firm pays special attention to the processing of your personal data.\n"
+"Within the framework of our assistance, you will be invited to give your "
+"consent for the collect and use of your personal data.\n"
+"You will clearly be informed of which personal data will be collected and "
+"for which finality.\n"
+"To consent to the collect of your personal data, kindly follow on this link "
+"to visit the page: ${TOKEN_URL}.\n"
+"On this page, you will find the information concerning the personal data "
+"which will be collected and which will be the aim of their use.\n"
+"\n"
+"Thank you.\n"
+msgstr ""
+"\n"
+"Notre Cabinet est mandaté afin de vous assister dans vos formalités "
+"d'immigration en France.\n"
+"Nous serons amenés à traiter vos données personnelles sur une plate-forme "
+"sécurisée.\n"
+"Notre Cabinet porte une attention particulière au respect du traitement de "
+"vos données personnelles.\n"
+"Dans le cadre de notre assistance, vous êtes amené à consentir à la collecte "
+"de certaines de vos données personnelles.\n"
+"Vous serez clairement informé des données personnelles qui seront "
+"collectées, et de la finalité du traitement de vos données personnelles.\n"
+"Pour consentir au recueil de vos données personnelles, merci de bien vouloir "
+"suivre ce lien : ${TOKEN_URL}.\n"
+"Sur cette page, vous trouverez les informations concernant vos données "
+"personnelles qui seront collectées ainsi que leur utilisation.\n"
+"\n"
+"Merci.\n"
+
 #: templates/common/message_user_deletion.html:28
 msgid ""
 "\n"
@@ -876,20 +962,24 @@ msgstr ""
 "\n"
 "Cordialement.\n"
 
-#: utils.py:287 utils.py:290
+#: utils.py:287 utils.py:293
 msgid "Creation of your LGC account"
 msgstr "Création de votre compte LGC"
 
-#: utils.py:293
+#: utils.py:290
+msgid "The protection of personal data - LGC platform"
+msgstr "Protection de vos données personnelles - plateforme LGC"
+
+#: utils.py:296
 msgid "Confirmation - your LGC account has been deleted"
 msgstr "Confirmation de la suppression de compte LGC"
 
-#: utils.py:296
+#: utils.py:299
 msgid "Confirm it's you to access your LGC account"
 msgstr ""
 "Veuillez confirmer votre identité pour pouvoir accéder à votre compte LGC"
 
-#: utils.py:297
+#: utils.py:300
 #, python-format
 msgid ""
 "\n"

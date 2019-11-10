@@ -41,4 +41,4 @@ Office
 Tel : +00 (0) 1 23 34 45 56
 www.example.com
 
-{% trans 'In case of any difficulties with the activation your account, kindly contact the following address:' %} office@example.com
+{% trans 'In case of any difficulties with the activation of your account, kindly contact the following address:' %} office@example.com
